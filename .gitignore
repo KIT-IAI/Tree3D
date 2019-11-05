@@ -1,0 +1,5 @@
+#ignore python compiled files
+src/__pycache__/
+
+#ignord pycharm ide config files
+.idea/
