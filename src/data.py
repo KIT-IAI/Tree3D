@@ -32,7 +32,7 @@ class Database:
         self.__DbFolderPath = path
 
     # method to create database table from csv file
-    def import_csv_file(self, filepath="ArbokatBaumdaten_test.csv", sep=";"):
+    def import_csv_file(self, filepath, sep=";"):
         with open(filepath, newline='', encoding='utf-8-sig') as csvfile:
             filereader = csv.reader(csvfile, delimiter=sep)
             for idx, row in enumerate(filereader):
