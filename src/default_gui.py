@@ -50,6 +50,7 @@ class MainWindow ( wx.Frame ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.Bind( wx.EVT_CLOSE, self.OnClose )
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
 	
@@ -58,6 +59,9 @@ class MainWindow ( wx.Frame ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def OnClose( self, event ):
+		event.Skip()
+	
 	def on_menu_open( self, event ):
 		event.Skip()
 	
