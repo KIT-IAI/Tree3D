@@ -35,7 +35,7 @@ class Database:
             for idx, row in enumerate(filereader):
                 if idx == 0:
                     TableHeaders = row
-                    for idx, col in enumerate(TableHeaders):
+                    for col in TableHeaders:
                         self.__lTableHeaders.append([col, "TEXT", True])
                     self.create_db_table()
                 else:
@@ -43,10 +43,10 @@ class Database:
 
     def create_db_table(self):
         for idx, col in enumerate(self.__lTableHeaders):
-            if idx==0:
-                self.__DbCursor.execute("CREATE TABLE %s(%s %s);" %(self.__DbTreeTableName, col[0], col[1]))
+            if idx == 0:
+                self.__DbCursor.execute("CREATE TABLE %s(%s %s);" % (self.__DbTreeTableName, col[0], col[1]))
             else:
-                self.__DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" %(self.__DbTreeTableName, "'"+col[0]+"'", col[1]))
+                self.__DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self.__DbTreeTableName, "'"+col[0]+"'", col[1]))
 
     # closes database connection
     def close_db_connection(self):
