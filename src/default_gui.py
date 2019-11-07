@@ -84,7 +84,7 @@ class data_panel ( wx.Panel ):
 		self.grid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		# Grid
-		self.grid.CreateGrid( 10, 7 )
+		self.grid.CreateGrid( 0, 0 )
 		self.grid.EnableEditing( False )
 		self.grid.EnableGridLines( True )
 		self.grid.EnableDragGridSize( False )

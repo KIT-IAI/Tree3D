@@ -66,7 +66,7 @@ class Database:
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
     def get_column_number(self):
-        return len(self.__lTableColmnNames)+1
+        return len(self.__lTableColmnNames)
 
     # Prepares Databse for new file to be opened and imported:
     # Drops table and resets list with table column names
