@@ -6,3 +6,4 @@ src/__pycache__/
 
 #ignore file with test data
 src/ArbokatBaumdaten_test.csv
+src/ArbokaBaumdaten_komplett.csv
