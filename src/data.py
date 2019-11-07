@@ -65,8 +65,17 @@ class Database:
         statement = statement[:-2] + ");"
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
+    # returns the number of table columns
     def get_column_number(self):
         return len(self.__lTableColmnNames)
+
+    # returns the names of all table columns
+    def get_column_names(self):
+        list = []
+        for row in self.__lTableColmnNames:
+            if row[2] == True:
+                list.append(row[0][1:-1])
+        return list
 
     # Prepares Databse for new file to be opened and imported:
     # Drops table and resets list with table column names
@@ -102,7 +111,6 @@ class Database:
     def get_number_of_tablerecords(self):
         self.__DbCursor.execute("SELECT count(*) FROM %s" % self.__DbTreeTableName)
         res = self.__DbCursor.fetchall()
-        print(res)
 
 
 if __name__ == "__main__":

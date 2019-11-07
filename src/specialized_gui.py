@@ -28,13 +28,6 @@ class MainTableFrame(default_gui.MainWindow):
         #self.table_view_panel.grid.ForceRefresh()
         self.table_view_panel.grid.Show(False)
 
-    def showTable(self):
-        col_number = self.db.get_column_number()
-        self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
-        self.table_view_panel.grid.ForceRefresh()
-        self.table_view_panel.grid.Show(True)
-        self.table_view_panel.Layout()
-
     # method to be called when close buttn (x) is pushed
     def OnClose(self, event):
         dialog = wx.MessageDialog(self, message="Are you sure you would like to close ArbokaTransformer?",
@@ -64,6 +57,15 @@ class MainTableFrame(default_gui.MainWindow):
             self.db.import_csv_file(filepath=pathname)
         self.showTable()
 
+    def showTable(self):
+        col_number = self.db.get_column_number()
+        self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
+        for idx, colname in enumerate(self.db.get_column_names()):
+            self.table_view_panel.grid.SetColLabelValue(idx, colname)
+        #self.table_view_panel.grid.ForceRefresh()
+        self.table_view_panel.grid.AutoSizeColumns(setAsMin=True)
+        self.table_view_panel.grid.Show(True)
+        self.table_view_panel.Layout()
 
 # create wxPython App
 class MyApp(wx.App):
