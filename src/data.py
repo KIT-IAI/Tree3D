@@ -10,6 +10,7 @@ class Database:
         self.create_default_database_path()
         self.__DbFilePath = self.__DbFolderPath + '\\ArbokaTransformerDB.db'  # Path to database file
 
+        self.delete_db_file()
         if not os.path.exists(self.__DbFolderPath):
             os.makedirs(self.__DbFolderPath)
 
@@ -29,24 +30,35 @@ class Database:
         path = path + '\\ArbokaTransformer'
         self.__DbFolderPath = path
 
+    # method to create database table from csv file
     def import_csv_file(self, filepath="ArbokatBaumdaten_test.csv", sep=";"):
         with open(filepath, newline='', encoding='utf-8-sig') as csvfile:
             filereader = csv.reader(csvfile, delimiter=sep)
             for idx, row in enumerate(filereader):
                 if idx == 0:
-                    TableHeaders = row
-                    for col in TableHeaders:
-                        self.__lTableHeaders.append([col, "TEXT", True])
+                    tableheaders = row
+                    for col in tableheaders:
+                        self.__lTableHeaders.append(["'%s'" % col, "TEXT", True])
                     self.create_db_table()
                 else:
-                    pass
+                    self.populate_db_table(row)
+        self.__DbConnection.commit()
 
+    # creates the database table to store the csv in
     def create_db_table(self):
         for idx, col in enumerate(self.__lTableHeaders):
             if idx == 0:
                 self.__DbCursor.execute("CREATE TABLE %s(%s %s);" % (self.__DbTreeTableName, col[0], col[1]))
             else:
-                self.__DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self.__DbTreeTableName, "'"+col[0]+"'", col[1]))
+                self.__DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self.__DbTreeTableName, col[0], col[1]))
+
+    # populates database table with values from csv file
+    def populate_db_table(self, row):
+        statement = 'INSERT INTO %s VALUES ('
+        for val in row:
+            statement += "?, "
+        statement = statement[:-2] + ");"
+        self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
     # closes database connection
     def close_db_connection(self):
@@ -62,7 +74,7 @@ class Database:
         if os.path.exists(self.__DbFilePath):
             os.remove(self.__DbFilePath)
 
-    def delete_database(self):
+    def delete_db(self):
         self.delete_db_file()
         self.delete_db_folder()
 
@@ -71,4 +83,4 @@ if __name__ == "__main__":
     db = Database()
     db.import_csv_file()
     db.close_db_connection()
-    db.delete_database()
+    #db.delete_db()
