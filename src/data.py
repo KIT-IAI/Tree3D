@@ -65,6 +65,9 @@ class Database:
         statement = statement[:-2] + ");"
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
+    def get_column_number(self):
+        return len(self.__lTableColmnNames)+1
+
     # Prepares Databse for new file to be opened and imported:
     # Drops table and resets list with table column names
     def reset_database_table(self):
@@ -90,15 +93,21 @@ class Database:
     def delete_db_file(self):
         if os.path.exists(self.__DbFilePath):
             os.remove(self.__DbFilePath)
-            print("Datei gelöscht")
 
     # Deletes created database file and folder
     def delete_db(self):
         self.delete_db_file()
         self.delete_db_folder()
 
+    def get_number_of_tablerecords(self):
+        self.__DbCursor.execute("SELECT count(*) FROM %s" % self.__DbTreeTableName)
+        res = self.__DbCursor.fetchall()
+        print(res)
+
 
 if __name__ == "__main__":
     db = Database()
     db.import_csv_file(filepath="ArbokatBaumdaten_test.csv")
+    db.get_number_of_tablerecords()
     db.close_db_connection()
+    db.delete_db()

@@ -2,6 +2,8 @@
 
 # import wxPython classes
 import wx
+import wx.aui
+import wx.lib.agw.aui as aui
 
 # import project classes
 import default_gui
@@ -13,8 +15,25 @@ class MainTableFrame(default_gui.MainWindow):
     def __init__(self, parent):
         default_gui.MainWindow.__init__(self, parent)
 
+        # create aui manager
+        self.aui_manager = aui.AuiManager(self, wx.aui.AUI_MGR_DEFAULT)
+
         # initialize database
         self.db = data.Database()
+
+        # Adding table view panel to Main Window
+        self.table_view_panel = default_gui.data_panel(self)
+        self.aui_manager.AddPane(self.table_view_panel, aui.AuiPaneInfo().CenterPane())
+        #self.table_view_panel.grid.SetColLabelValue(3, "hi")
+        #self.table_view_panel.grid.ForceRefresh()
+        self.table_view_panel.grid.Show(False)
+
+    def showTable(self):
+        col_number = self.db.get_column_number()
+        self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
+        self.table_view_panel.grid.ForceRefresh()
+        self.table_view_panel.grid.Show(True)
+        self.table_view_panel.Layout()
 
     # method to be called when close buttn (x) is pushed
     def OnClose(self, event):
@@ -43,6 +62,7 @@ class MainTableFrame(default_gui.MainWindow):
             pathname = fileDialog.GetPath()
             self.db.reset_database_table()
             self.db.import_csv_file(filepath=pathname)
+        self.showTable()
 
 
 # create wxPython App
