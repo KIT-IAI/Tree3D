@@ -5,6 +5,7 @@ import wx
 
 # import project classes
 import default_gui
+import data
 
 
 class MainTableFrame(default_gui.MainWindow):
@@ -14,6 +15,15 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_menu_open(self, event):
         print("selected open")
+        db = data.Database()
+        with wx.FileDialog(self, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            pathname = fileDialog.GetPath()
+            db.import_csv_file(filepath=pathname)
+            print("import completed")
+        db.close_db_connection()
 
 
 # wxPython App erzeugen
