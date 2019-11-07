@@ -45,6 +45,7 @@ class Database:
         self.__DbConnection.commit()
 
     # creates the database table to store the csv in
+    # method may be vulnerable to sql injections
     def create_db_table(self):
         for idx, col in enumerate(self.__lTableHeaders):
             if idx == 0:
