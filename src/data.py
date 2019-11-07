@@ -19,7 +19,7 @@ class Database:
         self.__DbCursor = None
         self.establish_db_connection()
         self.__DbTreeTableName = "trees"
-        self.__lTableHeaders = []
+        self.__lTableColmnNames = []
 
     # Creates Database Path
     def create_default_database_path(self):
@@ -38,18 +38,20 @@ class Database:
             filereader = csv.reader(csvfile, delimiter=sep)
             for idx, row in enumerate(filereader):
                 if idx == 0:
+                    # Extract table column names from first row of csv file, create database table with it
                     tableheaders = row
                     for col in tableheaders:
-                        self.__lTableHeaders.append(["'%s'" % col, "TEXT", True])
+                        self.__lTableColmnNames.append(["'%s'" % col, "TEXT", True])
                     self.create_db_table()
                 else:
+                    # Insert data rows from csv file into database
                     self.populate_db_table(row)
         self.__DbConnection.commit()
 
     # creates the database table to store the csv in
     # method may be vulnerable to sql injections
     def create_db_table(self):
-        for idx, col in enumerate(self.__lTableHeaders):
+        for idx, col in enumerate(self.__lTableColmnNames):
             if idx == 0:
                 self.__DbCursor.execute("CREATE TABLE %s(%s %s);" % (self.__DbTreeTableName, col[0], col[1]))
             else:
@@ -63,12 +65,13 @@ class Database:
         statement = statement[:-2] + ");"
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
-    # restarts Database
+    # Prepares Databse for new file to be opened and imported:
+    # Drops table and resets list with table column names
     def reset_database_table(self):
         self.__DbCursor.execute("DROP TABLE IF EXISTS %s" % self.__DbTreeTableName)
-        self.__lTableHeaders = []
+        self.__lTableColmnNames = []
 
-    # establishes database_connection
+    # establishes database_connection: Creates Database File, Connection and Cursor
     def establish_db_connection(self):
         self.__DbConnection = sqlite3.connect(self.__DbFilePath)
         self.__DbCursor = self.__DbConnection.cursor()
@@ -89,6 +92,7 @@ class Database:
             os.remove(self.__DbFilePath)
             print("Datei gelöscht")
 
+    # Deletes created database file and folder
     def delete_db(self):
         self.delete_db_file()
         self.delete_db_folder()

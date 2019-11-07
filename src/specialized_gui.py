@@ -13,9 +13,10 @@ class MainTableFrame(default_gui.MainWindow):
     def __init__(self, parent):
         default_gui.MainWindow.__init__(self, parent)
 
-        # initialize database:
+        # initialize database
         self.db = data.Database()
 
+    # method to be called when close buttn (x) is pushed
     def OnClose(self, event):
         dialog = wx.MessageDialog(self, message="Are you sure you would like to close ArbokaTransformer?",
                                   caption="Close Application", style=wx.YES_NO | wx.ICON_QUESTION,
@@ -33,6 +34,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.db.delete_db()
         self.Destroy()
 
+    # method to be called when clicking File > Open
     def on_menu_open(self, event):
         with wx.FileDialog(self, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
                            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
