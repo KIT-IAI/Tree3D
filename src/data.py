@@ -10,7 +10,8 @@ class Database:
         self.create_default_database_path()
         self.__DbFilePath = self.__DbFolderPath + '\\ArbokaTransformerDB.db'  # Path to database file
 
-        self.delete_db_file()
+        if os.path.exists(self.__DbFilePath):
+            self.delete_db_file()
         if not os.path.exists(self.__DbFolderPath):
             os.makedirs(self.__DbFolderPath)
 
@@ -56,7 +57,7 @@ class Database:
     # populates database table with values from csv file
     def populate_db_table(self, row):
         statement = 'INSERT INTO %s VALUES ('
-        for val in row:
+        for _ in row:
             statement += "?, "
         statement = statement[:-2] + ");"
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
@@ -84,4 +85,3 @@ if __name__ == "__main__":
     db = Database()
     db.import_csv_file()
     db.close_db_connection()
-    #db.delete_db()
