@@ -4,6 +4,7 @@
 import wx
 import wx.aui
 import wx.lib.agw.aui as aui
+import wx.grid
 
 # import project classes
 import default_gui
@@ -25,6 +26,9 @@ class MainTableFrame(default_gui.MainWindow):
         self.table_view_panel = default_gui.data_panel(self)
         self.aui_manager.AddPane(self.table_view_panel, aui.AuiPaneInfo().CenterPane())
         self.table_view_panel.grid.Show(False)
+
+        # Binding further events
+        self.Bind(wx.grid.EVT_GRID_LABEL_RIGHT_CLICK, self.on_grid_lable_right_click)
 
     # method to be called when close buttn (x) is pushed
     def OnClose(self, event):
@@ -91,6 +95,25 @@ class MainTableFrame(default_gui.MainWindow):
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
+    # method to be called when right clicking a grid lable
+    def on_grid_lable_right_click(self, event):
+        # ignore events by row lables, only consider column lables
+        col_pos = event.GetCol()
+        if col_pos < 0:
+            return
+
+        # create context menu
+        contextmenu = wx.Menu()
+        hide_col = wx.MenuItem(contextmenu, wx.ID_ANY, "Hide Column")
+        contextmenu.Append(hide_col)
+
+        # add event to context menu item "hide column"
+        self.Bind(wx.EVT_MENU, lambda _: self.on_hide_column(col_pos), id=hide_col.GetId())
+        self.PopupMenu(contextmenu)
+        contextmenu.Destroy()
+
+    def on_hide_column(self, col):
+        self.table_view_panel.grid.HideCol(col)
 
 # create wxPython App
 class MyApp(wx.App):
