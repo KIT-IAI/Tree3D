@@ -123,7 +123,7 @@ class Database:
         statement = statement[:-2]
         statement += " FROM %s;" % self.__DbTreeTableName
 
-        #executes statement and fetches data
+        # executes statement and fetches data
         self.__DbCursor.execute(statement)
         result = self.__DbCursor.fetchall()
         return result
