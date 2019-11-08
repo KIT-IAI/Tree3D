@@ -3,7 +3,3 @@ src/__pycache__/
 
 #ignord pycharm ide config files
 .idea/
-
-#ignore file with test data
-src/ArbokatBaumdaten_test.csv
-src/ArbokatBaumdaten_komplett.csv
