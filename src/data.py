@@ -131,7 +131,7 @@ class Database:
 
 if __name__ == "__main__":
     db = Database()
-    db.import_csv_file(filepath="ArbokatBaumdaten_test.csv")
+    db.import_csv_file(filepath=".\..\data\ArbokatBaumdaten_test.csv")
     db.get_data()
     db.close_db_connection()
     db.delete_db()
