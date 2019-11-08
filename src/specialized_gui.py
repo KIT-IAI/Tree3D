@@ -95,7 +95,8 @@ class MainTableFrame(default_gui.MainWindow):
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
-    def on_show_all_columns( self, event ):
+    # method to be called when clicking View > Show all columns: restores visiblity of all columns
+    def on_show_all_columns(self, event):
         for i in range(0, self.db.get_number_of_tablerecords(), 1):
             self.table_view_panel.grid.ShowCol(i)
 
