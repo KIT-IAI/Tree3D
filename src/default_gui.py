@@ -91,7 +91,7 @@ class data_panel ( wx.Panel ):
 		self.grid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.grid.EnableDragColMove( False )
+		self.grid.EnableDragColMove( True )
 		self.grid.EnableDragColSize( True )
 		self.grid.SetColLabelSize( 30 )
 		self.grid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
