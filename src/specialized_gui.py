@@ -52,15 +52,33 @@ class MainTableFrame(default_gui.MainWindow):
             pathname = fileDialog.GetPath()
             self.db.reset_database_table()
             self.db.import_csv_file(filepath=pathname)
-        self.showTable()
+        self.show_data_in_grid()
 
-    def showTable(self):
+    def show_data_in_grid(self):
+        # set number of rows and columns in grid
         col_number = self.db.get_column_number()
+        row_number = self.db.get_number_of_tablerecords()
         self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
+        self.table_view_panel.grid.InsertRows(pos=0, numRows=row_number-1)
+
+        # add column names to grid
         for idx, colname in enumerate(self.db.get_column_names()):
             self.table_view_panel.grid.SetColLabelValue(idx, colname)
+
+        # fill grid with data
+        data_table = self.db.get_data()
+        for RowIdx, row in enumerate(data_table):
+            for ColIdx, val in enumerate(row):
+                self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, val)
+
+        # Layout for the grid
         self.table_view_panel.grid.AutoSizeColumns(setAsMin=True)
+        self.table_view_panel.grid.AutoSizeRows(setAsMin=True)
+
+        # Make grid visible
         self.table_view_panel.grid.Show(True)
+
+        # Update panel layout to fit new grid size
         self.table_view_panel.Layout()
 
 

@@ -71,11 +71,11 @@ class Database:
 
     # returns the names of all table columns
     def get_column_names(self):
-        list = []
+        column_list = []
         for row in self.__lTableColmnNames:
-            if row[2] == True:
-                list.append(row[0][1:-1])
-        return list
+            if row[2]:
+                column_list.append(row[0][1:-1])
+        return column_list
 
     # Prepares Databse for new file to be opened and imported:
     # Drops table and resets list with table column names
@@ -108,14 +108,30 @@ class Database:
         self.delete_db_file()
         self.delete_db_folder()
 
+    # returns the number of rows in database tables
     def get_number_of_tablerecords(self):
         self.__DbCursor.execute("SELECT count(*) FROM %s" % self.__DbTreeTableName)
         res = self.__DbCursor.fetchall()
+        return res[0][0]
+
+    # fetches and returns table data from database
+    def get_data(self):
+        # generates sql statement
+        statement = "SELECT "
+        for colname in self.get_column_names():
+            statement += '"%s", ' % colname
+        statement = statement[:-2]
+        statement += " FROM %s;" % self.__DbTreeTableName
+
+        #executes statement and fetches data
+        self.__DbCursor.execute(statement)
+        result = self.__DbCursor.fetchall()
+        return result
 
 
 if __name__ == "__main__":
     db = Database()
     db.import_csv_file(filepath="ArbokatBaumdaten_test.csv")
-    db.get_number_of_tablerecords()
+    db.get_data()
     db.close_db_connection()
     db.delete_db()
