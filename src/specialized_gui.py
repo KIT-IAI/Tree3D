@@ -24,8 +24,6 @@ class MainTableFrame(default_gui.MainWindow):
         # Adding table view panel to Main Window
         self.table_view_panel = default_gui.data_panel(self)
         self.aui_manager.AddPane(self.table_view_panel, aui.AuiPaneInfo().CenterPane())
-        #self.table_view_panel.grid.SetColLabelValue(3, "hi")
-        #self.table_view_panel.grid.ForceRefresh()
         self.table_view_panel.grid.Show(False)
 
     # method to be called when close buttn (x) is pushed
