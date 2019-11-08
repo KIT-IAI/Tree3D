@@ -81,6 +81,9 @@ class MainTableFrame(default_gui.MainWindow):
         # Update panel layout to fit new grid size
         self.table_view_panel.Layout()
 
+    def on_reset_column_position(self, event):
+        self.table_view_panel.grid.ResetColPos()
+
 
 # create wxPython App
 class MyApp(wx.App):

@@ -39,6 +39,9 @@ class MainWindow ( wx.Frame ):
 		self.col_properties = wx.MenuItem( self.view, wx.ID_ANY, u"Column Properties", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.col_properties )
 		
+		self.reset_col_position = wx.MenuItem( self.view, wx.ID_ANY, u"Reset Column Position", wx.EmptyString, wx.ITEM_NORMAL )
+		self.view.Append( self.reset_col_position )
+		
 		self.stats = wx.MenuItem( self.view, wx.ID_ANY, u"Statistics", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.stats )
 		
@@ -54,6 +57,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_CLOSE, self.OnClose )
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -67,6 +71,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_menu_export_citygml( self, event ):
+		event.Skip()
+	
+	def on_reset_column_position( self, event ):
 		event.Skip()
 	
 
