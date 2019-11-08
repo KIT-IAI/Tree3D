@@ -41,7 +41,6 @@ class MainTableFrame(default_gui.MainWindow):
             dialog.Destroy()
 
     def on_exit_app(self):
-        print("x gedrückt")
         self.db.close_db_connection()
         self.db.delete_db()
         self.Destroy()
@@ -62,10 +61,10 @@ class MainTableFrame(default_gui.MainWindow):
         self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
         for idx, colname in enumerate(self.db.get_column_names()):
             self.table_view_panel.grid.SetColLabelValue(idx, colname)
-        #self.table_view_panel.grid.ForceRefresh()
         self.table_view_panel.grid.AutoSizeColumns(setAsMin=True)
         self.table_view_panel.grid.Show(True)
         self.table_view_panel.Layout()
+
 
 # create wxPython App
 class MyApp(wx.App):
