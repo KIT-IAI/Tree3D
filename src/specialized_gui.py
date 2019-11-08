@@ -38,6 +38,7 @@ class MainTableFrame(default_gui.MainWindow):
             event.StopPropagation()
             dialog.Destroy()
 
+    # defines actions to be taken when exiting the program
     def on_exit_app(self):
         self.db.close_db_connection()
         self.db.delete_db()
@@ -54,6 +55,8 @@ class MainTableFrame(default_gui.MainWindow):
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid()
 
+    # adjusts numbers of rows and columns to match data
+    # populates grid with data afterwards
     def show_data_in_grid(self):
         # set number of rows and columns in grid
         col_number = self.db.get_column_number()
@@ -81,9 +84,10 @@ class MainTableFrame(default_gui.MainWindow):
         # Update panel layout to fit new grid size
         self.table_view_panel.Layout()
 
-        #write number of rows in statusbar
+        # write number of rows in statusbar
         self.m_statusBar3.SetStatusText("%s rows displayed in table" % row_number, 0)
 
+    # method resets order of columns back to default
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
