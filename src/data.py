@@ -8,7 +8,7 @@ class Database:
 
         self.__DbFolderPath = ""  # Path to the folder where the database is stored
         self.create_default_database_path()
-        self.__DbFilePath = self.__DbFolderPath + '\\ArbokaTransformerDB.db'  # Path to database file
+        self.__DbFilePath = self.__DbFolderPath + '\\ArbokaTransformerDB.sqlite'  # Path to database file
 
         if os.path.exists(self.__DbFilePath):
             self.delete_db_file()
