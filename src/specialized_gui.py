@@ -81,6 +81,9 @@ class MainTableFrame(default_gui.MainWindow):
         # Update panel layout to fit new grid size
         self.table_view_panel.Layout()
 
+        #write number of rows in statusbar
+        self.m_statusBar3.SetStatusText("%s rows displayed in table" % row_number, 0)
+
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
