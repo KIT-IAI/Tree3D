@@ -95,6 +95,10 @@ class MainTableFrame(default_gui.MainWindow):
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
+    def on_show_all_columns( self, event ):
+        for i in range(0, self.db.get_number_of_tablerecords(), 1):
+            self.table_view_panel.grid.ShowCol(i)
+
     # method to be called when right clicking a grid lable
     def on_grid_lable_right_click(self, event):
         # ignore events by row lables, only consider column lables

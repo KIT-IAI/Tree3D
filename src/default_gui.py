@@ -42,6 +42,9 @@ class MainWindow ( wx.Frame ):
 		self.reset_col_position = wx.MenuItem( self.view, wx.ID_ANY, u"Reset Column Position", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.reset_col_position )
 		
+		self.reset_col_visiblity = wx.MenuItem( self.view, wx.ID_ANY, u"Show All Columns", wx.EmptyString, wx.ITEM_NORMAL )
+		self.view.Append( self.reset_col_visiblity )
+		
 		self.stats = wx.MenuItem( self.view, wx.ID_ANY, u"Statistics", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.stats )
 		
@@ -58,6 +61,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -74,6 +78,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_reset_column_position( self, event ):
+		event.Skip()
+	
+	def on_show_all_columns( self, event ):
 		event.Skip()
 	
 
