@@ -1,6 +1,7 @@
 import os
 import csv
 import sqlite3
+from ast import literal_eval
 
 
 class Database:
@@ -40,13 +41,57 @@ class Database:
                 if idx == 0:
                     # Extract table column names from first row of csv file, create database table with it
                     tableheaders = row
-                    for col in tableheaders:
-                        self.__lTableColmnNames.append(["'%s'" % col, "TEXT", True])
+                    for idx2, col in enumerate(tableheaders):
+                        coldata = ["'%s'" % col, self.get_csv_datatypes(filereader, csvfile, idx2), True]
+                        self.__lTableColmnNames.append(coldata)
                     self.create_db_table()
                 else:
                     # Insert data rows from csv file into database
                     self.populate_db_table(row)
         self.__DbConnection.commit()
+
+    # method to automatically detect a columns data type.
+    # number of rows to be consider when determining data type can be configured using inspection_limit variable
+    # returns "INTEGER", "REAL" or "TEXT"
+    def get_csv_datatypes(self, filereader, csvfile, col_index):
+        inspection_limit = 50
+        type_list = []
+
+        # make data type prediction for each cell of one column
+        for index2, row in enumerate(filereader):
+
+            # break loop if number of rows is greater than number of rows to be considered
+            if index2 > inspection_limit:
+                break
+
+            # if there is no value for an attribute in a row: ignore this row to prevent false data type predictions
+            if row[col_index] == "":
+                continue
+            try:
+                dat = literal_eval(row[col_index].replace(",", "."))
+                if isinstance(dat, int):
+                    datatype = "INTEGER"
+                elif isinstance(dat, float):
+                    datatype = "REAL"
+                else:
+                    datatype = "TEXT"
+            except:
+                datatype = "TEXT"
+            type_list.append(datatype)
+
+        # reset position of cursor in file to line 1
+        # method: move cursor back to line 0 and go to next lin
+        # seek(1) gives errors with encoding, therefore use this method
+        csvfile.seek(0)
+        csvfile.readline()
+
+        # loop over all cell's data type predictions of one column to make one prediction for column in general
+        for idx in range(0, len(type_list)-1, 1):
+            if type_list[idx] == type_list[idx+1]:
+                continue
+            else:
+                return "TEXT"
+        return type_list[0]
 
     # creates the database table to store the csv in
     # method may be vulnerable to sql injections
@@ -135,6 +180,5 @@ class Database:
 if __name__ == "__main__":
     db = Database()
     db.import_csv_file(filepath=".\..\data\ArbokatBaumdaten_test.csv")
-    db.get_data()
     db.close_db_connection()
     db.delete_db()

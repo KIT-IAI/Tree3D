@@ -72,7 +72,6 @@ class MainTableFrame(default_gui.MainWindow):
 
             # deletes database table (if exists) so new file can be imported
             self.db.reset_database_table()
-            
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid()
 
@@ -93,7 +92,7 @@ class MainTableFrame(default_gui.MainWindow):
         data_table = self.db.get_data()
         for RowIdx, row in enumerate(data_table):
             for ColIdx, val in enumerate(row):
-                self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, val)
+                self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, str(val))
 
         # Layout for the grid
         self.table_view_panel.grid.AutoSizeColumns(setAsMin=True)
