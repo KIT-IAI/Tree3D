@@ -56,6 +56,9 @@ class MainTableFrame(default_gui.MainWindow):
                 return
             pathname = fileDialog.GetPath()
 
+            # Disable Grid visibility
+            self.table_view_panel.grid.Show(False)
+
             # Deletes all columns and rows of grid, so a new file can be displayed properly
             # rows and columns can only be deleted if their number is null (on program start)
             try:
