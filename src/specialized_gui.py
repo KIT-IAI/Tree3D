@@ -30,7 +30,7 @@ class MainTableFrame(default_gui.MainWindow):
         # Binding further events
         self.Bind(wx.grid.EVT_GRID_LABEL_RIGHT_CLICK, self.on_grid_lable_right_click)
 
-    # method to be called when close buttn (x) is pushed
+    # method to be called when close button (x) is pushed
     def OnClose(self, event):
         dialog = wx.MessageDialog(self, message="Are you sure you would like to close ArbokaTransformer?",
                                   caption="Close Application", style=wx.YES_NO | wx.ICON_QUESTION,
@@ -95,14 +95,14 @@ class MainTableFrame(default_gui.MainWindow):
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
-    # method to be called when clicking View > Show all columns: restores visiblity of all columns
+    # method to be called when clicking View > Show all columns: restores visibility of all columns
     def on_show_all_columns(self, event):
         for i in range(0, self.db.get_number_of_tablerecords(), 1):
             self.table_view_panel.grid.ShowCol(i)
 
-    # method to be called when right clicking a grid lable
+    # method to be called when right clicking a grid label
     def on_grid_lable_right_click(self, event):
-        # ignore events by row lables, only consider column lables
+        # ignore events by row labels, only consider column labels
         col_pos = event.GetCol()
         if col_pos < 0:
             return
@@ -119,6 +119,7 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
+
 
 # create wxPython App
 class MyApp(wx.App):
