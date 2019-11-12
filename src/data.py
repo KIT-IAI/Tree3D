@@ -23,6 +23,9 @@ class Database:
         self.__lTableColmnNames = []
 
     # Creates Database Path
+    # Database is stored in temporary folder by default
+    # Path to temporary folder is read from environment variables TMP or TEMP
+    # if these environment variables dont exists, database is stored in working directory
     def create_default_database_path(self):
         if 'TEMP' in os.environ:
             path = os.environ['TMP']
