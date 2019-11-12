@@ -110,9 +110,12 @@ class Database:
 
     # returns the number of rows in database tables
     def get_number_of_tablerecords(self):
-        self.__DbCursor.execute("SELECT count(*) FROM %s" % self.__DbTreeTableName)
-        res = self.__DbCursor.fetchall()
-        return res[0][0]
+        try:
+            self.__DbCursor.execute("SELECT count(*) FROM %s" % self.__DbTreeTableName)
+            res = self.__DbCursor.fetchall()
+            return res[0][0]
+        except sqlite3.OperationalError:
+            return 0
 
     # fetches and returns table data from database
     def get_data(self):
