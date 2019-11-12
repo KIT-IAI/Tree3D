@@ -69,8 +69,10 @@ class MainTableFrame(default_gui.MainWindow):
                 self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_column_number())
             except:
                 pass
+
             # deletes database table (if exists) so new file can be imported
             self.db.reset_database_table()
+            
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid()
 
