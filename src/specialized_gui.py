@@ -55,6 +55,18 @@ class MainTableFrame(default_gui.MainWindow):
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             pathname = fileDialog.GetPath()
+
+            # Deletes all columns and rows of grid, so a new file can be displayed properly
+            # rows and columns can only be deleted if their number is null (on program start)
+            try:
+                self.table_view_panel.grid.DeleteRows(pos=0, numRows=self.db.get_number_of_tablerecords())
+            except:
+                pass
+            try:
+                self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_column_number())
+            except:
+                pass
+            # deletes database table (if exists) so new file can be imported
             self.db.reset_database_table()
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid()
