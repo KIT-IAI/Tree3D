@@ -60,7 +60,7 @@ class Database:
         # make data type prediction for each cell of one column
         for index2, row in enumerate(filereader):
 
-            # break loop if number of rows is greater than number of rows to be considered
+            # break loop if row inspection limit is reached
             if index2 > inspection_limit:
                 break
 
@@ -79,9 +79,9 @@ class Database:
                 datatype = "TEXT"
             type_list.append(datatype)
 
-        # reset position of cursor in file to line 1
+        # reset position of cursor in csvfile to line 1, because cursor has been moved in this method
         # method: move cursor back to line 0 and go to next lin
-        # seek(1) gives errors with encoding, therefore use this method
+        # seek(1) gives errors with encoding for some reason, therefore use this method
         csvfile.seek(0)
         csvfile.readline()
 
