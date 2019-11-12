@@ -66,7 +66,7 @@ class MainTableFrame(default_gui.MainWindow):
         col_number = self.db.get_column_number()
         row_number = self.db.get_number_of_tablerecords()
         self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
-        self.table_view_panel.grid.InsertRows(pos=0, numRows=row_number-1)
+        self.table_view_panel.grid.InsertRows(pos=0, numRows=row_number)
 
         # add column names to grid
         for idx, colname in enumerate(self.db.get_column_names()):
