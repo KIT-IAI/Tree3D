@@ -141,10 +141,10 @@ class MainTableFrame(default_gui.MainWindow):
 class MyApp(wx.App):
     def OnInit(self):
         # create instance of MainTableFrame
-        self.frame = MainTableFrame(None)
+        frame = MainTableFrame(None)
 
-        self.SetTopWindow(self.frame)
-        self.frame.Show(True)
+        self.SetTopWindow(frame)
+        frame.Show(True)
         return True
 
 
