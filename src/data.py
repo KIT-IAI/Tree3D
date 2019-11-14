@@ -44,7 +44,7 @@ class Database:
                 if idx == 0:
                     # add column for unique tree ID to data model
                     self.__lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
-                    
+
                     # Extract table column names from first row of csv file, create database table with it
                     tableheaders = row
                     for idx2, col in enumerate(tableheaders):
@@ -61,7 +61,10 @@ class Database:
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
     def get_csv_datatypes(self, filereader, csvfile, col_index):
         inspection_limit = 50
-        type_list = []
+
+        int_type_in_list = False
+        real_type_in_list = False
+        text_type_in_list = False
 
         # make data type prediction for each cell of one column
         for index2, row in enumerate(filereader):
@@ -76,14 +79,13 @@ class Database:
             try:
                 dat = literal_eval(row[col_index].replace(",", "."))
                 if isinstance(dat, int):
-                    datatype = "INTEGER"
+                    int_type_in_list = True
                 elif isinstance(dat, float):
-                    datatype = "REAL"
+                    real_type_in_list = True
                 else:
-                    datatype = "TEXT"
+                    text_type_in_list = True
             except:
-                datatype = "TEXT"
-            type_list.append(datatype)
+                text_type_in_list = True
 
         # reset position of cursor in csvfile to line 1, because cursor has been moved in this method
         # method: move cursor back to line 0 and go to next lin
@@ -91,13 +93,14 @@ class Database:
         csvfile.seek(0)
         csvfile.readline()
 
-        # loop over all cell's data type predictions of one column to make one prediction for column in general
-        for idx in range(0, len(type_list)-1, 1):
-            if type_list[idx] == type_list[idx+1]:
-                continue
-            else:
-                return "TEXT"
-        return type_list[0]
+        if int_type_in_list and not real_type_in_list and not text_type_in_list:
+            data_type = "INTEGER"
+        elif real_type_in_list and not text_type_in_list:
+            data_type = "REAL"
+        else:
+            data_type = "TEXT"
+
+        return data_type
 
     # creates the database table to store the csv in
     # method may be vulnerable to sql injections
@@ -188,6 +191,6 @@ class Database:
 
 if __name__ == "__main__":
     db = Database()
-    db.import_csv_file(filepath=".\..\data\ArbokatBaumdaten_test.csv")
+    db.import_csv_file(filepath=".\..\data\ArbokatBaumdaten_komplett.csv")
     db.close_db_connection()
-    db.delete_db()
+    #db.delete_db()
