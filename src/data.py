@@ -104,6 +104,7 @@ class Database:
                 self.__DbCursor.execute("CREATE TABLE %s(%s %s);" % (self.__DbTreeTableName, col[0], col[1]))
             else:
                 self.__DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self.__DbTreeTableName, col[0], col[1]))
+        self.__DbConnection.commit()
 
     # populates database table with values from csv file
     def populate_db_table(self, row):
@@ -130,6 +131,7 @@ class Database:
     def reset_database_table(self):
         self.__DbCursor.execute("DROP TABLE IF EXISTS %s" % self.__DbTreeTableName)
         self.__lTableColmnNames = []
+        self.__DbConnection.commit()
 
     # establishes database_connection: Creates Database File, Connection and Cursor
     def establish_db_connection(self):
