@@ -144,6 +144,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.PopupMenu(contextmenu)
         contextmenu.Destroy()
 
+    # method to be called when right-clicking a column label and clicking "hide column"
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
 
@@ -158,6 +159,7 @@ class OpenDialog(default_gui.OnOpenDialog):
 
         self.fill_dropdowns()
 
+    # method to populate columns of dropdown menus with column headers
     def fill_dropdowns(self):
         with open(self.__filepath, newline='', encoding='utf-8-sig') as file:
             header = file.readline()
@@ -167,16 +169,21 @@ class OpenDialog(default_gui.OnOpenDialog):
         self.id_col2.SetItems(l_cols)
         self.guid_col.SetItems(l_cols)
 
+    # method to be called when checkbox event for generate-id-checkbox is triggered
+    # every time the checkbox is clicked
     def id_checkbox_event(self, event):
         self.id_col1.Enable(not self.id_col1.Enabled)
         self.id_col2.Enable(not self.id_col2.Enabled)
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
+    # method to be called when checkbox event for guid-checkbox is triggered
+    # every time the checkbox is clicked
     def guid_checkbox_event(self, event):
         self.guid_text.Enable(not self.guid_text.Enabled)
         self.guid_col.Enable(not self.guid_col.Enabled)
 
+    # method to be called when clicking OK in dialog
     def on_ok(self, event):
         if self.generate_ID_box.GetValue():
             self.GetParent().db.set_create_id(True)

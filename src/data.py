@@ -193,12 +193,15 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
+    # returns Value, weather index should be created
     def get_create_id(self):
         return self.__CreateIndex
 
+    # sets variable weather index should be created True or False
     def set_create_id(self, value):
         self.__CreateIndex = value
 
+    # sets list of columns to create index from
     def set_id_columns(self, value):
         self.__IndexColumns = value
 
