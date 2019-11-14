@@ -66,7 +66,7 @@ class MainTableFrame(default_gui.MainWindow):
             except:
                 pass
             try:
-                self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_column_number())
+                self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_number_of_columns())
             except:
                 pass
 
@@ -79,7 +79,7 @@ class MainTableFrame(default_gui.MainWindow):
     # populates grid with data afterwards
     def show_data_in_grid(self):
         # set number of rows and columns in grid
-        col_number = self.db.get_column_number()
+        col_number = self.db.get_number_of_columns()
         row_number = self.db.get_number_of_tablerecords()
         self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
         self.table_view_panel.grid.InsertRows(pos=0, numRows=row_number)

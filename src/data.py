@@ -122,7 +122,7 @@ class Database:
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
     # returns the number of table columns
-    def get_column_number(self):
+    def get_number_of_columns(self):
         return len(self.__lTableColmnNames)
 
     # returns the names of all table columns
