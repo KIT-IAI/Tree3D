@@ -85,6 +85,39 @@ class MainWindow ( wx.Frame ):
 	
 
 ###########################################################################
+## Class MyDialog1
+###########################################################################
+
+class MyDialog1 ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer2 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_gauge1 = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.m_gauge1.SetValue( 0 ) 
+		bSizer2.Add( self.m_gauge1, 0, wx.ALL, 5 )
+		
+		self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, u"50/100 eingelesen", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText1.Wrap( -1 )
+		
+		bSizer2.Add( self.m_staticText1, 0, wx.ALL, 5 )
+		
+		
+		self.SetSizer( bSizer2 )
+		self.Layout()
+		bSizer2.Fit( self )
+		
+		self.Centre( wx.BOTH )
+	
+	def __del__( self ):
+		pass
+	
+
+###########################################################################
 ## Class data_panel
 ###########################################################################
 
