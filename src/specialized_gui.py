@@ -31,6 +31,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.Bind(wx.grid.EVT_GRID_LABEL_RIGHT_CLICK, self.on_grid_lable_right_click)
 
     # method to be called when close button (x) is pushed
+    # overrides method in parent class
     def OnClose(self, event):
         dialog = wx.MessageDialog(self, message="Are you sure you would like to close ArbokaTransformer?",
                                   caption="Close Application", style=wx.YES_NO | wx.ICON_QUESTION,
@@ -49,6 +50,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.Destroy()
 
     # method to be called when clicking File > Open
+    # overrides method in parent class
     def on_menu_open(self, event):
         with wx.FileDialog(self, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
                            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
@@ -119,10 +121,12 @@ class MainTableFrame(default_gui.MainWindow):
         self.m_statusBar3.SetStatusText("%s rows displayed in table" % row_number, 0)
 
     # method resets order of columns back to default
+    # overrides method in parent class
     def on_reset_column_position(self, event):
         self.table_view_panel.grid.ResetColPos()
 
     # method to be called when clicking View > Show all columns: restores visibility of all columns
+    # overrides method in parent class
     def on_show_all_columns(self, event):
         for i in range(0, self.db.get_number_of_columns(), 1):
             self.table_view_panel.grid.ShowCol(i)
@@ -148,6 +152,8 @@ class MainTableFrame(default_gui.MainWindow):
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
 
+    # method to be called when clicking File > Test
+    # overrides method in parent class
     def on_menu_test(self, event):
         print("Test")
 
@@ -157,10 +163,10 @@ class OpenDialog(default_gui.OnOpenDialog):
         default_gui.OnOpenDialog.__init__(self, parent)
         self.__filepath = path
 
-        self.fill_dropdowns()
+        self.populate_dropdown()
 
     # method to populate columns of dropdown menus with column headers
-    def fill_dropdowns(self):
+    def populate_dropdown(self):
         with open(self.__filepath, newline='', encoding='utf-8-sig') as file:
             header = file.readline()
         header = header.strip("\r\n")
@@ -171,6 +177,7 @@ class OpenDialog(default_gui.OnOpenDialog):
 
     # method to be called when checkbox event for generate-id-checkbox is triggered
     # every time the checkbox is clicked
+    # overrides method in parent class
     def id_checkbox_event(self, event):
         self.id_col1.Enable(not self.id_col1.Enabled)
         self.id_col2.Enable(not self.id_col2.Enabled)
@@ -179,11 +186,13 @@ class OpenDialog(default_gui.OnOpenDialog):
 
     # method to be called when checkbox event for guid-checkbox is triggered
     # every time the checkbox is clicked
+    # overrides method in parent class
     def guid_checkbox_event(self, event):
         self.guid_text.Enable(not self.guid_text.Enabled)
         self.guid_col.Enable(not self.guid_col.Enabled)
 
     # method to be called when clicking OK in dialog
+    # overrides method in parent dialog
     def on_ok(self, event):
         if self.generate_ID_box.GetValue():
             self.GetParent().db.set_create_id(True)

@@ -23,7 +23,7 @@ class Database:
         self.__lTableColmnNames = []
 
         self.__CreateIndex = False
-        self.__IndexColumns = []
+        self.__lIndexColumns = []
 
     # Creates Database Path
     # Database is stored in temporary folder by default
@@ -119,7 +119,7 @@ class Database:
     # populates database table with values from csv file
     def populate_db_table(self, row):
         if self.__CreateIndex:
-            row.insert(0, "%s_%s" % (row[self.__IndexColumns[0]], row[self.__IndexColumns[1]]))
+            row.insert(0, "%s_%s" % (row[self.__lIndexColumns[0]], row[self.__lIndexColumns[1]]))
         statement = 'INSERT INTO %s VALUES ('
         for _ in row:
             statement += "?, "
@@ -203,7 +203,7 @@ class Database:
 
     # sets list of columns to create index from
     def set_id_columns(self, value):
-        self.__IndexColumns = value
+        self.__lIndexColumns = value
 
 
 if __name__ == "__main__":
