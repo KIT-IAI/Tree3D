@@ -142,6 +142,9 @@ class MainTableFrame(default_gui.MainWindow):
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
 
+    def on_menu_test( self, event ):
+        print("Test")
+
 
 class OpenDialog(default_gui.OnOpenDialog):
     def __init__(self, parent, path):

@@ -33,6 +33,9 @@ class MainWindow ( wx.Frame ):
 		
 		self.file.AppendSubMenu( self.Export, u"Export" )
 		
+		self.test = wx.MenuItem( self.file, wx.ID_ANY, u"Test", wx.EmptyString, wx.ITEM_NORMAL )
+		self.file.Append( self.test )
+		
 		self.m_menubar7.Append( self.file, u"File" ) 
 		
 		self.view = wx.Menu()
@@ -60,6 +63,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_CLOSE, self.OnClose )
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_test, id = self.test.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
 	
@@ -75,6 +79,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_menu_export_citygml( self, event ):
+		event.Skip()
+	
+	def on_menu_test( self, event ):
 		event.Skip()
 	
 	def on_reset_column_position( self, event ):
