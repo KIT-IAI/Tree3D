@@ -56,6 +56,9 @@ class MainTableFrame(default_gui.MainWindow):
                 return
             pathname = fileDialog.GetPath()
 
+            dlg = OpenDialog(self, path=pathname)
+            dlg.ShowModal()
+
             # Disable Grid visibility
             self.table_view_panel.grid.Show(False)
 
@@ -93,7 +96,8 @@ class MainTableFrame(default_gui.MainWindow):
         for RowIdx, row in enumerate(data_table):
             for ColIdx, val in enumerate(row):
                 if ColIdx == 0:
-                    self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
+                    if self.db.GetCreateIndex():
+                        self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
                 self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, str(val))
 
         # Layout for the grid
@@ -137,6 +141,40 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
+
+
+class OpenDialog(default_gui.OnOpenDialog):
+    def __init__(self, parent, path):
+        default_gui.OnOpenDialog.__init__(self, parent)
+        self.__filepath = path
+
+        self.fill_dropdowns()
+
+    def fill_dropdowns(self):
+        with open(self.__filepath, newline='', encoding='utf-8-sig') as file:
+            header = file.readline()
+        header = header.strip("\r\n")
+        lCols = header.split(";")
+        self.id_col1.SetItems(lCols)
+        self.id_col2.SetItems(lCols)
+        self.guid_col.SetItems(lCols)
+
+    def id_checkbox_event( self, event ):
+        self.id_col1.Enable(not self.id_col1.Enabled)
+        self.id_col2.Enable(not self.id_col2.Enabled)
+        self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
+        self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
+
+    def guid_checkbox_event( self, event ):
+        self.guid_text.Enable(not self.guid_text.Enabled)
+        self.guid_col.Enable(not self.guid_col.Enabled)
+
+    def on_ok(self, event):
+        if self.generate_ID_box.GetValue():
+            self.GetParent().db.SetCreateIndex(True)
+            print()
+            self.GetParent().db.SetIndexColumns(self.id_col1.GetSelection(), self.id_col2.GetSelection())
+        self.Destroy()
 
 
 # create wxPython App

@@ -118,6 +118,131 @@ class MyDialog1 ( wx.Dialog ):
 	
 
 ###########################################################################
+## Class OnOpenDialog
+###########################################################################
+
+class OnOpenDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"CSV import options", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.CAPTION|wx.STAY_ON_TOP )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer4 = wx.FlexGridSizer( 3, 1, 0, 0 )
+		fgSizer4.SetFlexibleDirection( wx.BOTH )
+		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
+		
+		self.generate_ID_box = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate unique tree IDs from CSV file columns", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer1.Add( self.generate_ID_box, 0, wx.ALL, 5 )
+		
+		self.m_staticText4 = wx.StaticText( sbSizer1.GetStaticBox(), wx.ID_ANY, u"ArbokaTransformer can create an ID out of two\ncolumns in the CSV table for each entry. \nGenerated ID column will be highlighted  in table.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText4.Wrap( -1 )
+		
+		sbSizer1.Add( self.m_staticText4, 0, wx.ALL, 5 )
+		
+		gSizer2 = wx.GridSizer( 0, 2, 0, 0 )
+		
+		self.IdText_Col1 = wx.StaticText( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Column 1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.IdText_Col1.Wrap( -1 )
+		
+		self.IdText_Col1.Enable( False )
+		
+		gSizer2.Add( self.IdText_Col1, 0, wx.ALL, 5 )
+		
+		id_col1Choices = []
+		self.id_col1 = wx.Choice( sbSizer1.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, id_col1Choices, 0 )
+		self.id_col1.SetSelection( 0 )
+		self.id_col1.Enable( False )
+		
+		gSizer2.Add( self.id_col1, 0, wx.ALL, 5 )
+		
+		self.IdText_Col2 = wx.StaticText( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Column 2", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.IdText_Col2.Wrap( -1 )
+		
+		self.IdText_Col2.Enable( False )
+		
+		gSizer2.Add( self.IdText_Col2, 0, wx.ALL, 5 )
+		
+		id_col2Choices = []
+		self.id_col2 = wx.Choice( sbSizer1.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, id_col2Choices, 0 )
+		self.id_col2.SetSelection( 0 )
+		self.id_col2.Enable( False )
+		
+		gSizer2.Add( self.id_col2, 0, wx.ALL, 5 )
+		
+		
+		sbSizer1.Add( gSizer2, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
+		
+		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"GUID" ), wx.VERTICAL )
+		
+		self.guid_box = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"Data contains GUIDs", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer11.Add( self.guid_box, 0, wx.ALL, 5 )
+		
+		self.m_staticText41 = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"If checked, ArbokaTransformer will perform a GUID\nvalidation before data import.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText41.Wrap( -1 )
+		
+		sbSizer11.Add( self.m_staticText41, 0, wx.ALL, 5 )
+		
+		gSizer21 = wx.GridSizer( 0, 2, 0, 0 )
+		
+		self.guid_text = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"GUID Column", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.guid_text.Wrap( -1 )
+		
+		self.guid_text.Enable( False )
+		
+		gSizer21.Add( self.guid_text, 0, wx.ALL, 5 )
+		
+		guid_colChoices = []
+		self.guid_col = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, guid_colChoices, 0 )
+		self.guid_col.SetSelection( 0 )
+		self.guid_col.Enable( False )
+		
+		gSizer21.Add( self.guid_col, 0, wx.ALL, 5 )
+		
+		
+		sbSizer11.Add( gSizer21, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer4.Add( sbSizer11, 1, wx.EXPAND, 5 )
+		
+		self.ok_button = wx.Button( self, wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
+		
+		self.ok_button.SetBitmapPosition( wx.RIGHT )
+		fgSizer4.Add( self.ok_button, 0, wx.ALL, 5 )
+		
+		
+		self.SetSizer( fgSizer4 )
+		self.Layout()
+		fgSizer4.Fit( self )
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.generate_ID_box.Bind( wx.EVT_CHECKBOX, self.id_checkbox_event )
+		self.guid_box.Bind( wx.EVT_CHECKBOX, self.guid_checkbox_event )
+		self.ok_button.Bind( wx.EVT_BUTTON, self.on_ok )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def id_checkbox_event( self, event ):
+		event.Skip()
+	
+	def guid_checkbox_event( self, event ):
+		event.Skip()
+	
+	def on_ok( self, event ):
+		event.Skip()
+	
+
+###########################################################################
 ## Class data_panel
 ###########################################################################
 

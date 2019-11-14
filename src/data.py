@@ -22,6 +22,9 @@ class Database:
         self.__DbTreeTableName = "trees"
         self.__lTableColmnNames = []
 
+        self.__CreateIndex = False
+        self.__IndexColumns = []
+
     # Creates Database Path
     # Database is stored in temporary folder by default
     # Path to temporary folder is read from environment variables TMP or TEMP
@@ -43,7 +46,8 @@ class Database:
             for idx, row in enumerate(filereader):
                 if idx == 0:
                     # add column for unique tree ID to data model
-                    self.__lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
+                    if self.__CreateIndex:
+                        self.__lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
 
                     # Extract table column names from first row of csv file, create database table with it
                     tableheaders = row
@@ -114,7 +118,8 @@ class Database:
 
     # populates database table with values from csv file
     def populate_db_table(self, row):
-        row.insert(0, "%s_%s" % (row[1], row[0]))
+        if self.__CreateIndex:
+            row.insert(0, "%s_%s" % (row[self.__IndexColumns[0]], row[self.__IndexColumns[1]]))
         statement = 'INSERT INTO %s VALUES ('
         for _ in row:
             statement += "?, "
@@ -188,6 +193,15 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
+    def GetCreateIndex(self):
+        return self.__CreateIndex
+
+    def SetCreateIndex(self, value):
+        self.__CreateIndex = value
+
+    def SetIndexColumns(self, col1, col2):
+        self.__IndexColumns.append(col1)
+        self.__IndexColumns.append(col2)
 
 if __name__ == "__main__":
     db = Database()
