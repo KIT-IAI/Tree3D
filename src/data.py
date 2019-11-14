@@ -43,6 +43,7 @@ class Database:
             for idx, row in enumerate(filereader):
                 if idx == 0:
                     # Extract table column names from first row of csv file, create database table with it
+                    self.__lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
                     tableheaders = row
                     for idx2, col in enumerate(tableheaders):
                         coldata = ["'%s'" % col, self.get_csv_datatypes(filereader, csvfile, idx2), True]
@@ -108,6 +109,7 @@ class Database:
 
     # populates database table with values from csv file
     def populate_db_table(self, row):
+        row.insert(0, "%s_%s" % (row[1], row[0]))
         statement = 'INSERT INTO %s VALUES ('
         for _ in row:
             statement += "?, "
