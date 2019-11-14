@@ -147,7 +147,7 @@ class MainTableFrame(default_gui.MainWindow):
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
 
-    def on_menu_test( self, event ):
+    def on_menu_test(self, event):
         print("Test")
 
 
@@ -162,18 +162,18 @@ class OpenDialog(default_gui.OnOpenDialog):
         with open(self.__filepath, newline='', encoding='utf-8-sig') as file:
             header = file.readline()
         header = header.strip("\r\n")
-        lCols = header.split(";")
-        self.id_col1.SetItems(lCols)
-        self.id_col2.SetItems(lCols)
-        self.guid_col.SetItems(lCols)
+        l_cols = header.split(";")
+        self.id_col1.SetItems(l_cols)
+        self.id_col2.SetItems(l_cols)
+        self.guid_col.SetItems(l_cols)
 
-    def id_checkbox_event( self, event ):
+    def id_checkbox_event(self, event):
         self.id_col1.Enable(not self.id_col1.Enabled)
         self.id_col2.Enable(not self.id_col2.Enabled)
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
-    def guid_checkbox_event( self, event ):
+    def guid_checkbox_event(self, event):
         self.guid_text.Enable(not self.guid_text.Enabled)
         self.guid_col.Enable(not self.guid_col.Enabled)
 

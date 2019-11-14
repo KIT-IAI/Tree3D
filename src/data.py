@@ -199,8 +199,8 @@ class Database:
     def set_create_id(self, value):
         self.__CreateIndex = value
 
-    def set_id_columns(self, dValue):
-        self.__IndexColumns = dValue
+    def set_id_columns(self, value):
+        self.__IndexColumns = value
 
 
 if __name__ == "__main__":
