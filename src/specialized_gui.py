@@ -115,7 +115,7 @@ class MainTableFrame(default_gui.MainWindow):
 
     # method to be called when clicking View > Show all columns: restores visibility of all columns
     def on_show_all_columns(self, event):
-        for i in range(0, self.db.get_number_of_tablerecords(), 1):
+        for i in range(0, self.db.get_number_of_columns(), 1):
             self.table_view_panel.grid.ShowCol(i)
 
     # method to be called when right clicking a grid label
