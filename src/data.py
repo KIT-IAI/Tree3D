@@ -42,8 +42,10 @@ class Database:
             filereader = csv.reader(csvfile, delimiter=sep)
             for idx, row in enumerate(filereader):
                 if idx == 0:
-                    # Extract table column names from first row of csv file, create database table with it
+                    # add column for unique tree ID to data model
                     self.__lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
+                    
+                    # Extract table column names from first row of csv file, create database table with it
                     tableheaders = row
                     for idx2, col in enumerate(tableheaders):
                         coldata = ["'%s'" % col, self.get_csv_datatypes(filereader, csvfile, idx2), True]

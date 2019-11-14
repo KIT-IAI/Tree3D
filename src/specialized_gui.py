@@ -92,7 +92,7 @@ class MainTableFrame(default_gui.MainWindow):
         data_table = self.db.get_data()
         for RowIdx, row in enumerate(data_table):
             for ColIdx, val in enumerate(row):
-                if ColIdx==0:
+                if ColIdx == 0:
                     self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
                 self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, str(val))
 
