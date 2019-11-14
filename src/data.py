@@ -19,11 +19,11 @@ class Database:
         self.__DbConnection = None
         self.__DbCursor = None
         self.establish_db_connection()
-        self.__DbTreeTableName = "trees"
+        self.__DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self.__lTableColmnNames = []
 
-        self.__CreateIndex = False
-        self.__lIndexColumns = []
+        self.__CreateIndex = False  # variable to determine weather a tree id should be created
+        self.__lIndexColumns = []  # list storing the list-indexes of columns, from which id should be created
 
     # Creates Database Path
     # Database is stored in temporary folder by default
