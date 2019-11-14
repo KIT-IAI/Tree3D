@@ -193,15 +193,15 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
-    def GetCreateIndex(self):
+    def get_create_id(self):
         return self.__CreateIndex
 
-    def SetCreateIndex(self, value):
+    def set_create_id(self, value):
         self.__CreateIndex = value
 
-    def SetIndexColumns(self, col1, col2):
-        self.__IndexColumns.append(col1)
-        self.__IndexColumns.append(col2)
+    def set_id_columns(self, dValue):
+        self.__IndexColumns = dValue
+
 
 if __name__ == "__main__":
     db = Database()
