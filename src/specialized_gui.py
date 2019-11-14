@@ -56,9 +56,6 @@ class MainTableFrame(default_gui.MainWindow):
                 return
             pathname = fileDialog.GetPath()
 
-            dlg = OpenDialog(self, path=pathname)
-            dlg.ShowModal()
-
             # Disable Grid visibility
             self.table_view_panel.grid.Show(False)
 
@@ -75,6 +72,14 @@ class MainTableFrame(default_gui.MainWindow):
 
             # deletes database table (if exists) so new file can be imported
             self.db.reset_database_table()
+
+            # resets options: By default, no ID is created
+            self.db.set_create_id(False)
+            self.db.set_id_columns([])
+
+            dlg = OpenDialog(self, path=pathname)
+            dlg.ShowModal()
+
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid()
 
@@ -96,7 +101,7 @@ class MainTableFrame(default_gui.MainWindow):
         for RowIdx, row in enumerate(data_table):
             for ColIdx, val in enumerate(row):
                 if ColIdx == 0:
-                    if self.db.GetCreateIndex():
+                    if self.db.get_create_id():
                         self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
                 self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, str(val))
 
@@ -174,9 +179,8 @@ class OpenDialog(default_gui.OnOpenDialog):
 
     def on_ok(self, event):
         if self.generate_ID_box.GetValue():
-            self.GetParent().db.SetCreateIndex(True)
-            print()
-            self.GetParent().db.SetIndexColumns(self.id_col1.GetSelection(), self.id_col2.GetSelection())
+            self.GetParent().db.set_create_id(True)
+            self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
         self.Destroy()
 
 
