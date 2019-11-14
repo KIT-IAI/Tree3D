@@ -53,9 +53,9 @@ class Database:
                     self.populate_db_table(row)
         self.__DbConnection.commit()
 
-    # method to automatically detect a columns data type.
+    # method to automatically detect the data type of a column in the opened csv file.
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
-    # returns "INTEGER", "REAL" or "TEXT"
+    # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
     def get_csv_datatypes(self, filereader, csvfile, col_index):
         inspection_limit = 50
         type_list = []
