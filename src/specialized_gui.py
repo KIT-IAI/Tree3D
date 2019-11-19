@@ -58,32 +58,42 @@ class MainTableFrame(default_gui.MainWindow):
                 return
             pathname = fileDialog.GetPath()
 
-            # Disable Grid visibility
-            self.table_view_panel.grid.Show(False)
-
-            # Deletes all columns and rows of grid, so a new file can be displayed properly
-            # rows and columns can only be deleted if their number is null (on program start)
-            try:
-                self.table_view_panel.grid.DeleteRows(pos=0, numRows=self.db.get_number_of_tablerecords())
-            except:
-                pass
-            try:
-                self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_number_of_columns())
-            except:
-                pass
-
-            # deletes database table (if exists) so new file can be imported
-            self.db.reset_database_table()
-
-            # resets options: By default, no ID is created
-            self.db.set_create_id(False)
-            self.db.set_id_columns([])
+            self.reset_program()
 
             dlg = OpenDialog(self, path=pathname)
             dlg.ShowModal()
 
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid()
+
+    def reset_program(self):
+        # Disable Grid visibility
+        self.table_view_panel.grid.Show(False)
+
+        # Deletes all columns and rows of grid, so a new file can be displayed properly
+        # rows and columns can only be deleted if their number is null (on program start)
+        try:
+            self.table_view_panel.grid.DeleteRows(pos=0, numRows=self.db.get_number_of_tablerecords())
+        except:
+            pass
+        try:
+            self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_number_of_columns())
+        except:
+            pass
+
+        # deletes database table (if exists) so new file can be imported
+        self.db.reset_database_table()
+
+        # resets row count in status bar
+        self.m_statusBar3.SetStatusText("", 0)
+
+        # resets options: By default, no ID is created
+        self.db.set_create_id(False)
+        self.db.set_id_columns([])
+
+        # reset options: By default, no GUID is checked
+        self.db.set_has_guid(False)
+        self.db.set_guid_column_index(-1)
 
     # adjusts numbers of rows and columns to match data
     # populates grid with data afterwards
