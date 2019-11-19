@@ -194,10 +194,41 @@ class OpenDialog(default_gui.OnOpenDialog):
     # method to be called when clicking OK in dialog
     # overrides method in parent dialog
     def on_ok(self, event):
+        valid = True  # variable to determine if user input is correct
+        warningtext = ""  # Text to display in error window if user input is incorrect
+
+        # checks if input to generate IDs is correct, if generate-id-checkbox is activated
         if self.generate_ID_box.GetValue():
-            self.GetParent().db.set_create_id(True)
-            self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
-        self.Destroy()
+            # checks if both ID column dropdowns have values
+            if self.id_col1.GetSelection() == wx.NOT_FOUND or self.id_col2.GetSelection() == wx.NOT_FOUND:
+                valid = False
+                warningtext = "Cannot generate IDs. Please select two different table columns for ID generation"
+            # checks if both ID column dropdowns have the same value
+            if self.id_col1.GetSelection() == self.id_col2.GetSelection():
+                valid = False
+                warningtext = "Cannot generate IDs. Please select two different table columns for ID generation"
+
+        # checks input for GUID, if GUID-checkbox is activated: Column must be selected
+        if self.guid_box.GetValue() and self.guid_col.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            if warningtext != "":
+                warningtext += "\n"
+            warningtext += "Cannot check for GUID. Please Select GUID Column"
+
+        # if input is valid, do stuff
+        if valid:
+            # change settings in data module to generate IDs if generate-id-checkbox is activated
+            if self.generate_ID_box.GetValue():
+                self.GetParent().db.set_create_id(True)
+                self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
+            # change settings in ... module to check GUID if guid-checkbox is activated
+            if self.guid_box.GetValue():
+                print("TODO: Implement GUID Check")
+            self.Destroy()
+        # show error message, if input is not valid
+        else:
+            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
 
 
 # create wxPython App
