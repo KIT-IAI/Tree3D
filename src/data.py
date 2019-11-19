@@ -23,10 +23,10 @@ class Database:
         self.__DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self.__lTableColmnNames = []
 
-        self.__CreateIndex = False  # variable to determine weather a tree id should be created
-        self.__lIndexColumns = []  # list storing the list-indexes of columns, from which id should be created
+        self.CreateTwoColID = False  # variable to determine weather a tree id should be created
+        self.__CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
 
-        self.__HasGuid = False
+        self.HasGuid = False
         self.__GuidColumnIndex = -1
 
     # Creates Database Path
@@ -50,7 +50,7 @@ class Database:
             for idx, row in enumerate(filereader):
                 if idx == 0:
                     # add column for unique tree ID to data model
-                    if self.__CreateIndex:
+                    if self.CreateTwoColID:
                         self.__lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
 
                     # Extract table column names from first row of csv file, create database table with it
@@ -122,8 +122,8 @@ class Database:
 
     # populates database table with values from csv file
     def populate_db_table(self, row):
-        if self.__CreateIndex:
-            row.insert(0, "%s_%s" % (row[self.__lIndexColumns[0]], row[self.__lIndexColumns[1]]))
+        if self.CreateTwoColID:
+            row.insert(0, "%s_%s" % (row[self.__CreateTwoColIDColumns[0]], row[self.__CreateTwoColIDColumns[1]]))
         statement = 'INSERT INTO %s VALUES ('
         for _ in row:
             statement += "?, "
@@ -131,7 +131,7 @@ class Database:
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
 
         # check if uuid is valid
-        if self.__HasGuid:
+        if self.HasGuid:
             try:
                 uuid.UUID('{%s}' % row[self.__GuidColumnIndex])
             except:
@@ -206,19 +206,19 @@ class Database:
 
     # returns Value, weather index should be created
     def get_create_id(self):
-        return self.__CreateIndex
+        return self.CreateTwoColID
 
     # sets variable whether index should be created True or False
     def set_create_id(self, value):
-        self.__CreateIndex = value
+        self.CreateTwoColID = value
 
     # sets list of columns to create index from
     def set_id_columns(self, value):
-        self.__lIndexColumns = value
+        self.__CreateTwoColIDColumns = value
 
     # sets variable whether guid check is performed
     def set_has_guid(self, value):
-        self.__HasGuid = value
+        self.HasGuid = value
 
     # sets index of column to be used as uuid
     def set_guid_column_index(self, value):
