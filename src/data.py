@@ -25,6 +25,9 @@ class Database:
         self.__CreateIndex = False  # variable to determine weather a tree id should be created
         self.__lIndexColumns = []  # list storing the list-indexes of columns, from which id should be created
 
+        self.__HasGuid = False
+        self.__GuidColumnIndex = -1
+
     # Creates Database Path
     # Database is stored in temporary folder by default
     # Path to temporary folder is read from environment variables TMP or TEMP
@@ -205,6 +208,11 @@ class Database:
     def set_id_columns(self, value):
         self.__lIndexColumns = value
 
+    def set_has_guid(self, value):
+        self.__HasGuid = value
+
+    def set_guid_column_index(self, value):
+        self.__GuidColumnIndex = value
 
 if __name__ == "__main__":
     db = Database()
