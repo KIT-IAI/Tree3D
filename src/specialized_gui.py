@@ -173,6 +173,7 @@ class MainTableFrame(default_gui.MainWindow):
         dlg.ShowModal()
 
 
+# DialogBox with options to open file
 class OpenDialog(default_gui.OnOpenDialog):
     def __init__(self, parent, path):
         default_gui.OnOpenDialog.__init__(self, parent)
@@ -248,11 +249,13 @@ class OpenDialog(default_gui.OnOpenDialog):
             msg.ShowModal()
 
 
+# DialogBox to check for duplicate elements in data by ID
 class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
     def __init__(self, parent):
         default_gui.OnCheckDuplicateIdDialog.__init__(self, parent)
         self.populate_dropdown()
 
+    # method to populate dropdown with (id) columns in dialogbox
     def populate_dropdown(self):
         colitemlist = []
         if self.GetParent().db.CreateTwoColID:
@@ -263,6 +266,8 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             colitemlist = self.GetParent().db.get_column_names()
         self.IdColumns.SetItems(colitemlist)
 
+    # method to be executed when hitting Analyze Button in DialogBox
+    # overrides method in parent class
     def on_analyze(self, event):
         if self.IdColumns.GetSelection() == wx.NOT_FOUND:
             return
