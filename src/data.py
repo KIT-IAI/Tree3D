@@ -204,6 +204,21 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
+    # selects data from database from specific columns
+    # collist variable has column names
+    def get_data_by_collist(self, collist):
+        # generates sql statement
+        statement = "SELECT "
+        for colname in collist:
+            statement += '"%s", ' % colname
+        statement = statement[:-2]
+        statement += " FROM %s;" % self.__DbTreeTableName
+
+        # executes statement and fetches data
+        self.__DbCursor.execute(statement)
+        result = self.__DbCursor.fetchall()
+        return result
+
     # returns Value, weather index should be created
     def get_create_id(self):
         return self.CreateTwoColID
