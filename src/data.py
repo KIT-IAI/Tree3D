@@ -26,8 +26,8 @@ class Database:
         self.CreateTwoColID = False  # variable to determine weather a tree id should be created
         self.__CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
 
-        self.HasGuid = False
-        self.__GuidColumnIndex = -1
+        self.HasGuid = False  # variable to determine wheather data has a guid column
+        self.__GuidColumnIndex = -1  # index of guid column
 
     # Creates Database Path
     # Database is stored in temporary folder by default
