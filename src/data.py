@@ -223,6 +223,12 @@ class Database:
     # sets index of column to be used as uuid
     def set_guid_column_index(self, value):
         self.__GuidColumnIndex = value
+        if self.CreateTwoColID:
+            self.__GuidColumnIndex += 1
+
+    def get_guid_col_name(self):
+        if self.HasGuid:
+            return self.__lTableColmnNames[self.__GuidColumnIndex][0][1:-1]
 
 if __name__ == "__main__":
     db = Database()
