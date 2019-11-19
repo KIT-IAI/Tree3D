@@ -200,7 +200,7 @@ class Database:
     def get_create_id(self):
         return self.__CreateIndex
 
-    # sets variable weather index should be created True or False
+    # sets variable whether index should be created True or False
     def set_create_id(self, value):
         self.__CreateIndex = value
 
@@ -208,9 +208,11 @@ class Database:
     def set_id_columns(self, value):
         self.__lIndexColumns = value
 
+    # sets variable whether guid check is performed
     def set_has_guid(self, value):
         self.__HasGuid = value
 
+    # sets index of column to be used as uuid
     def set_guid_column_index(self, value):
         self.__GuidColumnIndex = value
 
