@@ -229,7 +229,7 @@ class Database:
     # returns column name of guid column
     def get_guid_col_name(self):
         if self.HasGuid:
-            return self.__lTableColmnNames[self.__GuidColumnIndex][0][1:-1]
+            return self.get_column_names()[0]
 
 if __name__ == "__main__":
     db = Database()
