@@ -1,6 +1,7 @@
 import os
 import csv
 import sqlite3
+import uuid
 from ast import literal_eval
 
 
@@ -128,6 +129,13 @@ class Database:
             statement += "?, "
         statement = statement[:-2] + ");"
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
+
+        # check if uuid is valid
+        if self.__HasGuid:
+            try:
+                uuid.UUID('{%s}' % row[self.__GuidColumnIndex])
+            except:
+                print("fehlerhafte UUID")
 
     # returns the number of table columns
     def get_number_of_columns(self):
