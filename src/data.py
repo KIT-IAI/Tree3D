@@ -226,6 +226,7 @@ class Database:
         if self.CreateTwoColID:
             self.__GuidColumnIndex += 1
 
+    # returns column name of guid column
     def get_guid_col_name(self):
         if self.HasGuid:
             return self.__lTableColmnNames[self.__GuidColumnIndex][0][1:-1]
