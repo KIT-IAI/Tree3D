@@ -166,6 +166,11 @@ class MainTableFrame(default_gui.MainWindow):
     # overrides method in parent class
     def on_menu_test(self, event):
         print("Test")
+        print(self.db.get_guid_col_name())
+
+    def on_check_for_duplicates_ID(self, event):
+        dlg = CheckDuplicateId(self)
+        dlg.ShowModal()
 
 
 class OpenDialog(default_gui.OnOpenDialog):
@@ -242,6 +247,28 @@ class OpenDialog(default_gui.OnOpenDialog):
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
 
+
+class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
+    def __init__(self, parent):
+        default_gui.OnCheckDuplicateIdDialog.__init__(self, parent)
+        self.populate_dropdown()
+
+    def populate_dropdown(self):
+        colitemlist = []
+        if self.GetParent().db.CreateTwoColID:
+            colitemlist.append("IAI_TreeID")
+        if self.GetParent().db.HasGuid:
+            colitemlist.append(self.GetParent().db.get_guid_col_name())
+        if not (self.GetParent().db.CreateTwoColID or self.GetParent().db.HasGuid):
+            colitemlist = self.GetParent().db.get_column_names()
+        self.IdColumns.SetItems(colitemlist)
+
+    def on_analyze(self, event):
+        if self.IdColumns.GetSelection() == wx.NOT_FOUND:
+            return
+        itemindex = self.IdColumns.GetSelection()
+        collist = [self.IdColumns.GetString(itemindex)]
+        print(self.GetParent().db.get_data_by_collist(collist))
 
 # create wxPython App
 class MyApp(wx.App):

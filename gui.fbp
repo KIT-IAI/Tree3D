@@ -2212,7 +2212,7 @@
                         <property name="gripper">0</property>
                         <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">OK</property>
+                        <property name="label">Analyze</property>
                         <property name="margins"></property>
                         <property name="markup">0</property>
                         <property name="max_size"></property>
@@ -2222,7 +2222,7 @@
                         <property name="minimize_button">0</property>
                         <property name="minimum_size"></property>
                         <property name="moveable">1</property>
-                        <property name="name">ok</property>
+                        <property name="name">analyze</property>
                         <property name="pane_border">1</property>
                         <property name="pane_position"></property>
                         <property name="pane_size"></property>
@@ -2251,7 +2251,7 @@
                         <event name="OnAux2DClick"></event>
                         <event name="OnAux2Down"></event>
                         <event name="OnAux2Up"></event>
-                        <event name="OnButtonClick"></event>
+                        <event name="OnButtonClick">on_analyze</event>
                         <event name="OnChar"></event>
                         <event name="OnCharHook"></event>
                         <event name="OnEnterWindow"></event>

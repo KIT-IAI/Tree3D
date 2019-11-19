@@ -53,6 +53,12 @@ class MainWindow ( wx.Frame ):
 		
 		self.m_menubar7.Append( self.view, u"View" ) 
 		
+		self.analyze = wx.Menu()
+		self.dublicates = wx.MenuItem( self.analyze, wx.ID_ANY, u"Check for Duplicates by ID", wx.EmptyString, wx.ITEM_NORMAL )
+		self.analyze.Append( self.dublicates )
+		
+		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
+		
 		self.SetMenuBar( self.m_menubar7 )
 		
 		self.m_statusBar3 = self.CreateStatusBar( 1, wx.STB_SIZEGRIP, wx.ID_ANY )
@@ -66,6 +72,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_menu_test, id = self.test.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -88,6 +95,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_show_all_columns( self, event ):
+		event.Skip()
+	
+	def on_check_for_duplicates_ID( self, event ):
 		event.Skip()
 	
 
@@ -246,6 +256,92 @@ class OnOpenDialog ( wx.Dialog ):
 		event.Skip()
 	
 	def on_ok( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class OnCheckDuplicateIdDialog
+###########################################################################
+
+class OnCheckDuplicateIdDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,281 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer2 = wx.FlexGridSizer( 4, 1, 0, 0 )
+		fgSizer2.SetFlexibleDirection( wx.BOTH )
+		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"This analysis tool allows to check all data loaded for duplicates.\nPlease select a column that contains ID values for each tree", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText7.Wrap( -1 )
+		
+		fgSizer2.Add( self.m_staticText7, 0, wx.ALL, 5 )
+		
+		gSizer3 = wx.GridSizer( 1, 2, 0, 0 )
+		
+		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, u"Select ID field", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText8.Wrap( -1 )
+		
+		gSizer3.Add( self.m_staticText8, 0, wx.ALL, 5 )
+		
+		IdColumnsChoices = []
+		self.IdColumns = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, IdColumnsChoices, 0 )
+		self.IdColumns.SetSelection( 0 )
+		gSizer3.Add( self.IdColumns, 0, wx.ALL, 5 )
+		
+		
+		fgSizer2.Add( gSizer3, 1, wx.EXPAND, 5 )
+		
+		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
+		
+		self.m_grid2 = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		# Grid
+		self.m_grid2.CreateGrid( 3, 5 )
+		self.m_grid2.EnableEditing( True )
+		self.m_grid2.EnableGridLines( True )
+		self.m_grid2.EnableDragGridSize( False )
+		self.m_grid2.SetMargins( 0, 0 )
+		
+		# Columns
+		self.m_grid2.EnableDragColMove( False )
+		self.m_grid2.EnableDragColSize( True )
+		self.m_grid2.SetColLabelSize( 30 )
+		self.m_grid2.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Rows
+		self.m_grid2.EnableDragRowSize( False )
+		self.m_grid2.SetRowLabelSize( 80 )
+		self.m_grid2.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Label Appearance
+		
+		# Cell Defaults
+		self.m_grid2.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		self.m_grid2.Hide()
+		self.m_grid2.SetMinSize( wx.Size( 330,120 ) )
+		self.m_grid2.SetMaxSize( wx.Size( 330,120 ) )
+		
+		fgSizer2.Add( self.m_grid2, 0, wx.ALL, 5 )
+		
+		
+		self.SetSizer( fgSizer2 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.analyze.Bind( wx.EVT_BUTTON, self.on_analyze )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_analyze( self, event ):
 		event.Skip()
 	
 
