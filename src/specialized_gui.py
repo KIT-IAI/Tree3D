@@ -234,6 +234,8 @@ class OpenDialog(default_gui.OnOpenDialog):
             # change settings in ... module to check GUID if guid-checkbox is activated
             if self.guid_box.GetValue():
                 print("TODO: Implement GUID Check")
+                self.GetParent().db.set_has_guid(True)
+                self.GetParent().db.set_guid_column_index(self.guid_col.GetSelection())
             self.Destroy()
         # show error message, if input is not valid
         else:
