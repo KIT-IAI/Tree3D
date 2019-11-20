@@ -230,11 +230,11 @@ class OnOpenDialog ( wx.Dialog ):
 class OnCheckDuplicateIdDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,456 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,482 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 7, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 8, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -255,11 +255,11 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.IdColumns.SetSelection( 0 )
 		gSizer3.Add( self.IdColumns, 0, wx.ALL, 5 )
 		
-		self.UUIDCheck = wx.CheckBox( self, wx.ID_ANY, u"Is UUID", wx.DefaultPosition, wx.DefaultSize, 0 )
-		gSizer3.Add( self.UUIDCheck, 0, wx.ALL, 5 )
-		
 		
 		fgSizer2.Add( gSizer3, 1, wx.EXPAND, 5 )
+		
+		self.UUIDCheck = wx.CheckBox( self, wx.ID_ANY, u"Is UUID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.UUIDCheck, 0, wx.ALL, 5 )
 		
 		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )

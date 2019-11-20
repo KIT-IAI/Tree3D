@@ -262,6 +262,8 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
 
         self.InfoTextUUID.Hide()
         self.UUIDGrid.Hide()
+        self.InfoTextDuplicate.Hide()
+        self.DuplicateGrid.Hide()
 
         # Delete rows from grid to reset to 0
         try:
