@@ -253,6 +253,14 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         # exit method if no selection has been made in dropdown
         if self.IdColumns.GetSelection() == wx.NOT_FOUND:
             return
+
+        # Delete rows from grid to reset to 0
+        try:
+            self.DuplicateGrid.DeleteRows(pos=0, numRows=self.DuplicateGrid.GetNumberRows())
+        except:
+            pass
+
+
         l_duplicates = []
         itemindex = self.IdColumns.GetSelection()  # index of selected column
         itemcolname = self.IdColumns.GetString(itemindex)  # name of selected column
@@ -269,7 +277,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             if len(dat) > 1:
                 l_duplicates.append(check_value)
                 self.DuplicateGrid.AppendRows(1)
-                self.DuplicateGrid.SetCellValue(counter, 0, check_value[0])
+                self.DuplicateGrid.SetCellValue(counter, 0, str(check_value[0]))
                 counter += 1
         self.InfoText.Show(True)
         self.DuplicateGrid.Show(True)
