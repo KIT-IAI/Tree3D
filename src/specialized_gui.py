@@ -182,6 +182,9 @@ class OpenDialog(default_gui.OnOpenDialog):
 
     # method to populate columns of dropdown menus with column headers
     def populate_dropdown(self):
+        # try to figure out file encoding: first try to open with utf-8, if that fails with cp1252
+        # if neither file encoding works: show error message
+        warningtext = ""
         try:
             with open(self.__filepath, newline='', encoding='utf-8') as file:
                 header = file.readline()
@@ -199,6 +202,15 @@ class OpenDialog(default_gui.OnOpenDialog):
                 msg.ShowModal()
                 self.Destroy()
                 return
+        except:
+            warningtext = "Cannot open file!\n" \
+                          "Maybe file encoding is not supported\n" \
+                          "File encoding must be either utf-8 or cp1252!"
+            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+            msg.ShowModal()
+            self.Destroy()
+            return
+        
         header = header.strip("\r\n")
         l_cols = header.split(";")
         self.id_col1.SetItems(l_cols)
