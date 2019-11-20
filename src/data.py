@@ -205,7 +205,7 @@ class Database:
 
     # fetches and returns table data from database
     def get_data(self):
-        # executes statement and fetches data
+        # executes statement to fetch all data from database table
         self.__DbCursor.execute(self.__SQLGetAllDataStatement)
         result = self.__DbCursor.fetchall()
         return result
