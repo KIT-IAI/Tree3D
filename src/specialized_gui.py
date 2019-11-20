@@ -302,10 +302,17 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
                     self.UUIDGrid.AppendRows(1)
                     self.UUIDGrid.SetCellValue(uuid_counter, 0, str(check_value[0]))
                     uuid_counter += 1
-                self.InfoTextUUID.Show(True)
-                self.UUIDGrid.Show(True)
+        if duplicate_counter == 0:
+            self.InfoTextDuplicate.SetLabel("Check for duplicates completed. No duplicates found")
+        else:
+            self.DuplicateGrid.Show(True)
         self.InfoTextDuplicate.Show(True)
-        self.DuplicateGrid.Show(True)
+        if self.UUIDCheck.GetValue():
+            if uuid_counter == 0:
+                self.InfoTextUUID.SetLabel("UUID-Validation completed. No invalid UUIDs found")
+            else:
+                self.UUIDGrid.Show(True)
+            self.InfoTextUUID.Show(True)
         self.Layout()
 
 
