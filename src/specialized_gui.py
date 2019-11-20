@@ -268,6 +268,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
 
         # displays checked column in grid column
         self.DuplicateGrid.SetColLabelValue(0, itemcolname)
+        self.DuplicateGrid.SetColLabelValue(1, "#")
 
         # performs a selection for every value to be checkt with WHERE clause
         # check_value: all distinct values of one column
@@ -278,6 +279,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
                 l_duplicates.append(check_value)
                 self.DuplicateGrid.AppendRows(1)
                 self.DuplicateGrid.SetCellValue(counter, 0, str(check_value[0]))
+                self.DuplicateGrid.SetCellValue(counter, 1, str(len(dat)))
                 counter += 1
         self.InfoText.Show(True)
         self.DuplicateGrid.Show(True)

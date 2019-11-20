@@ -271,14 +271,15 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.DuplicateGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		# Grid
-		self.DuplicateGrid.CreateGrid( 0, 1 )
+		self.DuplicateGrid.CreateGrid( 0, 2 )
 		self.DuplicateGrid.EnableEditing( False )
 		self.DuplicateGrid.EnableGridLines( True )
 		self.DuplicateGrid.EnableDragGridSize( False )
 		self.DuplicateGrid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.DuplicateGrid.SetColSize( 0, 246 )
+		self.DuplicateGrid.SetColSize( 0, 224 )
+		self.DuplicateGrid.SetColSize( 1, 25 )
 		self.DuplicateGrid.EnableDragColMove( False )
 		self.DuplicateGrid.EnableDragColSize( True )
 		self.DuplicateGrid.SetColLabelSize( 30 )
