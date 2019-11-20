@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# import python standard library classes
+import uuid
+
 # import wxPython classes
 import wx
 import wx.aui
@@ -257,9 +260,16 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             msg.ShowModal()
             return
 
+        self.InfoTextUUID.Hide()
+        self.UUIDGrid.Hide()
+
         # Delete rows from grid to reset to 0
         try:
             self.DuplicateGrid.DeleteRows(pos=0, numRows=self.DuplicateGrid.GetNumberRows())
+        except:
+            pass
+        try:
+            self.UUIDGrid.DeleteRows(pos=0, numRows=self.UUIDGrid.GetNumberRows())
         except:
             pass
 
@@ -271,18 +281,29 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         # displays checked column in grid column
         self.DuplicateGrid.SetColLabelValue(0, itemcolname)
         self.DuplicateGrid.SetColLabelValue(1, "#")
+        self.UUIDGrid.SetColLabelValue(0, itemcolname)
 
         # performs a selection for every value to be checkt with WHERE clause
         # check_value: all distinct values of one column
-        counter = 0
+        duplicate_counter = 0
+        uuid_counter = 0
         for check_value in self.GetParent().db.get_data_by_collist_distinct(collist):
             dat = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
             if len(dat) > 1:
                 l_duplicates.append(check_value)
                 self.DuplicateGrid.AppendRows(1)
-                self.DuplicateGrid.SetCellValue(counter, 0, str(check_value[0]))
-                self.DuplicateGrid.SetCellValue(counter, 1, str(len(dat)))
-                counter += 1
+                self.DuplicateGrid.SetCellValue(duplicate_counter, 0, str(check_value[0]))
+                self.DuplicateGrid.SetCellValue(duplicate_counter, 1, str(len(dat)))
+                duplicate_counter += 1
+            if self.UUIDCheck.GetValue():
+                try:
+                    uuid.UUID('{%s}' % check_value[0])
+                except:
+                    self.UUIDGrid.AppendRows(1)
+                    self.UUIDGrid.SetCellValue(uuid_counter, 0, str(check_value[0]))
+                    uuid_counter += 1
+                self.InfoTextUUID.Show(True)
+                self.UUIDGrid.Show(True)
         self.InfoTextDuplicate.Show(True)
         self.DuplicateGrid.Show(True)
         self.Layout()

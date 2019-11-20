@@ -230,11 +230,11 @@ class OnOpenDialog ( wx.Dialog ):
 class OnCheckDuplicateIdDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,304 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,456 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
-		self.SetSizeHints( wx.Size( 353,304 ), wx.Size( 353,304 ) )
+		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 5, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 7, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -243,7 +243,7 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		fgSizer2.Add( self.m_staticText7, 0, wx.ALL, 5 )
 		
-		gSizer3 = wx.GridSizer( 1, 2, 0, 0 )
+		gSizer3 = wx.GridSizer( 1, 3, 0, 0 )
 		
 		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, u"Select ID field", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText8.Wrap( -1 )
@@ -254,6 +254,9 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.IdColumns = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, IdColumnsChoices, 0 )
 		self.IdColumns.SetSelection( 0 )
 		gSizer3.Add( self.IdColumns, 0, wx.ALL, 5 )
+		
+		self.UUIDCheck = wx.CheckBox( self, wx.ID_ANY, u"Is UUID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		gSizer3.Add( self.UUIDCheck, 0, wx.ALL, 5 )
 		
 		
 		fgSizer2.Add( gSizer3, 1, wx.EXPAND, 5 )
@@ -299,6 +302,44 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.DuplicateGrid.SetMaxSize( wx.Size( 330,120 ) )
 		
 		fgSizer2.Add( self.DuplicateGrid, 0, wx.ALL, 5 )
+		
+		self.InfoTextUUID = wx.StaticText( self, wx.ID_ANY, u"The following UUIDs are invalid:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoTextUUID.Wrap( -1 )
+		
+		self.InfoTextUUID.Hide()
+		
+		fgSizer2.Add( self.InfoTextUUID, 0, wx.ALL, 5 )
+		
+		self.UUIDGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		# Grid
+		self.UUIDGrid.CreateGrid( 0, 1 )
+		self.UUIDGrid.EnableEditing( False )
+		self.UUIDGrid.EnableGridLines( True )
+		self.UUIDGrid.EnableDragGridSize( False )
+		self.UUIDGrid.SetMargins( 0, 0 )
+		
+		# Columns
+		self.UUIDGrid.SetColSize( 0, 248 )
+		self.UUIDGrid.EnableDragColMove( False )
+		self.UUIDGrid.EnableDragColSize( True )
+		self.UUIDGrid.SetColLabelSize( 30 )
+		self.UUIDGrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Rows
+		self.UUIDGrid.EnableDragRowSize( False )
+		self.UUIDGrid.SetRowLabelSize( 80 )
+		self.UUIDGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Label Appearance
+		
+		# Cell Defaults
+		self.UUIDGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		self.UUIDGrid.Hide()
+		self.UUIDGrid.SetMinSize( wx.Size( 330,120 ) )
+		self.UUIDGrid.SetMaxSize( wx.Size( 330,120 ) )
+		
+		fgSizer2.Add( self.UUIDGrid, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( fgSizer2 )
