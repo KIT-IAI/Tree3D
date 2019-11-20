@@ -257,13 +257,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
 
     # method to populate dropdown with (id) columns in dialogbox
     def populate_dropdown(self):
-        colitemlist = []
-        if self.GetParent().db.CreateTwoColID:
-            colitemlist.append("IAI_TreeID")
-        if self.GetParent().db.HasGuid:
-            colitemlist.append(self.GetParent().db.get_guid_col_name())
-        if not (self.GetParent().db.CreateTwoColID or self.GetParent().db.HasGuid):
-            colitemlist = self.GetParent().db.get_column_names()
+        colitemlist = self.GetParent().db.get_column_names()
         self.IdColumns.SetItems(colitemlist)
 
     # method to be executed when hitting Analyze Button in DialogBox
