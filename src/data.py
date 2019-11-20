@@ -217,6 +217,14 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
+    # alters sql statement to perform SELECT DISTINCT, includes WHERE condition
+    def get_data_with_condition_distinct(self, wherestatement):
+        statement = self.__SQLGetAllDataStatement[0:7] + "DISTINCT " + self.__SQLGetAllDataStatement[7:-1]
+        statement += " " + wherestatement + ";"
+        self.__DbCursor.execute(statement)
+        result = self.__DbCursor.fetchall()
+        return result
+
 
     # selects data from database from specific columns
     # collist variable has column names
