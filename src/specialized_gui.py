@@ -275,7 +275,6 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         except:
             pass
 
-        l_duplicates = []
         itemindex = self.IdColumns.GetSelection()  # index of selected column
         itemcolname = self.IdColumns.GetString(itemindex)  # name of selected column
         collist = [itemcolname]  # name of column but in a list
@@ -292,7 +291,6 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         for check_value in self.GetParent().db.get_data_by_collist_distinct(collist):
             dat = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
             if len(dat) > 1:
-                l_duplicates.append(check_value)
                 self.DuplicateGrid.AppendRows(1)
                 self.DuplicateGrid.SetCellValue(duplicate_counter, 0, str(check_value[0]))
                 self.DuplicateGrid.SetCellValue(duplicate_counter, 1, str(len(dat)))
