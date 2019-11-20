@@ -281,8 +281,9 @@ class Database:
         if self.HasGuid:
             return self.get_column_names()[self.__GuidColumnIndex]
 
+
 if __name__ == "__main__":
     db = Database()
     db.import_csv_file(filepath=".\..\data\ArbokatBaumdaten_komplett.csv")
     db.close_db_connection()
-    #db.delete_db()
+    # db.delete_db()
