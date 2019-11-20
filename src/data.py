@@ -28,9 +28,6 @@ class Database:
         self.CreateTwoColID = False  # variable to determine weather a tree id should be created
         self.__CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
 
-        self.HasGuid = False  # variable to determine wheather data has a guid column
-        self.__GuidColumnIndex = -1  # index of guid column
-
     # Creates Database Path
     # Database is stored in temporary folder by default
     # Path to temporary folder is read from environment variables TMP or TEMP
@@ -132,13 +129,6 @@ class Database:
             statement += "?, "
         statement = statement[:-2] + ");"
         self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
-
-        # check if uuid is valid
-        if self.HasGuid:
-            try:
-                uuid.UUID('{%s}' % row[self.__GuidColumnIndex])
-            except:
-                print("fehlerhafte UUID")
 
     # returns the number of table columns
     def get_number_of_columns(self):
@@ -265,21 +255,6 @@ class Database:
     # sets list of columns to create index from
     def set_id_columns(self, value):
         self.__CreateTwoColIDColumns = value
-
-    # sets variable whether guid check is performed
-    def set_has_guid(self, value):
-        self.HasGuid = value
-
-    # sets index of column to be used as uuid
-    def set_guid_column_index(self, value):
-        self.__GuidColumnIndex = value
-        if self.CreateTwoColID:
-            self.__GuidColumnIndex += 1
-
-    # returns column name of guid column
-    def get_guid_col_name(self):
-        if self.HasGuid:
-            return self.get_column_names()[self.__GuidColumnIndex]
 
 
 if __name__ == "__main__":

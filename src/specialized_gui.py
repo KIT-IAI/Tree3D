@@ -94,10 +94,6 @@ class MainTableFrame(default_gui.MainWindow):
         self.db.set_create_id(False)
         self.db.set_id_columns([])
 
-        # reset options: By default, no GUID is checked
-        self.db.set_has_guid(False)
-        self.db.set_guid_column_index(-1)
-
     # adjusts numbers of rows and columns to match data
     # populates grid with data afterwards
     def show_data_in_grid(self):
@@ -169,7 +165,6 @@ class MainTableFrame(default_gui.MainWindow):
     # overrides method in parent class
     def on_menu_test(self, event):
         print("Test")
-        print(self.db.get_guid_col_name())
 
     def on_check_for_duplicates_ID(self, event):
         dlg = CheckDuplicateId(self)
@@ -201,13 +196,6 @@ class OpenDialog(default_gui.OnOpenDialog):
         self.id_col2.Enable(not self.id_col2.Enabled)
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
-
-    # method to be called when checkbox event for guid-checkbox is triggered
-    # every time the checkbox is clicked
-    # overrides method in parent class
-    def guid_checkbox_event(self, event):
-        self.guid_text.Enable(not self.guid_text.Enabled)
-        self.guid_col.Enable(not self.guid_col.Enabled)
 
     # method to be called when clicking OK in dialog
     # overrides method in parent dialog
