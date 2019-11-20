@@ -210,6 +210,14 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
+    # appends sql statement with a where condition to filter data
+    def get_data_with_condition(self, wherestatement):
+        statement = self.__SQLGetAllDataStatement[:-1] + " " + wherestatement + ";"
+        self.__DbCursor.execute(statement)
+        result = self.__DbCursor.fetchall()
+        return result
+
+
     # selects data from database from specific columns
     # collist variable has column names
     def get_data_by_collist(self, collist):
