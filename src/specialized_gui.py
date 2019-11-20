@@ -252,6 +252,9 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
     def on_analyze(self, event):
         # exit method if no selection has been made in dropdown
         if self.IdColumns.GetSelection() == wx.NOT_FOUND:
+            warningtext = "Please select ID column to analyze for duplicates"
+            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
             return
 
         # Delete rows from grid to reset to 0
