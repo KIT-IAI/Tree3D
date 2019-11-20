@@ -263,7 +263,6 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         except:
             pass
 
-
         l_duplicates = []
         itemindex = self.IdColumns.GetSelection()  # index of selected column
         itemcolname = self.IdColumns.GetString(itemindex)  # name of selected column
@@ -284,7 +283,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
                 self.DuplicateGrid.SetCellValue(counter, 0, str(check_value[0]))
                 self.DuplicateGrid.SetCellValue(counter, 1, str(len(dat)))
                 counter += 1
-        self.InfoText.Show(True)
+        self.InfoTextDuplicate.Show(True)
         self.DuplicateGrid.Show(True)
         self.Layout()
 

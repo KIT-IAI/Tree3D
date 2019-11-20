@@ -261,12 +261,12 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
 		
-		self.InfoText = wx.StaticText( self, wx.ID_ANY, u"The following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.InfoText.Wrap( -1 )
+		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"The following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoTextDuplicate.Wrap( -1 )
 		
-		self.InfoText.Hide()
+		self.InfoTextDuplicate.Hide()
 		
-		fgSizer2.Add( self.InfoText, 0, wx.ALL, 5 )
+		fgSizer2.Add( self.InfoTextDuplicate, 0, wx.ALL, 5 )
 		
 		self.DuplicateGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
