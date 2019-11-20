@@ -21,7 +21,9 @@ class Database:
         self.__DbCursor = None
         self.establish_db_connection()
         self.__DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
-        self.__lTableColmnNames = []
+        self.__lTableColmnNames = []  # list of all table column names
+
+        self.__SQLGetAllDataStatement = ""
 
         self.CreateTwoColID = False  # variable to determine weather a tree id should be created
         self.__CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
@@ -63,6 +65,7 @@ class Database:
                     # Insert data rows from csv file into database
                     self.populate_db_table(row)
         self.__DbConnection.commit()
+        self.generate_sql_statement()
 
     # method to automatically detect the data type of a column in the opened csv file.
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
@@ -190,17 +193,20 @@ class Database:
         except sqlite3.OperationalError:
             return 0
 
-    # fetches and returns table data from database
-    def get_data(self):
-        # generates sql statement
+    # generates SQL Statement to fetch all Data from Database table
+    # Only Select, no sorting, no conditions etc
+    def generate_sql_statement(self):
         statement = "SELECT "
         for colname in self.get_column_names():
             statement += '"%s", ' % colname
         statement = statement[:-2]
         statement += " FROM %s;" % self.__DbTreeTableName
+        self.__SQLGetAllDataStatement = statement
 
+    # fetches and returns table data from database
+    def get_data(self):
         # executes statement and fetches data
-        self.__DbCursor.execute(statement)
+        self.__DbCursor.execute(self.__SQLGetAllDataStatement)
         result = self.__DbCursor.fetchall()
         return result
 
