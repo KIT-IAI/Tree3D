@@ -251,6 +251,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         self.IdColumns.SetItems(colitemlist)
 
     # method to be executed when hitting Analyze Button in DialogBox
+    # Checks if data contains duplicate IDs, validates UUIDs
     # overrides method in parent class
     def on_analyze(self, event):
         # exit method if no selection has been made in dropdown
@@ -260,6 +261,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             msg.ShowModal()
             return
 
+        # hide result text and result grid
         self.InfoTextUUID.Hide()
         self.UUIDGrid.Hide()
         self.InfoTextDuplicate.Hide()
@@ -279,7 +281,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         itemcolname = self.IdColumns.GetString(itemindex)  # name of selected column
         collist = [itemcolname]  # name of column but in a list
 
-        # displays checked column in grid column
+        # displays selected column name in column labels of grids
         self.DuplicateGrid.SetColLabelValue(0, itemcolname)
         self.DuplicateGrid.SetColLabelValue(1, "#")
         self.UUIDGrid.SetColLabelValue(0, itemcolname)
@@ -290,29 +292,40 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         uuid_counter = 0
         for check_value in self.GetParent().db.get_data_by_collist_distinct(collist):
             dat = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
+
+            # if query returns >1 rows (e.g. two entries with one ID), add values to grid
             if len(dat) > 1:
                 self.DuplicateGrid.AppendRows(1)
                 self.DuplicateGrid.SetCellValue(duplicate_counter, 0, str(check_value[0]))
                 self.DuplicateGrid.SetCellValue(duplicate_counter, 1, str(len(dat)))
                 duplicate_counter += 1
+            # perform uuid validation if uuid-checkbox was activated
             if self.UUIDCheck.GetValue():
                 try:
                     uuid.UUID('{%s}' % check_value[0])
                 except:
+                    # add UUID to grid if invalid
                     self.UUIDGrid.AppendRows(1)
                     self.UUIDGrid.SetCellValue(uuid_counter, 0, str(check_value[0]))
                     uuid_counter += 1
+
+        # change info message if no duplicates have been found
+        # otherwise: show grid with duplicates
         if duplicate_counter == 0:
             self.InfoTextDuplicate.SetLabel("Check for duplicates completed.\nNo duplicates have been found")
         else:
             self.DuplicateGrid.Show(True)
         self.InfoTextDuplicate.Show(True)
+
+        # change info message if no invalid uuid was found
+        # otherwise: show grid with invalid uuids
         if self.UUIDCheck.GetValue():
             if uuid_counter == 0:
                 self.InfoTextUUID.SetLabel("UUID-Validation completed.\nNo invalid UUIDs found")
             else:
                 self.UUIDGrid.Show(True)
             self.InfoTextUUID.Show(True)
+
         self.Layout()
 
 
