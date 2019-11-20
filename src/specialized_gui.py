@@ -269,11 +269,31 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
     # method to be executed when hitting Analyze Button in DialogBox
     # overrides method in parent class
     def on_analyze(self, event):
+        # exit method if no selection has been made in dropdown
         if self.IdColumns.GetSelection() == wx.NOT_FOUND:
             return
-        itemindex = self.IdColumns.GetSelection()
-        collist = [self.IdColumns.GetString(itemindex)]
-        print(self.GetParent().db.get_data_by_collist(collist))
+        l_duplicates = []
+        itemindex = self.IdColumns.GetSelection()  # index of selected column
+        itemcolname = self.IdColumns.GetString(itemindex)  # name of selected column
+        collist = [itemcolname]  # name of column but in a list
+
+        # displays checked column in grid column
+        self.DuplicateGrid.SetColLabelValue(0, itemcolname)
+
+        # performs a selection for every value to be checkt with WHERE clause
+        # check_value: all distinct values of one column
+        counter = 0
+        for check_value in self.GetParent().db.get_data_by_collist_distinct(collist):
+            dat = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
+            if len(dat) > 1:
+                l_duplicates.append(check_value)
+                self.DuplicateGrid.AppendRows(1)
+                self.DuplicateGrid.SetCellValue(counter, 0, check_value[0])
+                counter += 1
+        self.InfoText.Show(True)
+        self.DuplicateGrid.Show(True)
+        self.Layout()
+
 
 # create wxPython App
 class MyApp(wx.App):

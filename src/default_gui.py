@@ -266,11 +266,11 @@ class OnOpenDialog ( wx.Dialog ):
 class OnCheckDuplicateIdDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,281 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,304 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.Size( 353,304 ), wx.Size( 353,304 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 4, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 5, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -297,35 +297,43 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
 		
-		self.m_grid2 = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoText = wx.StaticText( self, wx.ID_ANY, u"The following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoText.Wrap( -1 )
+		
+		self.InfoText.Hide()
+		
+		fgSizer2.Add( self.InfoText, 0, wx.ALL, 5 )
+		
+		self.DuplicateGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		# Grid
-		self.m_grid2.CreateGrid( 3, 5 )
-		self.m_grid2.EnableEditing( True )
-		self.m_grid2.EnableGridLines( True )
-		self.m_grid2.EnableDragGridSize( False )
-		self.m_grid2.SetMargins( 0, 0 )
+		self.DuplicateGrid.CreateGrid( 0, 1 )
+		self.DuplicateGrid.EnableEditing( False )
+		self.DuplicateGrid.EnableGridLines( True )
+		self.DuplicateGrid.EnableDragGridSize( False )
+		self.DuplicateGrid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.m_grid2.EnableDragColMove( False )
-		self.m_grid2.EnableDragColSize( True )
-		self.m_grid2.SetColLabelSize( 30 )
-		self.m_grid2.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		self.DuplicateGrid.SetColSize( 0, 246 )
+		self.DuplicateGrid.EnableDragColMove( False )
+		self.DuplicateGrid.EnableDragColSize( True )
+		self.DuplicateGrid.SetColLabelSize( 30 )
+		self.DuplicateGrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Rows
-		self.m_grid2.EnableDragRowSize( False )
-		self.m_grid2.SetRowLabelSize( 80 )
-		self.m_grid2.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		self.DuplicateGrid.EnableDragRowSize( False )
+		self.DuplicateGrid.SetRowLabelSize( 80 )
+		self.DuplicateGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Label Appearance
 		
 		# Cell Defaults
-		self.m_grid2.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
-		self.m_grid2.Hide()
-		self.m_grid2.SetMinSize( wx.Size( 330,120 ) )
-		self.m_grid2.SetMaxSize( wx.Size( 330,120 ) )
+		self.DuplicateGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		self.DuplicateGrid.Hide()
+		self.DuplicateGrid.SetMinSize( wx.Size( 330,120 ) )
+		self.DuplicateGrid.SetMaxSize( wx.Size( 330,120 ) )
 		
-		fgSizer2.Add( self.m_grid2, 0, wx.ALL, 5 )
+		fgSizer2.Add( self.DuplicateGrid, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( fgSizer2 )
