@@ -225,6 +225,19 @@ class Database:
         result = self.__DbCursor.fetchall()
         return result
 
+    # performs a SELECT DISTINCT with columns written in collist
+    def get_data_by_collist_distinct(self, collist):
+        # generates sql statement
+        statement = "SELECT DISTINCT "
+        for colname in collist:
+            statement += '"%s", ' % colname
+        statement = statement[:-2]
+        statement += " FROM %s;" % self.__DbTreeTableName
+
+        # executes statement and fetches data
+        self.__DbCursor.execute(statement)
+        result = self.__DbCursor.fetchall()
+        return result
 
     # selects data from database from specific columns
     # collist variable has column names
