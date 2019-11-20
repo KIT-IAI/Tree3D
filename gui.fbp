@@ -1414,7 +1414,7 @@
             <property name="minimum_size">-1,-1</property>
             <property name="name">OnCheckDuplicateIdDialog</property>
             <property name="pos"></property>
-            <property name="size">353,482</property>
+            <property name="size">353,509</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass">; ; forward_declare</property>
             <property name="title"></property>
@@ -2002,9 +2002,9 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">1</property>
+                        <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">The following Duplicate values have been found:</property>
+                        <property name="label">Check for duplicates completed:&#x0A;The following Duplicate values have been found:</property>
                         <property name="markup">0</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
@@ -2113,7 +2113,7 @@
                         <property name="grid_line_color"></property>
                         <property name="grid_lines">1</property>
                         <property name="gripper">0</property>
-                        <property name="hidden">1</property>
+                        <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label_bg"></property>
                         <property name="label_font"></property>
@@ -2243,9 +2243,9 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">1</property>
+                        <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">The following UUIDs are invalid:</property>
+                        <property name="label">UUID-Validation completed:&#x0A;The following UUIDs are invalid:</property>
                         <property name="markup">0</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
@@ -2354,7 +2354,7 @@
                         <property name="grid_line_color"></property>
                         <property name="grid_lines">1</property>
                         <property name="gripper">0</property>
-                        <property name="hidden">1</property>
+                        <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label_bg"></property>
                         <property name="label_font"></property>

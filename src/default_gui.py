@@ -230,7 +230,7 @@ class OnOpenDialog ( wx.Dialog ):
 class OnCheckDuplicateIdDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,482 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 353,509 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
@@ -264,10 +264,8 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
 		
-		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"The following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.InfoTextDuplicate.Wrap( -1 )
-		
-		self.InfoTextDuplicate.Hide()
 		
 		fgSizer2.Add( self.InfoTextDuplicate, 0, wx.ALL, 5 )
 		
@@ -297,16 +295,13 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		# Cell Defaults
 		self.DuplicateGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
-		self.DuplicateGrid.Hide()
 		self.DuplicateGrid.SetMinSize( wx.Size( 330,120 ) )
 		self.DuplicateGrid.SetMaxSize( wx.Size( 330,120 ) )
 		
 		fgSizer2.Add( self.DuplicateGrid, 0, wx.ALL, 5 )
 		
-		self.InfoTextUUID = wx.StaticText( self, wx.ID_ANY, u"The following UUIDs are invalid:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoTextUUID = wx.StaticText( self, wx.ID_ANY, u"UUID-Validation completed:\nThe following UUIDs are invalid:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.InfoTextUUID.Wrap( -1 )
-		
-		self.InfoTextUUID.Hide()
 		
 		fgSizer2.Add( self.InfoTextUUID, 0, wx.ALL, 5 )
 		
@@ -335,7 +330,6 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		# Cell Defaults
 		self.UUIDGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
-		self.UUIDGrid.Hide()
 		self.UUIDGrid.SetMinSize( wx.Size( 330,120 ) )
 		self.UUIDGrid.SetMaxSize( wx.Size( 330,120 ) )
 		
