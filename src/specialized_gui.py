@@ -189,7 +189,6 @@ class OpenDialog(default_gui.OnOpenDialog):
         l_cols = header.split(";")
         self.id_col1.SetItems(l_cols)
         self.id_col2.SetItems(l_cols)
-        self.guid_col.SetItems(l_cols)
 
     # method to be called when checkbox event for generate-id-checkbox is triggered
     # every time the checkbox is clicked
@@ -224,24 +223,12 @@ class OpenDialog(default_gui.OnOpenDialog):
                 valid = False
                 warningtext = "Cannot generate IDs. Please select two different table columns for ID generation"
 
-        # checks input for GUID, if GUID-checkbox is activated: Column must be selected
-        if self.guid_box.GetValue() and self.guid_col.GetSelection() == wx.NOT_FOUND:
-            valid = False
-            if warningtext != "":
-                warningtext += "\n"
-            warningtext += "Cannot check for GUID. Please Select GUID Column"
-
         # if input is valid, do stuff
         if valid:
             # change settings in data module to generate IDs if generate-id-checkbox is activated
             if self.generate_ID_box.GetValue():
                 self.GetParent().db.set_create_id(True)
                 self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
-            # change settings in ... module to check GUID if guid-checkbox is activated
-            if self.guid_box.GetValue():
-                print("TODO: Implement GUID Check")
-                self.GetParent().db.set_has_guid(True)
-                self.GetParent().db.set_guid_column_index(self.guid_col.GetSelection())
             self.Destroy()
         # show error message, if input is not valid
         else:

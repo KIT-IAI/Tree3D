@@ -195,38 +195,6 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
 		
-		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"GUID" ), wx.VERTICAL )
-		
-		self.guid_box = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"Data contains GUIDs", wx.DefaultPosition, wx.DefaultSize, 0 )
-		sbSizer11.Add( self.guid_box, 0, wx.ALL, 5 )
-		
-		self.m_staticText41 = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"If checked, ArbokaTransformer will perform a GUID\nvalidation before data import.", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText41.Wrap( -1 )
-		
-		sbSizer11.Add( self.m_staticText41, 0, wx.ALL, 5 )
-		
-		gSizer21 = wx.GridSizer( 0, 2, 0, 0 )
-		
-		self.guid_text = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"GUID Column", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.guid_text.Wrap( -1 )
-		
-		self.guid_text.Enable( False )
-		
-		gSizer21.Add( self.guid_text, 0, wx.ALL, 5 )
-		
-		guid_colChoices = []
-		self.guid_col = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, guid_colChoices, 0 )
-		self.guid_col.SetSelection( 0 )
-		self.guid_col.Enable( False )
-		
-		gSizer21.Add( self.guid_col, 0, wx.ALL, 5 )
-		
-		
-		sbSizer11.Add( gSizer21, 1, wx.EXPAND, 5 )
-		
-		
-		fgSizer4.Add( sbSizer11, 1, wx.EXPAND, 5 )
-		
 		self.ok_button = wx.Button( self, wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
 		
 		self.ok_button.SetBitmapPosition( wx.RIGHT )
@@ -241,7 +209,6 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		# Connect Events
 		self.generate_ID_box.Bind( wx.EVT_CHECKBOX, self.id_checkbox_event )
-		self.guid_box.Bind( wx.EVT_CHECKBOX, self.guid_checkbox_event )
 		self.ok_button.Bind( wx.EVT_BUTTON, self.on_ok )
 	
 	def __del__( self ):
@@ -250,9 +217,6 @@ class OnOpenDialog ( wx.Dialog ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def id_checkbox_event( self, event ):
-		event.Skip()
-	
-	def guid_checkbox_event( self, event ):
 		event.Skip()
 	
 	def on_ok( self, event ):
