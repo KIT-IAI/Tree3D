@@ -2,6 +2,7 @@
 
 # import python standard library classes
 import uuid
+import sys
 
 # import wxPython classes
 import wx
@@ -181,8 +182,23 @@ class OpenDialog(default_gui.OnOpenDialog):
 
     # method to populate columns of dropdown menus with column headers
     def populate_dropdown(self):
-        with open(self.__filepath, newline='', encoding='utf-8-sig') as file:
-            header = file.readline()
+        try:
+            with open(self.__filepath, newline='', encoding='utf-8') as file:
+                header = file.readline()
+                self.GetParent().db.set_file_encoding("utf-8")
+        except UnicodeDecodeError:
+            try:
+                with open(self.__filepath, newline='', encoding='cp1252') as file:
+                    header = file.readline()
+                    self.GetParent().db.set_file_encoding("cp1252")
+            except:
+                warningtext = "Cannot open file!\n" \
+                              "Maybe file encoding is not supported\n" \
+                              "File encoding must be either utf-8 or cp1252!"
+                msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+                msg.ShowModal()
+                self.Destroy()
+                return
         header = header.strip("\r\n")
         l_cols = header.split(";")
         self.id_col1.SetItems(l_cols)
@@ -291,7 +307,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             if self.UUIDCheck.GetValue():
                 try:
                     uuid.UUID('{%s}' % check_value[0])
-                except:
+                except ValueError:
                     # add UUID to grid if invalid
                     self.UUIDGrid.AppendRows(1)
                     self.UUIDGrid.SetCellValue(uuid_counter, 0, str(check_value[0]))

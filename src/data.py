@@ -23,6 +23,8 @@ class Database:
         self.__DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self.__lTableColmnNames = []  # list of all table column names
 
+        self.__FileEncoding = ""
+
         self.__SQLGetAllDataStatement = ""
 
         self.CreateTwoColID = False  # variable to determine weather a tree id should be created
@@ -44,7 +46,7 @@ class Database:
 
     # method to create database table from csv file
     def import_csv_file(self, filepath, sep=";"):
-        with open(filepath, newline='', encoding='utf-8-sig') as csvfile:
+        with open(filepath, newline='', encoding=self.__FileEncoding) as csvfile:
             filereader = csv.reader(csvfile, delimiter=sep)
             for idx, row in enumerate(filereader):
                 if idx == 0:
@@ -255,6 +257,9 @@ class Database:
     # sets list of columns to create index from
     def set_id_columns(self, value):
         self.__CreateTwoColIDColumns = value
+
+    def set_file_encoding(self, codec):
+        self.__FileEncoding = codec
 
 
 if __name__ == "__main__":
