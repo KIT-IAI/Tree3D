@@ -195,7 +195,7 @@ class OpenDialog(default_gui.OnOpenDialog):
                     header = file.readline()
                     self.GetParent().db.set_file_encoding("cp1252")
             except:
-                warningtext = "Cannot open file!\n" \
+                warningtext = "Unknown Error: Cannot open file!\n" \
                               "Maybe file encoding is not supported\n" \
                               "File encoding must be either utf-8 or cp1252!"
                 msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
@@ -203,14 +203,14 @@ class OpenDialog(default_gui.OnOpenDialog):
                 self.Destroy()
                 return
         except:
-            warningtext = "Cannot open file!\n" \
+            warningtext = "Unknown Error: Cannot open file!\n" \
                           "Maybe file encoding is not supported\n" \
                           "File encoding must be either utf-8 or cp1252!"
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
             msg.ShowModal()
             self.Destroy()
             return
-        
+
         header = header.strip("\r\n")
         l_cols = header.split(";")
         self.id_col1.SetItems(l_cols)
