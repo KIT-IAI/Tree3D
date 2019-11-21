@@ -174,6 +174,7 @@ class MainTableFrame(default_gui.MainWindow):
         sort_col_asc = wx.MenuItem(contextmenu, wx.ID_ANY, "Sort grid by column ascending")
         sort_col_desc = wx.MenuItem(contextmenu, wx.ID_ANY, "Sort grid by column descending")
         contextmenu.Append(hide_col)
+        contextmenu.AppendSeparator()
         contextmenu.Append(sort_col_asc)
         contextmenu.Append(sort_col_desc)
 
