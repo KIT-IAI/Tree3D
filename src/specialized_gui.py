@@ -69,6 +69,8 @@ class MainTableFrame(default_gui.MainWindow):
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
+    # method to reset program to a state similar to after startup
+    # needed for example when a file was opened already and a new file will now be opened
     def reset_program(self):
         # Disable Grid visibility
         self.table_view_panel.grid.Show(False)
@@ -291,6 +293,7 @@ class MainTableFrame(default_gui.MainWindow):
     def on_menu_test(self, event):
         print("Test")
 
+    # method is called when hitting Analyze > Check for duplicate IDs
     def on_check_for_duplicates_ID(self, event):
         dlg = CheckDuplicateId(self)
         dlg.ShowModal()
