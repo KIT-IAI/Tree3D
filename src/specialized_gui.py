@@ -68,22 +68,14 @@ class MainTableFrame(default_gui.MainWindow):
             dlg.ShowModal()
 
             self.db.import_csv_file(filepath=pathname)
-        self.show_data_in_grid()
+        self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
     def reset_program(self):
         # Disable Grid visibility
         self.table_view_panel.grid.Show(False)
 
-        # Deletes all columns and rows of grid, so a new file can be displayed properly
-        # rows and columns can only be deleted if their number is null (on program start)
-        try:
-            self.table_view_panel.grid.DeleteRows(pos=0, numRows=self.db.get_number_of_tablerecords())
-        except:
-            pass
-        try:
-            self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.db.get_number_of_columns())
-        except:
-            pass
+        # reset grid size to 0 cols and 0 rows
+        self.reset_grid_size()
 
         # deletes database table (if exists) so new file can be imported
         self.db.reset_database_table()
@@ -97,10 +89,10 @@ class MainTableFrame(default_gui.MainWindow):
 
     # adjusts numbers of rows and columns to match data
     # populates grid with data afterwards
-    def show_data_in_grid(self):
+    def show_data_in_grid(self, col_number, row_number, data_table):
+        self.reset_grid_size()
+
         # set number of rows and columns in grid
-        col_number = self.db.get_number_of_columns()
-        row_number = self.db.get_number_of_tablerecords()
         self.table_view_panel.grid.InsertCols(pos=0, numCols=col_number)
         self.table_view_panel.grid.InsertRows(pos=0, numRows=row_number)
 
@@ -109,7 +101,6 @@ class MainTableFrame(default_gui.MainWindow):
             self.table_view_panel.grid.SetColLabelValue(idx, colname)
 
         # fill grid with data
-        data_table = self.db.get_data()
         for RowIdx, row in enumerate(data_table):
             for ColIdx, val in enumerate(row):
                 if ColIdx == 0:
@@ -129,6 +120,19 @@ class MainTableFrame(default_gui.MainWindow):
 
         # write number of rows in statusbar
         self.m_statusBar3.SetStatusText("%s rows displayed in table" % row_number, 0)
+
+    # resets size of grid to 0 columns and 0 rows
+    # Deletes all columns and rows of grid, so new data can be displayed properly
+    # rows and columns can only be deleted if their number is not null (on program start)
+    def reset_grid_size(self):
+        try:
+            self.table_view_panel.grid.DeleteRows(pos=0, numRows=self.table_view_panel.grid.GetNumberRows())
+        except wx._core.wxAssertionError:
+            pass
+        try:
+            self.table_view_panel.grid.DeleteCols(pos=0, numCols=self.table_view_panel.grid.GetNumberCols())
+        except wx._core.wxAssertionError:
+            pass
 
     # method resets order of columns back to default
     # overrides method in parent class
