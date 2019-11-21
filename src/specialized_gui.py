@@ -148,7 +148,7 @@ class MainTableFrame(default_gui.MainWindow):
 
     # returns a list of integers, showing the order of grid columns
     # list is ordered by column ID
-    def getAllColPosition(self):
+    def get_all_col_position(self):
         pos_list = []
         for idx in range(0, self.table_view_panel.grid.GetNumberCols()):
             pos_list.append(self.table_view_panel.grid.GetColAt(idx))
@@ -157,7 +157,7 @@ class MainTableFrame(default_gui.MainWindow):
     # returns a list indicating which grid columns are visible and which are not
     # True, if column is visible, False, if column is not hidden
     # List ordered by column ID
-    def getAllColVisiblity(self):
+    def get_all_col_visiblity(self):
         visibility_list = []
         for idx in range(0, self.table_view_panel.grid.GetNumberCols()):
             visibility_list.append(self.table_view_panel.grid.IsColShown(idx))
@@ -208,8 +208,8 @@ class MainTableFrame(default_gui.MainWindow):
             first_col_moved = True
 
         # get current order and visibility of columns
-        col_order = self.getAllColPosition()
-        col_visiblity = self.getAllColVisiblity()
+        col_order = self.get_all_col_position()
+        col_visiblity = self.get_all_col_visiblity()
 
         # remove possible column sort indicators from column header
         self.remove_col_sort_indicator()
@@ -255,8 +255,8 @@ class MainTableFrame(default_gui.MainWindow):
             self.table_view_panel.grid.SetColPos(0, 0)
             first_col_moved = True
 
-        col_order = self.getAllColPosition()
-        col_visiblity = self.getAllColVisiblity()
+        col_order = self.get_all_col_position()
+        col_visiblity = self.get_all_col_visiblity()
 
         self.remove_col_sort_indicator()
 
