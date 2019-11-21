@@ -2,7 +2,6 @@
 
 # import python standard library classes
 import uuid
-import sys
 
 # import wxPython classes
 import wx
@@ -145,6 +144,23 @@ class MainTableFrame(default_gui.MainWindow):
         for i in range(0, self.db.get_number_of_columns(), 1):
             self.table_view_panel.grid.ShowCol(i)
 
+    # returns a list of integers, showing the order of grid columns
+    # list is ordered by column ID
+    def getAllColPosition(self):
+        pos_list = []
+        for idx in range(0, self.table_view_panel.grid.GetNumberCols()):
+            pos_list.append(self.table_view_panel.grid.GetColAt(idx))
+        return pos_list
+
+    # returns a list indicating which grid columns are visible and which are not
+    # True, if column is visible, False, if column is not hidden
+    # List ordered by column ID
+    def getAllColVisiblity(self):
+        visibility_list = []
+        for idx in range(0, self.table_view_panel.grid.GetNumberCols()):
+            visibility_list.append(self.table_view_panel.grid.IsColShown(idx))
+        return visibility_list
+
     # method to be called when right clicking a grid label
     def on_grid_lable_right_click(self, event):
         # ignore events by row labels, only consider column labels
@@ -152,19 +168,122 @@ class MainTableFrame(default_gui.MainWindow):
         if col_pos < 0:
             return
 
-        # create context menu
+        # create context menu for column label right-click
         contextmenu = wx.Menu()
         hide_col = wx.MenuItem(contextmenu, wx.ID_ANY, "Hide Column")
+        sort_col_asc = wx.MenuItem(contextmenu, wx.ID_ANY, "Sort grid by column ascending")
+        sort_col_desc = wx.MenuItem(contextmenu, wx.ID_ANY, "Sort grid by column descending")
         contextmenu.Append(hide_col)
+        contextmenu.Append(sort_col_asc)
+        contextmenu.Append(sort_col_desc)
 
         # add event to context menu item "hide column"
         self.Bind(wx.EVT_MENU, lambda _: self.on_hide_column(col_pos), id=hide_col.GetId())
+        self.Bind(wx.EVT_MENU, lambda _: self.on_sort_col_asc(col_pos), id=sort_col_asc.GetId())
+        self.Bind(wx.EVT_MENU, lambda _: self.on_sort_col_desc(col_pos), id=sort_col_desc.GetId())
         self.PopupMenu(contextmenu)
         contextmenu.Destroy()
 
-    # method to be called when right-clicking a column label and clicking "hide column"
+    # method is called when right-clicking a column label > "hide column"
     def on_hide_column(self, col):
         self.table_view_panel.grid.HideCol(col)
+
+    # method is called when right-clicking a column label > "sort grid by column ascending"
+    def on_sort_col_asc(self, col):
+
+        # if the list is already sorted ascending by this column, dont do anything
+        if self.table_view_panel.grid.GetColLabelValue(col)[-1:] == "▲":
+            return
+
+        # BUG IN wxPython LIBRARY:
+        # when position of first column was altered, program crashes during restoration of position later
+        # workaround: manually reset position of this column now, manually restore this position later
+        first_col_moved = False
+        first_col_position = self.table_view_panel.grid.GetColPos(0)
+        if self.table_view_panel.grid.GetColPos(0) != 0:
+            self.table_view_panel.grid.SetColPos(0, 0)
+            first_col_moved = True
+
+        # get current order and visibility of columns
+        col_order = self.getAllColPosition()
+        col_visiblity = self.getAllColVisiblity()
+
+        # remove possible column sort indicators from column header
+        self.remove_col_sort_indicator()
+
+        # get column label from right-column
+        col_label = self.table_view_panel.grid.GetColLabelValue(col)
+
+        # query database, sorts result by column
+        sorted_data = self.db.get_data_with_sorting('ORDER BY "%s" ASC' % col_label)
+
+        # display fetched data in grid
+        number_of_cols = self.table_view_panel.grid.GetNumberCols()
+        number_of_rows = self.table_view_panel.grid.GetNumberRows()
+        self.show_data_in_grid(number_of_cols, number_of_rows, sorted_data)
+
+        # update column label: append sorting indicator
+        col_label_new = col_label + " ▲"
+        self.table_view_panel.grid.SetColLabelValue(col, col_label_new)
+        self.table_view_panel.grid.AutoSizeColumns(setAsMin=True)
+
+        # restores order of grid columns (was lost while adding newly fetched data to grid)
+        self.table_view_panel.grid.SetColumnsOrder(col_order)
+
+        # due to library bug mentioned above: reset column position for first column manually
+        if first_col_moved:
+            self.table_view_panel.grid.SetColPos(0, first_col_position)
+
+        # restores visibility for grid columns (was lost while adding newly fetched data to grid)
+        for idx, value in enumerate(col_visiblity):
+            if not value:
+                self.table_view_panel.grid.HideCol(idx)
+
+    # method is called when right-clicking a column label > "sort grid by column descending
+    def on_sort_col_desc(self, col):
+        # method is very similar to method "on_sort_col_asc".
+        # see "on_sort_col_asc" for documentation
+        if self.table_view_panel.grid.GetColLabelValue(col)[-1:] == "▼":
+            return
+
+        first_col_moved = False
+        first_col_position = self.table_view_panel.grid.GetColPos(0)
+        if self.table_view_panel.grid.GetColPos(0) != 0:
+            self.table_view_panel.grid.SetColPos(0, 0)
+            first_col_moved = True
+
+        col_order = self.getAllColPosition()
+        col_visiblity = self.getAllColVisiblity()
+
+        self.remove_col_sort_indicator()
+
+        col_label = self.table_view_panel.grid.GetColLabelValue(col)
+
+        sorted_data = self.db.get_data_with_sorting('ORDER BY "%s" DESC' % col_label)
+
+        number_of_cols = self.table_view_panel.grid.GetNumberCols()
+        number_of_rows = self.table_view_panel.grid.GetNumberRows()
+        self.show_data_in_grid(number_of_cols, number_of_rows, sorted_data)
+
+        col_label_new = col_label + " ▼"
+        self.table_view_panel.grid.SetColLabelValue(col, col_label_new)
+        self.table_view_panel.grid.AutoSizeColumns(setAsMin=True)
+
+        self.table_view_panel.grid.SetColumnsOrder(col_order)
+
+        if first_col_moved:
+            self.table_view_panel.grid.SetColPos(0, first_col_position)
+
+        for idx, value in enumerate(col_visiblity):
+            if not value:
+                self.table_view_panel.grid.HideCol(idx)
+
+    # method is used to remove column sort indicators (little triangles) from grid
+    def remove_col_sort_indicator(self):
+        for col_idx in range(0, self.table_view_panel.grid.GetNumberCols()-1):
+            col_label = self.table_view_panel.grid.GetColLabelValue(col_idx)
+            if col_label[-1:] == "▲" or col_label[-1:] == "▼":
+                self.table_view_panel.grid.SetColLabelValue(col_idx, col_label[:-2])
 
     # method to be called when clicking File > Test
     # overrides method in parent class

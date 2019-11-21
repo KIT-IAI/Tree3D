@@ -206,8 +206,13 @@ class Database:
     def get_data_with_condition(self, wherestatement):
         statement = self.__SQLGetAllDataStatement[:-1] + " " + wherestatement + ";"
         self.__DbCursor.execute(statement)
-        result = self.__DbCursor.fetchall()
-        return result
+        return self.__DbCursor.fetchall()
+
+    def get_data_with_sorting(self, sortstatement):
+        statement = self.__SQLGetAllDataStatement[:-1] + " " + sortstatement + ";"
+        self.__DbCursor.execute(statement)
+        data = self.__DbCursor.fetchall()
+        return data
 
     # alters sql statement to perform SELECT DISTINCT, includes WHERE condition
     def get_data_with_condition_distinct(self, wherestatement):
