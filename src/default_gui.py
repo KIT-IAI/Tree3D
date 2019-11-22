@@ -400,6 +400,10 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
 		
+		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 330,-1 ), wx.GA_HORIZONTAL )
+		self.gauge.SetValue( 0 ) 
+		fgSizer2.Add( self.gauge, 0, wx.ALL, 5 )
+		
 		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.InfoTextDuplicate.Wrap( -1 )
 		
