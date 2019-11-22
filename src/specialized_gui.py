@@ -289,11 +289,6 @@ class MainTableFrame(default_gui.MainWindow):
             if col_label[-1:] == "▲" or col_label[-1:] == "▼":
                 self.table_view_panel.grid.SetColLabelValue(col_idx, col_label[:-2])
 
-    # method to be called when clicking File > Test
-    # overrides method in parent class
-    def on_menu_test(self, event):
-        print("Test")
-
     # method is called when hitting Analyze > Check for duplicate IDs
     def on_check_for_duplicates_ID(self, event):
         dlg = analysis.CheckDuplicateId(self)
@@ -302,6 +297,12 @@ class MainTableFrame(default_gui.MainWindow):
     def on_check_for_duplicates_geom(self, event):
         dlg = analysis.CheckDuplicateGeom(self)
         dlg.ShowModal()
+
+    # method to be called when clicking File > Test
+    # overrides method in parent class
+    # LOESCHEN VOR ABGABE
+    def on_menu_test(self, event):
+        print("Test")
 
 
 # DialogBox with options to open file
