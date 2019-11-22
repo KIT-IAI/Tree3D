@@ -485,6 +485,7 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
     # populate dropdown with grid columns in dialogbox
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
+        self.IdColumns.Set(colitemlist)
         self.xvalue.SetItems(colitemlist)
         self.yvalue.SetItems(colitemlist)
 
@@ -507,11 +508,15 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             warningtext = "Threshold must be a decimal"
 
         if self.threshold.GetLineText(0) == "":
-            warningtext = "threshold value must not be empty"
+            warningtext = "Threshold value must not be empty"
             valid = False
 
         if self.yvalue.GetSelection() == wx.NOT_FOUND or self.xvalue.GetSelection() == wx.NOT_FOUND:
             warningtext = "Please select X and Y values to perform geometric duplicate analysis"
+            valid = False
+
+        if self.IdColumns.GetSelection() == wx.NOT_FOUND:
+            warningtext = "Please select ID column to perform geometric duplicate analysis"
             valid = False
 
         if not valid:
