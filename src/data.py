@@ -70,7 +70,7 @@ class Database:
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
     def get_csv_datatypes(self, filereader, csvfile, col_index):
-        inspection_limit = 50
+        inspection_limit = 500
 
         int_type_in_list = False
         real_type_in_list = False
@@ -124,13 +124,22 @@ class Database:
 
     # populates database table with values from csv file
     def populate_db_table(self, row):
+        insert_row = []
         if self.CreateTwoColID:
             row.insert(0, "%s_%s" % (row[self.__CreateTwoColIDColumns[0]], row[self.__CreateTwoColIDColumns[1]]))
         statement = 'INSERT INTO %s VALUES ('
         for _ in row:
             statement += "?, "
         statement = statement[:-2] + ");"
-        self.__DbCursor.execute(statement % self.__DbTreeTableName, row)
+
+        for idx, element in enumerate(row):
+            if self.__lTableColmnNames[idx][1] == "INTEGER" and element != "":
+                insert_row.append(int(element))
+            elif self.__lTableColmnNames[idx][1] == "REAL" and element != "":
+                insert_row.append(float(element.replace(",", ".")))
+            else:
+                insert_row.append(element)
+        self.__DbCursor.execute(statement % self.__DbTreeTableName, insert_row)
 
     # returns the number of table columns
     def get_number_of_columns(self):
