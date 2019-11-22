@@ -144,9 +144,7 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             valid = False
 
         if not valid:
-            print("not valid")
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
-            print("clicked ok")
 
         return valid
