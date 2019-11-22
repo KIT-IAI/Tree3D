@@ -109,34 +109,6 @@ class MainWindow ( wx.Frame ):
 	
 
 ###########################################################################
-## Class progress
-###########################################################################
-
-class progress ( wx.Dialog ):
-	
-	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Progress", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.CAPTION )
-		
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
-		
-		bSizer2 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
-		self.gauge.SetValue( 0 ) 
-		bSizer2.Add( self.gauge, 0, wx.ALL, 5 )
-		
-		
-		self.SetSizer( bSizer2 )
-		self.Layout()
-		bSizer2.Fit( self )
-		
-		self.Centre( wx.BOTH )
-	
-	def __del__( self ):
-		pass
-	
-
-###########################################################################
 ## Class OnOpenDialog
 ###########################################################################
 
@@ -372,7 +344,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 5, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 6, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
