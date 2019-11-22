@@ -298,7 +298,7 @@ class MainTableFrame(default_gui.MainWindow):
         dlg = CheckDuplicateId(self)
         dlg.ShowModal()
 
-    def on_check_for_duplicates_geom( self, event ):
+    def on_check_for_duplicates_geom(self, event):
         dlg = CheckDuplicateGeom(self)
         dlg.ShowModal()
 
@@ -486,8 +486,33 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         self.xvalue.SetItems(colitemlist)
         self.yvalue.SetItems(colitemlist)
 
-    def on_analyze( self, event ):
-        print("analyze")
+    def on_analyze(self, event):
+        if not self.validate_entries():
+            return
+
+    def validate_entries(self):
+        valid = True
+        warningtext = ""
+
+        try:
+            float(self.threshold.GetLineText(0).replace(",", "."))
+        except ValueError:
+            valid = False
+            warningtext = "Threshold must be a decimal"
+
+        if self.threshold.GetLineText(0) == "":
+            warningtext = "threshold value must not be empty"
+            valid = False
+
+        if self.yvalue.GetSelection() == wx.NOT_FOUND or self.xvalue.GetSelection() == wx.NOT_FOUND:
+            warningtext = "Please select X and Y values to perform geometric duplicate analysis"
+            valid = False
+
+        if not valid:
+            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
+
+        return valid
 
 # create wxPython App
 class MyApp(wx.App):
