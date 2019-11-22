@@ -32,7 +32,8 @@ class MainTableFrame(default_gui.MainWindow):
         self.table_view_panel.grid.Show(False)
 
         # Binding further events
-        self.Bind(wx.grid.EVT_GRID_LABEL_RIGHT_CLICK, self.on_grid_lable_right_click)
+        self.Bind(wx.grid.EVT_GRID_LABEL_RIGHT_CLICK, self.on_grid_lable_right_click)  # event: r-clicking grid label
+        self.table_view_panel.grid.Bind(wx.EVT_MOUSEWHEEL, self.on_mouse_wheel_in_grid)  # event: scrol-wheel in grid
 
     # method to be called when close button (x) is pushed
     # overrides method in parent class
@@ -187,6 +188,13 @@ class MainTableFrame(default_gui.MainWindow):
         self.Bind(wx.EVT_MENU, lambda _: self.on_sort_col_desc(col_pos), id=sort_col_desc.GetId())
         self.PopupMenu(contextmenu)
         contextmenu.Destroy()
+
+    def on_mouse_wheel_in_grid(self, event):
+        # scroll either up or down, depending on mouse wheel direction
+        if event.GetWheelRotation() < 0:
+            self.table_view_panel.grid.ScrollLines(2)
+        else:
+            self.table_view_panel.grid.ScrollLines(-2)
 
     # method is called when right-clicking a column label > "hide column"
     def on_hide_column(self, col):
