@@ -515,13 +515,13 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             warningtext = "Please select X and Y values to perform geometric duplicate analysis"
             valid = False
 
-        if self.xvalue.GetSelection() == self.yvalue.GetSelection():
-            warningtext = "X-Value and Y-Value must not be the same column"
-            return False
-
         if self.IdColumns.GetSelection() == wx.NOT_FOUND:
             warningtext = "Please select ID column to perform geometric duplicate analysis"
             valid = False
+
+        if self.xvalue.GetSelection() == self.yvalue.GetSelection():
+            warningtext = "X-Value and Y-Value must not be the same column"
+            return False
 
         if not valid:
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
