@@ -57,6 +57,9 @@ class MainWindow ( wx.Frame ):
 		self.dublicates = wx.MenuItem( self.analyze, wx.ID_ANY, u"Check for Duplicates by ID", wx.EmptyString, wx.ITEM_NORMAL )
 		self.analyze.Append( self.dublicates )
 		
+		self.duplicateGeom = wx.MenuItem( self.analyze, wx.ID_ANY, u"Check for duplicates by geometry", wx.EmptyString, wx.ITEM_NORMAL )
+		self.analyze.Append( self.duplicateGeom )
+		
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		
 		self.SetMenuBar( self.m_menubar7 )
@@ -73,6 +76,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -98,6 +102,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_check_for_duplicates_ID( self, event ):
+		event.Skip()
+	
+	def on_check_for_duplicates_geom( self, event ):
 		event.Skip()
 	
 
@@ -340,6 +347,117 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.UUIDGrid.SetMaxSize( wx.Size( 330,120 ) )
 		
 		fgSizer2.Add( self.UUIDGrid, 0, wx.ALL, 5 )
+		
+		
+		self.SetSizer( fgSizer2 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.analyze.Bind( wx.EVT_BUTTON, self.on_analyze )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_analyze( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class OnCheckDuplicateGeomDialog
+###########################################################################
+
+class OnCheckDuplicateGeomDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by ID", pos = wx.DefaultPosition, size = wx.Size( 353,509 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
+		
+		fgSizer2 = wx.FlexGridSizer( 5, 1, 0, 0 )
+		fgSizer2.SetFlexibleDirection( wx.BOTH )
+		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"This analysis tool allows to check all data loaded for duplicates\nby their geometric position. All trees closer together than the\nselected threshold are marked as duplicates.\nPlease also select the X and Y data field within the dataset", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText7.Wrap( -1 )
+		
+		fgSizer2.Add( self.m_staticText7, 0, wx.ALL, 5 )
+		
+		gSizer3 = wx.GridSizer( 3, 2, 0, 0 )
+		
+		self.m_staticText81 = wx.StaticText( self, wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText81.Wrap( -1 )
+		
+		gSizer3.Add( self.m_staticText81, 0, wx.ALL, 5 )
+		
+		xvalueChoices = []
+		self.xvalue = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, xvalueChoices, 0 )
+		self.xvalue.SetSelection( 0 )
+		gSizer3.Add( self.xvalue, 0, wx.ALL, 5 )
+		
+		self.yvalue1 = wx.StaticText( self, wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.yvalue1.Wrap( -1 )
+		
+		gSizer3.Add( self.yvalue1, 0, wx.ALL, 5 )
+		
+		yvalueChoices = []
+		self.yvalue = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, yvalueChoices, 0 )
+		self.yvalue.SetSelection( 0 )
+		gSizer3.Add( self.yvalue, 0, wx.ALL, 5 )
+		
+		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, u"Threshold (m)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText8.Wrap( -1 )
+		
+		gSizer3.Add( self.m_staticText8, 0, wx.ALL, 5 )
+		
+		self.threshold = wx.TextCtrl( self, wx.ID_ANY, u"0.35", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.threshold.SetMaxLength( 6 ) 
+		gSizer3.Add( self.threshold, 0, wx.ALL, 5 )
+		
+		
+		fgSizer2.Add( gSizer3, 1, wx.EXPAND, 5 )
+		
+		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
+		
+		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.InfoTextDuplicate.Wrap( -1 )
+		
+		fgSizer2.Add( self.InfoTextDuplicate, 0, wx.ALL, 5 )
+		
+		self.DuplicateGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		# Grid
+		self.DuplicateGrid.CreateGrid( 0, 2 )
+		self.DuplicateGrid.EnableEditing( False )
+		self.DuplicateGrid.EnableGridLines( True )
+		self.DuplicateGrid.EnableDragGridSize( False )
+		self.DuplicateGrid.SetMargins( 0, 0 )
+		
+		# Columns
+		self.DuplicateGrid.SetColSize( 0, 224 )
+		self.DuplicateGrid.SetColSize( 1, 25 )
+		self.DuplicateGrid.EnableDragColMove( False )
+		self.DuplicateGrid.EnableDragColSize( True )
+		self.DuplicateGrid.SetColLabelSize( 30 )
+		self.DuplicateGrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Rows
+		self.DuplicateGrid.EnableDragRowSize( False )
+		self.DuplicateGrid.SetRowLabelSize( 80 )
+		self.DuplicateGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Label Appearance
+		
+		# Cell Defaults
+		self.DuplicateGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		self.DuplicateGrid.SetMinSize( wx.Size( 330,120 ) )
+		self.DuplicateGrid.SetMaxSize( wx.Size( 330,120 ) )
+		
+		fgSizer2.Add( self.DuplicateGrid, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( fgSizer2 )
