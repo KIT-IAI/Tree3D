@@ -298,6 +298,10 @@ class MainTableFrame(default_gui.MainWindow):
         dlg = CheckDuplicateId(self)
         dlg.ShowModal()
 
+    def on_check_for_duplicates_geom( self, event ):
+        dlg = CheckDuplicateGeom(self)
+        dlg.ShowModal()
+
 
 # DialogBox with options to open file
 class OpenDialog(default_gui.OnOpenDialog):
@@ -471,6 +475,19 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
 
         self.Layout()
 
+
+class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
+    def __init__(self, parent):
+        default_gui.OnCheckDuplicateGeomDialog.__init__(self, parent)
+        self.populate_dropdown()
+
+    def populate_dropdown(self):
+        colitemlist = self.GetParent().db.get_column_names()
+        self.xvalue.SetItems(colitemlist)
+        self.yvalue.SetItems(colitemlist)
+
+    def on_analyze( self, event ):
+        print("analyze")
 
 # create wxPython App
 class MyApp(wx.App):
