@@ -392,7 +392,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         default_gui.OnCheckDuplicateIdDialog.__init__(self, parent)
         self.populate_dropdown()
 
-    # method to populate dropdown with (id) columns in dialogbox
+    # populate dropdown with grid columns in dialogbox
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
         self.IdColumns.SetItems(colitemlist)
@@ -476,20 +476,26 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         self.Layout()
 
 
+# DialogBox to check for duplicate elements in data by ID
 class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
     def __init__(self, parent):
         default_gui.OnCheckDuplicateGeomDialog.__init__(self, parent)
         self.populate_dropdown()
 
+    # populate dropdown with grid columns in dialogbox
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
         self.xvalue.SetItems(colitemlist)
         self.yvalue.SetItems(colitemlist)
 
+    # method to be executed when hitting Analyze Button in DialogBox
+    # Checks if data contains duplicate geometries
+    # objects are considered duplicates when their (2D)-Distance is smaller than a threshold
     def on_analyze(self, event):
         if not self.validate_entries():
             return
 
+    # validate entries to GUI
     def validate_entries(self):
         valid = True
         warningtext = ""
@@ -513,6 +519,7 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             msg.ShowModal()
 
         return valid
+
 
 # create wxPython App
 class MyApp(wx.App):
