@@ -109,13 +109,13 @@ class MainWindow ( wx.Frame ):
 	
 
 ###########################################################################
-## Class MyDialog1
+## Class progress
 ###########################################################################
 
-class MyDialog1 ( wx.Dialog ):
+class progress ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Progress", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.CAPTION )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -124,11 +124,6 @@ class MyDialog1 ( wx.Dialog ):
 		self.m_gauge1 = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
 		self.m_gauge1.SetValue( 0 ) 
 		bSizer2.Add( self.m_gauge1, 0, wx.ALL, 5 )
-		
-		self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, u"50/100 eingelesen", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText1.Wrap( -1 )
-		
-		bSizer2.Add( self.m_staticText1, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( bSizer2 )
