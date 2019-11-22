@@ -121,9 +121,9 @@ class progress ( wx.Dialog ):
 		
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_gauge1 = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
-		self.m_gauge1.SetValue( 0 ) 
-		bSizer2.Add( self.m_gauge1, 0, wx.ALL, 5 )
+		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.gauge.SetValue( 0 ) 
+		bSizer2.Add( self.gauge, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( bSizer2 )
