@@ -386,7 +386,17 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		
 		fgSizer2.Add( self.m_staticText7, 0, wx.ALL, 5 )
 		
-		gSizer3 = wx.GridSizer( 3, 2, 0, 0 )
+		gSizer3 = wx.GridSizer( 4, 2, 0, 0 )
+		
+		self.m_staticText82 = wx.StaticText( self, wx.ID_ANY, u"Select ID field", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText82.Wrap( -1 )
+		
+		gSizer3.Add( self.m_staticText82, 0, wx.ALL, 5 )
+		
+		IdColumnsChoices = []
+		self.IdColumns = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, IdColumnsChoices, 0 )
+		self.IdColumns.SetSelection( 0 )
+		gSizer3.Add( self.IdColumns, 0, wx.ALL, 5 )
 		
 		self.m_staticText81 = wx.StaticText( self, wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText81.Wrap( -1 )
