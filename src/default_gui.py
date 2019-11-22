@@ -348,7 +348,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"This analysis tool allows to check all data loaded for duplicates\nby their geometric position. All trees closer together than the\nselected threshold are marked as duplicates.\nPlease also select the X and Y data field within the dataset", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"This analysis tool allows to check all data loaded for duplicates\nby their geometric position. All trees closer together than the\nselected threshold are marked as duplicates.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7.Wrap( -1 )
 		
 		fgSizer2.Add( self.m_staticText7, 0, wx.ALL, 5 )
