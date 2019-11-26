@@ -517,10 +517,10 @@ class CityGmlExport ( wx.Dialog ):
 		
 		gSizer4.Add( self.m_staticText16, 0, wx.ALL, 5 )
 		
-		ChoiceCrownChoices = []
-		self.ChoiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ChoiceCrownChoices, 0 )
-		self.ChoiceCrown.SetSelection( 0 )
-		gSizer4.Add( self.ChoiceCrown, 0, wx.ALL, 5 )
+		choiceCrownChoices = []
+		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
+		self.choiceCrown.SetSelection( 0 )
+		gSizer4.Add( self.choiceCrown, 0, wx.ALL, 5 )
 		
 		
 		sbSizer3.Add( gSizer4, 1, wx.EXPAND, 5 )
