@@ -1,4 +1,5 @@
 import uuid
+import math
 
 import default_gui
 
@@ -114,7 +115,59 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
     def on_analyze(self, event):
         if not self.validate_entries():
             return
-        print("analyse")
+
+        # set max value of progressbar in gui
+        self.gauge.SetRange(self.GetParent().db.get_number_of_tablerecords())
+
+        # list with result of analysis
+        result_list = []
+
+        # list of database columns to be queried
+        # collist[0] = ID, collist[1] = xvalue, collist[2] = yvalue
+        collist = []
+        idx = self.IdColumns.GetSelection()
+        collist.append(self.IdColumns.GetString(idx))
+        idx = self.xvalue.GetSelection()
+        collist.append(self.xvalue.GetString(idx))
+        idx = self.yvalue.GetSelection()
+        collist.append(self.yvalue.GetString(idx))
+
+        # fetch data from database
+        data = self.GetParent().db.get_data_by_collist(collist)
+
+        # compare every tree with every other tree in the dataset
+        for idx_low in range(0, len(data)):
+            # move progress bar
+            self.gauge.SetValue(idx_low+1)
+
+            # coordinates of first tree to be considered
+            x1 = data[idx_low][1]
+            y1 = data[idx_low][2]
+
+            for idx_high in range(idx_low+1, len(data)):
+
+                # coordinates of second tree to be considered
+                x2 = data[idx_high][1]
+                y2 = data[idx_high][2]
+
+                # calculate squared distance between both trees
+                try:
+                    dist_sq = (x1-x2)**2 + (y1-y2)**2
+                except TypeError:
+                    warningtext = "Cannot perform calculations with values in X or Y column.\n" \
+                                  "Value in specified X or Y grid column is most likely not numeric.\n" \
+                                  "Was the correct grid column chosen for X and Y value?"
+                    msg = wx.MessageDialog(self, warningtext, caption="Error",
+                                           style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+                    msg.ShowModal()
+                    return
+
+                if dist_sq < float(self.threshold.GetLineText(0).replace(",", "."))**2:
+                    result_list.append([data[idx_low][0], data[idx_high][0], math.sqrt(dist_sq)])
+        self.gauge.SetValue(0)
+        print("fertig")
+        for row in result_list:
+            print(row)
 
     # validate entries to GUI
     def validate_entries(self):
