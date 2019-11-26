@@ -465,17 +465,14 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 318,306 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 320,298 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_textCtrl2 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.m_textCtrl2, 0, wx.ALL, 5 )
-		
-		self.m_button11 = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.m_button11, 0, wx.ALL, 5 )
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, u"loool", wx.DefaultPosition, wx.Size( 300,-1 ), wx.TE_READONLY )
+		bSizer2.Add( self.filepat_textbox, 0, wx.ALL, 5 )
 		
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
 		
@@ -528,8 +525,8 @@ class CityGmlExport ( wx.Dialog ):
 		
 		bSizer2.Add( sbSizer3, 1, wx.EXPAND, 5 )
 		
-		self.m_button10 = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.m_button10, 0, wx.ALL, 5 )
+		self.buttonExport = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.buttonExport, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( bSizer2 )
@@ -538,14 +535,14 @@ class CityGmlExport ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.m_button10.Bind( wx.EVT_BUTTON, self.on_ok )
+		self.buttonExport.Bind( wx.EVT_BUTTON, self.on_export )
 	
 	def __del__( self ):
 		pass
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def on_ok( self, event ):
+	def on_export( self, event ):
 		event.Skip()
 	
 
