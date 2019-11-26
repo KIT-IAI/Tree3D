@@ -465,14 +465,44 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 320,298 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 320,411 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, u"loool", wx.DefaultPosition, wx.Size( 300,-1 ), wx.TE_READONLY )
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), wx.TE_READONLY )
 		bSizer2.Add( self.filepat_textbox, 0, wx.ALL, 5 )
+		
+		sbSizer4 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
+		
+		gSizer5 = wx.GridSizer( 0, 2, 0, 0 )
+		
+		self.m_staticText171 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText171.Wrap( -1 )
+		
+		gSizer5.Add( self.m_staticText171, 0, wx.ALL, 5 )
+		
+		choiceXvalueChoices = []
+		self.choiceXvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceXvalueChoices, 0 )
+		self.choiceXvalue.SetSelection( 0 )
+		gSizer5.Add( self.choiceXvalue, 0, wx.ALL, 5 )
+		
+		self.m_staticText18 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText18.Wrap( -1 )
+		
+		gSizer5.Add( self.m_staticText18, 0, wx.ALL, 5 )
+		
+		choiceYvalueChoices = []
+		self.choiceYvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceYvalueChoices, 0 )
+		self.choiceYvalue.SetSelection( 0 )
+		gSizer5.Add( self.choiceYvalue, 0, wx.ALL, 5 )
+		
+		
+		sbSizer4.Add( gSizer5, 1, wx.EXPAND, 5 )
+		
+		
+		bSizer2.Add( sbSizer4, 1, wx.EXPAND, 5 )
 		
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
 		
