@@ -459,6 +459,89 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 	
 
 ###########################################################################
+## Class CityGmlExport
+###########################################################################
+
+class CityGmlExport ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 318,306 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer2 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_textCtrl2 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.m_textCtrl2, 0, wx.ALL, 5 )
+		
+		self.m_button11 = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.m_button11, 0, wx.ALL, 5 )
+		
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
+		
+		self.m_radioBtn4 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer2.Add( self.m_radioBtn4, 0, wx.ALL, 5 )
+		
+		self.m_radioBtn3 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer2.Add( self.m_radioBtn3, 0, wx.ALL, 5 )
+		
+		
+		bSizer2.Add( sbSizer2, 1, wx.EXPAND, 5 )
+		
+		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
+		
+		gSizer4 = wx.GridSizer( 0, 2, 0, 0 )
+		
+		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15.Wrap( -1 )
+		
+		gSizer4.Add( self.m_staticText15, 0, wx.ALL, 5 )
+		
+		m_choice7Choices = []
+		self.m_choice7 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice7Choices, 0 )
+		self.m_choice7.SetSelection( 0 )
+		gSizer4.Add( self.m_choice7, 0, wx.ALL, 5 )
+		
+		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText17.Wrap( -1 )
+		
+		gSizer4.Add( self.m_staticText17, 0, wx.ALL, 5 )
+		
+		m_choice8Choices = []
+		self.m_choice8 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice8Choices, 0 )
+		self.m_choice8.SetSelection( 0 )
+		gSizer4.Add( self.m_choice8, 0, wx.ALL, 5 )
+		
+		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText16.Wrap( -1 )
+		
+		gSizer4.Add( self.m_staticText16, 0, wx.ALL, 5 )
+		
+		m_choice9Choices = []
+		self.m_choice9 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice9Choices, 0 )
+		self.m_choice9.SetSelection( 0 )
+		gSizer4.Add( self.m_choice9, 0, wx.ALL, 5 )
+		
+		
+		sbSizer3.Add( gSizer4, 1, wx.EXPAND, 5 )
+		
+		
+		bSizer2.Add( sbSizer3, 1, wx.EXPAND, 5 )
+		
+		self.m_button10 = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer2.Add( self.m_button10, 0, wx.ALL, 5 )
+		
+		
+		self.SetSizer( bSizer2 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+	
+	def __del__( self ):
+		pass
+	
+
+###########################################################################
 ## Class data_panel
 ###########################################################################
 
