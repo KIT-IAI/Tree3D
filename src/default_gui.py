@@ -497,30 +497,30 @@ class CityGmlExport ( wx.Dialog ):
 		
 		gSizer4.Add( self.m_staticText15, 0, wx.ALL, 5 )
 		
-		m_choice7Choices = []
-		self.m_choice7 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice7Choices, 0 )
-		self.m_choice7.SetSelection( 0 )
-		gSizer4.Add( self.m_choice7, 0, wx.ALL, 5 )
+		choiceHeightChoices = []
+		self.choiceHeight = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightChoices, 0 )
+		self.choiceHeight.SetSelection( 0 )
+		gSizer4.Add( self.choiceHeight, 0, wx.ALL, 5 )
 		
 		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText17.Wrap( -1 )
 		
 		gSizer4.Add( self.m_staticText17, 0, wx.ALL, 5 )
 		
-		m_choice8Choices = []
-		self.m_choice8 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice8Choices, 0 )
-		self.m_choice8.SetSelection( 0 )
-		gSizer4.Add( self.m_choice8, 0, wx.ALL, 5 )
+		choiceTrunkChoices = []
+		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
+		self.choiceTrunk.SetSelection( 0 )
+		gSizer4.Add( self.choiceTrunk, 0, wx.ALL, 5 )
 		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 		
 		gSizer4.Add( self.m_staticText16, 0, wx.ALL, 5 )
 		
-		m_choice9Choices = []
-		self.m_choice9 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice9Choices, 0 )
-		self.m_choice9.SetSelection( 0 )
-		gSizer4.Add( self.m_choice9, 0, wx.ALL, 5 )
+		ChoiceCrownChoices = []
+		self.ChoiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ChoiceCrownChoices, 0 )
+		self.ChoiceCrown.SetSelection( 0 )
+		gSizer4.Add( self.ChoiceCrown, 0, wx.ALL, 5 )
 		
 		
 		sbSizer3.Add( gSizer4, 1, wx.EXPAND, 5 )
