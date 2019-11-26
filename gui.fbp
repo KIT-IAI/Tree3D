@@ -4732,7 +4732,7 @@
                         <event name="OnAux2DClick"></event>
                         <event name="OnAux2Down"></event>
                         <event name="OnAux2Up"></event>
-                        <event name="OnButtonClick"></event>
+                        <event name="OnButtonClick">on_ok</event>
                         <event name="OnChar"></event>
                         <event name="OnCharHook"></event>
                         <event name="OnEnterWindow"></event>

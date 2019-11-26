@@ -536,9 +536,17 @@ class CityGmlExport ( wx.Dialog ):
 		self.Layout()
 		
 		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.m_button10.Bind( wx.EVT_BUTTON, self.on_ok )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_ok( self, event ):
+		event.Skip()
 	
 
 ###########################################################################
