@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# import python standard library classes
-import uuid
-
 # import wxPython classes
 import wx
 import wx.aui
@@ -13,6 +10,7 @@ import wx.grid
 import default_gui
 import data
 import analysis
+import export
 
 
 class MainTableFrame(default_gui.MainWindow):
@@ -70,6 +68,9 @@ class MainTableFrame(default_gui.MainWindow):
 
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
+
+    def on_menu_export_citygml( self, event ):
+        exp = ExportDialog(self)
 
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
@@ -394,6 +395,78 @@ class OpenDialog(default_gui.OnOpenDialog):
         else:
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
+
+
+class ExportDialog(default_gui.CityGmlExport):
+    def __init__(self, parent):
+        default_gui.CityGmlExport.__init__(self, parent)
+        self.__pathname = ""
+
+        with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
+                           style=wx.FD_SAVE) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            self.__pathname = fileDialog.GetPath()
+
+        self.filepat_textbox.SetValue(self.__pathname)
+        self.populate_dropdown()
+
+        self.ShowModal()
+
+    def populate_dropdown(self):
+        colitemlist = self.GetParent().db.get_column_names()
+        self.choiceXvalue.SetItems(colitemlist)
+        self.choiceYvalue.SetItems(colitemlist)
+        self.choiceHeight.SetItems(colitemlist)
+        self.choiceTrunk.SetItems(colitemlist)
+        self.choiceCrown.SetItems(colitemlist)
+
+    def on_export(self, event):
+        if not self.validate_input():
+            return
+
+        exporter = export.CityGmlExport(self.__pathname, self.GetParent().db)
+
+        if self.choiceXvalue != wx.NOT_FOUND:
+            exporter.set_x_col_idx(self.choiceXvalue.GetSelection())
+
+        if self.choiceYvalue != wx.NOT_FOUND:
+            exporter.set_y_col_idx(self.choiceYvalue.GetSelection())
+
+        exporter.export()
+
+    def validate_input(self):
+        valid = True
+
+        if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection() and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Crown diameter cannot be the same column as Trunk diameter"
+
+        if self.choiceHeight.GetSelection() == self.choiceCrown.GetSelection() and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Height cannot be the same column as Crown diameter"
+
+        if self.choiceHeight.GetSelection() == self.choiceTrunk.GetSelection() and self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Height cannot be the same column as Trunk diameter"
+
+        if self.choiceXvalue.GetSelection() == self.choiceYvalue.GetSelection():
+            valid = False
+            warningmessage = "X Value and Y Value must not be the same column"
+
+        if self.choiceYvalue.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Y Value column must be specified"
+
+        if self.choiceXvalue.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            warningmessage = "X Value column must be specified"
+
+        if not valid:
+            msg = wx.MessageDialog(self, warningmessage, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
+
+        return valid
 
 
 # create wxPython App
