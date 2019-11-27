@@ -2,8 +2,8 @@ import xml.etree.ElementTree as ET
 
 
 class CityGmlExport:
-    def __init__(self, savepath, data):
-        self.__db = data
+    def __init__(self, savepath, dataobj):
+        self.__db = dataobj
         self.__columns = self.__db.get_column_names()
 
         self.__filepath = savepath
@@ -19,6 +19,11 @@ class CityGmlExport:
         self.add_namespaces()
 
         self.bounded_by()
+
+        for row in self.__data:
+            cityObjectMember = ET.SubElement(self.__root, "core:cityObjectMember")
+
+            SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
 
         CityGmlExport.indent(self.__root)
         tree = ET.ElementTree(self.__root)
