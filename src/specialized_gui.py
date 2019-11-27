@@ -437,6 +437,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
     def validate_input(self):
         valid = True
+        warningmessage = ""
 
         if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection() and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             valid = False
