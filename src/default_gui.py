@@ -465,7 +465,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 320,411 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 320,501 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -498,6 +498,24 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceYvalue.SetSelection( 0 )
 		gSizer5.Add( self.choiceYvalue, 0, wx.ALL, 5 )
 		
+		self.m_staticText20 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText20.Wrap( -1 )
+		
+		gSizer5.Add( self.m_staticText20, 0, wx.ALL, 5 )
+		
+		self.m_textCtrl3 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrl3.SetMaxLength( 6 ) 
+		gSizer5.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
+		
+		self.m_staticText21 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code (output)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText21.Wrap( -1 )
+		
+		gSizer5.Add( self.m_staticText21, 0, wx.ALL, 5 )
+		
+		self.m_textCtrl4 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrl4.SetMaxLength( 6 ) 
+		gSizer5.Add( self.m_textCtrl4, 0, wx.ALL, 5 )
+		
 		
 		sbSizer4.Add( gSizer5, 1, wx.EXPAND, 5 )
 		
@@ -506,11 +524,11 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
 		
-		self.m_radioBtn4 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		sbSizer2.Add( self.m_radioBtn4, 0, wx.ALL, 5 )
-		
 		self.m_radioBtn3 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		sbSizer2.Add( self.m_radioBtn3, 0, wx.ALL, 5 )
+		
+		self.m_radioBtn4 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer2.Add( self.m_radioBtn4, 0, wx.ALL, 5 )
 		
 		
 		bSizer2.Add( sbSizer2, 1, wx.EXPAND, 5 )
@@ -548,6 +566,16 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
 		self.choiceCrown.SetSelection( 0 )
 		gSizer4.Add( self.choiceCrown, 0, wx.ALL, 5 )
+		
+		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species (Latin name)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText19.Wrap( -1 )
+		
+		gSizer4.Add( self.m_staticText19, 0, wx.ALL, 5 )
+		
+		choiceSpeciesChoices = []
+		self.choiceSpecies = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceSpeciesChoices, 0 )
+		self.choiceSpecies.SetSelection( 0 )
+		gSizer4.Add( self.choiceSpecies, 0, wx.ALL, 5 )
 		
 		
 		sbSizer3.Add( gSizer4, 1, wx.EXPAND, 5 )
