@@ -9,6 +9,8 @@ class CityGmlExport:
         self.__filepath = savepath
         self.__root = None
 
+        self.__data = self.__db.get_data()
+
         self.__x_value_col_index = None
         self.__y_value_col_index = None
 
@@ -28,18 +30,14 @@ class CityGmlExport:
         self.__root.set("xmlns:gml", "http://www.opengis.net/gml")
 
     def bounded_by(self):
-        xCol = self.__columns[self.__x_value_col_index]
-        yCol = self.__columns[self.__y_value_col_index]
-
-        data = self.__db.get_data_by_collist([xCol, yCol])
 
         xMinValue = float("inf")
         xMaxValue = 0
         yMinValue = float("inf")
         yMaxValue = 0
-        for row in data:
-            xValue = row[0]
-            yValue = row[1]
+        for row in self.__data:
+            xValue = row[self.__x_value_col_index]
+            yValue = row[self.__y_value_col_index]
 
             if xValue < xMinValue:
                 xMinValue = xValue
