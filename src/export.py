@@ -41,6 +41,18 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceYvalue != wx.NOT_FOUND:
             exporter.set_y_col_idx(self.choiceYvalue.GetSelection())
 
+        if self.choiceHeight != wx.NOT_FOUND:
+            exporter.set_height_col_index(self.choiceHeight.GetSelection())
+
+        if self.choiceTrunk != wx.NOT_FOUND:
+            exporter.set_trunk_diam_col_index(self.choiceTrunk.GetSelection())
+
+        if self.choiceCrown != wx.NOT_FOUND:
+            exporter.set_crown_diam_col_index(self.choiceCrown.GetSelection())
+
+        if self.choiceSpecies != wx.NOT_FOUND:
+            exporter.set_species_col_index(self.choiceSpecies.GetSelection())
+
         exporter.export()
 
     def validate_input(self):
