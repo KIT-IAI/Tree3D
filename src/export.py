@@ -10,13 +10,6 @@ class ExportDialog(default_gui.CityGmlExport):
         default_gui.CityGmlExport.__init__(self, parent)
         self.__pathname = ""
 
-        with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
-                           style=wx.FD_SAVE) as fileDialog:
-            if fileDialog.ShowModal() == wx.ID_CANCEL:
-                return
-            self.__pathname = fileDialog.GetPath()
-
-        self.filepat_textbox.SetValue(self.__pathname)
         self.populate_dropdown()
 
         self.DoLayoutAdaptation()
@@ -33,6 +26,16 @@ class ExportDialog(default_gui.CityGmlExport):
         self.choiceTrunk.SetItems(colitemlist)
         self.choiceCrown.SetItems(colitemlist)
         self.choiceSpecies.SetItems(colitemlist)
+
+    # method to be called when "Browse" button is pushed
+    def on_browse( self, event ):
+        with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
+                           style=wx.FD_SAVE) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            self.__pathname = fileDialog.GetPath()
+
+        self.filepat_textbox.SetValue(self.__pathname)
 
     # method to be called when "export" button is pressed in export-window
     def on_export(self, event):
@@ -94,6 +97,10 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceXvalue.GetSelection() == wx.NOT_FOUND:
             valid = False
             warningmessage = "X Value column must be specified"
+
+        if self.__pathname == "":
+            valid = False
+            warningmessage = "Please specify CityGML output file path"
 
         if not valid:
             msg = wx.MessageDialog(self, warningmessage, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
