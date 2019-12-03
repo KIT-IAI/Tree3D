@@ -119,6 +119,10 @@ class CityGmlExport:
 
             SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
 
+            if self.__height_col_index is not None:
+                height = ET.SubElement(SolitaryVegetationObject, "veg:height")
+                height.text = str(row[self.__height_col_index])
+
         CityGmlExport.indent(self.__root)
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
