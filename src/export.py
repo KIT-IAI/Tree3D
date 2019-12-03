@@ -107,8 +107,11 @@ class CityGmlExport:
         self.__EPSG = None  # EPSG-Code of coordinates
         self.__EPSG_output = None  # EPSG-Code of coordinates in output
         self.__height_col_index = None  # index of height column
+        self.__height_unit = None
         self.__trunk_diam_col_index = None  # index of trunk diameter column
+        self.__trunk_diam_unit = None
         self.__crown_diam_col_index = None  # index of crown diameter column
+        self.__crown_diam_unit = None
         self.__species_col_index = None  # index of species column
 
     def export(self):
@@ -214,3 +217,12 @@ class CityGmlExport:
 
     def set_species_col_index(self, index):
         self.__species_col_index = index
+
+    def set_height_unit(self, unit):
+        self.__height_unit = unit
+
+    def set_trunk_diam_unit(self, unit):
+        self.__trunk_diam_unit = unit
+
+    def set_crown_diam_unit(self, unit):
+        self.__crown_diam_unit = unit
