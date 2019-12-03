@@ -3,16 +3,21 @@ import xml.etree.ElementTree as ET
 
 class CityGmlExport:
     def __init__(self, savepath, dataobj):
-        self.__db = dataobj
-        self.__columns = self.__db.get_column_names()
+        self.__db = dataobj  # db object from specialized_gui.MainTableFrame
 
-        self.__filepath = savepath
-        self.__root = None
+        self.__filepath = savepath  # output file path (where citygml will be saved)
+        self.__root = None  # ElementTree Root Node
 
-        self.__data = self.__db.get_data()
+        self.__data = self.__db.get_data()  # Data table from database (list of lists)
 
-        self.__x_value_col_index = None
-        self.__y_value_col_index = None
+        self.__x_value_col_index = None  # index of column in which x value is stored
+        self.__y_value_col_index = None  # index of column in which y value is stored
+        self.__EPSG = None  # EPSG-Code of coordinates
+        self.__EPSG_output = None  # EPSG-Code of coordinates in output
+        self.__height_col_index = None  # index of height column
+        self.__trunk_diam_col_index = None  # index of trunk diameter column
+        self.__crown_diam_col_index = None  # index of crown diameter column
+        self.__species_col_index = None  # index of species column
 
     def export(self):
         self.__root = ET.Element("core:CityModel")
@@ -33,6 +38,7 @@ class CityGmlExport:
         self.__root.set("xmlns:xs", "https://www.w3.org/2001/XMLSchema")
         self.__root.set("xmlns:core", "http://www.opengis.net/citygml/2.0")
         self.__root.set("xmlns:gml", "http://www.opengis.net/gml")
+        self.__root.set("xmlns:veg", "http://www.opengis.net/citygml/vegetation/2.0")
 
     def bounded_by(self):
 
@@ -91,3 +97,21 @@ class CityGmlExport:
 
     def set_y_col_idx(self, idx):
         self.__y_value_col_index = idx
+
+    def set_EPSG(self, epsg_code):
+        self.__EPSG = epsg_code
+
+    def set_EPSG_output(self, epsg_code):
+        self.__EPSG_output = epsg_code
+
+    def set_height_col_index(self, idx):
+        self.__height_col_index = idx
+
+    def set_trunk_diam_col_index(self, idx):
+        self.__trunk_diam_col_index = idx
+
+    def set_crown_diam_col_index(self, idx):
+        self.__crown_diam_col_index = idx
+
+    def set_species_col_index(self, index):
+        self.__species_col_index = index
