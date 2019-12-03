@@ -205,3 +205,43 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             msg.ShowModal()
 
         return valid
+
+
+class BoundingBox:
+    def __init__(self):
+        self.__xMin = float("inf")
+        self.__xMax = 0
+        self.__yMin = float("inf")
+        self.__yMax = 0
+
+    def set_xmin(self, val):
+        self.__xMin = val
+
+    def set_ymin(self, val):
+        self.__yMin = val
+
+    def set_xmax(self, val):
+        self.__xMax = val
+
+    def set_ymax(self, val):
+        self.__yMax = val
+
+    # compares coordinates to bbox, extends bbox if necessary
+    def compare(self, x_val, y_val):
+        if x_val < self.__xMin:
+            self.set_xmin(x_val)
+
+        if x_val > self.__xMax:
+            self.set_xmax(x_val)
+
+        if y_val < self.__yMin:
+            self.set_ymin(y_val)
+
+        if y_val > self.__xMax:
+            self.set_ymax(y_val)
+
+    # returns bounding box coordinates
+    def get_bbox(self):
+        min_vals = [self.__xMin, self.__yMin]
+        max_vals = [self.__xMax, self.__yMax]
+        return [min_vals, max_vals]
