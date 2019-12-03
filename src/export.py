@@ -70,7 +70,8 @@ class CityGmlExport:
         print("Min: ", xMinValue, yMinValue)
         print("Max: ", xMaxValue, yMaxValue)
 
-        envelope = ET.SubElement(self.__root, "gml:Envelope")
+        boundedby = ET.SubElement(self.__root, "gml:boundedBy")
+        envelope = ET.SubElement(boundedby, "gml:Envelope")
 
         lower_corner = ET.SubElement(envelope, "gml:lowerCorner")
         upper_corner = ET.SubElement(envelope, "gml:upperCorner")
