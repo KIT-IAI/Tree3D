@@ -465,7 +465,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 385,521 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -473,8 +473,18 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( -1,-1 ), wx.TE_READONLY )
-		fgSizer4.Add( self.filepat_textbox, 0, wx.ALL, 5 )
+		fgSizer71 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer71.SetFlexibleDirection( wx.BOTH )
+		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 260,-1 ), wx.TE_READONLY )
+		fgSizer71.Add( self.filepat_textbox, 0, wx.ALL, 5 )
+		
+		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer71.Add( self.buttonBrowse, 0, wx.ALL, 5 )
+		
+		
+		fgSizer4.Add( fgSizer71, 1, wx.EXPAND, 5 )
 		
 		self.box_prettyprint = wx.CheckBox( self, wx.ID_ANY, u"Create pretty-printed xml output (may be slow for large datasets)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.box_prettyprint.SetValue(True) 
@@ -614,11 +624,11 @@ class CityGmlExport ( wx.Dialog ):
 		
 		self.SetSizer( fgSizer4 )
 		self.Layout()
-		fgSizer4.Fit( self )
 		
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
 		self.buttonExport.Bind( wx.EVT_BUTTON, self.on_export )
 	
 	def __del__( self ):
@@ -626,6 +636,9 @@ class CityGmlExport ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def on_browse( self, event ):
+		event.Skip()
+	
 	def on_export( self, event ):
 		event.Skip()
 	
