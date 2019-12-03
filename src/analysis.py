@@ -1,5 +1,6 @@
 import uuid
 import math
+from copy import copy
 
 import default_gui
 
@@ -57,8 +58,10 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         # check_value: all distinct values of one column
         duplicate_counter = 0
         uuid_counter = 0
-        for check_value in self.GetParent().db.get_data_by_collist_distinct(collist):
-            dat = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
+        all_data = self.GetParent().db.get_data_by_collist_distinct(collist).fetchall()
+        for check_value in all_data:
+            data_cursor = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
+            dat = data_cursor.fetchall()
 
             # if query returns >1 rows (e.g. two entries with one ID), add values to grid
             if len(dat) > 1:
@@ -133,7 +136,8 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         collist.append(self.yvalue.GetString(idx))
 
         # fetch data from database
-        data = self.GetParent().db.get_data_by_collist(collist)
+        data_cursor = self.GetParent().db.get_data_by_collist(collist)
+        data = data_cursor.fetchall()
 
         # compare every tree with every other tree in the dataset
         for idx_low in range(0, len(data)):

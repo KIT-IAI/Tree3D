@@ -208,28 +208,25 @@ class Database:
     def get_data(self):
         # executes statement to fetch all data from database table
         self.__DbCursor.execute(self.__SQLGetAllDataStatement)
-        result = self.__DbCursor.fetchall()
-        return result
+        return self.__DbCursor
 
     # appends sql statement with a where condition to filter data
     def get_data_with_condition(self, wherestatement):
         statement = self.__SQLGetAllDataStatement[:-1] + " " + wherestatement + ";"
         self.__DbCursor.execute(statement)
-        return self.__DbCursor.fetchall()
+        return self.__DbCursor
 
     def get_data_with_sorting(self, sortstatement):
         statement = self.__SQLGetAllDataStatement[:-1] + " " + sortstatement + ";"
         self.__DbCursor.execute(statement)
-        data = self.__DbCursor.fetchall()
-        return data
+        return self.__DbCursor
 
     # alters sql statement to perform SELECT DISTINCT, includes WHERE condition
     def get_data_with_condition_distinct(self, wherestatement):
         statement = self.__SQLGetAllDataStatement[0:7] + "DISTINCT " + self.__SQLGetAllDataStatement[7:-1]
         statement += " " + wherestatement + ";"
         self.__DbCursor.execute(statement)
-        result = self.__DbCursor.fetchall()
-        return result
+        return self.__DbCursor
 
     # performs a SELECT DISTINCT with columns written in collist
     def get_data_by_collist_distinct(self, collist):
@@ -242,8 +239,7 @@ class Database:
 
         # executes statement and fetches data
         self.__DbCursor.execute(statement)
-        result = self.__DbCursor.fetchall()
-        return result
+        return self.__DbCursor
 
     # selects data from database from specific columns
     # collist variable has column names
@@ -257,8 +253,7 @@ class Database:
 
         # executes statement and fetches data
         self.__DbCursor.execute(statement)
-        result = self.__DbCursor.fetchall()
-        return result
+        return self.__DbCursor
 
     # returns Value, weather index should be created
     def get_create_id(self):

@@ -120,7 +120,7 @@ class CityGmlExport:
         self.__filepath = savepath  # output file path (where citygml will be saved)
         self.__root = None  # ElementTree Root Node
 
-        self.__data = self.__db.get_data()  # Data table from database (list of lists)
+        self.__DataCursor = None  # Data cursor table from database (list of lists)
 
         self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
         self.__x_value_col_index = None  # index of column in which x value is stored
@@ -142,7 +142,8 @@ class CityGmlExport:
 
         self.bounded_by()
 
-        for row in self.__data:
+        self.fill_data_cursor()
+        for row in self.__DataCursor:
             cityObjectMember = ET.SubElement(self.__root, "cityObjectMember")
 
             SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
@@ -190,7 +191,8 @@ class CityGmlExport:
         yMaxValue = 0
 
         # loop through all data rows to find min and max values of koordinates to create bounding box
-        for row in self.__data:
+        self.fill_data_cursor()
+        for row in self.__DataCursor:
             xValue = row[self.__x_value_col_index]
             yValue = row[self.__y_value_col_index]
 
@@ -234,6 +236,10 @@ class CityGmlExport:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
 
+    # method adds data to cursor again, so it can be iterated
+    def fill_data_cursor(self):
+        self.__DataCursor = self.__db.get_data()
+
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
 
@@ -267,5 +273,5 @@ class CityGmlExport:
     def set_crown_diam_unit(self, unit):
         self.__crown_diam_unit = unit
 
-    def set_prettyprint(self, input):
-        self.__prettyprint = input
+    def set_prettyprint(self, value):
+        self.__prettyprint = value
