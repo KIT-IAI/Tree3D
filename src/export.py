@@ -46,12 +46,15 @@ class ExportDialog(default_gui.CityGmlExport):
 
         if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             exporter.set_height_col_index(self.choiceHeight.GetSelection())
+            exporter.set_height_unit(self.choiceHeightUnit.GetString(self.choiceHeightUnit.GetSelection()))
 
         if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             exporter.set_trunk_diam_col_index(self.choiceTrunk.GetSelection())
+            exporter.set_trunk_diam_unit(self.choiceTrunkUnit.GetString(self.choiceTrunkUnit.GetSelection()))
 
         if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             exporter.set_crown_diam_col_index(self.choiceCrown.GetSelection())
+            exporter.set_crown_diam_unit(self.choiceCrownUnit.GetString(self.choiceCrownUnit.GetSelection()))
 
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
