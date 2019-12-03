@@ -133,9 +133,20 @@ class CityGmlExport:
                 height.text = str(row[self.__height_col_index])
                 height.set("uom", self.__height_unit)
 
+            if self.__trunk_diam_col_index is not None:
+                trunk = ET.SubElement(SolitaryVegetationObject, "veg:trunkDiameter")
+                trunk.text = str(row[self.__trunk_diam_col_index])
+                trunk.set("uom", self.__trunk_diam_unit)
+
+            if self.__crown_diam_col_index is not None:
+                crown = ET.SubElement(SolitaryVegetationObject, "veg:crownDiameter")
+                crown.text = str(row[self.__crown_diam_col_index])
+                crown.set("uom", self.__crown_diam_unit)
+
         CityGmlExport.indent(self.__root)
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
+        print("export fertiggg")
 
     def add_namespaces(self):
         self.__root.set("xmlns", "http://www.opengis.net/citygml/2.0")
