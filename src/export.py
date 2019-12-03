@@ -35,22 +35,22 @@ class ExportDialog(default_gui.CityGmlExport):
 
         exporter = CityGmlExport(self.__pathname, self.GetParent().db)
 
-        if self.choiceXvalue != wx.NOT_FOUND:
+        if self.choiceXvalue.GetSelection() != wx.NOT_FOUND:
             exporter.set_x_col_idx(self.choiceXvalue.GetSelection())
 
-        if self.choiceYvalue != wx.NOT_FOUND:
+        if self.choiceYvalue.GetSelection() != wx.NOT_FOUND:
             exporter.set_y_col_idx(self.choiceYvalue.GetSelection())
 
-        if self.choiceHeight != wx.NOT_FOUND:
+        if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             exporter.set_height_col_index(self.choiceHeight.GetSelection())
 
-        if self.choiceTrunk != wx.NOT_FOUND:
+        if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             exporter.set_trunk_diam_col_index(self.choiceTrunk.GetSelection())
 
-        if self.choiceCrown != wx.NOT_FOUND:
+        if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             exporter.set_crown_diam_col_index(self.choiceCrown.GetSelection())
 
-        if self.choiceSpecies != wx.NOT_FOUND:
+        if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
 
         exporter.export()
@@ -155,9 +155,6 @@ class CityGmlExport:
 
             if yValue > yMaxValue:
                 yMaxValue = yValue
-
-        print("Min: ", xMinValue, yMinValue)
-        print("Max: ", xMaxValue, yMaxValue)
 
         boundedby = ET.SubElement(self.__root, "gml:boundedBy")
         envelope = ET.SubElement(boundedby, "gml:Envelope")
