@@ -19,6 +19,9 @@ class ExportDialog(default_gui.CityGmlExport):
         self.filepat_textbox.SetValue(self.__pathname)
         self.populate_dropdown()
 
+        self.DoLayoutAdaptation()
+        self.Layout()
+
         self.ShowModal()
 
     def populate_dropdown(self):
