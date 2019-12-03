@@ -131,6 +131,7 @@ class CityGmlExport:
             if self.__height_col_index is not None:
                 height = ET.SubElement(SolitaryVegetationObject, "veg:height")
                 height.text = str(row[self.__height_col_index])
+                height.set("uom", self.__height_unit)
 
         CityGmlExport.indent(self.__root)
         tree = ET.ElementTree(self.__root)
