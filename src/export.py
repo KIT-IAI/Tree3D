@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 
 import default_gui
+import analysis
 
 import wx
 
@@ -122,6 +123,8 @@ class CityGmlExport:
 
         self.__DataCursor = None  # Data cursor table from database (list of lists)
 
+        self.__bbox = analysis.BoundingBox()  # Bounding box object
+
         self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
         self.__x_value_col_index = None  # index of column in which x value is stored
         self.__y_value_col_index = None  # index of column in which y value is stored
@@ -140,13 +143,15 @@ class CityGmlExport:
         self.__root = ET.Element("CityModel")
         self.add_namespaces()
 
-        self.bounded_by()
-
         self.fill_data_cursor()
         for row in self.__DataCursor:
             cityObjectMember = ET.SubElement(self.__root, "cityObjectMember")
 
             SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
+
+            # compare thiw row's x and y vlaues with values in bounding box object
+            # boung box updates if new boundries are detected
+            self.__bbox.compare(row[self.__x_value_col_index], row[self.__y_value_col_index])
 
             if self.__height_col_index is not None:
                 height = ET.SubElement(SolitaryVegetationObject, "veg:height")
@@ -162,6 +167,9 @@ class CityGmlExport:
                 crown = ET.SubElement(SolitaryVegetationObject, "veg:crownDiameter")
                 crown.text = str(row[self.__crown_diam_col_index])
                 crown.set("uom", self.__crown_diam_unit)
+
+        # add bounding box information to root
+        self.bounded_by()
 
         if self.__prettyprint:
             CityGmlExport.indent(self.__root)
@@ -182,40 +190,20 @@ class CityGmlExport:
                         "http://www.opengis.net/citygml/vegetation/2.0 "
                         "http://schemas.opengis.net/citygml/vegetation/2.0/vegetation.xsd")
 
-    # method to add bound-by-element to xml file
+    # method to add bound-by-element to xml file with bounding box
     def bounded_by(self):
-
-        xMinValue = float("inf")
-        xMaxValue = 0
-        yMinValue = float("inf")
-        yMaxValue = 0
-
-        # loop through all data rows to find min and max values of koordinates to create bounding box
-        self.fill_data_cursor()
-        for row in self.__DataCursor:
-            xValue = row[self.__x_value_col_index]
-            yValue = row[self.__y_value_col_index]
-
-            if xValue < xMinValue:
-                xMinValue = xValue
-
-            if xValue > xMaxValue:
-                xMaxValue = xValue
-
-            if yValue < yMinValue:
-                yMinValue = yValue
-
-            if yValue > yMaxValue:
-                yMaxValue = yValue
-
-        boundedby = ET.SubElement(self.__root, "gml:boundedBy")
+        bbox = self.__bbox.get_bbox()
+        boundedby = ET.Element("gml:boundedBy")
         envelope = ET.SubElement(boundedby, "gml:Envelope")
 
         lower_corner = ET.SubElement(envelope, "gml:lowerCorner")
         upper_corner = ET.SubElement(envelope, "gml:upperCorner")
 
-        lower_corner.text = "{0:.2f} {1:.2f}".format(xMinValue, yMinValue)
-        upper_corner.text = "{0:.2f} {1:.2f}".format(xMaxValue, yMaxValue)
+        lower_corner.text = "{0:.2f} {1:.2f}".format(bbox[0][0], bbox[0][1])
+        upper_corner.text = "{0:.2f} {1:.2f}".format(bbox[1][0], bbox[1][1])
+
+        # add bounded-by-element to the top root subelements
+        self.__root.insert(0, boundedby)
 
     # Prints a tree with each node indented according to its depth.
     # This is done by first indenting the tree (see below), and then serializing it as usual.
