@@ -465,62 +465,70 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 320,501 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		bSizer2 = wx.BoxSizer( wx.VERTICAL )
+		fgSizer4 = wx.FlexGridSizer( 6, 1, 0, 0 )
+		fgSizer4.SetFlexibleDirection( wx.BOTH )
+		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 300,-1 ), wx.TE_READONLY )
-		bSizer2.Add( self.filepat_textbox, 0, wx.ALL, 5 )
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( -1,-1 ), wx.TE_READONLY )
+		fgSizer4.Add( self.filepat_textbox, 0, wx.ALL, 5 )
+		
+		self.box_prettyprint = wx.CheckBox( self, wx.ID_ANY, u"Create pretty-printed xml output (may be slow for large datasets)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.box_prettyprint.SetValue(True) 
+		fgSizer4.Add( self.box_prettyprint, 0, wx.ALL, 5 )
 		
 		sbSizer4 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
 		
-		gSizer5 = wx.GridSizer( 0, 2, 0, 0 )
+		fgSizer7 = wx.FlexGridSizer( 4, 2, 0, 0 )
+		fgSizer7.SetFlexibleDirection( wx.BOTH )
+		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_staticText171 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText171.Wrap( -1 )
 		
-		gSizer5.Add( self.m_staticText171, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText171, 0, wx.ALL, 5 )
 		
 		choiceXvalueChoices = []
 		self.choiceXvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceXvalueChoices, 0 )
 		self.choiceXvalue.SetSelection( 0 )
-		gSizer5.Add( self.choiceXvalue, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.choiceXvalue, 0, wx.ALL, 5 )
 		
 		self.m_staticText18 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText18.Wrap( -1 )
 		
-		gSizer5.Add( self.m_staticText18, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText18, 0, wx.ALL, 5 )
 		
 		choiceYvalueChoices = []
 		self.choiceYvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceYvalueChoices, 0 )
 		self.choiceYvalue.SetSelection( 0 )
-		gSizer5.Add( self.choiceYvalue, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.choiceYvalue, 0, wx.ALL, 5 )
 		
 		self.m_staticText20 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText20.Wrap( -1 )
 		
-		gSizer5.Add( self.m_staticText20, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText20, 0, wx.ALL, 5 )
 		
 		self.m_textCtrl3 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textCtrl3.SetMaxLength( 6 ) 
-		gSizer5.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
 		
 		self.m_staticText21 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code (output)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText21.Wrap( -1 )
 		
-		gSizer5.Add( self.m_staticText21, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText21, 0, wx.ALL, 5 )
 		
 		self.m_textCtrl4 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textCtrl4.SetMaxLength( 6 ) 
-		gSizer5.Add( self.m_textCtrl4, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_textCtrl4, 0, wx.ALL, 5 )
 		
 		
-		sbSizer4.Add( gSizer5, 1, wx.EXPAND, 5 )
+		sbSizer4.Add( fgSizer7, 1, wx.EXPAND, 5 )
 		
 		
-		bSizer2.Add( sbSizer4, 1, wx.EXPAND, 5 )
+		fgSizer4.Add( sbSizer4, 1, wx.EXPAND, 5 )
 		
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
 		
@@ -531,64 +539,82 @@ class CityGmlExport ( wx.Dialog ):
 		sbSizer2.Add( self.m_radioBtn4, 0, wx.ALL, 5 )
 		
 		
-		bSizer2.Add( sbSizer2, 1, wx.EXPAND, 5 )
+		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
 		
 		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
 		
-		gSizer4 = wx.GridSizer( 0, 2, 0, 0 )
+		fgSizer6 = wx.FlexGridSizer( 4, 3, 0, 0 )
+		fgSizer6.SetFlexibleDirection( wx.BOTH )
+		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText15.Wrap( -1 )
 		
-		gSizer4.Add( self.m_staticText15, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText15, 0, wx.ALL, 5 )
 		
 		choiceHeightChoices = []
 		self.choiceHeight = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightChoices, 0 )
 		self.choiceHeight.SetSelection( 0 )
-		gSizer4.Add( self.choiceHeight, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.choiceHeight, 0, wx.ALL, 5 )
+		
+		choiceHeightUnitChoices = [ u"m", u"cm" ]
+		self.choiceHeightUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightUnitChoices, 0 )
+		self.choiceHeightUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceHeightUnit, 0, wx.ALL, 5 )
 		
 		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText17.Wrap( -1 )
 		
-		gSizer4.Add( self.m_staticText17, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText17, 0, wx.ALL, 5 )
 		
 		choiceTrunkChoices = []
 		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
 		self.choiceTrunk.SetSelection( 0 )
-		gSizer4.Add( self.choiceTrunk, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.choiceTrunk, 0, wx.ALL, 5 )
+		
+		choiceTrunkUnitChoices = [ u"m", u"cm" ]
+		self.choiceTrunkUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkUnitChoices, 0 )
+		self.choiceTrunkUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
 		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 		
-		gSizer4.Add( self.m_staticText16, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText16, 0, wx.ALL, 5 )
 		
 		choiceCrownChoices = []
 		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
 		self.choiceCrown.SetSelection( 0 )
-		gSizer4.Add( self.choiceCrown, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.choiceCrown, 0, wx.ALL, 5 )
+		
+		choiceCrownUnitChoices = [ u"m", u"cm" ]
+		self.choiceCrownUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownUnitChoices, 0 )
+		self.choiceCrownUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceCrownUnit, 0, wx.ALL, 5 )
 		
 		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species (Latin name)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
 		
-		gSizer4.Add( self.m_staticText19, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText19, 0, wx.ALL, 5 )
 		
 		choiceSpeciesChoices = []
 		self.choiceSpecies = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceSpeciesChoices, 0 )
 		self.choiceSpecies.SetSelection( 0 )
-		gSizer4.Add( self.choiceSpecies, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.choiceSpecies, 0, wx.ALL, 5 )
 		
 		
-		sbSizer3.Add( gSizer4, 1, wx.EXPAND, 5 )
+		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
 		
 		
-		bSizer2.Add( sbSizer3, 1, wx.EXPAND, 5 )
+		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
 		
 		self.buttonExport = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.buttonExport, 0, wx.ALL, 5 )
+		fgSizer4.Add( self.buttonExport, 0, wx.ALL, 5 )
 		
 		
-		self.SetSizer( bSizer2 )
+		self.SetSizer( fgSizer4 )
 		self.Layout()
+		fgSizer4.Fit( self )
 		
 		self.Centre( wx.BOTH )
 		
