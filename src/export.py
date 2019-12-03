@@ -69,6 +69,10 @@ class ExportDialog(default_gui.CityGmlExport):
 
         exporter.export()
 
+        message = "Export fertig\nTODO: SHOW WARNINGS IF EXIST"
+        msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
+        msg.ShowModal()
+
     # method to validate user input and show error message is user input is invalid
     def validate_input(self):
         valid = True
