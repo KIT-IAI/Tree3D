@@ -38,6 +38,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         exporter = CityGmlExport(self.__pathname, self.GetParent().db)
 
+        exporter.set_prettyprint(self.box_prettyprint.GetValue())
+
         if self.choiceXvalue.GetSelection() != wx.NOT_FOUND:
             exporter.set_x_col_idx(self.choiceXvalue.GetSelection())
 
@@ -105,6 +107,7 @@ class CityGmlExport:
 
         self.__data = self.__db.get_data()  # Data table from database (list of lists)
 
+        self.__prettyprint = None
         self.__x_value_col_index = None  # index of column in which x value is stored
         self.__y_value_col_index = None  # index of column in which y value is stored
         self.__EPSG = None  # EPSG-Code of coordinates
@@ -143,7 +146,9 @@ class CityGmlExport:
                 crown.text = str(row[self.__crown_diam_col_index])
                 crown.set("uom", self.__crown_diam_unit)
 
-        CityGmlExport.indent(self.__root)
+        if self.__prettyprint:
+            CityGmlExport.indent(self.__root)
+
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
         print("export fertiggg")
@@ -241,3 +246,6 @@ class CityGmlExport:
 
     def set_crown_diam_unit(self, unit):
         self.__crown_diam_unit = unit
+
+    def set_prettyprint(self, input):
+        self.__prettyprint = input
