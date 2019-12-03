@@ -24,6 +24,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         self.ShowModal()
 
+    # method to populate dropdown menus in export window
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
         self.choiceXvalue.SetItems(colitemlist)
@@ -32,6 +33,7 @@ class ExportDialog(default_gui.CityGmlExport):
         self.choiceTrunk.SetItems(colitemlist)
         self.choiceCrown.SetItems(colitemlist)
 
+    # method to be called when "export" button is pressed in export-window
     def on_export(self, event):
         if not self.validate_input():
             return
@@ -63,6 +65,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         exporter.export()
 
+    # method to validate user input and show error message is user input is invalid
     def validate_input(self):
         valid = True
         warningmessage = ""
@@ -107,19 +110,20 @@ class CityGmlExport:
 
         self.__data = self.__db.get_data()  # Data table from database (list of lists)
 
-        self.__prettyprint = None
+        self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
         self.__x_value_col_index = None  # index of column in which x value is stored
         self.__y_value_col_index = None  # index of column in which y value is stored
         self.__EPSG = None  # EPSG-Code of coordinates
         self.__EPSG_output = None  # EPSG-Code of coordinates in output
         self.__height_col_index = None  # index of height column
-        self.__height_unit = None
+        self.__height_unit = None  # variable to store the unit of the hight value
         self.__trunk_diam_col_index = None  # index of trunk diameter column
-        self.__trunk_diam_unit = None
+        self.__trunk_diam_unit = None  # varialbe to store the unit of trunk diameter
         self.__crown_diam_col_index = None  # index of crown diameter column
-        self.__crown_diam_unit = None
+        self.__crown_diam_unit = None  # variable to store the unit of the crown diameter
         self.__species_col_index = None  # index of species column
 
+    # method to initiate citygml export
     def export(self):
         self.__root = ET.Element("CityModel")
         self.add_namespaces()
@@ -153,6 +157,7 @@ class CityGmlExport:
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
         print("export fertiggg")
 
+    # method to add namespaces and schema location to xml file
     def add_namespaces(self):
         self.__root.set("xmlns", "http://www.opengis.net/citygml/2.0")
         self.__root.set("xmlns:xs", "https://www.w3.org/2001/XMLSchema")
@@ -164,12 +169,15 @@ class CityGmlExport:
                         "http://www.opengis.net/citygml/vegetation/2.0 "
                         "http://schemas.opengis.net/citygml/vegetation/2.0/vegetation.xsd")
 
+    # method to add bound-by-element to xml file
     def bounded_by(self):
 
         xMinValue = float("inf")
         xMaxValue = 0
         yMinValue = float("inf")
         yMaxValue = 0
+
+        # loop through all data rows to find min and max values of koordinates to create bounding box
         for row in self.__data:
             xValue = row[self.__x_value_col_index]
             yValue = row[self.__y_value_col_index]
