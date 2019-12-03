@@ -20,13 +20,13 @@ class CityGmlExport:
         self.__species_col_index = None  # index of species column
 
     def export(self):
-        self.__root = ET.Element("core:CityModel")
+        self.__root = ET.Element("CityModel")
         self.add_namespaces()
 
         self.bounded_by()
 
         for row in self.__data:
-            cityObjectMember = ET.SubElement(self.__root, "core:cityObjectMember")
+            cityObjectMember = ET.SubElement(self.__root, "cityObjectMember")
 
             SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
 
@@ -35,10 +35,15 @@ class CityGmlExport:
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
 
     def add_namespaces(self):
+        self.__root.set("xmlns", "http://www.opengis.net/citygml/2.0")
         self.__root.set("xmlns:xs", "https://www.w3.org/2001/XMLSchema")
-        self.__root.set("xmlns:core", "http://www.opengis.net/citygml/2.0")
+        self.__root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        self.__root.set("xmlns:xlink", "http://www.w3.org/1999/xlink")
         self.__root.set("xmlns:gml", "http://www.opengis.net/gml")
         self.__root.set("xmlns:veg", "http://www.opengis.net/citygml/vegetation/2.0")
+        self.__root.set("xsi:schemaLocation",
+                        "http://www.opengis.net/citygml/vegetation/2.0 "
+                        "http://schemas.opengis.net/citygml/vegetation/2.0/vegetation.xsd")
 
     def bounded_by(self):
 
