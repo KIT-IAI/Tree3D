@@ -27,11 +27,9 @@ class MainWindow ( wx.Frame ):
 		self.open = wx.MenuItem( self.file, wx.ID_ANY, u"Open", wx.EmptyString, wx.ITEM_NORMAL )
 		self.file.Append( self.open )
 		
-		self.Export = wx.Menu()
-		self.export_citygml = wx.MenuItem( self.Export, wx.ID_ANY, u"CityGML", wx.EmptyString, wx.ITEM_NORMAL )
-		self.Export.Append( self.export_citygml )
-		
-		self.file.AppendSubMenu( self.Export, u"Export" )
+		self.export_citygml = wx.MenuItem( self.file, wx.ID_ANY, u"Export as CityGML", wx.EmptyString, wx.ITEM_NORMAL )
+		self.file.Append( self.export_citygml )
+		self.export_citygml.Enable( False )
 		
 		self.test = wx.MenuItem( self.file, wx.ID_ANY, u"Test", wx.EmptyString, wx.ITEM_NORMAL )
 		self.file.Append( self.test )
@@ -41,24 +39,30 @@ class MainWindow ( wx.Frame ):
 		self.view = wx.Menu()
 		self.col_properties = wx.MenuItem( self.view, wx.ID_ANY, u"Column Properties", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.col_properties )
+		self.col_properties.Enable( False )
 		
 		self.reset_col_position = wx.MenuItem( self.view, wx.ID_ANY, u"Reset Column Position", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.reset_col_position )
+		self.reset_col_position.Enable( False )
 		
 		self.reset_col_visiblity = wx.MenuItem( self.view, wx.ID_ANY, u"Show All Columns", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.reset_col_visiblity )
+		self.reset_col_visiblity.Enable( False )
 		
 		self.stats = wx.MenuItem( self.view, wx.ID_ANY, u"Statistics", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.stats )
+		self.stats.Enable( False )
 		
 		self.m_menubar7.Append( self.view, u"View" ) 
 		
 		self.analyze = wx.Menu()
 		self.dublicates = wx.MenuItem( self.analyze, wx.ID_ANY, u"Check for Duplicates by ID", wx.EmptyString, wx.ITEM_NORMAL )
 		self.analyze.Append( self.dublicates )
+		self.dublicates.Enable( False )
 		
 		self.duplicateGeom = wx.MenuItem( self.analyze, wx.ID_ANY, u"Check for duplicates by geometry", wx.EmptyString, wx.ITEM_NORMAL )
 		self.analyze.Append( self.duplicateGeom )
+		self.duplicateGeom.Enable( False )
 		
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		

@@ -27,7 +27,7 @@
         <property name="ui_table">UI</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
-        <object class="Frame" expanded="0">
+        <object class="Frame" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -102,7 +102,7 @@
             <event name="OnShow"></event>
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
-            <object class="wxMenuBar" expanded="0">
+            <object class="wxMenuBar" expanded="1">
                 <property name="bg"></property>
                 <property name="context_help"></property>
                 <property name="context_menu">1</property>
@@ -154,7 +154,7 @@
                 <event name="OnSetFocus"></event>
                 <event name="OnSize"></event>
                 <event name="OnUpdateUI"></event>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">File</property>
                     <property name="name">file</property>
                     <property name="permission">protected</property>
@@ -173,26 +173,20 @@
                         <event name="OnMenuSelection">on_menu_open</event>
                         <event name="OnUpdateUI"></event>
                     </object>
-                    <object class="submenu" expanded="0">
+                    <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
-                        <property name="label">Export</property>
-                        <property name="name">Export</property>
-                        <property name="permission">protected</property>
-                        <object class="wxMenuItem" expanded="0">
-                            <property name="bitmap"></property>
-                            <property name="checked">0</property>
-                            <property name="enabled">1</property>
-                            <property name="help"></property>
-                            <property name="id">wxID_ANY</property>
-                            <property name="kind">wxITEM_NORMAL</property>
-                            <property name="label">CityGML</property>
-                            <property name="name">export_citygml</property>
-                            <property name="permission">none</property>
-                            <property name="shortcut"></property>
-                            <property name="unchecked_bitmap"></property>
-                            <event name="OnMenuSelection">on_menu_export_citygml</event>
-                            <event name="OnUpdateUI"></event>
-                        </object>
+                        <property name="checked">0</property>
+                        <property name="enabled">0</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Export as CityGML</property>
+                        <property name="name">export_citygml</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">on_menu_export_citygml</event>
+                        <event name="OnUpdateUI"></event>
                     </object>
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
@@ -210,14 +204,14 @@
                         <event name="OnUpdateUI"></event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">View</property>
                     <property name="name">view</property>
                     <property name="permission">protected</property>
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
-                        <property name="enabled">1</property>
+                        <property name="enabled">0</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
@@ -232,7 +226,7 @@
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
-                        <property name="enabled">1</property>
+                        <property name="enabled">0</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
@@ -247,7 +241,7 @@
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
-                        <property name="enabled">1</property>
+                        <property name="enabled">0</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
@@ -262,7 +256,7 @@
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
-                        <property name="enabled">1</property>
+                        <property name="enabled">0</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
@@ -275,14 +269,14 @@
                         <event name="OnUpdateUI"></event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">Analyze</property>
                     <property name="name">analyze</property>
                     <property name="permission">protected</property>
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
-                        <property name="enabled">1</property>
+                        <property name="enabled">0</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
@@ -297,7 +291,7 @@
                     <object class="wxMenuItem" expanded="0">
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
-                        <property name="enabled">1</property>
+                        <property name="enabled">0</property>
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>

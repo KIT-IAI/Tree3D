@@ -69,12 +69,30 @@ class MainTableFrame(default_gui.MainWindow):
             self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
+        # Enable menu items
+        self.export_citygml.Enable(True)
+        self.col_properties.Enable(True)
+        self.reset_col_position.Enable(True)
+        self.reset_col_visiblity.Enable(True)
+        self.stats.Enable(True)
+        self.dublicates.Enable(True)
+        self.duplicateGeom.Enable(True)
+
     def on_menu_export_citygml(self, event):
         exp = export.ExportDialog(self)
 
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
     def reset_program(self):
+        # Disable menu items
+        self.export_citygml.Enable(False)
+        self.col_properties.Enable(False)
+        self.reset_col_position.Enable(False)
+        self.reset_col_visiblity.Enable(False)
+        self.stats.Enable(False)
+        self.dublicates.Enable(False)
+        self.duplicateGeom.Enable(False)
+
         # Disable Grid visibility
         self.table_view_panel.grid.Show(False)
 
