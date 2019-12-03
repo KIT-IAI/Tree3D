@@ -32,6 +32,7 @@ class ExportDialog(default_gui.CityGmlExport):
         self.choiceHeight.SetItems(colitemlist)
         self.choiceTrunk.SetItems(colitemlist)
         self.choiceCrown.SetItems(colitemlist)
+        self.choiceSpecies.SetItems(colitemlist)
 
     # method to be called when "export" button is pressed in export-window
     def on_export(self, event):
