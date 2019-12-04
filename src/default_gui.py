@@ -594,8 +594,8 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceTrunkUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
 		
-		self.m_checkBox4 = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.m_checkBox4, 0, wx.ALL, 5 )
+		self.boxTrunkCirc = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.boxTrunkCirc, 0, wx.ALL, 5 )
 		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
@@ -612,8 +612,8 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceCrownUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceCrownUnit, 0, wx.ALL, 5 )
 		
-		self.m_checkBox5 = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.m_checkBox5, 0, wx.ALL, 5 )
+		self.boxCrownCirc = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.boxCrownCirc, 0, wx.ALL, 5 )
 		
 		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species (Latin name)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
