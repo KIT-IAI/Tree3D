@@ -469,7 +469,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 385,521 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 425,521 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -481,7 +481,7 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer71.SetFlexibleDirection( wx.BOTH )
 		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 260,-1 ), wx.TE_READONLY )
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 310,-1 ), wx.TE_READONLY )
 		fgSizer71.Add( self.filepat_textbox, 0, wx.ALL, 5 )
 		
 		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -557,7 +557,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
 		
-		fgSizer6 = wx.FlexGridSizer( 4, 3, 0, 0 )
+		fgSizer6 = wx.FlexGridSizer( 4, 4, 0, 0 )
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
 		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -576,6 +576,9 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceHeightUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceHeightUnit, 0, wx.ALL, 5 )
 		
+		
+		fgSizer6.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
 		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText17.Wrap( -1 )
 		
@@ -591,6 +594,9 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceTrunkUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
 		
+		self.m_checkBox4 = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.m_checkBox4, 0, wx.ALL, 5 )
+		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 		
@@ -605,6 +611,9 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceCrownUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownUnitChoices, 0 )
 		self.choiceCrownUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceCrownUnit, 0, wx.ALL, 5 )
+		
+		self.m_checkBox5 = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer6.Add( self.m_checkBox5, 0, wx.ALL, 5 )
 		
 		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species (Latin name)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
