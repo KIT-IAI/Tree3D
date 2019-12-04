@@ -127,6 +127,9 @@ class OnOpenDialog ( wx.Dialog ):
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
+		self.m_treeCtrl2 = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 280,200 ), 0 )
+		fgSizer4.Add( self.m_treeCtrl2, 0, wx.ALL, 5 )
+		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
 		self.generate_ID_box = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate unique tree IDs from CSV file columns", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -170,13 +173,13 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		sbSizer1.Add( gSizer2, 1, wx.EXPAND, 5 )
 		
-		
-		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
-		
-		self.ok_button = wx.Button( self, wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
+		self.ok_button = wx.Button( sbSizer1.GetStaticBox(), wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
 		
 		self.ok_button.SetBitmapPosition( wx.RIGHT )
-		fgSizer4.Add( self.ok_button, 0, wx.ALL, 5 )
+		sbSizer1.Add( self.ok_button, 0, wx.ALL, 5 )
+		
+		
+		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
 		
 		
 		self.SetSizer( fgSizer4 )
