@@ -127,8 +127,8 @@ class OnOpenDialog ( wx.Dialog ):
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_treeCtrl2 = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 280,200 ), 0 )
-		fgSizer4.Add( self.m_treeCtrl2, 0, wx.ALL, 5 )
+		self.xmlTree = wx.TreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 280,200 ), 0 )
+		fgSizer4.Add( self.xmlTree, 0, wx.ALL, 5 )
 		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
