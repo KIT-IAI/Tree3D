@@ -130,12 +130,16 @@ class CityGmlExport:
         self.__y_value_col_index = None  # index of column in which y value is stored
         self.__EPSG = None  # EPSG-Code of coordinates
         self.__EPSG_output = None  # EPSG-Code of coordinates in output
+
         self.__height_col_index = None  # index of height column
         self.__height_unit = None  # variable to store the unit of the hight value
+
         self.__trunk_diam_col_index = None  # index of trunk diameter column
         self.__trunk_diam_unit = None  # varialbe to store the unit of trunk diameter
+
         self.__crown_diam_col_index = None  # index of crown diameter column
         self.__crown_diam_unit = None  # variable to store the unit of the crown diameter
+
         self.__species_col_index = None  # index of species column
 
     # method to initiate citygml export
