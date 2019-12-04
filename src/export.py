@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+import math
 
 import default_gui
 import analysis
@@ -60,10 +61,12 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             exporter.set_trunk_diam_col_index(self.choiceTrunk.GetSelection())
             exporter.set_trunk_diam_unit(self.choiceTrunkUnit.GetString(self.choiceTrunkUnit.GetSelection()))
+            exporter.set_trunk_is_circ(self.boxTrunkCirc.GetValue())
 
         if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             exporter.set_crown_diam_col_index(self.choiceCrown.GetSelection())
             exporter.set_crown_diam_unit(self.choiceCrownUnit.GetString(self.choiceCrownUnit.GetSelection()))
+            exporter.set_crown_is_circ(self.boxCrownCirc.GetValue())
 
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
@@ -136,9 +139,11 @@ class CityGmlExport:
 
         self.__trunk_diam_col_index = None  # index of trunk diameter column
         self.__trunk_diam_unit = None  # varialbe to store the unit of trunk diameter
+        self.__trunk_is_circ = None  # boolean variable to indicate if trunk diam must be calculated from circumference
 
         self.__crown_diam_col_index = None  # index of crown diameter column
         self.__crown_diam_unit = None  # variable to store the unit of the crown diameter
+        self.__crown_is_circ = None  # boolean variable to indicate if crown diam must be calculated from circumference
 
         self.__species_col_index = None  # index of species column
 
@@ -164,12 +169,22 @@ class CityGmlExport:
 
             if self.__trunk_diam_col_index is not None:
                 trunk = ET.SubElement(SolitaryVegetationObject, "veg:trunkDiameter")
-                trunk.text = str(row[self.__trunk_diam_col_index])
+                value = row[self.__trunk_diam_col_index]
+                if self.__trunk_is_circ:
+                    diam = value / math.pi
+                else:
+                    diam = value
+                trunk.text = str(diam)
                 trunk.set("uom", self.__trunk_diam_unit)
 
             if self.__crown_diam_col_index is not None:
                 crown = ET.SubElement(SolitaryVegetationObject, "veg:crownDiameter")
-                crown.text = str(row[self.__crown_diam_col_index])
+                value = row[self.__crown_diam_col_index]
+                if self.__crown_is_circ:
+                    diam = value / math.pi
+                else:
+                    diam = value
+                crown.text = str(diam)
                 crown.set("uom", self.__crown_diam_unit)
 
         # add bounding box information to root
@@ -264,6 +279,12 @@ class CityGmlExport:
 
     def set_crown_diam_unit(self, unit):
         self.__crown_diam_unit = unit
+
+    def set_trunk_is_circ(self, val):
+        self.__trunk_is_circ = val
+
+    def set_crown_is_circ(self, val):
+        self.__crown_is_circ = val
 
     def set_prettyprint(self, value):
         self.__prettyprint = value
