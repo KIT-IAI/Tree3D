@@ -22,7 +22,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.aui_manager = aui.AuiManager(self, wx.aui.AUI_MGR_DEFAULT)
 
         # initialize database
-        self.db = data.Database()
+        self.db = None
 
         # Adding table view panel to Main Window
         self.table_view_panel = default_gui.data_panel(self)
@@ -63,10 +63,14 @@ class MainTableFrame(default_gui.MainWindow):
 
             self.reset_program()
 
-            dlg = OpenDialog(self, path=pathname)
-            dlg.ShowModal()
-
-            self.db.import_csv_file(filepath=pathname)
+            if pathname[-4:] == ".csv":
+                print("csv")
+                self.db = data.DatabaseFromCsv()
+                dlg = OpenDialog(self, path=pathname)
+                dlg.Layout()
+                dlg.DoLayoutAdaptation()
+                dlg.ShowModal()
+                self.db.import_csv_file(filepath=pathname)
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
         # Enable menu items
@@ -100,14 +104,17 @@ class MainTableFrame(default_gui.MainWindow):
         self.reset_grid_size()
 
         # deletes database table (if exists) so new file can be imported
-        self.db.reset_database_table()
+        if self.db is not None:
+            print("hier")
+            self.db.reset_database_table()
+            self.db.close_db_connection()
+
+            # resets options: By default, no ID is created
+            self.db.set_create_id(False)
+            self.db.set_id_columns([])
 
         # resets row count in status bar
         self.m_statusBar3.SetStatusText("", 0)
-
-        # resets options: By default, no ID is created
-        self.db.set_create_id(False)
-        self.db.set_id_columns([])
 
     # adjusts numbers of rows and columns to match data
     # populates grid with data afterwards
