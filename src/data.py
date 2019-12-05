@@ -322,6 +322,7 @@ class DatabaseFromXml(Database):
                     insert_row.append(subelement.text)
             self.populate_db_table(insert_row, col_list)
         self._DbConnection.commit()
+        self.generate_sql_statement()
 
     # method to automatically detect the data type of an xml attribute
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
