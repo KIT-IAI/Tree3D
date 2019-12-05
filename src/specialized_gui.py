@@ -55,7 +55,7 @@ class MainTableFrame(default_gui.MainWindow):
     # method to be called when clicking File > Open
     # overrides method in parent class
     def on_menu_open(self, event):
-        with wx.FileDialog(self, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
+        with wx.FileDialog(self, "Open CSV file", wildcard="CSV files (*.csv)|*.csv|XML files (*.xml)|*.xml",
                            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
@@ -64,13 +64,21 @@ class MainTableFrame(default_gui.MainWindow):
             self.reset_program()
 
             if pathname[-4:] == ".csv":
-                print("csv")
                 self.db = data.DatabaseFromCsv()
                 dlg = OpenDialog(self, path=pathname)
                 dlg.Layout()
                 dlg.DoLayoutAdaptation()
                 dlg.ShowModal()
                 self.db.import_csv_file(filepath=pathname)
+            elif pathname[-4:] == ".xml":
+                self.db = data.DatabaseFromXml()
+                dlg = OpenDialog(self, path=pathname)
+                dlg.ShowModal()
+                treepath = dlg.treepath.GetValue()
+                geompath = dlg.geompath.GetValue()
+                ignore = dlg.ignorelist.GetValue()
+                self.db.get_tree_structure(pathname, treepath, geompath, ignore)
+
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
         # Enable menu items

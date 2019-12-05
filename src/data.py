@@ -3,6 +3,7 @@ import csv
 import sqlite3
 import uuid
 from ast import literal_eval
+import xml.etree.ElementTree as ET
 
 
 class Database:
@@ -55,7 +56,7 @@ class Database:
         self._DbConnection.commit()
 
     # populates database table with values from csv file
-    def populate_db_table(self, row):
+    def populate_db_table(self, cols, row):
         insert_row = []
         if self._CreateTwoColID:
             row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
@@ -266,6 +267,81 @@ class DatabaseFromCsv(Database):
         # seek(1) gives errors with encoding for some reason, therefore use this method
         csvfile.seek(0)
         csvfile.readline()
+
+        if int_type_in_list and not real_type_in_list and not text_type_in_list:
+            data_type = "INTEGER"
+        elif real_type_in_list and not text_type_in_list:
+            data_type = "REAL"
+        else:
+            data_type = "TEXT"
+
+        return data_type
+
+
+class DatabaseFromXml(Database):
+    def __init__(self):
+        super().__init__()
+        #self.__TreeStructure = []
+        #self.__XmlFilePath = ""
+        self.__XmlTree = None
+        self.__RootNode = None
+        self.__ns = {}
+
+    def get_tree_structure(self, filepath, attribute_path, geom_path, ignorestring):
+        self.__XmlTree = ET.parse(filepath)
+        self.__RootNode = self.__XmlTree.getroot()
+
+        self.__ns = dict([node for _, node in ET.iterparse(filepath, events=['start-ns'])])
+
+        ignorelist = ignorestring.split(";")
+        for idx, element in enumerate(ignorelist):
+            ignorelist[idx] = element.strip()
+
+        inspected_cols = []
+        for element in self.__RootNode.findall(attribute_path, self.__ns):
+            for subelement in element:
+                tag = subelement.tag
+                tag_no_pref = tag.split("}")[1]
+                if (tag_no_pref not in ignorelist) and (tag_no_pref not in inspected_cols):
+                    datatype = self.get_xml_datatype(attribute_path+"/"+tag)
+                    inspected_cols.append(tag_no_pref)
+                    self._lTableColmnNames.append(["'%s'" % tag_no_pref, datatype, True])
+        if geom_path != "":
+            self._lTableColmnNames.append(["'X_VALUE'", "REAL", True])
+            self._lTableColmnNames.append(["'Y_VALUE'", "REAL", True])
+
+        self.create_db_table()
+        self._DbConnection.commit()
+
+    # method to automatically detect the data type of an xml attribute
+    # number of rows to be consider when determining data type can be configured using inspection_limit variable
+    # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
+    def get_xml_datatype(self, attribute_path):
+        inspection_limit = 500
+
+        int_type_in_list = False
+        real_type_in_list = False
+        text_type_in_list = False
+
+        for index, element in enumerate(self.__RootNode.findall(attribute_path, self.__ns)):
+            # stop data type inspection once the inspection limit is hit
+            if index > inspection_limit:
+                break
+
+            # if there is no value for an attribute in a row: ignore this row to prevent false data type predictions
+            if element.text is None:
+                continue
+
+            try:
+                dat = literal_eval(element.text.replace(",", "."))
+                if isinstance(dat, int):
+                    int_type_in_list = True
+                elif isinstance(dat, float):
+                    real_type_in_list = True
+                else:
+                    text_type_in_list = True
+            except:
+                text_type_in_list = True
 
         if int_type_in_list and not real_type_in_list and not text_type_in_list:
             data_type = "INTEGER"
