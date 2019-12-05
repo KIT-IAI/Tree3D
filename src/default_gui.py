@@ -135,6 +135,9 @@ class OnOpenDialog ( wx.Dialog ):
 		self.treepath = wx.TextCtrl( self, wx.ID_ANY, u"./wfs:member/fis:s_wfs_baumbestand", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.treepath, 0, wx.ALL, 5 )
 		
+		self.m_staticline1 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer4.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
+		
 		self.m_staticText23 = wx.StaticText( self, wx.ID_ANY, u"Specify path from this elemnt to tree coordinates\n(if coordinates are not specified as tree attributes)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText23.Wrap( -1 )
 		
@@ -143,13 +146,19 @@ class OnOpenDialog ( wx.Dialog ):
 		self.geompath = wx.TextCtrl( self, wx.ID_ANY, u"./fis:ORA_GEOMETRY/gml:Point/gml:pos", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.geompath, 0, wx.ALL, 5 )
 		
-		self.m_staticText24 = wx.StaticText( self, wx.ID_ANY, u"Specify attributes within this element to ignore during import.\nInclude element prefixes, seperate elements with Semicolon.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticline2 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer4.Add( self.m_staticline2, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_staticText24 = wx.StaticText( self, wx.ID_ANY, u"Specify attributes within this element to ignore during import.\nDO NOT iclude element prefixes\nseperate elements with Semicolon.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText24.Wrap( -1 )
 		
 		fgSizer4.Add( self.m_staticText24, 0, wx.ALL, 5 )
 		
 		self.ignorelist = wx.TextCtrl( self, wx.ID_ANY, u"fis:ORA_GEOMETRY", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.ignorelist, 0, wx.ALL, 5 )
+		
+		self.m_staticline3 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer4.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
