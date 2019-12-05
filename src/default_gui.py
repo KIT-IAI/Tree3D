@@ -123,7 +123,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 3, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 11, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -203,13 +203,13 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		sbSizer1.Add( gSizer2, 1, wx.EXPAND, 5 )
 		
-		self.ok_button = wx.Button( sbSizer1.GetStaticBox(), wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
-		
-		self.ok_button.SetBitmapPosition( wx.RIGHT )
-		sbSizer1.Add( self.ok_button, 0, wx.ALL, 5 )
-		
 		
 		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
+		
+		self.ok_button = wx.Button( self, wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
+		
+		self.ok_button.SetBitmapPosition( wx.RIGHT )
+		fgSizer4.Add( self.ok_button, 0, wx.ALL, 5 )
 		
 		
 		self.SetSizer( fgSizer4 )
