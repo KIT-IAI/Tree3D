@@ -55,25 +55,6 @@ class Database:
                 self._DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self._DbTreeTableName, col[0], col[1]))
         self._DbConnection.commit()
 
-    # populates database table with values from csv file
-    def populate_db_table(self, cols, row):
-        insert_row = []
-        if self._CreateTwoColID:
-            row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
-        statement = 'INSERT INTO %s VALUES ('
-        for _ in row:
-            statement += "?, "
-        statement = statement[:-2] + ");"
-
-        for idx, element in enumerate(row):
-            if self._lTableColmnNames[idx][1] == "INTEGER" and element != "":
-                insert_row.append(int(element))
-            elif self._lTableColmnNames[idx][1] == "REAL" and element != "":
-                insert_row.append(float(element.replace(",", ".")))
-            else:
-                insert_row.append(element)
-        self._DbCursor.execute(statement % self._DbTreeTableName, insert_row)
-
     # returns the number of table columns
     def get_number_of_columns(self):
         return len(self._lTableColmnNames)
@@ -141,6 +122,7 @@ class Database:
     def get_data(self):
         # executes statement to fetch all data from database table
         self._DbCursor.execute(self._SQLGetAllDataStatement)
+        print(self._SQLGetAllDataStatement)
         return self._DbCursor
 
     # appends sql statement with a where condition to filter data
@@ -230,6 +212,24 @@ class DatabaseFromCsv(Database):
         self._DbConnection.commit()
         self.generate_sql_statement()
 
+    def populate_db_table(self, row):
+        insert_row = []
+        if self._CreateTwoColID:
+            row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
+        statement = 'INSERT INTO %s VALUES ('
+        for _ in row:
+            statement += "?, "
+        statement = statement[:-2] + ");"
+
+        for idx, element in enumerate(row):
+            if self._lTableColmnNames[idx][1] == "INTEGER" and element != "":
+                insert_row.append(int(element))
+            elif self._lTableColmnNames[idx][1] == "REAL" and element != "":
+                insert_row.append(float(element.replace(",", ".")))
+            else:
+                insert_row.append(element)
+        self._DbCursor.execute(statement % self._DbTreeTableName, insert_row)
+
     # method to automatically detect the data type of a column in the opened csv file.
     # number of rows to be consider when det4000*12
     # ermining data type can be configured using inspection_limit variable
@@ -313,6 +313,16 @@ class DatabaseFromXml(Database):
         self.create_db_table()
         self._DbConnection.commit()
 
+        for element in self.__RootNode.findall(attribute_path, self.__ns):
+            col_list = []
+            insert_row = []
+            for subelement in element:
+                if subelement.tag.split("}")[1] not in ignorelist:
+                    col_list.append("'%s'" % subelement.tag.split("}")[1])
+                    insert_row.append(subelement.text)
+            self.populate_db_table(insert_row, col_list)
+        self._DbConnection.commit()
+
     # method to automatically detect the data type of an xml attribute
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
@@ -351,6 +361,39 @@ class DatabaseFromXml(Database):
             data_type = "TEXT"
 
         return data_type
+
+    def populate_db_table(self, row, cols):
+        col_string = "("
+        insert_row = []
+        col_type_dict = {}
+
+        for col in self._lTableColmnNames:
+            col_type_dict["%s" % col[0]] = col[1]
+
+        for col in cols:
+            col_string += "%s, " % col
+
+        col_string = col_string[:-2] + ") "
+
+        if self._CreateTwoColID:
+            row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
+        # statement = 'INSERT INTO %s ' + col_string + 'VALUES ('
+        statement = 'INSERT INTO %s ' + col_string + 'VALUES ('
+        for _ in row:
+            statement += "?, "
+        statement = statement[:-2] + ");"
+
+        for idx, element in enumerate(row):
+            if col_type_dict[cols[idx]] == "INTEGER" and element is not None:
+                insert_row.append(int(element))
+            elif col_type_dict[cols[idx]] == "REAL" and element is not None:
+                insert_row.append(float(element.replace(",", ".")))
+            else:
+                insert_row.append(element)
+
+        self._DbCursor.execute(statement % self._DbTreeTableName, insert_row)
+        #self._DbCursor.execute(statement % self._DbTreeTableName)
+        self._DbConnection.commit()
 
 
 if __name__ == "__main__":
