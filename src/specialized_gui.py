@@ -113,7 +113,6 @@ class MainTableFrame(default_gui.MainWindow):
 
         # deletes database table (if exists) so new file can be imported
         if self.db is not None:
-            print("hier")
             self.db.reset_database_table()
             self.db.close_db_connection()
 
