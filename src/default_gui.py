@@ -154,7 +154,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		fgSizer4.Add( self.m_staticText24, 0, wx.ALL, 5 )
 		
-		self.ignorelist = wx.TextCtrl( self, wx.ID_ANY, u"fis:ORA_GEOMETRY", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
+		self.ignorelist = wx.TextCtrl( self, wx.ID_ANY, u"ORA_GEOMETRY", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.ignorelist, 0, wx.ALL, 5 )
 		
 		self.m_staticline3 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
