@@ -226,8 +226,10 @@ class DatabaseFromCsv(Database):
                 insert_row.append(int(element))
             elif self._lTableColmnNames[idx][1] == "REAL" and element != "":
                 insert_row.append(float(element.replace(",", ".")))
-            else:
+            elif element != "":
                 insert_row.append(element)
+            else:
+                insert_row.append(None)
         self._DbCursor.execute(statement % self._DbTreeTableName, insert_row)
 
     # method to automatically detect the data type of a column in the opened csv file.
