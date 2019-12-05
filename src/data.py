@@ -393,7 +393,6 @@ class DatabaseFromXml(Database):
                 insert_row.append(element)
 
         self._DbCursor.execute(statement % self._DbTreeTableName, insert_row)
-        #self._DbCursor.execute(statement % self._DbTreeTableName)
         self._DbConnection.commit()
 
 
