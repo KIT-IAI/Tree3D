@@ -378,7 +378,6 @@ class DatabaseFromXml(Database):
 
         if self._CreateTwoColID:
             row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
-        # statement = 'INSERT INTO %s ' + col_string + 'VALUES ('
         statement = 'INSERT INTO %s ' + col_string + 'VALUES ('
         for _ in row:
             statement += "?, "
