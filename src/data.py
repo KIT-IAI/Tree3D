@@ -122,7 +122,6 @@ class Database:
     def get_data(self):
         # executes statement to fetch all data from database table
         self._DbCursor.execute(self._SQLGetAllDataStatement)
-        print(self._SQLGetAllDataStatement)
         return self._DbCursor
 
     # appends sql statement with a where condition to filter data
