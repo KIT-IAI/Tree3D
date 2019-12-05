@@ -320,6 +320,15 @@ class DatabaseFromXml(Database):
                 if subelement.tag.split("}")[1] not in ignorelist:
                     col_list.append("'%s'" % subelement.tag.split("}")[1])
                     insert_row.append(subelement.text)
+                if geom_path != "":
+                    path = geom_path.split("/", 2)[2]
+                    for geom in subelement.findall(path, self.__ns):
+                        coords = geom.text.split(" ")
+                        col_list.append("'X_VALUE'")
+                        insert_row.append(str(coords[0]))
+                        col_list.append("'Y_VALUE'")
+                        insert_row.append(str(coords[1]))
+
             self.populate_db_table(insert_row, col_list)
         self._DbConnection.commit()
         self.generate_sql_statement()
