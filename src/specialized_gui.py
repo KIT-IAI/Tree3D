@@ -535,17 +535,27 @@ class OpenDialogXML(OpenDialog):
         if self.generate_ID_box.GetValue():
             self.populate_dropdown()
 
-    def on_validate_xml_attribute_path( self, event ):
+    def validate_xml_attribute_path( self, event ):
         if self.__Tree is None:
             self.parse_tree()
-        if self.__Root.findall(self.treepath.GetValue(), self.__ns):
-            print("alles gut")
 
-    def on_validate_xml_geom_path( self, event ):
+        if self.__Root.findall(self.treepath.GetValue(), self.__ns):
+            self.treepath.SetBackgroundColour(wx.Colour(113, 218, 113))
+            self.treepath.Refresh(False)
+        else:
+            self.treepath.SetBackgroundColour(wx.Colour(255, 128, 128))
+            self.treepath.Refresh(False)
+
+    def validate_xml_geom_path( self, event ):
         if self.__Tree is None:
             self.parse_tree()
+
         if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
-            print("alles gut")
+            self.geompath.SetBackgroundColour(wx.Colour(113, 218, 113))
+            self.geompath.Refresh(False)
+        else:
+            self.geompath.SetBackgroundColour(wx.Colour(255, 128, 128))
+            self.geompath.Refresh(False)
 
 
 # create wxPython App
