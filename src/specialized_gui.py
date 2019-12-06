@@ -106,7 +106,7 @@ class MainTableFrame(default_gui.MainWindow):
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
-                warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore, tree) alsdkj
+                self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
 
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
