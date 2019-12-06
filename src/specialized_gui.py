@@ -139,8 +139,11 @@ class MainTableFrame(default_gui.MainWindow):
         # fill grid with data
         for RowIdx, row in enumerate(data_table):
             for ColIdx, val in enumerate(row):
+                # show empty cell if database delivers None object
                 if val is None:
                     val = ''
+
+                # yellow for first col if it is generated
                 if ColIdx == 0 and self.db.get_create_id():
                     self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
                 self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, str(val))
