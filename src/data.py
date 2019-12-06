@@ -212,6 +212,7 @@ class DatabaseFromCsv(Database):
         self.generate_sql_statement()
         return True, ""
 
+    # method to insert a row into the database
     def populate_db_table(self, row):
         insert_row = []
         if self._CreateTwoColID:
