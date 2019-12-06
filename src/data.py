@@ -284,8 +284,6 @@ class DatabaseFromCsv(Database):
 class DatabaseFromXml(Database):
     def __init__(self):
         super().__init__()
-        #self.__TreeStructure = []
-        #self.__XmlFilePath = ""
         self.__XmlTree = None
         self.__RootNode = None
         self.__ns = {}
