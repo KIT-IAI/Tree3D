@@ -219,8 +219,8 @@ class OnOpenDialog ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.treepath.Bind( wx.EVT_TEXT, self.validate_xml_attribute_path )
-		self.geompath.Bind( wx.EVT_TEXT, self.validate_xml_geom_path )
+		self.treepath.Bind( wx.EVT_TEXT, self.on_xml_attribut_path_text_change )
+		self.geompath.Bind( wx.EVT_TEXT, self.on_xml_geom_path_text_change )
 		self.generate_ID_box.Bind( wx.EVT_CHECKBOX, self.id_checkbox_event )
 		self.ok_button.Bind( wx.EVT_BUTTON, self.on_ok )
 	
@@ -229,10 +229,10 @@ class OnOpenDialog ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def validate_xml_attribute_path( self, event ):
+	def on_xml_attribut_path_text_change( self, event ):
 		event.Skip()
 	
-	def validate_xml_geom_path( self, event ):
+	def on_xml_geom_path_text_change( self, event ):
 		event.Skip()
 	
 	def id_checkbox_event( self, event ):
