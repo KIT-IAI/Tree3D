@@ -289,28 +289,12 @@ class DatabaseFromXml(Database):
         self.__ns = {}
 
     def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring, tree):
-        self.__XmlTree = None
-        if tree is None:
-            self.__XmlTree = ET.parse(filepath)
-        else:
-            self.__XmlTree = tree
+        self.__XmlTree = tree
 
         self.__RootNode = self.__XmlTree.getroot()
 
         # Fill dictionary of namespaces with {prefix: namespace}
         self.__ns = dict([node for _, node in ET.iterparse(filepath, events=['start-ns'])])
-
-        # Validate path to tree attribute elements.
-        if not self.validate_xpath(attribute_path):
-            warningmessage = "Path to tree attribute elements is invalid.\n" \
-                             "Please define a valid path"
-            return False, warningmessage
-
-        # Validate path to tree geometry elements
-        if not self.validate_xpath(attribute_path + geom_path[1:]):
-            warningmessage = "Path to tree geometry elements is invalid\n" \
-                             "Please define a valid path"
-            return False, warningmessage
 
         # Create list with elements to ignore from string.
         # Format list: Remove leading and tailing whitespaces
@@ -367,8 +351,6 @@ class DatabaseFromXml(Database):
 
         self._DbConnection.commit()
         self.generate_sql_statement()
-
-        return True, ""
 
     # method to automatically detect the data type of an xml attribute
     # number of rows to be consider when determining data type can be configured using inspection_limit variable

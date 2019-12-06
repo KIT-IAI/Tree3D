@@ -78,24 +78,25 @@ class MainTableFrame(default_gui.MainWindow):
             # opening procedure when xml file is detected
             elif pathname[-4:] == ".xml":
                 tree = None
-                text = "Do you want to validate this xml-file now?\n" \
-                       "This might take some time"
-                msg = wx.MessageDialog(self, text, style=wx.YES_NO | wx.CENTRE)
-                if msg.ShowModal() == wx.ID_YES:
-                    try:
-                        tree = ET.parse(pathname)
-                        text = "XML file validated successfully"
-                        msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
-                        msg.ShowModal()
-                    except ET.ParseError:
-                        text = "Cannot parse input file.\nIt is most likely not a valid xml file."
-                        msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-                        msg.ShowModal()
-                        return
-                    except FileNotFoundError:
-                        text = "Cannot parse input file.\nCannot find file or directory."
-                        msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-                        msg.ShowModal()
+                text = "XML File will be parsed now.\n" \
+                       "This might take some time for larger files."
+                msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
+                msg.ShowModal()
+                try:
+                    tree = ET.parse(pathname)
+                    text = "XML file parsed successfully"
+                    msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
+                    msg.ShowModal()
+                except ET.ParseError:
+                    text = "Cannot parse input file.\nIt is most likely not a valid xml file."
+                    msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+                    msg.ShowModal()
+                    return
+                except FileNotFoundError:
+                    text = "Cannot parse input file.\nCannot find file or directory."
+                    msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+                    msg.ShowModal()
+                    return
 
                 self.db = data.DatabaseFromXml()
                 dlg = OpenDialogXML(self, pathname, tree)
@@ -103,13 +104,7 @@ class MainTableFrame(default_gui.MainWindow):
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
-                import_success, warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
-
-        if not import_success:
-            msg = wx.MessageDialog(self, warntext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-            msg.ShowModal()
-            msg.Destroy()
-            return
+                warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
 
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
@@ -489,29 +484,11 @@ class OpenDialogXML(OpenDialog):
     def __init__(self, parent, path, tree):
         super().__init__(parent, path)
         self.__Tree = tree
-        self.__ns = None
-        self.__Root = None
-        if self.__Tree is not None:
-            self.__ns = ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
-            self.__Root = self.__Tree.getroot()
-
-    def parse_tree(self):
-        try:
-            self.__Tree = ET.parse(self._filepath)
-            self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
-            self.__Root = self.__Tree.getroot()
-        except ET.ParseError:
-            warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
-            return False, warningmessage
-        except FileNotFoundError:
-            warningmessage = "Cannot parse input file.\nCannot find file or directory."
-            return False, warningmessage
+        self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
+        self.__Root = self.__Tree.getroot()
 
     def populate_dropdown(self):
         check_number = 100
-
-        if self.__Tree is None:
-            self.parse_tree()
 
         # Create list with elements to ignore from string.
         # Format list: Remove leading and tailing whitespaces
@@ -566,19 +543,14 @@ class OpenDialogXML(OpenDialog):
             self.geompath.SetBackgroundColour(wx.Colour(255, 128, 128))
             self.geompath.Refresh(False)
 
-
     def validate_xml_attribute_path(self):
         valid = False
-        if self.__Tree is None:
-            self.parse_tree()
         if self.__Root.findall(self.treepath.GetValue(), self.__ns):
             valid = True
         return valid
 
     def validate_xml_geom_path(self):
         valid = False
-        if self.__Tree is None:
-            self.parse_tree()
         if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
             valid = True
         return valid
