@@ -77,12 +77,13 @@ class MainTableFrame(default_gui.MainWindow):
 
             # opening procedure when xml file is detected
             elif pathname[-4:] == ".xml":
+                tree = None
                 text = "Do you want to validate this xml-file now?\n" \
                        "This might take some time"
                 msg = wx.MessageDialog(self, text, style=wx.YES_NO | wx.CENTRE)
                 if msg.ShowModal() == wx.ID_YES:
                     try:
-                        ET.parse(pathname)
+                        tree = ET.parse(pathname)
                         text = "XML file validated successfully"
                         msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
                         msg.ShowModal()
@@ -97,12 +98,12 @@ class MainTableFrame(default_gui.MainWindow):
                         msg.ShowModal()
 
                 self.db = data.DatabaseFromXml()
-                dlg = OpenDialogXML(self, path=pathname)
+                dlg = OpenDialogXML(self, pathname, tree)
                 dlg.ShowModal()
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
-                import_success, warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore)
+                import_success, warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
 
         if not import_success:
             msg = wx.MessageDialog(self, warntext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
@@ -482,22 +483,24 @@ class OpenDialogCSV(OpenDialog):
 
 
 class OpenDialogXML(OpenDialog):
-    def __init__(self, parent, path):
+    def __init__(self, parent, path, tree):
         super().__init__(parent, path)
+        self.__Tree = tree
 
     def populate_dropdown(self):
         check_number = 100
 
-        try:
-            tree = ET.parse(self._filepath)
-        except ET.ParseError:
-            warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
-            return False, warningmessage
-        except FileNotFoundError:
-            warningmessage = "Cannot parse input file.\nCannot find file or directory."
-            return False, warningmessage
+        if self.__Tree is not None:
+            try:
+                self.__Tree = ET.parse(self._filepath)
+            except ET.ParseError:
+                warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
+                return False, warningmessage
+            except FileNotFoundError:
+                warningmessage = "Cannot parse input file.\nCannot find file or directory."
+                return False, warningmessage
 
-        root = tree.getroot()
+        root = self.__Tree.getroot()
 
         # Fill dictionary of namespaces with {prefix: namespace}
         ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])

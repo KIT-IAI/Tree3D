@@ -290,8 +290,12 @@ class DatabaseFromXml(Database):
         self.__RootNode = None
         self.__ns = {}
 
-    def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring):
-        self.__XmlTree = ET.parse(filepath)
+    def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring, tree):
+        self.__XmlTree = None
+        if tree is None:
+            self.__XmlTree = ET.parse(filepath)
+        else:
+            self.__XmlTree = tree
 
         self.__RootNode = self.__XmlTree.getroot()
 
