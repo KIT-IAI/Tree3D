@@ -290,7 +290,7 @@ class DatabaseFromXml(Database):
         self.__RootNode = None
         self.__ns = {}
 
-    def get_tree_structure(self, filepath, attribute_path, geom_path, ignorestring):
+    def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring):
         # Return False and a warning message if xml file cannot be opened or parsed
         try:
             self.__XmlTree = ET.parse(filepath)

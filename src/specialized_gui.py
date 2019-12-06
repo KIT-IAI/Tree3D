@@ -80,7 +80,7 @@ class MainTableFrame(default_gui.MainWindow):
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
-                import_success, warntext = self.db.get_tree_structure(pathname, treepath, geompath, ignore)
+                import_success, warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore)
 
         if not import_success:
             msg = wx.MessageDialog(self, warntext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
