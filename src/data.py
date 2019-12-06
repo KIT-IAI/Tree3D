@@ -410,6 +410,7 @@ class DatabaseFromXml(Database):
 
         return data_type
 
+    # method to add data row to database
     def populate_db_table(self, row, cols):
         col_string = "("
         insert_row = []
