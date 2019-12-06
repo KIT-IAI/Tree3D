@@ -325,6 +325,10 @@ class DatabaseFromXml(Database):
         for idx, element in enumerate(ignorelist):
             ignorelist[idx] = element.strip()
 
+            # add column for unique tree ID to data model
+            if self._CreateTwoColID:
+                self._lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
+
         # Inspect data: Find Columns to add to database table
         # Find data type of each column
         inspected_cols = []
@@ -350,6 +354,8 @@ class DatabaseFromXml(Database):
         for element in self.__RootNode.findall(attribute_path, self.__ns):
             col_list = []
             insert_row = []
+            if self._CreateTwoColID:
+                col_list.append("'IAI_TreeID'")
             for subelement in element:
                 if subelement.tag.split("}")[1] not in ignorelist:
                     col_list.append("'%s'" % subelement.tag.split("}")[1])
@@ -452,6 +458,7 @@ class DatabaseFromXml(Database):
             return True
         else:
             return False
+
 
 if __name__ == "__main__":
     db = DatabaseFromCsv()
