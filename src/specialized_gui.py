@@ -69,7 +69,7 @@ class MainTableFrame(default_gui.MainWindow):
                 dlg.Layout()
                 dlg.DoLayoutAdaptation()
                 dlg.ShowModal()
-                self.db.import_csv_file(filepath=pathname)
+                import_success, warntext = self.db.import_csv_file(filepath=pathname)
             elif pathname[-4:] == ".xml":
                 self.db = data.DatabaseFromXml()
                 dlg = OpenDialog(self, path=pathname)
@@ -77,7 +77,13 @@ class MainTableFrame(default_gui.MainWindow):
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
-                self.db.get_tree_structure(pathname, treepath, geompath, ignore)
+                import_success, warntext = self.db.get_tree_structure(pathname, treepath, geompath, ignore)
+
+        if not import_success:
+            msg = wx.MessageDialog(self, warntext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+            msg.ShowModal()
+            msg.Destroy()
+            return
 
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 

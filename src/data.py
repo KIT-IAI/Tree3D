@@ -1,7 +1,6 @@
 import os
 import csv
 import sqlite3
-import uuid
 from ast import literal_eval
 import xml.etree.ElementTree as ET
 
@@ -210,6 +209,7 @@ class DatabaseFromCsv(Database):
                     self.populate_db_table(row)
         self._DbConnection.commit()
         self.generate_sql_statement()
+        return True, ""
 
     def populate_db_table(self, row):
         insert_row = []
@@ -289,15 +289,42 @@ class DatabaseFromXml(Database):
         self.__ns = {}
 
     def get_tree_structure(self, filepath, attribute_path, geom_path, ignorestring):
-        self.__XmlTree = ET.parse(filepath)
+        # Return False and a warning message if xml file cannot be opened or parsed
+        try:
+            self.__XmlTree = ET.parse(filepath)
+        except ET.ParseError:
+            warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
+            self.reset_database_table()
+            return False, warningmessage
+        except FileNotFoundError:
+            warningmessage = "Cannot parse input file.\nCannot find file or directory."
+            return False, warningmessage
+
         self.__RootNode = self.__XmlTree.getroot()
 
+        # Fill dictionary of namespaces with {prefix: namespace}
         self.__ns = dict([node for _, node in ET.iterparse(filepath, events=['start-ns'])])
 
+        # Validate path to tree attribute elements.
+        if not self.validate_xpath(attribute_path):
+            warningmessage = "Path to tree attribute elements is invalid.\n" \
+                             "Please define a valid path"
+            return False, warningmessage
+
+        # Validate path to tree geometry elements
+        if not self.validate_xpath(attribute_path + geom_path[1:]):
+            warningmessage = "Path to tree geometry elements is invalid\n" \
+                             "Please define a valid path"
+            return False, warningmessage
+
+        # Create list with elements to ignore from string.
+        # Format list: Remove leading and tailing whitespaces
         ignorelist = ignorestring.split(";")
         for idx, element in enumerate(ignorelist):
             ignorelist[idx] = element.strip()
 
+        # Inspect data: Find Columns to add to database table
+        # Find data type of each column
         inspected_cols = []
         for element in self.__RootNode.findall(attribute_path, self.__ns):
             for subelement in element:
@@ -307,6 +334,8 @@ class DatabaseFromXml(Database):
                     datatype = self.get_xml_datatype(attribute_path+"/"+tag)
                     inspected_cols.append(tag_no_pref)
                     self._lTableColmnNames.append(["'%s'" % tag_no_pref, datatype, True])
+
+        # Add geometry columns to Table columns
         if geom_path != "":
             self._lTableColmnNames.append(["'X_VALUE'", "REAL", True])
             self._lTableColmnNames.append(["'Y_VALUE'", "REAL", True])
@@ -314,6 +343,8 @@ class DatabaseFromXml(Database):
         self.create_db_table()
         self._DbConnection.commit()
 
+        # create row (insert_row) that will be inserted into database
+        # create list of columns, to which the inserted data refers
         for element in self.__RootNode.findall(attribute_path, self.__ns):
             col_list = []
             insert_row = []
@@ -330,9 +361,13 @@ class DatabaseFromXml(Database):
                         col_list.append("'Y_VALUE'")
                         insert_row.append(str(coords[1]))
 
+            # insert row into specified columns
             self.populate_db_table(insert_row, col_list)
+
         self._DbConnection.commit()
         self.generate_sql_statement()
+
+        return True, ""
 
     # method to automatically detect the data type of an xml attribute
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
@@ -378,14 +413,16 @@ class DatabaseFromXml(Database):
         insert_row = []
         col_type_dict = {}
 
+        # create dictionary and their datatypes {col_name: datatype}
         for col in self._lTableColmnNames:
             col_type_dict["%s" % col[0]] = col[1]
 
+        # create col-string: String of columns that will be used in sql insert statement
         for col in cols:
             col_string += "%s, " % col
-
         col_string = col_string[:-2] + ") "
 
+        # create sql insert statement
         if self._CreateTwoColID:
             row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
         statement = 'INSERT INTO %s ' + col_string + 'VALUES ('
@@ -393,6 +430,7 @@ class DatabaseFromXml(Database):
             statement += "?, "
         statement = statement[:-2] + ");"
 
+        # add values in their correct data types to input_row
         for idx, element in enumerate(row):
             if col_type_dict[cols[idx]] == "INTEGER" and element is not None:
                 insert_row.append(int(element))
@@ -401,9 +439,16 @@ class DatabaseFromXml(Database):
             else:
                 insert_row.append(element)
 
+        # insert row into database
         self._DbCursor.execute(statement % self._DbTreeTableName, insert_row)
-        self._DbConnection.commit()
 
+    # method to validate a xpath
+    # start element for validation is root node
+    def validate_xpath(self, xpath):
+        if self.__RootNode.findall(xpath, self.__ns):
+            return True
+        else:
+            return False
 
 if __name__ == "__main__":
     db = DatabaseFromCsv()
