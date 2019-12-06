@@ -82,6 +82,8 @@ class MainTableFrame(default_gui.MainWindow):
                        "This might take some time for larger files."
                 msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
                 msg.ShowModal()
+
+                # parse xml Tree. Show warning and abort if file cant be parsed
                 try:
                     tree = ET.parse(pathname)
                     text = "XML file parsed successfully"
@@ -104,7 +106,7 @@ class MainTableFrame(default_gui.MainWindow):
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
-                warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
+                warntext = self.db.import_xml_file(pathname, treepath, geompath, ignore, tree) alsdkj
 
         self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
 
@@ -117,6 +119,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.dublicates.Enable(True)
         self.duplicateGeom.Enable(True)
 
+    # method to be called when File > Export as CityGML is pressed
     def on_menu_export_citygml(self, event):
         exp = export.ExportDialog(self)
 
@@ -253,6 +256,8 @@ class MainTableFrame(default_gui.MainWindow):
         self.PopupMenu(contextmenu)
         contextmenu.Destroy()
 
+    # method to be called when mouse wheel is used within grid.
+    # enables scrolling with mouse wheel
     def on_mouse_wheel_in_grid(self, event):
         # scroll either up or down, depending on mouse wheel direction
         if event.GetWheelRotation() < 0:
@@ -366,6 +371,7 @@ class MainTableFrame(default_gui.MainWindow):
         dlg = analysis.CheckDuplicateId(self)
         dlg.ShowModal()
 
+    # Method to be called when Analyze > Check for duplicates by Geom is pressed
     def on_check_for_duplicates_geom(self, event):
         dlg = analysis.CheckDuplicateGeom(self)
         dlg.ShowModal()
@@ -445,6 +451,9 @@ class OpenDialog(default_gui.OnOpenDialog):
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
 
+    # Method to validate user input in this window
+    # returns True if user input is valid
+    # Returns False if user input is invalid and prevents database import
     def validate(self):
         valid = True  # variable to determine if user input is correct
         warningtext = ""  # Text to display in error window if user input is incorrect
@@ -487,6 +496,7 @@ class OpenDialogXML(OpenDialog):
         self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
         self.__Root = self.__Tree.getroot()
 
+    # Populates dropdown menus after xml was opened
     def populate_dropdown(self):
         check_number = 100
 
@@ -507,14 +517,19 @@ class OpenDialogXML(OpenDialog):
                 tag_no_pref = tag.split("}")[1]
                 if (tag_no_pref not in ignorelist) and (tag_no_pref not in inspected_cols):
                     inspected_cols.append(tag_no_pref)
+
         self.id_col1.SetItems(inspected_cols)
         self.id_col2.SetItems(inspected_cols)
 
+    # method is called when checkbox is triggered
     def id_checkbox_event(self, event):
         super().id_checkbox_event(event)
         if self.generate_ID_box.GetValue():
             self.populate_dropdown()
 
+    # Validates user input
+    # Returns True, if User input is valid
+    # Returns False, if User input is incorrect and prevents database import
     def validate(self):
         valid, warningtext = super().validate()
         if not self.validate_xml_geom_path():
@@ -525,30 +540,40 @@ class OpenDialogXML(OpenDialog):
             warningtext = "XML path to tree attributes is not correct."
         return valid, warningtext
 
+    # method to be called when text in treepath changes
     def on_xml_attribut_path_text_change( self, event ):
         attribute_path_isvalid = self.validate_xml_attribute_path()
+
+        # Set background color to a light green if input is a valid xml path
         if attribute_path_isvalid:
             self.treepath.SetBackgroundColour(wx.Colour(113, 218, 113))
             self.treepath.Refresh(False)
+        # Set background color to a light red if input is not a valid xml path
         else:
             self.treepath.SetBackgroundColour(wx.Colour(255, 128, 128))
             self.treepath.Refresh(False)
 
+    # method to be called when text in geompath changes
     def on_xml_geom_path_text_change( self, event ):
         attribute_path_isvalid = self.validate_xml_geom_path()
+
+        # Set background color to a light green if input is a valid xml path
         if attribute_path_isvalid:
             self.geompath.SetBackgroundColour(wx.Colour(113, 218, 113))
             self.geompath.Refresh(False)
+        # Set background color to a light red if input is not a valid xml path
         else:
             self.geompath.SetBackgroundColour(wx.Colour(255, 128, 128))
             self.geompath.Refresh(False)
 
+    # validates treepath, returns True if valid / False if invalid
     def validate_xml_attribute_path(self):
         valid = False
         if self.__Root.findall(self.treepath.GetValue(), self.__ns):
             valid = True
         return valid
 
+    # validates geompath, returns True if valid / False if invalid
     def validate_xml_geom_path(self):
         valid = False
         if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
