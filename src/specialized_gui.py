@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# import python libraries
+import xml.etree.ElementTree as ET
+
 # import wxPython classes
 import wx
 import wx.aui
@@ -65,14 +68,14 @@ class MainTableFrame(default_gui.MainWindow):
 
             if pathname[-4:] == ".csv":
                 self.db = data.DatabaseFromCsv()
-                dlg = OpenDialog(self, path=pathname)
+                dlg = OpenDialogCSV(self, path=pathname)
                 dlg.Layout()
                 dlg.DoLayoutAdaptation()
                 dlg.ShowModal()
                 import_success, warntext = self.db.import_csv_file(filepath=pathname)
             elif pathname[-4:] == ".xml":
                 self.db = data.DatabaseFromXml()
-                dlg = OpenDialog(self, path=pathname)
+                dlg = OpenDialogXML(self, path=pathname)
                 dlg.ShowModal()
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
@@ -360,9 +363,7 @@ class MainTableFrame(default_gui.MainWindow):
 class OpenDialog(default_gui.OnOpenDialog):
     def __init__(self, parent, path):
         default_gui.OnOpenDialog.__init__(self, parent)
-        self.__filepath = path
-
-        self.populate_dropdown()
+        self._filepath = path
 
     # method to populate columns of dropdown menus with column headers
     def populate_dropdown(self):
@@ -370,12 +371,12 @@ class OpenDialog(default_gui.OnOpenDialog):
         # if neither file encoding works: show error message
         warningtext = ""
         try:
-            with open(self.__filepath, newline='', encoding='utf-8') as file:
+            with open(self._filepath, newline='', encoding='utf-8') as file:
                 header = file.readline()
                 self.GetParent().db.set_file_encoding("utf-8")
         except UnicodeDecodeError:
             try:
-                with open(self.__filepath, newline='', encoding='cp1252') as file:
+                with open(self._filepath, newline='', encoding='cp1252') as file:
                     header = file.readline()
                     self.GetParent().db.set_file_encoding("cp1252")
             except:
@@ -437,6 +438,70 @@ class OpenDialog(default_gui.OnOpenDialog):
         else:
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
+
+
+class OpenDialogCSV(OpenDialog):
+    def __init__(self, parent, path):
+        super().__init__(parent, path)
+        self.populate_dropdown()
+
+        # Hide xml-related stuff
+        self.m_staticText22.Show(False)
+        self.treepath.Show(False)
+        self.m_staticline1.Show(False)
+        self.m_staticText23.Show(False)
+        self.geompath.Show(False)
+        self.m_staticline2.Show(False)
+        self.m_staticText24.Show(False)
+        self.ignorelist.Show(False)
+        self.m_staticline3.Show(False)
+
+
+class OpenDialogXML(OpenDialog):
+    def __init__(self, parent, path):
+        super().__init__(parent, path)
+
+    def populate_dropdown(self):
+        check_number = 100
+
+        try:
+            tree = ET.parse(self._filepath)
+        except ET.ParseError:
+            warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
+            return False, warningmessage
+        except FileNotFoundError:
+            warningmessage = "Cannot parse input file.\nCannot find file or directory."
+            return False, warningmessage
+
+        root = tree.getroot()
+
+        # Fill dictionary of namespaces with {prefix: namespace}
+        ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
+
+        # Create list with elements to ignore from string.
+        # Format list: Remove leading and tailing whitespaces
+        ignorelist = self.ignorelist.GetValue().split(";")
+        for idx, element in enumerate(ignorelist):
+            ignorelist[idx] = element.strip()
+
+        # Inspect data: Find Columns to add to database table
+        # Find data type of each column
+        inspected_cols = []
+        for count, element in enumerate(root.findall(self.treepath.GetValue(), ns)):
+            if count > check_number:
+                break
+            for subelement in element:
+                tag = subelement.tag
+                tag_no_pref = tag.split("}")[1]
+                if (tag_no_pref not in ignorelist) and (tag_no_pref not in inspected_cols):
+                    inspected_cols.append(tag_no_pref)
+        self.id_col1.SetItems(inspected_cols)
+        self.id_col2.SetItems(inspected_cols)
+
+    def id_checkbox_event(self, event):
+        super().id_checkbox_event(event)
+        if self.generate_ID_box.GetValue():
+            self.populate_dropdown()
 
 
 # create wxPython App
