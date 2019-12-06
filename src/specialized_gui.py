@@ -525,12 +525,18 @@ class OpenDialogXML(OpenDialog):
     def id_checkbox_event(self, event):
         super().id_checkbox_event(event)
         if self.generate_ID_box.GetValue():
+
+            # dont create ID if xml pathes are not correct yet
             if not self.validate_xml_geom_path():
+                # Un-Check checkbox
                 self.generate_ID_box.SetValue(False)
+
+                # disable UI elements again
                 self.id_col1.Enable(not self.id_col1.Enabled)
                 self.id_col2.Enable(not self.id_col2.Enabled)
                 self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
                 self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
+
                 warningtext = "XML path to tree coordinates is not correct.\n" \
                               "Must be a correct path to fetch column names.\n" \
                               "Please specify a correct path first."
