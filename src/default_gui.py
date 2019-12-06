@@ -123,7 +123,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 11, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 13, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -135,6 +135,9 @@ class OnOpenDialog ( wx.Dialog ):
 		self.treepath = wx.TextCtrl( self, wx.ID_ANY, u"./wfs:member/fis:s_wfs_baumbestand", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.treepath, 0, wx.ALL, 5 )
 		
+		self.m_button7 = wx.Button( self, wx.ID_ANY, u"Validate attribute XML path", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.m_button7, 0, wx.ALL, 5 )
+		
 		self.m_staticline1 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
 		
@@ -145,6 +148,9 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.geompath = wx.TextCtrl( self, wx.ID_ANY, u"./fis:ORA_GEOMETRY/gml:Point/gml:pos", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.geompath, 0, wx.ALL, 5 )
+		
+		self.m_button8 = wx.Button( self, wx.ID_ANY, u"Validate geometry XML path", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer4.Add( self.m_button8, 0, wx.ALL, 5 )
 		
 		self.m_staticline2 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline2, 0, wx.EXPAND |wx.ALL, 5 )
@@ -219,6 +225,8 @@ class OnOpenDialog ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.m_button7.Bind( wx.EVT_BUTTON, self.on_validate_xml_attribute_path )
+		self.m_button8.Bind( wx.EVT_BUTTON, self.on_validate_xml_geom_path )
 		self.generate_ID_box.Bind( wx.EVT_CHECKBOX, self.id_checkbox_event )
 		self.ok_button.Bind( wx.EVT_BUTTON, self.on_ok )
 	
@@ -227,6 +235,12 @@ class OnOpenDialog ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def on_validate_xml_attribute_path( self, event ):
+		event.Skip()
+	
+	def on_validate_xml_geom_path( self, event ):
+		event.Skip()
+	
 	def id_checkbox_event( self, event ):
 		event.Skip()
 	
