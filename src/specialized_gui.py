@@ -492,20 +492,23 @@ class OpenDialogXML(OpenDialog):
             self.__ns = ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
             self.__Root = self.__Tree.getroot()
 
+    def parse_tree(self):
+        try:
+            self.__Tree = ET.parse(self._filepath)
+            self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
+            self.__Root = self.__Tree.getroot()
+        except ET.ParseError:
+            warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
+            return False, warningmessage
+        except FileNotFoundError:
+            warningmessage = "Cannot parse input file.\nCannot find file or directory."
+            return False, warningmessage
+
     def populate_dropdown(self):
         check_number = 100
 
         if self.__Tree is None:
-            try:
-                self.__Tree = ET.parse(self._filepath)
-                self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
-                self.__Root = self.__Tree.getroot()
-            except ET.ParseError:
-                warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
-                return False, warningmessage
-            except FileNotFoundError:
-                warningmessage = "Cannot parse input file.\nCannot find file or directory."
-                return False, warningmessage
+            self.parse_tree()
 
         # Create list with elements to ignore from string.
         # Format list: Remove leading and tailing whitespaces
