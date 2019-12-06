@@ -66,6 +66,7 @@ class MainTableFrame(default_gui.MainWindow):
 
             self.reset_program()
 
+            # opening procedure when a csv file is detected
             if pathname[-4:] == ".csv":
                 self.db = data.DatabaseFromCsv()
                 dlg = OpenDialogCSV(self, path=pathname)
@@ -73,7 +74,28 @@ class MainTableFrame(default_gui.MainWindow):
                 dlg.DoLayoutAdaptation()
                 dlg.ShowModal()
                 import_success, warntext = self.db.import_csv_file(filepath=pathname)
+
+            # opening procedure when xml file is detected
             elif pathname[-4:] == ".xml":
+                text = "Do you want to validate this xml-file now?\n" \
+                       "This might take some time"
+                msg = wx.MessageDialog(self, text, style=wx.YES_NO | wx.CENTRE)
+                if msg.ShowModal() == wx.ID_YES:
+                    try:
+                        ET.parse(pathname)
+                        text = "XML file validated successfully"
+                        msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
+                        msg.ShowModal()
+                    except ET.ParseError:
+                        text = "Cannot parse input file.\nIt is most likely not a valid xml file."
+                        msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+                        msg.ShowModal()
+                        return
+                    except FileNotFoundError:
+                        text = "Cannot parse input file.\nCannot find file or directory."
+                        msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+                        msg.ShowModal()
+
                 self.db = data.DatabaseFromXml()
                 dlg = OpenDialogXML(self, path=pathname)
                 dlg.ShowModal()

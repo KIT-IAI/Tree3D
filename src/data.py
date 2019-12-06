@@ -291,16 +291,7 @@ class DatabaseFromXml(Database):
         self.__ns = {}
 
     def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring):
-        # Return False and a warning message if xml file cannot be opened or parsed
-        try:
-            self.__XmlTree = ET.parse(filepath)
-        except ET.ParseError:
-            warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
-            self.reset_database_table()
-            return False, warningmessage
-        except FileNotFoundError:
-            warningmessage = "Cannot parse input file.\nCannot find file or directory."
-            return False, warningmessage
+        self.__XmlTree = ET.parse(filepath)
 
         self.__RootNode = self.__XmlTree.getroot()
 
