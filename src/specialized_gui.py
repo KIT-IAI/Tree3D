@@ -538,6 +538,16 @@ class OpenDialogXML(OpenDialog):
         if self.generate_ID_box.GetValue():
             self.populate_dropdown()
 
+    def validate(self):
+        valid, warningtext = super().validate()
+        if not self.validate_xml_geom_path():
+            valid = False
+            warningtext = "XML path to tree coordinates is not correct."
+        if not self.validate_xml_attribute_path():
+            valid = False
+            warningtext = "XML path to tree attributes is not correct."
+        return valid, warningtext
+
     def on_xml_attribut_path_text_change( self, event ):
         attribute_path_isvalid = self.validate_xml_attribute_path()
         if attribute_path_isvalid:
