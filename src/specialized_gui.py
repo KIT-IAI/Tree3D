@@ -436,6 +436,21 @@ class OpenDialog(default_gui.OnOpenDialog):
     # method to be called when clicking OK in dialog
     # overrides method in parent dialog
     def on_ok(self, event):
+        valid, warningtext = self.validate()
+
+        # if input is valid, do stuff
+        if valid:
+            # change settings in data module to generate IDs if generate-id-checkbox is activated
+            if self.generate_ID_box.GetValue():
+                self.GetParent().db.set_create_id(True)
+                self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
+            self.Destroy()
+        # show error message, if input is not valid
+        else:
+            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
+
+    def validate(self):
         valid = True  # variable to determine if user input is correct
         warningtext = ""  # Text to display in error window if user input is incorrect
 
@@ -450,17 +465,7 @@ class OpenDialog(default_gui.OnOpenDialog):
                 valid = False
                 warningtext = "Cannot generate IDs. Please select two different table columns for ID generation"
 
-        # if input is valid, do stuff
-        if valid:
-            # change settings in data module to generate IDs if generate-id-checkbox is activated
-            if self.generate_ID_box.GetValue():
-                self.GetParent().db.set_create_id(True)
-                self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
-            self.Destroy()
-        # show error message, if input is not valid
-        else:
-            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
-            msg.ShowModal()
+        return valid, warningtext
 
 
 class OpenDialogCSV(OpenDialog):
@@ -533,27 +538,40 @@ class OpenDialogXML(OpenDialog):
         if self.generate_ID_box.GetValue():
             self.populate_dropdown()
 
-    def validate_xml_attribute_path( self, event ):
-        if self.__Tree is None:
-            self.parse_tree()
-
-        if self.__Root.findall(self.treepath.GetValue(), self.__ns):
+    def on_xml_attribut_path_text_change( self, event ):
+        attribute_path_isvalid = self.validate_xml_attribute_path()
+        if attribute_path_isvalid:
             self.treepath.SetBackgroundColour(wx.Colour(113, 218, 113))
             self.treepath.Refresh(False)
         else:
             self.treepath.SetBackgroundColour(wx.Colour(255, 128, 128))
             self.treepath.Refresh(False)
 
-    def validate_xml_geom_path( self, event ):
-        if self.__Tree is None:
-            self.parse_tree()
-
-        if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
+    def on_xml_geom_path_text_change( self, event ):
+        attribute_path_isvalid = self.validate_xml_geom_path()
+        if attribute_path_isvalid:
             self.geompath.SetBackgroundColour(wx.Colour(113, 218, 113))
             self.geompath.Refresh(False)
         else:
             self.geompath.SetBackgroundColour(wx.Colour(255, 128, 128))
             self.geompath.Refresh(False)
+
+
+    def validate_xml_attribute_path(self):
+        valid = False
+        if self.__Tree is None:
+            self.parse_tree()
+        if self.__Root.findall(self.treepath.GetValue(), self.__ns):
+            valid = True
+        return valid
+
+    def validate_xml_geom_path(self):
+        valid = False
+        if self.__Tree is None:
+            self.parse_tree()
+        if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
+            valid = True
+        return valid
 
 
 # create wxPython App
