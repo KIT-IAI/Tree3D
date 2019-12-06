@@ -129,6 +129,7 @@ class Database:
         self._DbCursor.execute(statement)
         return self._DbCursor
 
+    # fetch data from database with sorting
     def get_data_with_sorting(self, sortstatement):
         statement = self._SQLGetAllDataStatement[:-1] + " " + sortstatement + ";"
         self._DbCursor.execute(statement)
