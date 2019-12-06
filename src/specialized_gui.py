@@ -486,24 +486,26 @@ class OpenDialogXML(OpenDialog):
     def __init__(self, parent, path, tree):
         super().__init__(parent, path)
         self.__Tree = tree
+        self.__ns = None
+        self.__Root = None
+        if self.__Tree is not None:
+            self.__ns = ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
+            self.__Root = self.__Tree.getroot()
 
     def populate_dropdown(self):
         check_number = 100
 
-        if self.__Tree is not None:
+        if self.__Tree is None:
             try:
                 self.__Tree = ET.parse(self._filepath)
+                self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
+                self.__Root = self.__Tree.getroot()
             except ET.ParseError:
                 warningmessage = "Input file cannot be parsed.\nIt is most likely not a valid xml file."
                 return False, warningmessage
             except FileNotFoundError:
                 warningmessage = "Cannot parse input file.\nCannot find file or directory."
                 return False, warningmessage
-
-        root = self.__Tree.getroot()
-
-        # Fill dictionary of namespaces with {prefix: namespace}
-        ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
 
         # Create list with elements to ignore from string.
         # Format list: Remove leading and tailing whitespaces
@@ -514,7 +516,7 @@ class OpenDialogXML(OpenDialog):
         # Inspect data: Find Columns to add to database table
         # Find data type of each column
         inspected_cols = []
-        for count, element in enumerate(root.findall(self.treepath.GetValue(), ns)):
+        for count, element in enumerate(self.__Root.findall(self.treepath.GetValue(), self.__ns)):
             if count > check_number:
                 break
             for subelement in element:
