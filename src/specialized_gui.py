@@ -389,51 +389,6 @@ class OpenDialog(default_gui.OnOpenDialog):
         default_gui.OnOpenDialog.__init__(self, parent)
         self._filepath = path
 
-    # method to populate columns of dropdown menus with column headers
-    def populate_dropdown(self):
-        # try to figure out file encoding: first try to open with utf-8, if that fails with cp1252
-        # if neither file encoding works: show error message
-        warningtext = ""
-        try:
-            with open(self._filepath, newline='', encoding='utf-8') as file:
-                header = file.readline()
-                self.GetParent().db.set_file_encoding("utf-8")
-        except UnicodeDecodeError:
-            try:
-                with open(self._filepath, newline='', encoding='cp1252') as file:
-                    header = file.readline()
-                    self.GetParent().db.set_file_encoding("cp1252")
-            except:
-                warningtext = "Unknown Error: Cannot open file!\n" \
-                              "Maybe file encoding is not supported\n" \
-                              "File encoding must be either utf-8 or cp1252!"
-                msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-                msg.ShowModal()
-                self.Destroy()
-                return
-        except:
-            warningtext = "Unknown Error: Cannot open file!\n" \
-                          "Maybe file encoding is not supported\n" \
-                          "File encoding must be either utf-8 or cp1252!"
-            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-            msg.ShowModal()
-            self.Destroy()
-            return
-
-        header = header.strip("\r\n")
-        l_cols = header.split(";")
-        self.id_col1.SetItems(l_cols)
-        self.id_col2.SetItems(l_cols)
-
-    # method to be called when checkbox event for generate-id-checkbox is triggered
-    # every time the checkbox is clicked
-    # overrides method in parent class
-    def id_checkbox_event(self, event):
-        self.id_col1.Enable(not self.id_col1.Enabled)
-        self.id_col2.Enable(not self.id_col2.Enabled)
-        self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
-        self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
-
     # method to be called when clicking OK in dialog
     # overrides method in parent dialog
     def on_ok(self, event):
@@ -488,10 +443,56 @@ class OpenDialogCSV(OpenDialog):
         self.ignorelist.Show(False)
         self.m_staticline3.Show(False)
 
+    # method to populate columns of dropdown menus with column headers
+    def populate_dropdown(self):
+        # try to figure out file encoding: first try to open with utf-8, if that fails with cp1252
+        # if neither file encoding works: show error message
+        warningtext = ""
+        try:
+            with open(self._filepath, newline='', encoding='utf-8') as file:
+                header = file.readline()
+                self.GetParent().db.set_file_encoding("utf-8")
+        except UnicodeDecodeError:
+            try:
+                with open(self._filepath, newline='', encoding='cp1252') as file:
+                    header = file.readline()
+                    self.GetParent().db.set_file_encoding("cp1252")
+            except:
+                warningtext = "Unknown Error: Cannot open file!\n" \
+                              "Maybe file encoding is not supported\n" \
+                              "File encoding must be either utf-8 or cp1252!"
+                msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+                msg.ShowModal()
+                self.Destroy()
+                return
+        except:
+            warningtext = "Unknown Error: Cannot open file!\n" \
+                          "Maybe file encoding is not supported\n" \
+                          "File encoding must be either utf-8 or cp1252!"
+            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
+            msg.ShowModal()
+            self.Destroy()
+            return
+
+        header = header.strip("\r\n")
+        l_cols = header.split(";")
+        self.id_col1.SetItems(l_cols)
+        self.id_col2.SetItems(l_cols)
+
+    # method to be called when checkbox event for generate-id-checkbox is triggered
+    # every time the checkbox is clicked
+    # overrides method in parent class
+    def id_checkbox_event(self, event):
+        self.id_col1.Enable(not self.id_col1.Enabled)
+        self.id_col2.Enable(not self.id_col2.Enabled)
+        self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
+        self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
+
 
 class OpenDialogXML(OpenDialog):
     def __init__(self, parent, path, tree):
         super().__init__(parent, path)
+        self.SetTitle("XML import options")
         self.__Tree = tree
         self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
         self.__Root = self.__Tree.getroot()
