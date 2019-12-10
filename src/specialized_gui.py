@@ -84,21 +84,24 @@ class MainTableFrame(default_gui.MainWindow):
                 msg.ShowModal()
 
                 # parse xml Tree. Show warning and abort if file cant be parsed
+                success = True
                 try:
                     tree = ET.parse(pathname)
                     text = "XML file parsed successfully"
-                    msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
-                    msg.ShowModal()
                 except ET.ParseError:
+                    success = False
                     text = "Cannot parse input file.\nIt is most likely not a valid xml file."
-                    msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-                    msg.ShowModal()
-                    return
                 except FileNotFoundError:
+                    success = False
                     text = "Cannot parse input file.\nCannot find file or directory."
-                    msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-                    msg.ShowModal()
-                    return
+                except:
+                    success = False
+                    text = "Cannot parse input file for unknown reason"
+                finally:
+                    if not success:
+                        msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
+                        msg.ShowModal()
+                        return
 
                 self.db = data.DatabaseFromXml()
                 dlg = OpenDialogXML(self, pathname, tree)
