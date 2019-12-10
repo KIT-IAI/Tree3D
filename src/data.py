@@ -290,7 +290,6 @@ class DatabaseFromXml(Database):
 
     def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring, tree):
         self.__XmlTree = tree
-
         self.__RootNode = self.__XmlTree.getroot()
 
         # Fill dictionary of namespaces with {prefix: namespace}
