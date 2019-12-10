@@ -171,18 +171,18 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		fgSizer8.Add( self.m_staticText25, 0, wx.ALL, 5 )
 		
-		m_choice16Choices = [ u"Semicolon", u"Comma" ]
-		self.m_choice16 = wx.Choice( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice16Choices, 0 )
-		self.m_choice16.SetSelection( 0 )
-		fgSizer8.Add( self.m_choice16, 0, wx.ALL, 5 )
+		seperatorChoices = [ u"Semicolon", u"Comma" ]
+		self.seperator = wx.Choice( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, seperatorChoices, 0 )
+		self.seperator.SetSelection( 0 )
+		fgSizer8.Add( self.seperator, 0, wx.ALL, 5 )
 		
 		self.m_staticText26 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Encoding", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText26.Wrap( -1 )
 		
 		fgSizer8.Add( self.m_staticText26, 0, wx.ALL, 5 )
 		
-		self.m_textCtrl11 = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer8.Add( self.m_textCtrl11, 0, wx.ALL, 5 )
+		self.encoding = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer8.Add( self.encoding, 0, wx.ALL, 5 )
 		
 		
 		sbSizer5.Add( fgSizer8, 1, wx.EXPAND, 5 )
