@@ -123,7 +123,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 11, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 12, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -162,7 +162,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		sbSizer5 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CSV File Options" ), wx.VERTICAL )
 		
-		fgSizer8 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer8 = wx.FlexGridSizer( 2, 2, 0, 0 )
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
