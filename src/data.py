@@ -27,6 +27,7 @@ class Database:
 
         self._CreateTwoColID = False  # variable to determine weather a tree id should be created
         self._CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
+        self._DataInspectionLimit = 0
 
     # Creates Database Path
     # Database is stored in temporary folder by default
@@ -179,6 +180,9 @@ class Database:
     def set_id_columns(self, value):
         self._CreateTwoColIDColumns = value
 
+    def set_data_inspection_limit(self, value):
+        self._DataInspectionLimit = value
+
 
 class DatabaseFromCsv(Database):
     def __init__(self):
@@ -234,9 +238,8 @@ class DatabaseFromCsv(Database):
     # number of rows to be consider when det4000*12
     # ermining data type can be configured using inspection_limit variable
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
-    @staticmethod
-    def get_csv_datatypes(filereader, csvfile, col_index):
-        inspection_limit = 500
+    def get_csv_datatypes(self, filereader, csvfile, col_index):
+        inspection_limit = self._DataInspectionLimit
 
         int_type_in_list = False
         real_type_in_list = False
@@ -359,7 +362,7 @@ class DatabaseFromXml(Database):
     # number of rows to be consider when determining data type can be configured using inspection_limit variable
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
     def get_xml_datatype(self, attribute_path):
-        inspection_limit = 500
+        inspection_limit = self._DataInspectionLimit
 
         int_type_in_list = False
         real_type_in_list = False
