@@ -234,7 +234,8 @@ class DatabaseFromCsv(Database):
     # number of rows to be consider when det4000*12
     # ermining data type can be configured using inspection_limit variable
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
-    def get_csv_datatypes(self, filereader, csvfile, col_index):
+    @staticmethod
+    def get_csv_datatypes(filereader, csvfile, col_index):
         inspection_limit = 500
 
         int_type_in_list = False
@@ -282,6 +283,7 @@ class DatabaseFromCsv(Database):
 
     def set_file_encoding(self, codec):
         self.__FileEncoding = codec
+
 
 class DatabaseFromXml(Database):
     def __init__(self):

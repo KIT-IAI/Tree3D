@@ -86,7 +86,7 @@ class MainTableFrame(default_gui.MainWindow):
                     import_success = False
                     if __name__ == '__main__':
                         text = "CSV file import failed for unknown reason\n" \
-                               "Is the seperatorset correctly?"
+                               "Is the seperator set correctly?"
                 finally:
                     icon = wx.OK
                     if not import_success:
@@ -117,7 +117,8 @@ class MainTableFrame(default_gui.MainWindow):
                     text = "Cannot parse input file.\nCannot find file or directory."
                 except:
                     success = False
-                    text = "Cannot parse input file for unknown reason"
+                    text = "Cannot parse input file for unknown reason" \
+                           "Is the seperator set correctly?"
                 finally:
                     if not success:
                         msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
@@ -132,7 +133,9 @@ class MainTableFrame(default_gui.MainWindow):
                 ignore = dlg.ignorelist.GetValue()
                 self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
 
-        self.show_data_in_grid(self.db.get_number_of_columns(), self.db.get_number_of_tablerecords(), self.db.get_data())
+        self.show_data_in_grid(self.db.get_number_of_columns(),
+                               self.db.get_number_of_tablerecords(),
+                               self.db.get_data())
 
         # Enable menu items
         self.export_citygml.Enable(True)
@@ -145,7 +148,7 @@ class MainTableFrame(default_gui.MainWindow):
 
     # method to be called when File > Export as CityGML is pressed
     def on_menu_export_citygml(self, event):
-        exp = export.ExportDialog(self)
+        export.ExportDialog(self)
 
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
@@ -524,6 +527,7 @@ class OpenDialogCSV(OpenDialog):
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
+    @property
     def validate(self):
         valid, warningtext = super().validate()
         try:
@@ -543,7 +547,6 @@ class OpenDialogCSV(OpenDialog):
             valid = False
             warningtext = "Cannot open file for unknown reason"
         return valid, warningtext
-
 
     def on_ok(self, event):
         super().on_ok(event)
@@ -628,7 +631,7 @@ class OpenDialogXML(OpenDialog):
         return valid, warningtext
 
     # method to be called when text in treepath changes
-    def on_xml_attribut_path_text_change( self, event ):
+    def on_xml_attribut_path_text_change(self, event):
         attribute_path_isvalid = self.validate_xml_attribute_path()
 
         # Set background color to a light green if input is a valid xml path
@@ -641,7 +644,7 @@ class OpenDialogXML(OpenDialog):
             self.treepath.Refresh(False)
 
     # method to be called when text in geompath changes
-    def on_xml_geom_path_text_change( self, event ):
+    def on_xml_geom_path_text_change(self, event):
         attribute_path_isvalid = self.validate_xml_geom_path()
 
         # Set background color to a light green if input is a valid xml path
