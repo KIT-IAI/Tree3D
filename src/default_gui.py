@@ -149,7 +149,7 @@ class OnOpenDialog ( wx.Dialog ):
 		self.m_staticline2 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline2, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		self.m_staticText24 = wx.StaticText( self, wx.ID_ANY, u"Specify attributes within this element to ignore during import.\nDO NOT iclude element prefixes\nseperate elements with Semicolon.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText24 = wx.StaticText( self, wx.ID_ANY, u"Specify attributes within this element to ignore during import.\nDO NOT include element prefixes\nseperate elements with Semicolon.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText24.Wrap( -1 )
 		
 		fgSizer4.Add( self.m_staticText24, 0, wx.ALL, 5 )
