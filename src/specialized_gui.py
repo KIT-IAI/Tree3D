@@ -563,7 +563,13 @@ class OpenDialogCSV(OpenDialog):
 class OpenDialogXML(OpenDialog):
     def __init__(self, parent, path, tree):
         super().__init__(parent, path)
+
         self.SetTitle("XML import options")
+        self.m_staticText25.Show(False)
+        self.m_staticText26.Show(False)
+        self.seperator.Show(False)
+        self.encoding.Show(False)
+
         self.__Tree = tree
         self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
         self.__Root = self.__Tree.getroot()
