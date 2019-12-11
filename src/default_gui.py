@@ -688,15 +688,21 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		fgSizer10.Add( self.m_button9, 0, wx.ALL, 5 )
 		
 		self.m_staticline13 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		self.m_staticline13.Hide()
+		
 		fgSizer10.Add( self.m_staticline13, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.analysis_valid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nAll trees havevalid geometric parameters.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.analysis_valid.Wrap( -1 )
 		
+		self.analysis_valid.Hide()
+		
 		fgSizer10.Add( self.analysis_valid, 0, wx.ALL, 5 )
 		
 		self.analysis_invalid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nThere are trees with invalid geometry parameters.\n%s invalid geometries found.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.analysis_invalid.Wrap( -1 )
+		
+		self.analysis_invalid.Hide()
 		
 		fgSizer10.Add( self.analysis_invalid, 0, wx.ALL, 5 )
 		
@@ -727,6 +733,8 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		# Cell Defaults
 		self.result_grid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		self.result_grid.Hide()
+		
 		fgSizer10.Add( self.result_grid, 0, wx.ALL, 5 )
 		
 		

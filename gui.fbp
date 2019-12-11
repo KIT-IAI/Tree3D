@@ -7164,7 +7164,7 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
@@ -7252,7 +7252,7 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label">Analysis completed.&#x0A;All trees havevalid geometric parameters.</property>
                         <property name="markup">0</property>
@@ -7343,7 +7343,7 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label">Analysis completed.&#x0A;There are trees with invalid geometry parameters.&#x0A;%s invalid geometries found.</property>
                         <property name="markup">0</property>
@@ -7454,7 +7454,7 @@
                         <property name="grid_line_color"></property>
                         <property name="grid_lines">1</property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label_bg"></property>
                         <property name="label_font"></property>
