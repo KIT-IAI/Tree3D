@@ -123,7 +123,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 13, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 16, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -184,6 +184,29 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.m_staticline5 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline5, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.m_staticText28 = wx.StaticText( self, wx.ID_ANY, u"Set the number of rows to be inspected before input here.\nRows are expected to figure out the data type for example", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText28.Wrap( -1 )
+		
+		fgSizer4.Add( self.m_staticText28, 0, wx.ALL, 5 )
+		
+		fgSizer9 = wx.FlexGridSizer( 1, 2, 0, 0 )
+		fgSizer9.SetFlexibleDirection( wx.BOTH )
+		fgSizer9.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText27 = wx.StaticText( self, wx.ID_ANY, u"Rows to inspect", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText27.Wrap( -1 )
+		
+		fgSizer9.Add( self.m_staticText27, 0, wx.ALL, 5 )
+		
+		self.inspect_rows = wx.TextCtrl( self, wx.ID_ANY, u"500", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer9.Add( self.inspect_rows, 0, wx.ALL, 5 )
+		
+		
+		fgSizer4.Add( fgSizer9, 1, wx.EXPAND, 5 )
+		
+		self.m_staticline7 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer4.Add( self.m_staticline7, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
