@@ -432,7 +432,6 @@ class OpenDialog(default_gui.OnOpenDialog):
 
             # set check rows number
             t_checknumber = self.inspect_rows.GetValue()
-            print(t_checknumber, type(t_checknumber))
             self.GetParent().db.set_data_inspection_limit(int(t_checknumber))
 
             self.Destroy()
