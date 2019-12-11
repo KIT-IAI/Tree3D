@@ -527,7 +527,6 @@ class OpenDialogCSV(OpenDialog):
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
-    @property
     def validate(self):
         valid, warningtext = super().validate()
         try:
