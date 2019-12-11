@@ -123,7 +123,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 12, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 13, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -157,9 +157,6 @@ class OnOpenDialog ( wx.Dialog ):
 		self.ignorelist = wx.TextCtrl( self, wx.ID_ANY, u"ORA_GEOMETRY", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.ignorelist, 0, wx.ALL, 5 )
 		
-		self.m_staticline3 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		fgSizer4.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
-		
 		fgSizer8 = wx.FlexGridSizer( 2, 2, 0, 0 )
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
@@ -184,6 +181,9 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		
 		fgSizer4.Add( fgSizer8, 1, wx.EXPAND, 5 )
+		
+		self.m_staticline5 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer4.Add( self.m_staticline5, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
@@ -230,6 +230,9 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		
 		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
+		
+		self.m_staticline6 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer4.Add( self.m_staticline6, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.ok_button = wx.Button( self, wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
 		
