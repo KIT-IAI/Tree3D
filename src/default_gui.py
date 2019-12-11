@@ -580,7 +580,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer10 = wx.FlexGridSizer( 5, 1, 0, 0 )
+		fgSizer10 = wx.FlexGridSizer( 9, 1, 0, 0 )
 		fgSizer10.SetFlexibleDirection( wx.BOTH )
 		fgSizer10.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -692,14 +692,14 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer10.Add( self.m_staticline13, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		self.analysis_valid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nAll trees havevalid geometric parameters.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.analysis_valid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nAll trees have valid geometric parameters.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.analysis_valid.Wrap( -1 )
 		
 		self.analysis_valid.Hide()
 		
 		fgSizer10.Add( self.analysis_valid, 0, wx.ALL, 5 )
 		
-		self.analysis_invalid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nThere are trees with invalid geometry parameters.\n%s invalid geometries found.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.analysis_invalid = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.analysis_invalid.Wrap( -1 )
 		
 		self.analysis_invalid.Hide()
@@ -709,7 +709,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.result_grid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		# Grid
-		self.result_grid.CreateGrid( 5, 2 )
+		self.result_grid.CreateGrid( 0, 2 )
 		self.result_grid.EnableEditing( False )
 		self.result_grid.EnableGridLines( True )
 		self.result_grid.EnableDragGridSize( False )

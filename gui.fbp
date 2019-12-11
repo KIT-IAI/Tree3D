@@ -5555,7 +5555,7 @@
                 <property name="name">fgSizer10</property>
                 <property name="non_flexible_grow_mode">wxFLEX_GROWMODE_SPECIFIED</property>
                 <property name="permission">none</property>
-                <property name="rows">5</property>
+                <property name="rows">9</property>
                 <property name="vgap">0</property>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
@@ -7254,7 +7254,7 @@
                         <property name="gripper">0</property>
                         <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">Analysis completed.&#x0A;All trees havevalid geometric parameters.</property>
+                        <property name="label">Analysis completed.&#x0A;All trees have valid geometric parameters.</property>
                         <property name="markup">0</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
@@ -7345,7 +7345,7 @@
                         <property name="gripper">0</property>
                         <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">Analysis completed.&#x0A;There are trees with invalid geometry parameters.&#x0A;%s invalid geometries found.</property>
+                        <property name="label"></property>
                         <property name="markup">0</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
@@ -7481,7 +7481,7 @@
                         <property name="row_label_values"></property>
                         <property name="row_label_vert_alignment">wxALIGN_CENTRE</property>
                         <property name="row_sizes"></property>
-                        <property name="rows">5</property>
+                        <property name="rows">0</property>
                         <property name="show">1</property>
                         <property name="size"></property>
                         <property name="subclass">; ; forward_declare</property>
