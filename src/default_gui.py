@@ -160,35 +160,30 @@ class OnOpenDialog ( wx.Dialog ):
 		self.m_staticline3 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline3, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		sbSizer5 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CSV File Options" ), wx.VERTICAL )
-		
 		fgSizer8 = wx.FlexGridSizer( 2, 2, 0, 0 )
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText25 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Seperator", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText25 = wx.StaticText( self, wx.ID_ANY, u"Seperator", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
 		
 		fgSizer8.Add( self.m_staticText25, 0, wx.ALL, 5 )
 		
 		seperatorChoices = [ u"Semicolon", u"Comma" ]
-		self.seperator = wx.Choice( sbSizer5.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, seperatorChoices, 0 )
+		self.seperator = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, seperatorChoices, 0 )
 		self.seperator.SetSelection( 0 )
 		fgSizer8.Add( self.seperator, 0, wx.ALL, 5 )
 		
-		self.m_staticText26 = wx.StaticText( sbSizer5.GetStaticBox(), wx.ID_ANY, u"Encoding", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText26 = wx.StaticText( self, wx.ID_ANY, u"Encoding", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText26.Wrap( -1 )
 		
 		fgSizer8.Add( self.m_staticText26, 0, wx.ALL, 5 )
 		
-		self.encoding = wx.TextCtrl( sbSizer5.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.encoding = wx.TextCtrl( self, wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer8.Add( self.encoding, 0, wx.ALL, 5 )
 		
 		
-		sbSizer5.Add( fgSizer8, 1, wx.EXPAND, 5 )
-		
-		
-		fgSizer4.Add( sbSizer5, 1, wx.EXPAND, 5 )
+		fgSizer4.Add( fgSizer8, 1, wx.EXPAND, 5 )
 		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
