@@ -687,6 +687,48 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.m_button9 = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer10.Add( self.m_button9, 0, wx.ALL, 5 )
 		
+		self.m_staticline13 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer10.Add( self.m_staticline13, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		self.analysis_valid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nAll trees havevalid geometric parameters.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.analysis_valid.Wrap( -1 )
+		
+		fgSizer10.Add( self.analysis_valid, 0, wx.ALL, 5 )
+		
+		self.analysis_invalid = wx.StaticText( self, wx.ID_ANY, u"Analysis completed.\nThere are trees with invalid geometry parameters.\n%s invalid geometries found.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.analysis_invalid.Wrap( -1 )
+		
+		fgSizer10.Add( self.analysis_invalid, 0, wx.ALL, 5 )
+		
+		self.result_grid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		# Grid
+		self.result_grid.CreateGrid( 5, 2 )
+		self.result_grid.EnableEditing( False )
+		self.result_grid.EnableGridLines( True )
+		self.result_grid.EnableDragGridSize( False )
+		self.result_grid.SetMargins( 0, 0 )
+		
+		# Columns
+		self.result_grid.AutoSizeColumns()
+		self.result_grid.EnableDragColMove( False )
+		self.result_grid.EnableDragColSize( True )
+		self.result_grid.SetColLabelSize( 30 )
+		self.result_grid.SetColLabelValue( 0, u"ID" )
+		self.result_grid.SetColLabelValue( 1, u"Detail" )
+		self.result_grid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Rows
+		self.result_grid.EnableDragRowSize( True )
+		self.result_grid.SetRowLabelSize( 80 )
+		self.result_grid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Label Appearance
+		
+		# Cell Defaults
+		self.result_grid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		fgSizer10.Add( self.result_grid, 0, wx.ALL, 5 )
+		
 		
 		self.SetSizer( fgSizer10 )
 		self.Layout()
