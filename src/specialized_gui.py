@@ -127,6 +127,8 @@ class MainTableFrame(default_gui.MainWindow):
 
                 self.db = data.DatabaseFromXml()
                 dlg = OpenDialogXML(self, pathname, tree)
+                dlg.Layout()
+                dlg.DoLayoutAdaptation()
                 dlg.ShowModal()
                 treepath = dlg.treepath.GetValue()
                 geompath = dlg.geompath.GetValue()
