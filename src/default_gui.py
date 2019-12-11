@@ -600,10 +600,10 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer13.Add( self.m_staticText33, 0, wx.ALL, 5 )
 		
-		choidIDChoices = []
-		self.choidID = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choidIDChoices, 0 )
-		self.choidID.SetSelection( 0 )
-		fgSizer13.Add( self.choidID, 0, wx.ALL, 5 )
+		choiceIDChoices = []
+		self.choiceID = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceIDChoices, 0 )
+		self.choiceID.SetSelection( 0 )
+		fgSizer13.Add( self.choiceID, 0, wx.ALL, 5 )
 		
 		
 		sbSizer7.Add( fgSizer13, 1, wx.EXPAND, 5 )
