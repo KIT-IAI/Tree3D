@@ -211,6 +211,109 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
     def __init__(self, parent):
         default_gui.OnCheckGeometryDialog.__init__(self, parent)
 
+        self.populate_columns()
+
+    def populate_columns(self):
+        collist = self.GetParent().db.get_column_names()
+
+        self.choiceID.SetItems(collist)
+        self.choiceHeight.SetItems(collist)
+        self.choiceTrunk.SetItems(collist)
+        self.choiceCrown.SetItems(collist)
+
+    def on_analyze(self, event):
+        self.analysis_invalid.Show(False)
+        self.analysis_valid.Show(False)
+        self.result_grid.Show(False)
+
+        collist = [self.choiceID.GetStringSelection(),
+                   self.choiceHeight.GetStringSelection(),
+                   self.choiceTrunk.GetStringSelection(),
+                   self.choiceCrown.GetStringSelection()]
+
+        invalid_trees = []
+
+        for cursor in self.GetParent().db.get_data_by_collist(collist):
+            identifier = cursor[0]
+            height = cursor[1]
+            trunk = cursor[2]
+            crown = cursor[3]
+
+            # convert everything into meters
+            if self.choiceHeightUnit.GetSelection() == 1:
+                height = height/100
+            if self.choiceTrunkUnit.GetSelection() == 1:
+                trunk = trunk/100
+            if self.choiceCrownUnit.GetSelection() == 1:
+                crown = crown/100
+
+            # convert circumference into diameter
+            if self.trunk_circ.GetSelection() == 1:
+                trunk = trunk / math.pi
+            if self.crown_circ.GetSelection() == 1:
+                crown = crown / math.pi
+
+            geom = AnalyzeTreeGeoms(height, trunk, crown)
+            valid, message = geom.analyze()
+
+            if not valid:
+                invalid_trees.append((identifier, message))
+
+        # show results
+        self.m_staticline13.Show(True)
+
+        # show text if no invalid geoms were found
+        if len(invalid_trees) == 0:
+            self.analysis_valid.Show(True)
+        # show different text if otherwise, show fill grid with info
+        else:
+            label = "Analysis completed.\n" \
+                    "Trees with invalid geometry parameters have been found.\n" \
+                    "%s invalid geometries found." % len(invalid_trees)
+            self.analysis_invalid.SetLabel(label)
+            self.analysis_invalid.Show(True)
+
+            self.result_grid.HideRowLabels()
+            if self.result_grid.GetNumberRows() > 0:
+                self.result_grid.DeleteRows(pos=0, numRows=self.result_grid.GetNumberRows())
+            self.result_grid.AppendRows(len(invalid_trees))
+            for row_index, row in enumerate(invalid_trees):
+                for col_index, value in enumerate(row):
+                    self.result_grid.SetCellValue(row_index, col_index, value)
+            self.result_grid.AutoSizeColumns(False)
+            self.result_grid.Show(True)
+        self.Layout()
+        self.DoLayoutAdaptation()
+
+
+class AnalyzeTreeGeoms:
+    def __init__(self, height, trunk_diam, crown_diam):
+        self.__Height = height
+        self.__TrunDiam = trunk_diam
+        self.__CrownDiam = crown_diam
+
+    def analyze(self):
+        valid = True
+        msg = ""
+
+        if self.__Height < 0:
+            valid = False
+            msg = "Hight is smaller that 0"
+
+        if self.__TrunDiam < 0:
+            valid = False
+            msg = "Trunk diameter is smaller than 0"
+
+        if self.__CrownDiam < 0:
+            valid = False
+            msg = "Crown diameter is smaller than 0"
+
+        if self.__TrunDiam > self.__CrownDiam:
+            valid = False
+            msg = "Trunk diameter is greater than crown diameter"
+
+        return valid, msg
+
 
 class BoundingBox:
     def __init__(self):
