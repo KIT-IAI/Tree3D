@@ -23,11 +23,11 @@ class Database:
         self._DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self._lTableColmnNames = []  # list of all table column names
 
-        self._SQLGetAllDataStatement = ""
+        self._SQLGetAllDataStatement = ""  # SQL Statement to get all data
 
         self._CreateTwoColID = False  # variable to determine weather a tree id should be created
         self._CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
-        self._DataInspectionLimit = 0
+        self._DataInspectionLimit = 0  # Limit of data inspection before input
 
     # Creates Database Path
     # Database is stored in temporary folder by default
@@ -180,6 +180,8 @@ class Database:
     def set_id_columns(self, value):
         self._CreateTwoColIDColumns = value
 
+    # sets data inspection limit:
+    # number of rows that will be analyzed before input to find out data type
     def set_data_inspection_limit(self, value):
         self._DataInspectionLimit = value
 
@@ -187,8 +189,8 @@ class Database:
 class DatabaseFromCsv(Database):
     def __init__(self):
         super().__init__()
-        self.__seperator = ""
-        self.__FileEncoding = ""
+        self.__seperator = ""  # seperator in csv file
+        self.__FileEncoding = ""  # file encoding of csv file
 
     # method to create database table from csv file
     def import_csv_file(self, filepath):
@@ -281,9 +283,11 @@ class DatabaseFromCsv(Database):
 
         return data_type
 
+    # sets csv seperator
     def set_seperator(self, sep):
         self.__seperator = sep
 
+    # sets file encoding for csv file
     def set_file_encoding(self, codec):
         self.__FileEncoding = codec
 
@@ -292,8 +296,8 @@ class DatabaseFromXml(Database):
     def __init__(self):
         super().__init__()
         self.__XmlTree = None
-        self.__RootNode = None
-        self.__ns = {}
+        self.__RootNode = None  # Root node of xml tree
+        self.__ns = {}  # xml namespaces: associates prefix with full qualified name
 
     def import_xml_file(self, filepath, attribute_path, geom_path, ignorestring, tree):
         self.__XmlTree = tree

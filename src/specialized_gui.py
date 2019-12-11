@@ -430,7 +430,7 @@ class OpenDialog(default_gui.OnOpenDialog):
                 self.GetParent().db.set_create_id(True)
                 self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
 
-            # set check number
+            # set check rows number
             t_checknumber = self.inspect_rows.GetValue()
             print(t_checknumber, type(t_checknumber))
             self.GetParent().db.set_data_inspection_limit(int(t_checknumber))
@@ -459,6 +459,7 @@ class OpenDialog(default_gui.OnOpenDialog):
                 valid = False
                 warningtext = "Cannot generate IDs. Please select two different table columns for ID generation"
 
+        # checks if check-row-number can be cast to an integer
         try:
             int(self.inspect_rows.GetValue())
         except ValueError:
@@ -540,30 +541,38 @@ class OpenDialogCSV(OpenDialog):
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
+    # validates user input for everything that is csv-related
+    # overrides parent class, but calls it in between
     def validate(self):
         valid, warningtext = super().validate()
         try:
             with open(self._filepath, newline='', encoding=self.encoding.GetValue()):
                 pass
         except LookupError:
+            # validates if user input for file encoding is valid
             valid = False
             warningtext = "Error: Cannot open file. Unknown file encoding: %s.\n" \
                           "Please use python encoding codecs\n" \
                           "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html"\
                           % self.encoding.GetValue()
         except UnicodeDecodeError:
+            # validates if file can be encoded using this user input
             valid = False
             warningtext = "Cannot decode bytes in file.\n" \
                           "Is the file encoding set correctly?"
         except:
+            # catches anything als that could go wrong
             valid = False
             warningtext = "Cannot open file for unknown reason"
         return valid, warningtext
 
+    # method is executed when OK is hit.
+    # Overrides method in parent class
     def on_ok(self, event):
         super().on_ok(event)
         self.GetParent().db.set_file_encoding(self.encoding.GetValue())
 
+        # sets seperator for input
         sep = ""
         if self.seperator.GetString(self.seperator.GetSelection()) == "Semicolon":
             sep = ";"
@@ -590,6 +599,7 @@ class OpenDialogXML(OpenDialog):
 
     # Populates dropdown menus after xml was opened
     def populate_dropdown(self):
+        # fetch instpect_rows value from gui
         t_checknumber = self.inspect_rows.GetValue()
         check_number = int(t_checknumber)
 
@@ -620,6 +630,7 @@ class OpenDialogXML(OpenDialog):
             valid = True
             warningtext = ""
 
+            # Validates if inspection_limit from gui can be cast to int
             try:
                 int(self.inspect_rows.GetValue())
             except ValueError:
@@ -641,7 +652,8 @@ class OpenDialogXML(OpenDialog):
                 return
 
             self.populate_dropdown()
-        # disable UI elements again
+
+        # enable/disable UI elements
         self.id_col1.Enable(not self.id_col1.Enabled)
         self.id_col2.Enable(not self.id_col2.Enabled)
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
@@ -650,6 +662,7 @@ class OpenDialogXML(OpenDialog):
     # Validates user input
     # Returns True, if User input is valid
     # Returns False, if User input is incorrect and prevents database import
+    # Overrides method in parent class
     def validate(self):
         valid, warningtext = super().validate()
         if not self.validate_xml_geom_path():
