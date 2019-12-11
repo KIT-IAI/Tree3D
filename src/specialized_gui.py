@@ -563,6 +563,7 @@ class OpenDialogXML(OpenDialog):
     def __init__(self, parent, path, tree):
         super().__init__(parent, path)
 
+        # disable csv gui stuff
         self.SetTitle("XML import options")
         self.m_staticText25.Show(False)
         self.m_staticText26.Show(False)
