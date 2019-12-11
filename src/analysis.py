@@ -207,6 +207,11 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         return valid
 
 
+class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
+    def __init__(self, parent):
+        default_gui.OnCheckGeometryDialog.__init__(self, parent)
+
+
 class BoundingBox:
     def __init__(self):
         self.__xMin = float("inf")
