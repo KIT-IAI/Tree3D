@@ -580,7 +580,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer10.Add( self.m_staticText29, 0, wx.ALL, 5 )
 		
-		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"label" ), wx.VERTICAL )
+		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
 		
 		fgSizer13 = wx.FlexGridSizer( 2, 2, 0, 0 )
 		fgSizer13.SetFlexibleDirection( wx.BOTH )
@@ -679,11 +679,11 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
 		
-		self.m_staticline10 = wx.StaticLine( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		sbSizer3.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
-		
 		
 		fgSizer10.Add( sbSizer3, 1, wx.EXPAND, 5 )
+		
+		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer10.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		
 		self.SetSizer( fgSizer10 )
