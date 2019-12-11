@@ -427,6 +427,12 @@ class OpenDialog(default_gui.OnOpenDialog):
             if self.generate_ID_box.GetValue():
                 self.GetParent().db.set_create_id(True)
                 self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
+
+            # set check number
+            t_checknumber = self.inspect_rows.GetValue()
+            print(t_checknumber, type(t_checknumber))
+            self.GetParent().db.set_data_inspection_limit(int(t_checknumber))
+
             self.Destroy()
         # show error message, if input is not valid
         else:
@@ -450,6 +456,12 @@ class OpenDialog(default_gui.OnOpenDialog):
             if self.id_col1.GetSelection() == self.id_col2.GetSelection():
                 valid = False
                 warningtext = "Cannot generate IDs. Please select two different table columns for ID generation"
+
+        try:
+            int(self.inspect_rows.GetValue())
+        except ValueError:
+            valid = False
+            warningtext = "Inspection rows must be integer"
 
         return valid, warningtext
 
@@ -576,7 +588,8 @@ class OpenDialogXML(OpenDialog):
 
     # Populates dropdown menus after xml was opened
     def populate_dropdown(self):
-        check_number = 100
+        t_checknumber = self.inspect_rows.GetValue()
+        check_number = int(t_checknumber)
 
         # Create list with elements to ignore from string.
         # Format list: Remove leading and tailing whitespaces
