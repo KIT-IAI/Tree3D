@@ -614,27 +614,36 @@ class OpenDialogXML(OpenDialog):
 
     # method is called when checkbox is triggered
     def id_checkbox_event(self, event):
-        super().id_checkbox_event(event)
         if self.generate_ID_box.GetValue():
+            valid = True
+            warningtext = ""
+
+            try:
+                int(self.inspect_rows.GetValue())
+            except ValueError:
+                valid = False
+                warningtext = "Inspection rows must be integer"
 
             # dont create ID if xml pathes are not correct yet
+            # validate_xml_geom_path() is used since it uses both pathes
             if not self.validate_xml_geom_path():
-                # Un-Check checkbox
-                self.generate_ID_box.SetValue(False)
-
-                # disable UI elements again
-                self.id_col1.Enable(not self.id_col1.Enabled)
-                self.id_col2.Enable(not self.id_col2.Enabled)
-                self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
-                self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
-
+                valid = False
                 warningtext = "XML path to tree coordinates is not correct.\n" \
                               "Must be a correct path to fetch column names.\n" \
                               "Please specify a correct path first."
+
+            if not valid:
+                self.generate_ID_box.SetValue(False)
                 msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
                 msg.ShowModal()
                 return
+
             self.populate_dropdown()
+        # disable UI elements again
+        self.id_col1.Enable(not self.id_col1.Enabled)
+        self.id_col2.Enable(not self.id_col2.Enabled)
+        self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
+        self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
     # Validates user input
     # Returns True, if User input is valid
