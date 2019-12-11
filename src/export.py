@@ -61,12 +61,16 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             exporter.set_trunk_diam_col_index(self.choiceTrunk.GetSelection())
             exporter.set_trunk_diam_unit(self.choiceTrunkUnit.GetString(self.choiceTrunkUnit.GetSelection()))
-            exporter.set_trunk_is_circ(self.boxTrunkCirc.GetValue())
+            trunk_circ = self.trunk_circ.GetSelection()
+            if trunk_circ == 1:
+                exporter.set_trunk_is_circ(True)
 
         if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             exporter.set_crown_diam_col_index(self.choiceCrown.GetSelection())
             exporter.set_crown_diam_unit(self.choiceCrownUnit.GetString(self.choiceCrownUnit.GetSelection()))
-            exporter.set_crown_is_circ(self.boxCrownCirc.GetValue())
+            crown_circ = self.crown_circ.GetSelection()
+            if crown_circ == 1:
+                exporter.set_crown_is_circ(True)
 
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
