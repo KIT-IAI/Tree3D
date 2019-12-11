@@ -436,7 +436,7 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by ID", pos = wx.DefaultPosition, size = wx.Size( 353,509 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by Geom", pos = wx.DefaultPosition, size = wx.Size( 353,509 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
@@ -561,7 +561,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 425,521 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 439,568 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -573,7 +573,7 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer71.SetFlexibleDirection( wx.BOTH )
 		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 310,-1 ), wx.TE_READONLY )
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 320,-1 ), wx.TE_READONLY )
 		fgSizer71.Add( self.filepat_textbox, 0, wx.ALL, 5 )
 		
 		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -639,6 +639,7 @@ class CityGmlExport ( wx.Dialog ):
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
 		
 		self.m_radioBtn3 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_radioBtn3.SetValue( True ) 
 		sbSizer2.Add( self.m_radioBtn3, 0, wx.ALL, 5 )
 		
 		self.m_radioBtn4 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -686,8 +687,10 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceTrunkUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
 		
-		self.boxTrunkCirc = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.boxTrunkCirc, 0, wx.ALL, 5 )
+		trunk_circChoices = [ u"is diameter", u"is circumference" ]
+		self.trunk_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, trunk_circChoices, 0 )
+		self.trunk_circ.SetSelection( 1 )
+		fgSizer6.Add( self.trunk_circ, 0, wx.ALL, 5 )
 		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
@@ -704,8 +707,10 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceCrownUnit.SetSelection( 0 )
 		fgSizer6.Add( self.choiceCrownUnit, 0, wx.ALL, 5 )
 		
-		self.boxCrownCirc = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"is circumference", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer6.Add( self.boxCrownCirc, 0, wx.ALL, 5 )
+		crown_circChoices = [ u"is diameter", u"is circumference" ]
+		self.crown_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_circChoices, 0 )
+		self.crown_circ.SetSelection( 0 )
+		fgSizer6.Add( self.crown_circ, 0, wx.ALL, 5 )
 		
 		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species (Latin name)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
