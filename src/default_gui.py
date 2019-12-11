@@ -555,6 +555,139 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 	
 
 ###########################################################################
+## Class OnCheckGeometryDialog
+###########################################################################
+
+class OnCheckGeometryDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Analyze geometry attributes", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer10 = wx.FlexGridSizer( 0, 1, 0, 0 )
+		fgSizer10.SetFlexibleDirection( wx.BOTH )
+		fgSizer10.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText29 = wx.StaticText( self, wx.ID_ANY, u"This tool allows to analyze geometric parameters needed to create 3D tree objects.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText29.Wrap( -1 )
+		
+		fgSizer10.Add( self.m_staticText29, 0, wx.ALL, 5 )
+		
+		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"label" ), wx.VERTICAL )
+		
+		fgSizer13 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer13.SetFlexibleDirection( wx.BOTH )
+		fgSizer13.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText33 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText33.Wrap( -1 )
+		
+		fgSizer13.Add( self.m_staticText33, 0, wx.ALL, 5 )
+		
+		m_choice21Choices = []
+		self.m_choice21 = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice21Choices, 0 )
+		self.m_choice21.SetSelection( 0 )
+		fgSizer13.Add( self.m_choice21, 0, wx.ALL, 5 )
+		
+		self.m_staticText34 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText34.Wrap( -1 )
+		
+		fgSizer13.Add( self.m_staticText34, 0, wx.ALL, 5 )
+		
+		m_choice22Choices = []
+		self.m_choice22 = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice22Choices, 0 )
+		self.m_choice22.SetSelection( 0 )
+		fgSizer13.Add( self.m_choice22, 0, wx.ALL, 5 )
+		
+		
+		sbSizer7.Add( fgSizer13, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer10.Add( sbSizer7, 1, wx.EXPAND, 5 )
+		
+		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
+		
+		fgSizer6 = wx.FlexGridSizer( 3, 4, 0, 0 )
+		fgSizer6.SetFlexibleDirection( wx.BOTH )
+		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15.Wrap( -1 )
+		
+		fgSizer6.Add( self.m_staticText15, 0, wx.ALL, 5 )
+		
+		choiceHeightChoices = []
+		self.choiceHeight = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightChoices, 0 )
+		self.choiceHeight.SetSelection( 0 )
+		fgSizer6.Add( self.choiceHeight, 0, wx.ALL, 5 )
+		
+		choiceHeightUnitChoices = [ u"m", u"cm" ]
+		self.choiceHeightUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightUnitChoices, 0 )
+		self.choiceHeightUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceHeightUnit, 0, wx.ALL, 5 )
+		
+		
+		fgSizer6.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText17.Wrap( -1 )
+		
+		fgSizer6.Add( self.m_staticText17, 0, wx.ALL, 5 )
+		
+		choiceTrunkChoices = []
+		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
+		self.choiceTrunk.SetSelection( 0 )
+		fgSizer6.Add( self.choiceTrunk, 0, wx.ALL, 5 )
+		
+		choiceTrunkUnitChoices = [ u"m", u"cm" ]
+		self.choiceTrunkUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkUnitChoices, 0 )
+		self.choiceTrunkUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
+		
+		trunk_circChoices = [ u"is diameter", u"is circumference" ]
+		self.trunk_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, trunk_circChoices, 0 )
+		self.trunk_circ.SetSelection( 1 )
+		fgSizer6.Add( self.trunk_circ, 0, wx.ALL, 5 )
+		
+		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText16.Wrap( -1 )
+		
+		fgSizer6.Add( self.m_staticText16, 0, wx.ALL, 5 )
+		
+		choiceCrownChoices = []
+		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
+		self.choiceCrown.SetSelection( 0 )
+		fgSizer6.Add( self.choiceCrown, 0, wx.ALL, 5 )
+		
+		choiceCrownUnitChoices = [ u"m", u"cm" ]
+		self.choiceCrownUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownUnitChoices, 0 )
+		self.choiceCrownUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceCrownUnit, 0, wx.ALL, 5 )
+		
+		crown_circChoices = [ u"is diameter", u"is circumference" ]
+		self.crown_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_circChoices, 0 )
+		self.crown_circ.SetSelection( 0 )
+		fgSizer6.Add( self.crown_circ, 0, wx.ALL, 5 )
+		
+		
+		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer10.Add( sbSizer3, 1, wx.EXPAND, 5 )
+		
+		
+		self.SetSizer( fgSizer10 )
+		self.Layout()
+		fgSizer10.Fit( self )
+		
+		self.Centre( wx.BOTH )
+	
+	def __del__( self ):
+		pass
+	
+
+###########################################################################
 ## Class CityGmlExport
 ###########################################################################
 
