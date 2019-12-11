@@ -571,7 +571,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer10 = wx.FlexGridSizer( 0, 1, 0, 0 )
+		fgSizer10 = wx.FlexGridSizer( 4, 1, 0, 0 )
 		fgSizer10.SetFlexibleDirection( wx.BOTH )
 		fgSizer10.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
