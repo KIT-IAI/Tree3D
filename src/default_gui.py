@@ -304,7 +304,7 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 8, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 9, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -333,6 +333,9 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
+		
+		self.m_staticline11 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer2.Add( self.m_staticline11, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.InfoTextDuplicate.Wrap( -1 )
@@ -440,7 +443,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 6, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 7, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -499,6 +502,9 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 330,-1 ), wx.GA_HORIZONTAL )
 		self.gauge.SetValue( 0 ) 
 		fgSizer2.Add( self.gauge, 0, wx.ALL, 5 )
+		
+		self.m_staticline12 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer2.Add( self.m_staticline12, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.InfoTextDuplicate.Wrap( -1 )
@@ -672,6 +678,9 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		
 		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
+		
+		self.m_staticline10 = wx.StaticLine( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		sbSizer3.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		
 		fgSizer10.Add( sbSizer3, 1, wx.EXPAND, 5 )
