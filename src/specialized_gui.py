@@ -73,7 +73,28 @@ class MainTableFrame(default_gui.MainWindow):
                 dlg.Layout()
                 dlg.DoLayoutAdaptation()
                 dlg.ShowModal()
-                import_success, warntext = self.db.import_csv_file(filepath=pathname)
+                import_success = None
+                text = ""
+                try:
+                    import_success = self.db.import_csv_file(filepath=pathname)
+                    text = "CSV file imported successfully"
+                except UnicodeDecodeError:
+                    import_success = False
+                    text = "CSV file import failed.\n" \
+                           "File encoding not correct"
+                except:
+                    import_success = False
+                    if __name__ == '__main__':
+                        text = "CSV file import failed for unknown reason\n" \
+                               "Is the seperatorset correctly?"
+                finally:
+                    icon = wx.OK
+                    if not import_success:
+                        icon = wx.ICON_WARNING
+                    msg = wx.MessageDialog(self, text, style=icon | wx.CENTRE)
+                    msg.ShowModal()
+                    if not import_success:
+                        return
 
             # opening procedure when xml file is detected
             elif pathname[-4:] == ".xml":
@@ -433,7 +454,6 @@ class OpenDialog(default_gui.OnOpenDialog):
 class OpenDialogCSV(OpenDialog):
     def __init__(self, parent, path):
         super().__init__(parent, path)
-        self.populate_dropdown()
 
         # Hide xml-related stuff
         self.m_staticText22.Show(False)
@@ -450,46 +470,91 @@ class OpenDialogCSV(OpenDialog):
     def populate_dropdown(self):
         # try to figure out file encoding: first try to open with utf-8, if that fails with cp1252
         # if neither file encoding works: show error message
+        valid = True
         warningtext = ""
+        header = ""
         try:
-            with open(self._filepath, newline='', encoding='utf-8') as file:
+            with open(self._filepath, newline='', encoding=self.encoding.GetValue()) as file:
                 header = file.readline()
-                self.GetParent().db.set_file_encoding("utf-8")
+        except LookupError:
+            valid = False
+            warningtext = "Error: Cannot open file. Unknown file encoding: %s.\n" \
+                          "Please use python encoding codecs\n" \
+                          "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html"\
+                          % self.encoding.GetValue()
         except UnicodeDecodeError:
-            try:
-                with open(self._filepath, newline='', encoding='cp1252') as file:
-                    header = file.readline()
-                    self.GetParent().db.set_file_encoding("cp1252")
-            except:
-                warningtext = "Unknown Error: Cannot open file!\n" \
-                              "Maybe file encoding is not supported\n" \
-                              "File encoding must be either utf-8 or cp1252!"
+            valid = False
+            warningtext = "Cannot decode bytes in file.\n" \
+                          "Is the file encoding set correctly?"
+        except:
+            valid = False
+            warningtext = "Cannot open file for unknown reason"
+        finally:
+            if not valid:
                 msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
                 msg.ShowModal()
-                self.Destroy()
-                return
-        except:
-            warningtext = "Unknown Error: Cannot open file!\n" \
-                          "Maybe file encoding is not supported\n" \
-                          "File encoding must be either utf-8 or cp1252!"
-            msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_ERROR)
-            msg.ShowModal()
-            self.Destroy()
-            return
+                return False
 
         header = header.strip("\r\n")
-        l_cols = header.split(";")
+        sep = ""
+        if self.seperator.GetString(self.seperator.GetSelection()) == "Semicolon":
+            sep = ";"
+        elif self.seperator.GetString(self.seperator.GetSelection()) == "Comma":
+            sep = ","
+        l_cols = header.split(sep)
         self.id_col1.SetItems(l_cols)
         self.id_col2.SetItems(l_cols)
+        return True
 
     # method to be called when checkbox event for generate-id-checkbox is triggered
     # every time the checkbox is clicked
     # overrides method in parent class
     def id_checkbox_event(self, event):
+        if self.encoding.GetValue() == "":
+            self.generate_ID_box.SetValue(False)
+            text = "Please specify file encoding first"
+            msg = wx.MessageDialog(self, text, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
+            return
+        if not self.populate_dropdown():
+            self.generate_ID_box.SetValue(False)
+            return
         self.id_col1.Enable(not self.id_col1.Enabled)
         self.id_col2.Enable(not self.id_col2.Enabled)
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
+
+    def validate(self):
+        valid, warningtext = super().validate()
+        try:
+            with open(self._filepath, newline='', encoding=self.encoding.GetValue()):
+                pass
+        except LookupError:
+            valid = False
+            warningtext = "Error: Cannot open file. Unknown file encoding: %s.\n" \
+                          "Please use python encoding codecs\n" \
+                          "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html"\
+                          % self.encoding.GetValue()
+        except UnicodeDecodeError:
+            valid = False
+            warningtext = "Cannot decode bytes in file.\n" \
+                          "Is the file encoding set correctly?"
+        except:
+            valid = False
+            warningtext = "Cannot open file for unknown reason"
+        return valid, warningtext
+
+
+    def on_ok(self, event):
+        super().on_ok(event)
+        self.GetParent().db.set_file_encoding(self.encoding.GetValue())
+
+        sep = ""
+        if self.seperator.GetString(self.seperator.GetSelection()) == "Semicolon":
+            sep = ";"
+        elif self.seperator.GetString(self.seperator.GetSelection()) == "Comma":
+            sep = ","
+        self.GetParent().db.set_seperator(sep)
 
 
 class OpenDialogXML(OpenDialog):

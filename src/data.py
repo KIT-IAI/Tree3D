@@ -23,8 +23,6 @@ class Database:
         self._DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self._lTableColmnNames = []  # list of all table column names
 
-        self._FileEncoding = ""
-
         self._SQLGetAllDataStatement = ""
 
         self._CreateTwoColID = False  # variable to determine weather a tree id should be created
@@ -181,18 +179,17 @@ class Database:
     def set_id_columns(self, value):
         self._CreateTwoColIDColumns = value
 
-    def set_file_encoding(self, codec):
-        self._FileEncoding = codec
-
 
 class DatabaseFromCsv(Database):
     def __init__(self):
         super().__init__()
+        self.__seperator = ""
+        self.__FileEncoding = ""
 
     # method to create database table from csv file
-    def import_csv_file(self, filepath, sep=";"):
-        with open(filepath, newline='', encoding=self._FileEncoding) as csvfile:
-            filereader = csv.reader(csvfile, delimiter=sep)
+    def import_csv_file(self, filepath):
+        with open(filepath, newline='', encoding=self.__FileEncoding) as csvfile:
+            filereader = csv.reader(csvfile, delimiter=self.__seperator)
             for idx, row in enumerate(filereader):
                 if idx == 0:
                     # add column for unique tree ID to data model
@@ -210,7 +207,7 @@ class DatabaseFromCsv(Database):
                     self.populate_db_table(row)
         self._DbConnection.commit()
         self.generate_sql_statement()
-        return True, ""
+        return True
 
     # method to insert a row into the database
     def populate_db_table(self, row):
@@ -280,6 +277,11 @@ class DatabaseFromCsv(Database):
 
         return data_type
 
+    def set_seperator(self, sep):
+        self.__seperator = sep
+
+    def set_file_encoding(self, codec):
+        self.__FileEncoding = codec
 
 class DatabaseFromXml(Database):
     def __init__(self):
