@@ -1,6 +1,5 @@
 import uuid
 import math
-from copy import copy
 
 import default_gui
 
@@ -60,7 +59,8 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         uuid_counter = 0
         all_data = self.GetParent().db.get_data_by_collist_distinct(collist).fetchall()
         for check_value in all_data:
-            data_cursor = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"' % (itemcolname, check_value[0]))
+            data_cursor = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"'
+                                                                      % (itemcolname, check_value[0]))
             dat = data_cursor.fetchall()
 
             # if query returns >1 rows (e.g. two entries with one ID), add values to grid
