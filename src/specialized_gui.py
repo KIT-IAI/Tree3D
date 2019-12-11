@@ -467,7 +467,6 @@ class OpenDialogCSV(OpenDialog):
         self.m_staticline2.Show(False)
         self.m_staticText24.Show(False)
         self.ignorelist.Show(False)
-        self.m_staticline3.Show(False)
 
     # method to populate columns of dropdown menus with column headers
     def populate_dropdown(self):
