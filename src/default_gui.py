@@ -831,7 +831,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		trunk_circChoices = [ u"is diameter", u"is circumference" ]
 		self.trunk_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, trunk_circChoices, 0 )
-		self.trunk_circ.SetSelection( 1 )
+		self.trunk_circ.SetSelection( 0 )
 		fgSizer6.Add( self.trunk_circ, 0, wx.ALL, 5 )
 		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
