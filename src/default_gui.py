@@ -580,7 +580,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer10 = wx.FlexGridSizer( 4, 1, 0, 0 )
+		fgSizer10 = wx.FlexGridSizer( 5, 1, 0, 0 )
 		fgSizer10.SetFlexibleDirection( wx.BOTH )
 		fgSizer10.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -694,15 +694,26 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer10.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
+		self.m_button9 = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer10.Add( self.m_button9, 0, wx.ALL, 5 )
+		
 		
 		self.SetSizer( fgSizer10 )
 		self.Layout()
 		fgSizer10.Fit( self )
 		
 		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.m_button9.Bind( wx.EVT_BUTTON, self.on_analyze )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_analyze( self, event ):
+		event.Skip()
 	
 
 ###########################################################################
