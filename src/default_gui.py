@@ -591,29 +591,19 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
 		
-		fgSizer13 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer13 = wx.FlexGridSizer( 1, 2, 0, 0 )
 		fgSizer13.SetFlexibleDirection( wx.BOTH )
 		fgSizer13.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText33 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText33 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"ID Column", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText33.Wrap( -1 )
 		
 		fgSizer13.Add( self.m_staticText33, 0, wx.ALL, 5 )
 		
-		m_choice21Choices = []
-		self.m_choice21 = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice21Choices, 0 )
-		self.m_choice21.SetSelection( 0 )
-		fgSizer13.Add( self.m_choice21, 0, wx.ALL, 5 )
-		
-		self.m_staticText34 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText34.Wrap( -1 )
-		
-		fgSizer13.Add( self.m_staticText34, 0, wx.ALL, 5 )
-		
-		m_choice22Choices = []
-		self.m_choice22 = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice22Choices, 0 )
-		self.m_choice22.SetSelection( 0 )
-		fgSizer13.Add( self.m_choice22, 0, wx.ALL, 5 )
+		choidIDChoices = []
+		self.choidID = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choidIDChoices, 0 )
+		self.choidID.SetSelection( 0 )
+		fgSizer13.Add( self.choidID, 0, wx.ALL, 5 )
 		
 		
 		sbSizer7.Add( fgSizer13, 1, wx.EXPAND, 5 )
