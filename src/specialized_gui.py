@@ -564,11 +564,12 @@ class OpenDialogXML(OpenDialog):
         super().__init__(parent, path)
 
         # disable csv gui stuff
-        self.SetTitle("XML import options")
         self.m_staticText25.Show(False)
         self.m_staticText26.Show(False)
         self.seperator.Show(False)
         self.encoding.Show(False)
+
+        self.SetTitle("XML import options")
 
         self.__Tree = tree
         self.__ns = dict([node for _, node in ET.iterparse(self._filepath, events=['start-ns'])])
