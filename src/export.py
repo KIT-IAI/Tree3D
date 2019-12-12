@@ -156,6 +156,8 @@ class CityGmlExport:
         self.__root = ET.Element("CityModel")
         self.add_namespaces()
 
+        valid_trees = 0
+        invalid_trees = 0
         self.fill_data_cursor()
         for row in self.__DataCursor:
 
@@ -163,6 +165,7 @@ class CityGmlExport:
                                                   row[self.__crown_diam_col_index])
 
             if not valid:
+                invalid_trees += 1
                 continue
 
             cityObjectMember = ET.SubElement(self.__root, "cityObjectMember")
@@ -197,6 +200,8 @@ class CityGmlExport:
                     diam = value
                 crown.text = str(diam)
                 crown.set("uom", self.__crown_diam_unit)
+
+            valid_trees += 1
 
         # add bounding box information to root
         self.bounded_by()
