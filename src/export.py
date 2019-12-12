@@ -79,7 +79,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         message = "Export to CityGML finished.\n" \
                   "%s trees exported successfully.\n" \
-                  "%s trees left out from export due to invalid parameters" % export_status
+                  "%s trees left out from export due to invalid parameters.\n" \
+                  'See "Analyze > Geometry validation" for details.' % export_status
         msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
 
