@@ -282,8 +282,8 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
                     self.result_grid.SetCellValue(row_index, col_index, value)
             self.result_grid.AutoSizeColumns(False)
             self.result_grid.Show(True)
-        self.Layout()
         self.DoLayoutAdaptation()
+        self.Layout()
 
 
 class AnalyzeTreeGeoms:
