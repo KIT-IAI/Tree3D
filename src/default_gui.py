@@ -935,12 +935,19 @@ class CityGmlExport ( wx.Dialog ):
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
-		self.progress = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 420,-1 ), wx.GA_HORIZONTAL )
-		self.progress.SetValue( 0 ) 
-		fgSizer4.Add( self.progress, 0, wx.ALL, 5 )
+		fgSizer13 = wx.FlexGridSizer( 1, 2, 0, 0 )
+		fgSizer13.SetFlexibleDirection( wx.BOTH )
+		fgSizer13.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.buttonExport = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer4.Add( self.buttonExport, 0, wx.ALL, 5 )
+		self.progress = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 320,26 ), wx.GA_HORIZONTAL )
+		self.progress.SetValue( 0 ) 
+		fgSizer13.Add( self.progress, 0, wx.ALL, 5 )
+		
+		self.buttonExport = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.Size( 90,-1 ), 0 )
+		fgSizer13.Add( self.buttonExport, 0, wx.ALL, 5 )
+		
+		
+		fgSizer4.Add( fgSizer13, 1, wx.EXPAND, 5 )
 		
 		
 		self.SetSizer( fgSizer4 )
