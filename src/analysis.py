@@ -221,7 +221,65 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         self.choiceTrunk.SetItems(collist)
         self.choiceCrown.SetItems(collist)
 
+    def validate(self):
+        valid = True
+        message = ""
+
+        identify = self.choiceID.GetSelection()
+        height = self.choiceHeight.GetSelection()
+        trunk = self.choiceTrunk.GetSelection()
+        crown = self.choiceCrown.GetSelection()
+
+        if trunk == crown and trunk != wx.NOT_FOUND:
+            valid = False
+            message = "Trunk column must not be the same as crown column"
+
+        if height == crown and height != wx.NOT_FOUND:
+            valid = False
+            message = "Height column must not be the same as crown column"
+
+        if height == trunk and height != wx.NOT_FOUND:
+            valid = False
+            message = "Height column must not be the same as trunk column"
+
+        if identify == crown and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as crown column"
+
+        if identify == trunk and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as trunk column"
+
+        if identify == height and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as height column"
+
+        if crown == wx.NOT_FOUND:
+            valid = False
+            message = "Crown diameter column must not be empty."
+
+        if trunk == wx.NOT_FOUND:
+            valid = False
+            message = "Trunk diameter column must not be empty"
+
+        if height == wx.NOT_FOUND:
+            valid = False
+            message = "Height column must not be empty"
+
+        if identify == wx.NOT_FOUND:
+            valid = False
+            message = "ID Column must not be empty."
+
+        if not valid:
+            msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
+
+        return valid
+
     def on_analyze(self, event):
+        if not self.validate():
+            return
+
         self.analysis_invalid.Show(False)
         self.analysis_valid.Show(False)
         self.result_grid.Show(False)
