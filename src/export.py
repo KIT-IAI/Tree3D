@@ -17,6 +17,8 @@ class ExportDialog(default_gui.CityGmlExport):
         self.DoLayoutAdaptation()
         self.Layout()
 
+        self.progress.SetRange(self.GetParent().db.get_number_of_tablerecords())
+
         self.ShowModal()
 
     # method to populate dropdown menus in export window
@@ -75,7 +77,7 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
 
-        export_status = exporter.export()
+        export_status = exporter.export(self.progress)
 
         message = "Export to CityGML finished.\n" \
                   "%s trees exported successfully.\n" \
@@ -83,6 +85,7 @@ class ExportDialog(default_gui.CityGmlExport):
                   'See "Analyze > Geometry validation" for details.' % export_status
         msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
+        self.progress.SetValue(0)
 
     # method to validate user input and show error message is user input is invalid
     def validate_input(self):
@@ -155,7 +158,7 @@ class CityGmlExport:
         self.__species_col_index = None  # index of species column
 
     # method to initiate citygml export
-    def export(self):
+    def export(self, progressbar):
         self.__root = ET.Element("CityModel")
         self.add_namespaces()
 
@@ -170,6 +173,7 @@ class CityGmlExport:
 
             # continue, if this trees parameters are invalid
             if not valid:
+                progressbar.SetValue(progressbar.GetValue() + 1)
                 invalid_trees += 1
                 continue
 
@@ -207,6 +211,7 @@ class CityGmlExport:
                 crown.set("uom", self.__crown_diam_unit)
 
             valid_trees += 1
+            progressbar.SetValue(progressbar.GetValue() + 1)
 
         # add bounding box information to root
         self.bounded_by()
