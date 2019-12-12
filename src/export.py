@@ -246,7 +246,8 @@ class CityGmlExport:
 
         print(hight, trunk, crown)
 
-        valid = analysis.AnalyzeTreeGeoms(hight, trunk, crown)
+        analyzer = analysis.AnalyzeTreeGeoms(hight, trunk, crown)
+        valid, _ = analyzer.analyze()
         return valid
 
     # Prints a tree with each node indented according to its depth.
