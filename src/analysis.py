@@ -354,21 +354,30 @@ class AnalyzeTreeGeoms:
         valid = True
         msg = ""
 
+        if self.__TrunDiam > self.__CrownDiam:
+            valid = False
+            msg = "Trunk diameter is greater than crown diameter"
+
         if self.__Height < 0:
             valid = False
             msg = "Hight is smaller that 0"
+        elif self.__Height == 0:
+            valid = False
+            msg = "Height is 0"
 
         if self.__TrunDiam < 0:
             valid = False
             msg = "Trunk diameter is smaller than 0"
+        elif self.__TrunDiam == 0:
+            valid = False
+            msg = "Trunk diameter is 0"
 
         if self.__CrownDiam < 0:
             valid = False
             msg = "Crown diameter is smaller than 0"
-
-        if self.__TrunDiam > self.__CrownDiam:
+        elif self.__CrownDiam == 0:
             valid = False
-            msg = "Trunk diameter is greater than crown diameter"
+            msg = "Crown diameter is 0"
 
         return valid, msg
 
