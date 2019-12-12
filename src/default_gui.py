@@ -734,6 +734,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		# Cell Defaults
 		self.result_grid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		self.result_grid.Hide()
+		self.result_grid.SetMaxSize( wx.Size( -1,300 ) )
 		
 		fgSizer10.Add( self.result_grid, 0, wx.ALL, 5 )
 		
