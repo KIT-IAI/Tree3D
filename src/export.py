@@ -75,9 +75,11 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
 
-        exporter.export()
+        export_status = exporter.export()
 
-        message = "Export fertig\nTODO: SHOW WARNINGS IF EXIST"
+        message = "Export to CityGML finished.\n" \
+                  "%s trees exported successfully.\n" \
+                  "%s trees left out from export due to invalid parameters" % export_status
         msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
 
@@ -211,6 +213,8 @@ class CityGmlExport:
 
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
+
+        return valid_trees, invalid_trees
 
     # method to add namespaces and schema location to xml file
     def add_namespaces(self):
