@@ -780,7 +780,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 320,-1 ), wx.TE_READONLY )
 		fgSizer71.Add( self.filepat_textbox, 0, wx.ALL, 5 )
 		
-		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.Size( 90,-1 ), 0 )
 		fgSizer71.Add( self.buttonBrowse, 0, wx.ALL, 5 )
 		
 		
@@ -931,6 +931,10 @@ class CityGmlExport ( wx.Dialog ):
 		
 		
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
+		
+		self.progress = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 420,-1 ), wx.GA_HORIZONTAL )
+		self.progress.SetValue( 0 ) 
+		fgSizer4.Add( self.progress, 0, wx.ALL, 5 )
 		
 		self.buttonExport = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer4.Add( self.buttonExport, 0, wx.ALL, 5 )
