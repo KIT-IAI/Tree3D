@@ -158,6 +158,13 @@ class CityGmlExport:
 
         self.fill_data_cursor()
         for row in self.__DataCursor:
+
+            valid = self.validate_tree_parameters(row[self.__height_col_index], row[self.__trunk_diam_col_index],
+                                                  row[self.__crown_diam_col_index])
+
+            if not valid:
+                continue
+
             cityObjectMember = ET.SubElement(self.__root, "cityObjectMember")
 
             SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
