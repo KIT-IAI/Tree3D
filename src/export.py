@@ -206,7 +206,6 @@ class CityGmlExport:
 
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
-        print("export fertiggg")
 
     # method to add namespaces and schema location to xml file
     def add_namespaces(self):
@@ -250,8 +249,6 @@ class CityGmlExport:
             crown = crown / 100
         if self.__crown_is_circ:
             crown = crown / math.pi
-
-        print(hight, trunk, crown)
 
         analyzer = analysis.AnalyzeTreeGeoms(hight, trunk, crown)
         valid, _ = analyzer.analyze()
