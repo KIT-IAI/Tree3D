@@ -66,8 +66,8 @@ class MainWindow ( wx.Frame ):
 		
 		self.analyze.AppendSeparator()
 		
-		self.analyzeGeom = wx.MenuItem( self.analyze, wx.ID_ANY, u"Analyze geometries", wx.EmptyString, wx.ITEM_NORMAL )
-		self.analyze.Append( self.analyzeGeom )
+		self.validateGeom = wx.MenuItem( self.analyze, wx.ID_ANY, u"Geometry validation", wx.EmptyString, wx.ITEM_NORMAL )
+		self.analyze.Append( self.validateGeom )
 		
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		
@@ -86,7 +86,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_menu_analyze_geom, id = self.analyzeGeom.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_geometry_validation, id = self.validateGeom.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -117,7 +117,7 @@ class MainWindow ( wx.Frame ):
 	def on_check_for_duplicates_geom( self, event ):
 		event.Skip()
 	
-	def on_menu_analyze_geom( self, event ):
+	def on_geometry_validation( self, event ):
 		event.Skip()
 	
 
