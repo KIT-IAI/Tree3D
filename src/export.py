@@ -228,6 +228,27 @@ class CityGmlExport:
         # add bounded-by-element to the top root subelements
         self.__root.insert(0, boundedby)
 
+    # method to check if tree parameters are valid
+    # uses same method as in analyze > geometry validation
+    def validate_tree_parameters(self, hight, trunk, crown):
+        if self.__height_unit == "cm":
+            hight = hight / 100
+
+        if self.__trunk_diam_unit == "cm":
+            trunk = trunk / 100
+        if self.__trunk_is_circ:
+            trunk = trunk / math.pi
+
+        if self.__crown_diam_unit == "cm":
+            crown = crown / 100
+        if self.__crown_is_circ:
+            crown = crown / math.pi
+
+        print(hight, trunk, crown)
+
+        valid = analysis.AnalyzeTreeGeoms(hight, trunk, crown)
+        return valid
+
     # Prints a tree with each node indented according to its depth.
     # This is done by first indenting the tree (see below), and then serializing it as usual.
     # method copied from http://effbot.org/zone/element-lib.htm#prettyprint
