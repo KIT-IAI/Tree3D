@@ -345,11 +345,14 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
 
 class AnalyzeTreeGeoms:
+    # all parameters must be the same unit
+    # trunk and crown must BOTH be diam
     def __init__(self, height, trunk_diam, crown_diam):
         self.__Height = height
         self.__TrunDiam = trunk_diam
         self.__CrownDiam = crown_diam
 
+    # method to analyze parameters
     def analyze(self):
         valid = True
         msg = ""

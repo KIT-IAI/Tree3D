@@ -164,9 +164,11 @@ class CityGmlExport:
         self.fill_data_cursor()
         for row in self.__DataCursor:
 
+            # validate tree parametrs
             valid = self.validate_tree_parameters(row[self.__height_col_index], row[self.__trunk_diam_col_index],
                                                   row[self.__crown_diam_col_index])
 
+            # continue, if this trees parameters are invalid
             if not valid:
                 invalid_trees += 1
                 continue
