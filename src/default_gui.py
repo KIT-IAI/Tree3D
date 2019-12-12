@@ -769,7 +769,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 6, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 7, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
