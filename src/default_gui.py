@@ -68,6 +68,7 @@ class MainWindow ( wx.Frame ):
 		
 		self.validateGeom = wx.MenuItem( self.analyze, wx.ID_ANY, u"Geometry validation", wx.EmptyString, wx.ITEM_NORMAL )
 		self.analyze.Append( self.validateGeom )
+		self.validateGeom.Enable( False )
 		
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		

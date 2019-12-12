@@ -147,6 +147,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.stats.Enable(True)
         self.dublicates.Enable(True)
         self.duplicateGeom.Enable(True)
+        self.validateGeom.Enable(True)
 
     # method to be called when File > Export as CityGML is pressed
     def on_menu_export_citygml(self, event):
@@ -163,6 +164,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.stats.Enable(False)
         self.dublicates.Enable(False)
         self.duplicateGeom.Enable(False)
+        self.validateGeom.Enable(False)
 
         # Disable Grid visibility
         self.table_view_panel.grid.Show(False)
