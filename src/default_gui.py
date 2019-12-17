@@ -773,7 +773,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 439,568 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 439,509 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -850,12 +850,17 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
 		
-		self.m_radioBtn3 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_radioBtn3.SetValue( True ) 
-		sbSizer2.Add( self.m_radioBtn3, 0, wx.ALL, 5 )
+		gSizer4 = wx.GridSizer( 1, 2, 0, 0 )
 		
-		self.m_radioBtn4 = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		sbSizer2.Add( self.m_radioBtn4, 0, wx.ALL, 5 )
+		self.explicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.explicit_geom.SetValue( True ) 
+		gSizer4.Add( self.explicit_geom, 0, wx.ALL, 5 )
+		
+		self.implicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		gSizer4.Add( self.implicit_geom, 0, wx.ALL, 5 )
+		
+		
+		sbSizer2.Add( gSizer4, 1, wx.EXPAND, 5 )
 		
 		
 		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
