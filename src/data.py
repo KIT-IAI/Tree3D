@@ -191,13 +191,17 @@ class DatabaseFromCsv(Database):
         super().__init__()
         self.__seperator = ""  # seperator in csv file
         self.__FileEncoding = ""  # file encoding of csv file
+        self.__StartLine = 0  # line at which data starts (in case there are empty lines in the beginning)
 
     # method to create database table from csv file
     def import_csv_file(self, filepath):
         with open(filepath, newline='', encoding=self.__FileEncoding) as csvfile:
             filereader = csv.reader(csvfile, delimiter=self.__seperator)
             for idx, row in enumerate(filereader):
-                if idx == 0:
+                if not row:
+                    self.__StartLine += 1
+                    continue
+                if idx == self.__StartLine:
                     # add column for unique tree ID to data model
                     if self._CreateTwoColID:
                         self._lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
@@ -272,7 +276,10 @@ class DatabaseFromCsv(Database):
         # method: move cursor back to line 0 and go to next lin
         # seek(1) gives errors with encoding for some reason, therefore use this method
         csvfile.seek(0)
-        csvfile.readline()
+        counter = 0
+        while counter <= self.__StartLine:
+            csvfile.readline()
+            counter += 1
 
         if int_type_in_list and not real_type_in_list and not text_type_in_list:
             data_type = "INTEGER"

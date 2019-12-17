@@ -497,7 +497,12 @@ class OpenDialogCSV(OpenDialog):
         header = ""
         try:
             with open(self._filepath, newline='', encoding=self.encoding.GetValue()) as file:
-                header = file.readline()
+                for line in file:
+                    if line == "\n" or line == "\r" or line == "\r\n":
+                        continue
+                    else:
+                        header = line
+                        break
         except LookupError:
             valid = False
             warningtext = "Error: Cannot open file. Unknown file encoding: %s.\n" \
