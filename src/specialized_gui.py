@@ -408,7 +408,7 @@ class MainTableFrame(default_gui.MainWindow):
         dlg = analysis.CheckDuplicateGeom(self)
         dlg.ShowModal()
 
-    def on_geometry_validation( self, event ):
+    def on_geometry_validation(self, event):
         dlg = analysis.AnalyzeGeometryDialog(self)
         dlg.ShowModal()
 
