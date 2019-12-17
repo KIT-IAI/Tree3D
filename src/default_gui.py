@@ -167,7 +167,7 @@ class OnOpenDialog ( wx.Dialog ):
 		self.ignorelist = wx.TextCtrl( self, wx.ID_ANY, u"ORA_GEOMETRY", wx.DefaultPosition, wx.Size( 300,-1 ), 0 )
 		fgSizer4.Add( self.ignorelist, 0, wx.ALL, 5 )
 		
-		fgSizer8 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer8 = wx.FlexGridSizer( 2, 3, 0, 0 )
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -181,6 +181,9 @@ class OnOpenDialog ( wx.Dialog ):
 		self.seperator.SetSelection( 0 )
 		fgSizer8.Add( self.seperator, 0, wx.ALL, 5 )
 		
+		
+		fgSizer8.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
 		self.m_staticText26 = wx.StaticText( self, wx.ID_ANY, u"Encoding", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText26.Wrap( -1 )
 		
@@ -188,6 +191,11 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.encoding = wx.TextCtrl( self, wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer8.Add( self.encoding, 0, wx.ALL, 5 )
+		
+		self.m_staticText36 = wx.StaticText( self, wx.ID_ANY, u"write \"utf-8-sig\"\nif encoding is UTF8-BOM", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText36.Wrap( -1 )
+		
+		fgSizer8.Add( self.m_staticText36, 0, wx.ALL, 5 )
 		
 		
 		fgSizer4.Add( fgSizer8, 1, wx.EXPAND, 5 )

@@ -598,6 +598,7 @@ class OpenDialogXML(OpenDialog):
         # disable csv gui stuff
         self.m_staticText25.Show(False)
         self.m_staticText26.Show(False)
+        self.m_staticText36.Show(False)
         self.seperator.Show(False)
         self.encoding.Show(False)
 
