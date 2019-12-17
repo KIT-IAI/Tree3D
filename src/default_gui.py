@@ -189,7 +189,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		fgSizer8.Add( self.m_staticText26, 0, wx.ALL, 5 )
 		
-		self.encoding = wx.TextCtrl( self, wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.encoding = wx.TextCtrl( self, wx.ID_ANY, u"utf-8-sig", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer8.Add( self.encoding, 0, wx.ALL, 5 )
 		
 		self.m_staticText36 = wx.StaticText( self, wx.ID_ANY, u"write \"utf-8-sig\"\nif encoding is UTF8-BOM", wx.DefaultPosition, wx.DefaultSize, 0 )
