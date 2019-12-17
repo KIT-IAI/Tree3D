@@ -51,8 +51,9 @@ class MainTableFrame(default_gui.MainWindow):
 
     # defines actions to be taken when exiting the program
     def on_exit_app(self):
-        self.db.close_db_connection()
-        self.db.delete_db()
+        if self.db is not None:
+            self.db.close_db_connection()
+            self.db.delete_db()
         self.Destroy()
 
     # method to be called when clicking File > Open
