@@ -299,17 +299,32 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
             # convert everything into meters
             if self.choiceHeightUnit.GetSelection() == 1:
-                height = height/100
+                try:
+                    height = height/100
+                except TypeError:
+                    pass
             if self.choiceTrunkUnit.GetSelection() == 1:
-                trunk = trunk/100
+                try:
+                    trunk = trunk/100
+                except TypeError:
+                    pass
             if self.choiceCrownUnit.GetSelection() == 1:
-                crown = crown/100
+                try:
+                    crown = crown/100
+                except:
+                    pass
 
             # convert circumference into diameter
             if self.trunk_circ.GetSelection() == 1:
-                trunk = trunk / math.pi
+                try:
+                    trunk = trunk / math.pi
+                except TypeError:
+                    pass
             if self.crown_circ.GetSelection() == 1:
-                crown = crown / math.pi
+                try:
+                    crown = crown / math.pi
+                except:
+                    pass
 
             geom = AnalyzeTreeGeoms(height, trunk, crown)
             valid, message = geom.analyze()
@@ -357,30 +372,40 @@ class AnalyzeTreeGeoms:
         valid = True
         msg = ""
 
-        if self.__TrunDiam > self.__CrownDiam:
-            valid = False
-            msg = "Trunk diameter is greater than crown diameter"
-
-        if self.__Height < 0:
-            valid = False
-            msg = "Hight is smaller that 0"
-        elif self.__Height == 0:
+        if self.__Height == 0:
             valid = False
             msg = "Height is 0"
-
-        if self.__TrunDiam < 0:
+        elif self.__Height is None:
             valid = False
-            msg = "Trunk diameter is smaller than 0"
-        elif self.__TrunDiam == 0:
+            msg = "No height value specified"
+        elif self.__Height < 0:
+            valid = False
+            msg = "Hight is smaller that 0"
+
+        if self.__TrunDiam == 0:
             valid = False
             msg = "Trunk diameter is 0"
-
-        if self.__CrownDiam < 0:
+        elif self.__TrunDiam is None:
             valid = False
-            msg = "Crown diameter is smaller than 0"
-        elif self.__CrownDiam == 0:
+            msg = "No trunk diameter specified"
+        elif self.__TrunDiam < 0:
+            valid = False
+            msg = "Trunk diameter is smaller than 0"
+
+        if self.__CrownDiam == 0:
             valid = False
             msg = "Crown diameter is 0"
+        elif self.__CrownDiam is None:
+            valid = False
+            msg = "No crown diameter specified"
+        elif self.__CrownDiam < 0:
+            valid = False
+            msg = "Crown diameter is smaller than 0"
+
+        if self.__TrunDiam is not None and self.__CrownDiam is not None:
+            if self.__TrunDiam > self.__CrownDiam:
+                valid = False
+                msg = "Trunk diameter is greater than crown diameter"
 
         return valid, msg
 

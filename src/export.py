@@ -255,17 +255,32 @@ class CityGmlExport:
     # uses same method as in analyze > geometry validation
     def validate_tree_parameters(self, hight, trunk, crown):
         if self.__height_unit == "cm":
-            hight = hight / 100
+            try:
+                hight = hight / 100
+            except TypeError:
+                pass
 
         if self.__trunk_diam_unit == "cm":
-            trunk = trunk / 100
+            try:
+                trunk = trunk / 100
+            except TypeError:
+                pass
         if self.__trunk_is_circ:
-            trunk = trunk / math.pi
+            try:
+                trunk = trunk / math.pi
+            except TypeError:
+                pass
 
         if self.__crown_diam_unit == "cm":
-            crown = crown / 100
+            try:
+                crown = crown / 100
+            except TypeError:
+                pass
         if self.__crown_is_circ:
-            crown = crown / math.pi
+            try:
+                crown = crown / math.pi
+            except TypeError:
+                pass
 
         analyzer = analysis.AnalyzeTreeGeoms(hight, trunk, crown)
         valid, _ = analyzer.analyze()
