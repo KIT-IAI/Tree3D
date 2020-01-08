@@ -168,6 +168,13 @@ class Database:
         self._DbCursor.execute(statement)
         return self._DbCursor
 
+    # counts number of rows with the same value in row
+    def count_unique_values_in_col(self, colname):
+        # generates sql statement
+        statement = 'SELECT "%s", count("%s") FROM %s GROUP BY "%s"' % (colname, colname, self._DbTreeTableName, colname)
+        self._DbCursor.execute(statement)
+        return self._DbCursor
+
     # returns Value, weather index should be created
     def get_create_id(self):
         return self._CreateTwoColID
