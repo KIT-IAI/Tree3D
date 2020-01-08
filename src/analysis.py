@@ -46,7 +46,6 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
 
         itemindex = self.IdColumns.GetSelection()  # index of selected column
         itemcolname = self.IdColumns.GetString(itemindex)  # name of selected column
-        collist = [itemcolname]  # name of column but in a list
 
         # displays selected column name in column labels of grids
         self.DuplicateGrid.SetColLabelValue(0, itemcolname)
@@ -57,26 +56,22 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         # check_value: all distinct values of one column
         duplicate_counter = 0
         uuid_counter = 0
-        all_data = self.GetParent().db.get_data_by_collist_distinct(collist).fetchall()
-        for check_value in all_data:
-            data_cursor = self.GetParent().db.get_data_with_condition('WHERE "%s" = "%s"'
-                                                                      % (itemcolname, check_value[0]))
-            dat = data_cursor.fetchall()
-
+        all_data = self.GetParent().db.count_unique_values_in_col(itemcolname)
+        for row in all_data:
             # if query returns >1 rows (e.g. two entries with one ID), add values to grid
-            if len(dat) > 1:
+            if row[1] > 1:
                 self.DuplicateGrid.AppendRows(1)
-                self.DuplicateGrid.SetCellValue(duplicate_counter, 0, str(check_value[0]))
-                self.DuplicateGrid.SetCellValue(duplicate_counter, 1, str(len(dat)))
+                self.DuplicateGrid.SetCellValue(duplicate_counter, 0, str(row[0]))
+                self.DuplicateGrid.SetCellValue(duplicate_counter, 1, str(row[1]))
                 duplicate_counter += 1
             # perform uuid validation if uuid-checkbox was activated
             if self.UUIDCheck.GetValue():
                 try:
-                    uuid.UUID('{%s}' % check_value[0])
+                    uuid.UUID('{%s}' % row[1])
                 except ValueError:
                     # add UUID to grid if invalid
                     self.UUIDGrid.AppendRows(1)
-                    self.UUIDGrid.SetCellValue(uuid_counter, 0, str(check_value[0]))
+                    self.UUIDGrid.SetCellValue(uuid_counter, 0, str(row[0]))
                     uuid_counter += 1
 
         # change info message if no duplicates have been found
