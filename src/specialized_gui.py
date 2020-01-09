@@ -552,6 +552,10 @@ class OpenDialogCSV(OpenDialog):
         self.IdText_Col1.Enable(not self.IdText_Col1.Enabled)
         self.IdText_Col2.Enable(not self.IdText_Col2.Enabled)
 
+    def seperator_choice_event(self, event):
+        if self.generate_ID_box.GetValue():
+            self.populate_dropdown()
+
     # validates user input for everything that is csv-related
     # overrides parent class, but calls it in between
     def validate(self):
