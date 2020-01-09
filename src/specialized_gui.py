@@ -529,6 +529,8 @@ class OpenDialogCSV(OpenDialog):
             sep = ";"
         elif self.seperator.GetString(self.seperator.GetSelection()) == "Comma":
             sep = ","
+        elif self.seperator.GetString(self.seperator.GetSelection()) == "Tabulator":
+            sep = "\t"
         l_cols = header.split(sep)
         self.id_col1.SetItems(l_cols)
         self.id_col2.SetItems(l_cols)
@@ -593,6 +595,8 @@ class OpenDialogCSV(OpenDialog):
             sep = ";"
         elif self.seperator.GetString(self.seperator.GetSelection()) == "Comma":
             sep = ","
+        elif self.seperator.GetString(self.seperator.GetSelection()) == "Tabulator":
+            sep = "\t"
         self.GetParent().db.set_seperator(sep)
 
 
