@@ -171,7 +171,7 @@ class OnOpenDialog ( wx.Dialog ):
 		fgSizer8.SetFlexibleDirection( wx.BOTH )
 		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText25 = wx.StaticText( self, wx.ID_ANY, u"Seperator", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText25 = wx.StaticText( self, wx.ID_ANY, u"Separator", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
 		
 		fgSizer8.Add( self.m_staticText25, 0, wx.ALL, 5 )
