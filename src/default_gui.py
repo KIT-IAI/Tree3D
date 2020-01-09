@@ -176,7 +176,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		fgSizer8.Add( self.m_staticText25, 0, wx.ALL, 5 )
 		
-		seperatorChoices = [ u"Semicolon", u"Comma" ]
+		seperatorChoices = [ u"Semicolon", u"Comma", u"Tabulator" ]
 		self.seperator = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, seperatorChoices, 0 )
 		self.seperator.SetSelection( 0 )
 		fgSizer8.Add( self.seperator, 0, wx.ALL, 5 )
