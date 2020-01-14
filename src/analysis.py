@@ -67,7 +67,7 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             # perform uuid validation if uuid-checkbox was activated
             if self.UUIDCheck.GetValue():
                 try:
-                    uuid.UUID('{%s}' % row[1])
+                    uuid.UUID('{%s}' % row[0])
                 except ValueError:
                     # add UUID to grid if invalid
                     self.UUIDGrid.AppendRows(1)
