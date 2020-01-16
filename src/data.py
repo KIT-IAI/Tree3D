@@ -222,6 +222,8 @@ class DatabaseFromCsv(Database):
                 else:
                     # Insert data rows from csv file into database
                     self.populate_db_table(row)
+        if self._CreateTwoColID:
+            self._DbCursor.execute("CREATE INDEX iaitreeidindex on trees(IAI_TreeID);")
         self._DbConnection.commit()
         self.generate_sql_statement()
         return True
