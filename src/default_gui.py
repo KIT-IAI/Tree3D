@@ -228,8 +228,8 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
-		self.m_checkBox4 = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate incrementing IDs", wx.DefaultPosition, wx.DefaultSize, 0 )
-		sbSizer1.Add( self.m_checkBox4, 0, wx.ALL, 5 )
+		self.generate_rowid_checkbox = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate incrementing IDs", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer1.Add( self.generate_rowid_checkbox, 0, wx.ALL, 5 )
 		
 		self.generate_ID_box = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate tree IDs from CSV file columns", wx.DefaultPosition, wx.DefaultSize, 0 )
 		sbSizer1.Add( self.generate_ID_box, 0, wx.ALL, 5 )
@@ -294,7 +294,7 @@ class OnOpenDialog ( wx.Dialog ):
 		self.treepath.Bind( wx.EVT_TEXT, self.on_xml_attribut_path_text_change )
 		self.geompath.Bind( wx.EVT_TEXT, self.on_xml_geom_path_text_change )
 		self.seperator.Bind( wx.EVT_CHOICE, self.seperator_choice_event )
-		self.m_checkBox4.Bind( wx.EVT_CHECKBOX, self.id_increment_checkbox_event )
+		self.generate_rowid_checkbox.Bind( wx.EVT_CHECKBOX, self.id_increment_checkbox_event )
 		self.generate_ID_box.Bind( wx.EVT_CHECKBOX, self.id_checkbox_event )
 		self.ok_button.Bind( wx.EVT_BUTTON, self.on_ok )
 	
