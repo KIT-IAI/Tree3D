@@ -29,6 +29,8 @@ class Database:
         self._CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
         self._DataInspectionLimit = 0  # Limit of data inspection before input
 
+        self._CreateRowid = False # variable to determine weather sqlite rowid should be used
+
     # Creates Database Path
     # Database is stored in temporary folder by default
     # Path to temporary folder is read from environment variables TMP or TEMP
@@ -187,6 +189,12 @@ class Database:
     def set_id_columns(self, value):
         self._CreateTwoColIDColumns = value
 
+    def set_use_rowid(self, value):
+        self._CreateRowid = value
+
+    def get_use_rowid(self):
+        return self._CreateRowid
+
     # sets data inspection limit:
     # number of rows that will be analyzed before input to find out data type
     def set_data_inspection_limit(self, value):
@@ -225,6 +233,8 @@ class DatabaseFromCsv(Database):
         if self._CreateTwoColID:
             self._DbCursor.execute("CREATE INDEX iaitreeidindex on trees(IAI_TreeID);")
         self._DbConnection.commit()
+        if self._CreateRowid:
+            self._lTableColmnNames.insert(0, ["'ROWID'", "TEXT", True])
         self.generate_sql_statement()
         return True
 

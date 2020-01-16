@@ -205,8 +205,12 @@ class MainTableFrame(default_gui.MainWindow):
                 if val is None:
                     val = ''
 
-                # yellow for first col if it is generated
+                # yellow for first col if id is generated
                 if ColIdx == 0 and self.db.get_create_id():
+                    self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
+                if ColIdx == 0 and self.db.get_use_rowid():
+                    self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
+                if ColIdx == 1 and self.db.get_create_id() and self.db.get_use_rowid():
                     self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
                 self.table_view_panel.grid.SetCellValue(RowIdx, ColIdx, str(val))
 
@@ -437,6 +441,8 @@ class OpenDialog(default_gui.OnOpenDialog):
                 self.GetParent().db.set_create_id(True)
                 self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
 
+            if self.generate_rowid_checkbox.GetValue():
+                self.GetParent().db.set_use_rowid(True)
             # set check rows number
             t_checknumber = self.inspect_rows.GetValue()
             self.GetParent().db.set_data_inspection_limit(int(t_checknumber))
