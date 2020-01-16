@@ -181,7 +181,7 @@ class Database:
     def get_create_id(self):
         return self._CreateTwoColID
 
-    # sets variable whether index should be created True or False
+    # sets variable whether combined id should be created True or False
     def set_create_id(self, value):
         self._CreateTwoColID = value
 
@@ -189,9 +189,11 @@ class Database:
     def set_id_columns(self, value):
         self._CreateTwoColIDColumns = value
 
+    # sets variable weather rowid should be used
     def set_use_rowid(self, value):
         self._CreateRowid = value
 
+    # returns True if rowid is used
     def get_use_rowid(self):
         return self._CreateRowid
 
@@ -388,6 +390,8 @@ class DatabaseFromXml(Database):
         if self._CreateTwoColID:
             self._DbCursor.execute("CREATE INDEX iaitreeidindex on trees(IAI_TreeID);")
         self._DbConnection.commit()
+        if self._CreateRowid:
+            self._lTableColmnNames.insert(0, ["'ROWID'", "TEXT", True])
         self.generate_sql_statement()
 
     # method to automatically detect the data type of an xml attribute
