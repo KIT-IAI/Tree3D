@@ -205,7 +205,7 @@ class MainTableFrame(default_gui.MainWindow):
                 if val is None:
                     val = ''
 
-                # yellow for first col if id is generated
+                # yellow for ID columns (ROWID or IAI_TreeID)
                 if ColIdx == 0 and self.db.get_create_id():
                     self.table_view_panel.grid.SetCellBackgroundColour(RowIdx, ColIdx, wx.Colour(255, 255, 128))
                 if ColIdx == 0 and self.db.get_use_rowid():
