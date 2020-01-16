@@ -347,7 +347,6 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             for row_index, row in enumerate(invalid_trees):
                 for col_index, value in enumerate(row):
                     self.result_grid.SetCellValue(row_index, col_index, str(value))
-            #self.result_grid.AutoSizeColumns(False)
             self.result_grid.SetColSize(0, 110)
             self.result_grid.SetColSize(1, 300)
             self.result_grid.Show(True)
