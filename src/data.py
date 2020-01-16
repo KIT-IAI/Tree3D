@@ -375,6 +375,8 @@ class DatabaseFromXml(Database):
             # insert row into specified columns
             self.populate_db_table(insert_row, col_list)
 
+        if self._CreateTwoColID:
+            self._DbCursor.execute("CREATE INDEX iaitreeidindex on trees(IAI_TreeID);")
         self._DbConnection.commit()
         self.generate_sql_statement()
 
