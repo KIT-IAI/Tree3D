@@ -336,8 +336,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         # show different text if otherwise, show fill grid with info
         else:
             label = "Analysis completed.\n" \
-                    "Trees with invalid geometry parameters have been found.\n" \
-                    "%s invalid geometries found." % len(invalid_trees)
+                    "%s Trees with invalid geometry parameters have been found.\n" % len(invalid_trees)
             self.analysis_invalid.SetLabel(label)
             self.analysis_invalid.Show(True)
 
@@ -347,8 +346,10 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             self.result_grid.AppendRows(len(invalid_trees))
             for row_index, row in enumerate(invalid_trees):
                 for col_index, value in enumerate(row):
-                    self.result_grid.SetCellValue(row_index, col_index, value)
-            self.result_grid.AutoSizeColumns(False)
+                    self.result_grid.SetCellValue(row_index, col_index, str(value))
+            #self.result_grid.AutoSizeColumns(False)
+            self.result_grid.SetColSize(0, 110)
+            self.result_grid.SetColSize(1, 300)
             self.result_grid.Show(True)
         self.DoLayoutAdaptation()
         self.Layout()

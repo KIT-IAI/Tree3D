@@ -589,9 +589,9 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 class OnCheckGeometryDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Analyze geometry attributes", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Analyze geometry attributes", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.Size( 453,-1 ), wx.DefaultSize )
 		
 		fgSizer10 = wx.FlexGridSizer( 9, 1, 0, 0 )
 		fgSizer10.SetFlexibleDirection( wx.BOTH )
@@ -719,7 +719,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer10.Add( self.analysis_invalid, 0, wx.ALL, 5 )
 		
-		self.result_grid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.result_grid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 440,-1 ), 0 )
 		
 		# Grid
 		self.result_grid.CreateGrid( 0, 2 )
@@ -747,7 +747,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		# Cell Defaults
 		self.result_grid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		self.result_grid.Hide()
-		self.result_grid.SetMaxSize( wx.Size( -1,300 ) )
+		self.result_grid.SetMaxSize( wx.Size( 440,200 ) )
 		
 		fgSizer10.Add( self.result_grid, 0, wx.ALL, 5 )
 		
