@@ -465,11 +465,11 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by Geom", pos = wx.DefaultPosition, size = wx.Size( 353,509 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by Geom", pos = wx.DefaultPosition, size = wx.Size( 353,448 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
-		fgSizer2 = wx.FlexGridSizer( 7, 1, 0, 0 )
+		fgSizer2 = wx.FlexGridSizer( 6, 1, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -522,12 +522,19 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		
 		fgSizer2.Add( gSizer3, 1, wx.EXPAND, 5 )
 		
-		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer2.Add( self.analyze, 0, wx.ALL, 5 )
+		fgSizer15 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer15.SetFlexibleDirection( wx.BOTH )
+		fgSizer15.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 330,-1 ), wx.GA_HORIZONTAL )
+		self.analyze = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer15.Add( self.analyze, 0, wx.ALL, 5 )
+		
+		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 231,26 ), wx.GA_HORIZONTAL )
 		self.gauge.SetValue( 0 ) 
-		fgSizer2.Add( self.gauge, 0, wx.ALL, 5 )
+		fgSizer15.Add( self.gauge, 0, wx.ALL, 5 )
+		
+		
+		fgSizer2.Add( fgSizer15, 1, wx.EXPAND, 5 )
 		
 		self.m_staticline12 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer2.Add( self.m_staticline12, 0, wx.EXPAND |wx.ALL, 5 )
