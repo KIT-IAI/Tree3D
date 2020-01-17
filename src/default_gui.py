@@ -329,7 +329,7 @@ class OnOpenDialog ( wx.Dialog ):
 class OnCheckDuplicateIdDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by ID", pos = wx.DefaultPosition, size = wx.Size( 353,509 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Check for duplicates by ID", pos = wx.DefaultPosition, size = wx.Size( 353,519 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		
@@ -383,8 +383,8 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.DuplicateGrid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.DuplicateGrid.SetColSize( 0, 224 )
-		self.DuplicateGrid.SetColSize( 1, 25 )
+		self.DuplicateGrid.SetColSize( 0, 278 )
+		self.DuplicateGrid.SetColSize( 1, 28 )
 		self.DuplicateGrid.EnableDragColMove( False )
 		self.DuplicateGrid.EnableDragColSize( True )
 		self.DuplicateGrid.SetColLabelSize( 30 )
@@ -392,7 +392,7 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		# Rows
 		self.DuplicateGrid.EnableDragRowSize( False )
-		self.DuplicateGrid.SetRowLabelSize( 80 )
+		self.DuplicateGrid.SetRowLabelSize( 1 )
 		self.DuplicateGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Label Appearance
@@ -422,7 +422,7 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		self.UUIDGrid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.UUIDGrid.SetColSize( 0, 248 )
+		self.UUIDGrid.SetColSize( 0, 303 )
 		self.UUIDGrid.EnableDragColMove( False )
 		self.UUIDGrid.EnableDragColSize( True )
 		self.UUIDGrid.SetColLabelSize( 30 )
@@ -430,7 +430,7 @@ class OnCheckDuplicateIdDialog ( wx.Dialog ):
 		
 		# Rows
 		self.UUIDGrid.EnableDragRowSize( False )
-		self.UUIDGrid.SetRowLabelSize( 80 )
+		self.UUIDGrid.SetRowLabelSize( 1 )
 		self.UUIDGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Label Appearance
@@ -533,8 +533,6 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		fgSizer2.Add( self.gauge, 0, wx.ALL, 5 )
 		
 		self.m_staticline12 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		self.m_staticline12.Hide()
-		
 		fgSizer2.Add( self.m_staticline12, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )

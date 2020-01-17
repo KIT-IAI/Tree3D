@@ -79,6 +79,8 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
         if duplicate_counter == 0:
             self.InfoTextDuplicate.SetLabel("Check for duplicates completed.\nNo duplicates have been found")
         else:
+            self.InfoTextDuplicate.SetLabel("Check for duplicates completed.\n"
+                                            "%s duplicates have been found" % duplicate_counter)
             self.DuplicateGrid.Show(True)
         self.InfoTextDuplicate.Show(True)
 
@@ -89,6 +91,8 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
                 self.InfoTextUUID.SetLabel("UUID-Validation completed.\nNo invalid UUIDs found")
             else:
                 self.UUIDGrid.Show(True)
+                self.InfoTextUUID.SetLabel("UUID-Validation completed.\n"
+                                           "%s invalid UUIDs found" % uuid_counter)
             self.InfoTextUUID.Show(True)
 
         self.Layout()
@@ -314,17 +318,17 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             # convert everything into meters
             if self.choiceHeightUnit.GetSelection() == 1:
                 try:
-                    height = height/100
+                    height = height / 100
                 except TypeError:
                     pass
             if self.choiceTrunkUnit.GetSelection() == 1:
                 try:
-                    trunk = trunk/100
+                    trunk = trunk / 100
                 except TypeError:
                     pass
             if self.choiceCrownUnit.GetSelection() == 1:
                 try:
-                    crown = crown/100
+                    crown = crown / 100
                 except:
                     pass
 

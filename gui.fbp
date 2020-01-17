@@ -3051,7 +3051,7 @@
                 </object>
             </object>
         </object>
-        <object class="Dialog" expanded="0">
+        <object class="Dialog" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -3069,7 +3069,7 @@
             <property name="minimum_size">-1,-1</property>
             <property name="name">OnCheckDuplicateIdDialog</property>
             <property name="pos"></property>
-            <property name="size">353,509</property>
+            <property name="size">353,519</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass">; ; forward_declare</property>
             <property name="title">Check for duplicates by ID</property>
@@ -3126,7 +3126,7 @@
             <event name="OnShow"></event>
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
-            <object class="wxFlexGridSizer" expanded="0">
+            <object class="wxFlexGridSizer" expanded="1">
                 <property name="cols">1</property>
                 <property name="flexible_direction">wxBOTH</property>
                 <property name="growablecols"></property>
@@ -3837,7 +3837,7 @@
                         <property name="col_label_values"></property>
                         <property name="col_label_vert_alignment">wxALIGN_CENTRE</property>
                         <property name="cols">2</property>
-                        <property name="column_sizes">224,25</property>
+                        <property name="column_sizes">278,28</property>
                         <property name="context_help"></property>
                         <property name="context_menu">1</property>
                         <property name="default_pane">0</property>
@@ -3879,7 +3879,7 @@
                         <property name="pos"></property>
                         <property name="resize">Resizable</property>
                         <property name="row_label_horiz_alignment">wxALIGN_CENTRE</property>
-                        <property name="row_label_size">80</property>
+                        <property name="row_label_size">1</property>
                         <property name="row_label_values"></property>
                         <property name="row_label_vert_alignment">wxALIGN_CENTRE</property>
                         <property name="row_sizes"></property>
@@ -4078,7 +4078,7 @@
                         <property name="col_label_values"></property>
                         <property name="col_label_vert_alignment">wxALIGN_CENTRE</property>
                         <property name="cols">1</property>
-                        <property name="column_sizes">248</property>
+                        <property name="column_sizes">303</property>
                         <property name="context_help"></property>
                         <property name="context_menu">1</property>
                         <property name="default_pane">0</property>
@@ -4120,7 +4120,7 @@
                         <property name="pos"></property>
                         <property name="resize">Resizable</property>
                         <property name="row_label_horiz_alignment">wxALIGN_CENTRE</property>
-                        <property name="row_label_size">80</property>
+                        <property name="row_label_size">1</property>
                         <property name="row_label_values"></property>
                         <property name="row_label_vert_alignment">wxALIGN_CENTRE</property>
                         <property name="row_sizes"></property>
@@ -5365,7 +5365,7 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">1</property>
+                        <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
