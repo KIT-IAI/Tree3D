@@ -133,7 +133,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 16, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 15, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -274,9 +274,6 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		
 		fgSizer4.Add( sbSizer1, 1, wx.EXPAND, 5 )
-		
-		self.m_staticline6 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
-		fgSizer4.Add( self.m_staticline6, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.ok_button = wx.Button( self, wx.ID_ANY, u"OK", wx.Point( -1,-1 ), wx.DefaultSize, 0 )
 		
