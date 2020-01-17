@@ -114,6 +114,12 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         if not self.validate_entries():
             return
 
+        # reset gui in case operation is performed twice
+        self.InfoTextDuplicate.Hide()
+        self.DuplicateGrid.Hide()
+        if self.DuplicateGrid.GetNumberRows() > 0:
+            self.DuplicateGrid.DeleteRows(numRows=self.DuplicateGrid.GetNumberRows())
+
         # set max value of progressbar in gui
         num_tablerecords = self.GetParent().db.get_number_of_tablerecords()
         summands = num_tablerecords
@@ -163,9 +169,23 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             if dist_sq < float(self.threshold.GetLineText(0).replace(",", ".")) ** 2:
                 result_list.append([row[0], row[3], math.sqrt(dist_sq)])
         self.gauge.SetValue(0)
-        print("fertig")
-        for row in result_list:
-            print(row)
+
+        # show result in gui
+        if len(result_list) > 0:
+            self.InfoTextDuplicate.SetLabel("Check for duplicates completed:\n"
+                                            "%s duplicates have been found" % len(result_list))
+            self.DuplicateGrid.AppendRows(len(result_list))
+            for index, row in enumerate(result_list):
+                self.DuplicateGrid.SetCellValue(index, 0, str(row[0]))
+                self.DuplicateGrid.SetCellValue(index, 1, str(row[1]))
+                self.DuplicateGrid.SetCellValue(index, 2, str(round(row[2], 3)))
+            self.InfoTextDuplicate.Show(True)
+            self.DuplicateGrid.Show(True)
+        else:
+            self.InfoTextDuplicate.SetLabel("Check for duplicates completed:\nNo duplicates have been found")
+            self.InfoTextDuplicate.Show(True)
+
+        self.Layout()
 
     # validate entries to GUI
     def validate_entries(self):
