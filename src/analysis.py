@@ -164,6 +164,7 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             if dist_sq < float(self.threshold.GetLineText(0).replace(",", ".")) ** 2:
                 result_list.append([row[0], row[3], math.sqrt(dist_sq)])
         self.gauge.SetValue(0)
+        print("fertig")
         for row in result_list:
             print(row)
 
