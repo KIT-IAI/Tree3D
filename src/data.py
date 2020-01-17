@@ -170,6 +170,16 @@ class Database:
         self._DbCursor.execute(statement)
         return self._DbCursor
 
+    def get_data_for_duplicatecheck_geom(self, collist):
+        # generate sql statement
+        statement = "SELECT "
+        statement += 't1."%s", t1."%s", t1."%s", ' % (collist[0], collist[1], collist[2])
+        statement += 't2."%s", t2."%s", t2."%s" ' % (collist[0], collist[1], collist[2])
+        statement += "FROM %s as t1, %s as t2 " % (self._DbTreeTableName, self._DbTreeTableName)
+        statement += "WHERE t2.rowid > t1.rowid;"
+        self._DbCursor.execute(statement)
+        return self._DbCursor
+
     # counts number of rows with the same value in row
     def count_unique_values_in_col(self, colname):
         # generates sql statement

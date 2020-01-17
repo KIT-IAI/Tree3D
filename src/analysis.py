@@ -107,6 +107,7 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         self.xvalue.SetItems(colitemlist)
         self.yvalue.SetItems(colitemlist)
 
+
     # method to be executed when hitting Analyze Button in DialogBox
     # Checks if data contains duplicate geometries
     # objects are considered duplicates when their (2D)-Distance is smaller than a threshold
@@ -115,7 +116,15 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
             return
 
         # set max value of progressbar in gui
-        self.gauge.SetRange(self.GetParent().db.get_number_of_tablerecords())
+        num_tablerecords = self.GetParent().db.get_number_of_tablerecords()
+        summands = num_tablerecords
+        sum = 0
+        while summands > 0:
+            sum += summands
+            summands -= 1
+        sum -= num_tablerecords
+        self.gauge.SetRange(sum)
+        self.gauge.SetValue(0)
 
         # list with result of analysis
         result_list = []
@@ -131,40 +140,30 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         collist.append(self.yvalue.GetString(idx))
 
         # fetch data from database
-        data_cursor = self.GetParent().db.get_data_by_collist(collist)
-        data = data_cursor.fetchall()
+        data_cursor = self.GetParent().db.get_data_for_duplicatecheck_geom(collist)
+        for row in data_cursor:
+            self.gauge.SetValue(self.gauge.GetValue() + 1)
+            # coordinates for calculation
+            x1 = row[1]
+            y1 = row[2]
+            x2 = row[4]
+            y2 = row[5]
 
-        # compare every tree with every other tree in the dataset
-        for idx_low in range(0, len(data)):
-            # move progress bar
-            self.gauge.SetValue(idx_low+1)
+            # calculate squared distance between both trees
+            try:
+                dist_sq = (x1 - x2) ** 2 + (y1 - y2) ** 2
+            except TypeError:
+                warningtext = "Cannot perform calculations with values in X or Y column.\n" \
+                              "Value in specified X or Y grid column is most likely not numeric.\n" \
+                              "Was the correct grid column chosen for X and Y value?"
+                msg = wx.MessageDialog(self, warningtext, caption="Error",
+                                       style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+                msg.ShowModal()
+                return
 
-            # coordinates of first tree to be considered
-            x1 = data[idx_low][1]
-            y1 = data[idx_low][2]
-
-            for idx_high in range(idx_low+1, len(data)):
-
-                # coordinates of second tree to be considered
-                x2 = data[idx_high][1]
-                y2 = data[idx_high][2]
-
-                # calculate squared distance between both trees
-                try:
-                    dist_sq = (x1-x2)**2 + (y1-y2)**2
-                except TypeError:
-                    warningtext = "Cannot perform calculations with values in X or Y column.\n" \
-                                  "Value in specified X or Y grid column is most likely not numeric.\n" \
-                                  "Was the correct grid column chosen for X and Y value?"
-                    msg = wx.MessageDialog(self, warningtext, caption="Error",
-                                           style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
-                    msg.ShowModal()
-                    return
-
-                if dist_sq < float(self.threshold.GetLineText(0).replace(",", "."))**2:
-                    result_list.append([data[idx_low][0], data[idx_high][0], math.sqrt(dist_sq)])
+            if dist_sq < float(self.threshold.GetLineText(0).replace(",", ".")) ** 2:
+                result_list.append([row[0], row[3], math.sqrt(dist_sq)])
         self.gauge.SetValue(0)
-        print("fertig")
         for row in result_list:
             print(row)
 
