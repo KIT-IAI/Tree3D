@@ -107,7 +107,6 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         self.xvalue.SetItems(colitemlist)
         self.yvalue.SetItems(colitemlist)
 
-
     # method to be executed when hitting Analyze Button in DialogBox
     # Checks if data contains duplicate geometries
     # objects are considered duplicates when their (2D)-Distance is smaller than a threshold
@@ -118,12 +117,12 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
         # set max value of progressbar in gui
         num_tablerecords = self.GetParent().db.get_number_of_tablerecords()
         summands = num_tablerecords
-        sum = 0
+        summe = 0
         while summands > 0:
-            sum += summands
+            summe += summands
             summands -= 1
-        sum -= num_tablerecords
-        self.gauge.SetRange(sum)
+        summe -= num_tablerecords
+        self.gauge.SetRange(summe)
         self.gauge.SetValue(0)
 
         # list with result of analysis
