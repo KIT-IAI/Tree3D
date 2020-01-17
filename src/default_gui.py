@@ -533,39 +533,48 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		fgSizer2.Add( self.gauge, 0, wx.ALL, 5 )
 		
 		self.m_staticline12 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		self.m_staticline12.Hide()
+		
 		fgSizer2.Add( self.m_staticline12, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.InfoTextDuplicate = wx.StaticText( self, wx.ID_ANY, u"Check for duplicates completed:\nThe following Duplicate values have been found:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.InfoTextDuplicate.Wrap( -1 )
+		
+		self.InfoTextDuplicate.Hide()
 		
 		fgSizer2.Add( self.InfoTextDuplicate, 0, wx.ALL, 5 )
 		
 		self.DuplicateGrid = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		# Grid
-		self.DuplicateGrid.CreateGrid( 0, 2 )
+		self.DuplicateGrid.CreateGrid( 0, 3 )
 		self.DuplicateGrid.EnableEditing( False )
 		self.DuplicateGrid.EnableGridLines( True )
 		self.DuplicateGrid.EnableDragGridSize( False )
 		self.DuplicateGrid.SetMargins( 0, 0 )
 		
 		# Columns
-		self.DuplicateGrid.SetColSize( 0, 224 )
-		self.DuplicateGrid.SetColSize( 1, 25 )
+		self.DuplicateGrid.SetColSize( 0, 119 )
+		self.DuplicateGrid.SetColSize( 1, 119 )
+		self.DuplicateGrid.SetColSize( 2, 67 )
 		self.DuplicateGrid.EnableDragColMove( False )
 		self.DuplicateGrid.EnableDragColSize( True )
 		self.DuplicateGrid.SetColLabelSize( 30 )
+		self.DuplicateGrid.SetColLabelValue( 0, u"ID 1" )
+		self.DuplicateGrid.SetColLabelValue( 1, u"ID 2" )
+		self.DuplicateGrid.SetColLabelValue( 2, u"Distance" )
 		self.DuplicateGrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Rows
 		self.DuplicateGrid.EnableDragRowSize( False )
-		self.DuplicateGrid.SetRowLabelSize( 80 )
+		self.DuplicateGrid.SetRowLabelSize( 1 )
 		self.DuplicateGrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Label Appearance
 		
 		# Cell Defaults
 		self.DuplicateGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		self.DuplicateGrid.Hide()
 		self.DuplicateGrid.SetMinSize( wx.Size( 330,120 ) )
 		self.DuplicateGrid.SetMaxSize( wx.Size( 330,120 ) )
 		

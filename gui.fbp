@@ -5365,7 +5365,7 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
@@ -5453,7 +5453,7 @@
                         <property name="floatable">1</property>
                         <property name="font"></property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label">Check for duplicates completed:&#x0A;The following Duplicate values have been found:</property>
                         <property name="markup">0</property>
@@ -5542,10 +5542,10 @@
                         <property name="close_button">1</property>
                         <property name="col_label_horiz_alignment">wxALIGN_CENTRE</property>
                         <property name="col_label_size">30</property>
-                        <property name="col_label_values"></property>
+                        <property name="col_label_values">&quot;ID 1&quot; &quot;ID 2&quot; &quot;Distance&quot;</property>
                         <property name="col_label_vert_alignment">wxALIGN_CENTRE</property>
-                        <property name="cols">2</property>
-                        <property name="column_sizes">224,25</property>
+                        <property name="cols">3</property>
+                        <property name="column_sizes">119,119,67</property>
                         <property name="context_help"></property>
                         <property name="context_menu">1</property>
                         <property name="default_pane">0</property>
@@ -5564,7 +5564,7 @@
                         <property name="grid_line_color"></property>
                         <property name="grid_lines">1</property>
                         <property name="gripper">0</property>
-                        <property name="hidden">0</property>
+                        <property name="hidden">1</property>
                         <property name="id">wxID_ANY</property>
                         <property name="label_bg"></property>
                         <property name="label_font"></property>
@@ -5587,7 +5587,7 @@
                         <property name="pos"></property>
                         <property name="resize">Resizable</property>
                         <property name="row_label_horiz_alignment">wxALIGN_CENTRE</property>
-                        <property name="row_label_size">80</property>
+                        <property name="row_label_size">1</property>
                         <property name="row_label_values"></property>
                         <property name="row_label_vert_alignment">wxALIGN_CENTRE</property>
                         <property name="row_sizes"></property>
