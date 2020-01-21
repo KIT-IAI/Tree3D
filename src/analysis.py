@@ -363,7 +363,6 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             self.analysis_invalid.SetLabel(label)
             self.analysis_invalid.Show(True)
 
-            self.result_grid.HideRowLabels()
             if self.result_grid.GetNumberRows() > 0:
                 self.result_grid.DeleteRows(pos=0, numRows=self.result_grid.GetNumberRows())
             self.result_grid.AppendRows(len(invalid_trees))
@@ -424,6 +423,12 @@ class AnalyzeTreeGeoms:
             if self.__TrunDiam > self.__CrownDiam:
                 valid = False
                 msg = "Trunk diameter is greater than crown diameter"
+            if self.__CrownDiam > self.__Height:
+                valid = False
+                msg = "Crown diameter is greater than tree height"
+            if self.__TrunDiam > self.__Height:
+                valid = False
+                msg = "Trunk diameter is greater than tree height"
 
         return valid, msg
 
