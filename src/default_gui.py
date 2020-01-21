@@ -757,7 +757,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		# Rows
 		self.result_grid.EnableDragRowSize( True )
-		self.result_grid.SetRowLabelSize( 80 )
+		self.result_grid.SetRowLabelSize( 1 )
 		self.result_grid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
 		
 		# Label Appearance
