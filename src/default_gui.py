@@ -1051,3 +1051,171 @@ class data_panel ( wx.Panel ):
 		pass
 	
 
+###########################################################################
+## Class MyDialog6
+###########################################################################
+
+class MyDialog6 ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Import DEM", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer18 = wx.FlexGridSizer( 2, 1, 0, 0 )
+		fgSizer18.SetFlexibleDirection( wx.BOTH )
+		fgSizer18.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		fgSizer71 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer71.SetFlexibleDirection( wx.BOTH )
+		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.filepat_textbox = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 320,-1 ), wx.TE_READONLY )
+		fgSizer71.Add( self.filepat_textbox, 0, wx.ALL, 5 )
+		
+		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.Size( 90,-1 ), 0 )
+		fgSizer71.Add( self.buttonBrowse, 0, wx.ALL, 5 )
+		
+		
+		fgSizer18.Add( fgSizer71, 1, wx.EXPAND, 5 )
+		
+		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"File Properties" ), wx.VERTICAL )
+		
+		fgSizer20 = wx.FlexGridSizer( 2, 4, 0, 0 )
+		fgSizer20.SetFlexibleDirection( wx.BOTH )
+		fgSizer20.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText37 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Encoding:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText37.Wrap( -1 )
+		
+		fgSizer20.Add( self.m_staticText37, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.encoding = wx.TextCtrl( sbSizer7.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer20.Add( self.encoding, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText38 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Delimiter:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText38.Wrap( -1 )
+		
+		fgSizer20.Add( self.m_staticText38, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		delimChoices = [ u"Space", u"Comma", u"Tabulator", u"Semicolon" ]
+		self.delim = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, delimChoices, 0 )
+		self.delim.SetSelection( 0 )
+		fgSizer20.Add( self.delim, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer7.Add( fgSizer20, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer18.Add( sbSizer7, 1, wx.EXPAND, 5 )
+		
+		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Geometry Properties" ), wx.VERTICAL )
+		
+		fgSizer181 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer181.SetFlexibleDirection( wx.BOTH )
+		fgSizer181.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText39.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText39, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		xvalueChoices = []
+		self.xvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, xvalueChoices, 0 )
+		self.xvalue.SetSelection( 0 )
+		fgSizer181.Add( self.xvalue, 0, wx.ALL, 5 )
+		
+		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText40.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText40, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		yvalueChoices = []
+		self.yvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, yvalueChoices, 0 )
+		self.yvalue.SetSelection( 0 )
+		fgSizer181.Add( self.yvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText41 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText41.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText41, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		heightvalueChoices = []
+		self.heightvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, heightvalueChoices, 0 )
+		self.heightvalue.SetSelection( 0 )
+		fgSizer181.Add( self.heightvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText42 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"EPSG", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText42.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText42, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.epsg = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer181.Add( self.epsg, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer8.Add( fgSizer181, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer18.Add( sbSizer8, 1, wx.EXPAND, 5 )
+		
+		sbSizer9 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"File Preview" ), wx.VERTICAL )
+		
+		self.previewgrid = wx.grid.Grid( sbSizer9.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		
+		# Grid
+		self.previewgrid.CreateGrid( 5, 5 )
+		self.previewgrid.EnableEditing( True )
+		self.previewgrid.EnableGridLines( True )
+		self.previewgrid.EnableDragGridSize( False )
+		self.previewgrid.SetMargins( 0, 0 )
+		
+		# Columns
+		self.previewgrid.EnableDragColMove( False )
+		self.previewgrid.EnableDragColSize( True )
+		self.previewgrid.SetColLabelSize( 30 )
+		self.previewgrid.SetColLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Rows
+		self.previewgrid.EnableDragRowSize( True )
+		self.previewgrid.SetRowLabelSize( 1 )
+		self.previewgrid.SetRowLabelAlignment( wx.ALIGN_CENTRE, wx.ALIGN_CENTRE )
+		
+		# Label Appearance
+		
+		# Cell Defaults
+		self.previewgrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		sbSizer9.Add( self.previewgrid, 0, wx.ALL, 5 )
+		
+		
+		fgSizer18.Add( sbSizer9, 1, wx.EXPAND, 5 )
+		
+		fgSizer201 = wx.FlexGridSizer( 1, 2, 0, 0 )
+		fgSizer201.SetFlexibleDirection( wx.BOTH )
+		fgSizer201.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.import = wx.Button( self, wx.ID_ANY, u"Import DEM", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer201.Add( self.import, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		
+		fgSizer18.Add( fgSizer201, 1, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( fgSizer18 )
+		self.Layout()
+		fgSizer18.Fit( self )
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_browse( self, event ):
+		event.Skip()
+	
+
