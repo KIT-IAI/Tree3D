@@ -4,6 +4,8 @@ import sqlite3
 from ast import literal_eval
 import xml.etree.ElementTree as ET
 
+import wx
+
 
 class Database:
     def __init__(self):
@@ -17,9 +19,11 @@ class Database:
         if not os.path.exists(self._DbFolderPath):
             os.makedirs(self._DbFolderPath)
 
+        self._SpatiaLiteLoaded = [False, ""]  # String gives error message if False
         self._DbConnection = None
         self._DbCursor = None
         self.establish_db_connection()
+
         self._DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self._lTableColmnNames = []  # list of all table column names
 
@@ -29,7 +33,7 @@ class Database:
         self._CreateTwoColIDColumns = []  # list storing the list-indexes of columns, from which id should be created
         self._DataInspectionLimit = 0  # Limit of data inspection before input
 
-        self._CreateRowid = False # variable to determine weather sqlite rowid should be used
+        self._CreateRowid = False  # variable to determine weather sqlite rowid should be used
 
     # Creates Database Path
     # Database is stored in temporary folder by default
@@ -81,6 +85,12 @@ class Database:
     def establish_db_connection(self):
         self._DbConnection = sqlite3.connect(self._DbFilePath)
         self._DbCursor = self._DbConnection.cursor()
+        self._DbConnection.enable_load_extension(True)
+        try:
+            self._DbConnection.execute('SELECT load_extension("mod_spatialite")')
+            self._SpatiaLiteLoaded[0] = True
+        except sqlite3.OperationalError as e:
+            self._SpatiaLiteLoaded[1] = str(e)
 
     # closes database connection
     def close_db_connection(self):
@@ -101,6 +111,9 @@ class Database:
     def delete_db(self):
         self.delete_db_file()
         self.delete_db_folder()
+
+    def get_spatialite_status(self):
+        return self._SpatiaLiteLoaded
 
     # returns the number of rows in database tables
     def get_number_of_tablerecords(self):
