@@ -45,6 +45,9 @@ class Database:
         path = path + '\\ArbokaTransformer'
         self._DbFolderPath = path
 
+    def get_db_filepath(self):
+        return self._DbFilePath
+
     # creates the database table to store the csv in
     # method may be vulnerable to sql injections
     def create_db_table(self):
