@@ -63,9 +63,14 @@ class ImportHeight(default_gui.import_dem):
         importer = DemImporter(self.__filepath, self.__encoding, self.__seperator, colstoimport, self.epsg.GetValue(),
                                self.__EmptyLinesBeforeDataStart, self.__DbFilePath)
         importer.create_table()  # create table in database for elevation data (if not exists already)
-        importer.import_file(self.text_rowcount)  # start file import
+        imp = importer.import_file(self.text_rowcount)  # start file import
+        if not imp[0]:
+            msg = wx.MessageDialog(None, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
+            return
         importer.commit()  # commit
         self.__PointsImported = importer.get_rowcount()  # update variable for number of points imported
+        importer.close_connection()
         self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)  # Update label in GUI
 
     # method to be called when file settings change
@@ -227,6 +232,8 @@ class DemImporter:
         self.__con.commit()
 
     def import_file(self, text_count):
+        success = True
+        message = ""
         imported_row_count = 0
         text_count.SetLabel("Import started")
         with open(self.__filepath, newline='', encoding=self.__encoding) as file:
@@ -241,19 +248,36 @@ class DemImporter:
                 if not line:
                     continue
 
-                x = line[self.__XColIndex]
-                y = line[self.__YColIndex]
-                h = line[self.__HColIndex]
+                try:
+                    x = line[self.__XColIndex]
+                    y = line[self.__YColIndex]
+                    h = line[self.__HColIndex]
+                except IndexError:
+                    self.__con.rollback()
+                    success = False
+                    message = "Error in line %s" % str(index+self.__NumberOfEmptyLines+1)
+                    break
 
                 pointtext = "GeomFromText('POINT(%s %s)', 5677)" % (x, y)
 
-                self.__cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
+                try:
+                    self.__cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
+                except sqlite3.OperationalError:
+                    self.__con.rollback()
+                    success = False
+                    message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
+                    break
                 imported_row_count += 1
                 if imported_row_count % 1000 == 0:
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
 
+        return success, message
+
     def commit(self):
         self.__con.commit()
+
+    def close_connection(self):
+        self.__con.close()
 
     def get_rowcount(self):
         self.__cursor.execute("SELECT COUNT(*) FROM elevation")
