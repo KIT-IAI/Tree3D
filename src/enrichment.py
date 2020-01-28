@@ -11,6 +11,7 @@ class ImportHeight(default_gui.import_dem):
         default_gui.import_dem.__init__(self, parent)
 
         self.__filepath = ""  # variable for DEM filepath
+        self.__ImportedFiles = []  # list of already imported files
         self.__encoding = ""  # variable for file encoding (through GUI)
         self.__seperator = ""  # variable for file data seperator
         self.__filecontainscolumnnames = False  # variable to store if file contains column names
@@ -42,6 +43,16 @@ class ImportHeight(default_gui.import_dem):
         dialog = wx.FileDialog(self, "Open DEM file", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         if dialog.ShowModal() == wx.ID_CANCEL:
             return
+        if dialog.GetPath() in self.__ImportedFiles:
+            msg = wx.MessageDialog(None, "This file seems to have been imported into the database already.\n"
+                                         "Do you like to import it anyway?",
+                                   "Import warning?", style=wx.YES_NO | wx.ICON_WARNING)
+            if msg.ShowModal() == wx.ID_YES:
+                pass
+            else:
+                self.on_browse(None)
+                return
+
         self.__filepath = dialog.GetPath()
         self.filepat_textbox.SetValue(self.__filepath)
 
@@ -63,15 +74,27 @@ class ImportHeight(default_gui.import_dem):
         importer = DemImporter(self.__filepath, self.__encoding, self.__seperator, colstoimport, self.epsg.GetValue(),
                                self.__EmptyLinesBeforeDataStart, self.__DbFilePath)
         importer.create_table()  # create table in database for elevation data (if not exists already)
-        imp = importer.import_file(self.text_rowcount)  # start file import
+        imp = importer.import_file(self.__PointsImported, self.text_rowcount)  # start file import
         if not imp[0]:
             msg = wx.MessageDialog(None, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             return
         importer.commit()  # commit
         self.__PointsImported = importer.get_rowcount()  # update variable for number of points imported
-        importer.close_connection()
+
         self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)  # Update label in GUI
+        self.__ImportedFiles.append(self.__filepath)
+
+        msg = wx.MessageDialog(None, "Do you like to import another file to the database?",
+                               "Import other file?", style=wx.YES_NO)
+        if msg.ShowModal() == wx.ID_YES:
+            importer.close_connection()
+            self.on_browse(None)
+        else:
+            # Index generieren
+            # Konvexe Hülle generieren
+            importer.close_connection()
+            print("weiter gehts")
 
     # method to be called when file settings change
     # method triggers refresh of grid preview
@@ -231,11 +254,10 @@ class DemImporter:
                                   % self.__ReferenceSystemCode)
         self.__con.commit()
 
-    def import_file(self, text_count):
+    def import_file(self, imported_points, text_count):
         success = True
         message = ""
-        imported_row_count = 0
-        text_count.SetLabel("Import started")
+        imported_row_count = imported_points
         with open(self.__filepath, newline='', encoding=self.__encoding) as file:
 
             counter = 0
