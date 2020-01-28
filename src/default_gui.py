@@ -72,6 +72,18 @@ class MainWindow ( wx.Frame ):
 		
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		
+		self.data = wx.Menu()
+		self.m_menu2 = wx.Menu()
+		self.m_menuItem11 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add reference height from DEM", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu2.Append( self.m_menuItem11 )
+		
+		self.m_menuItem12 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add default reference height", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu2.Append( self.m_menuItem12 )
+		
+		self.data.AppendSubMenu( self.m_menu2, u"Add reference height" )
+		
+		self.m_menubar7.Append( self.data, u"Data" ) 
+		
 		self.SetMenuBar( self.m_menubar7 )
 		
 		self.m_statusBar3 = self.CreateStatusBar( 1, wx.STB_SIZEGRIP, wx.ID_ANY )
@@ -88,6 +100,8 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_geometry_validation, id = self.validateGeom.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.m_menuItem11.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.m_menuItem12.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -119,6 +133,12 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_geometry_validation( self, event ):
+		event.Skip()
+	
+	def on_add_reference_height_dem( self, event ):
+		event.Skip()
+	
+	def on_add_default_reference_height( self, event ):
 		event.Skip()
 	
 
@@ -1052,21 +1072,21 @@ class data_panel ( wx.Panel ):
 	
 
 ###########################################################################
-## Class MyDialog6
+## Class import_dem
 ###########################################################################
 
-class MyDialog6 ( wx.Dialog ):
+class import_dem ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Import DEM", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Import DEM", pos = wx.DefaultPosition, size = wx.Size( 441,443 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer18 = wx.FlexGridSizer( 2, 1, 0, 0 )
+		fgSizer18 = wx.FlexGridSizer( 5, 1, 0, 0 )
 		fgSizer18.SetFlexibleDirection( wx.BOTH )
 		fgSizer18.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		fgSizer71 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer71 = wx.FlexGridSizer( 1, 2, 0, 0 )
 		fgSizer71.SetFlexibleDirection( wx.BOTH )
 		fgSizer71.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1081,7 +1101,7 @@ class MyDialog6 ( wx.Dialog ):
 		
 		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"File Properties" ), wx.VERTICAL )
 		
-		fgSizer20 = wx.FlexGridSizer( 2, 4, 0, 0 )
+		fgSizer20 = wx.FlexGridSizer( 1, 4, 0, 0 )
 		fgSizer20.SetFlexibleDirection( wx.BOTH )
 		fgSizer20.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1106,12 +1126,15 @@ class MyDialog6 ( wx.Dialog ):
 		
 		sbSizer7.Add( fgSizer20, 1, wx.EXPAND, 5 )
 		
+		self.contains_columns = wx.CheckBox( sbSizer7.GetStaticBox(), wx.ID_ANY, u"First line in file contains column names", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer7.Add( self.contains_columns, 0, wx.ALL, 5 )
+		
 		
 		fgSizer18.Add( sbSizer7, 1, wx.EXPAND, 5 )
 		
 		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Geometry Properties" ), wx.VERTICAL )
 		
-		fgSizer181 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer181 = wx.FlexGridSizer( 2, 4, 0, 0 )
 		fgSizer181.SetFlexibleDirection( wx.BOTH )
 		fgSizer181.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1150,7 +1173,7 @@ class MyDialog6 ( wx.Dialog ):
 		
 		fgSizer181.Add( self.m_staticText42, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.epsg = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.epsg = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, u"5677", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer181.Add( self.epsg, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -1164,7 +1187,7 @@ class MyDialog6 ( wx.Dialog ):
 		self.previewgrid = wx.grid.Grid( sbSizer9.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		# Grid
-		self.previewgrid.CreateGrid( 5, 5 )
+		self.previewgrid.CreateGrid( 0, 0 )
 		self.previewgrid.EnableEditing( True )
 		self.previewgrid.EnableGridLines( True )
 		self.previewgrid.EnableDragGridSize( False )
@@ -1190,25 +1213,37 @@ class MyDialog6 ( wx.Dialog ):
 		
 		fgSizer18.Add( sbSizer9, 1, wx.EXPAND, 5 )
 		
-		fgSizer201 = wx.FlexGridSizer( 1, 2, 0, 0 )
-		fgSizer201.SetFlexibleDirection( wx.BOTH )
-		fgSizer201.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer21 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer21.SetFlexibleDirection( wx.BOTH )
+		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.import = wx.Button( self, wx.ID_ANY, u"Import DEM", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer201.Add( self.import, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		self.text_rowcount = wx.StaticText( self, wx.ID_ANY, u"0 elevation points imported          ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rowcount.Wrap( -1 )
+		
+		self.text_rowcount.Enable( False )
+		
+		fgSizer21.Add( self.text_rowcount, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.importbutton = wx.Button( self, wx.ID_ANY, u"Import DEM", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.importbutton.Enable( False )
+		
+		fgSizer21.Add( self.importbutton, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
 		
-		fgSizer18.Add( fgSizer201, 1, wx.ALIGN_RIGHT, 5 )
+		fgSizer18.Add( fgSizer21, 1, wx.ALIGN_RIGHT, 5 )
 		
 		
 		self.SetSizer( fgSizer18 )
 		self.Layout()
-		fgSizer18.Fit( self )
 		
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
 		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
+		self.encoding.Bind( wx.EVT_TEXT_ENTER, self.refresh_preview )
+		self.delim.Bind( wx.EVT_CHOICE, self.refresh_preview )
+		self.contains_columns.Bind( wx.EVT_CHECKBOX, self.refresh_preview )
+		self.importbutton.Bind( wx.EVT_BUTTON, self.on_import_dem )
 	
 	def __del__( self ):
 		pass
@@ -1216,6 +1251,14 @@ class MyDialog6 ( wx.Dialog ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def on_browse( self, event ):
+		event.Skip()
+	
+	def refresh_preview( self, event ):
+		event.Skip()
+	
+	
+	
+	def on_import_dem( self, event ):
 		event.Skip()
 	
 
