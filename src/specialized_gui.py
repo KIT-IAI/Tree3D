@@ -14,6 +14,7 @@ import default_gui
 import data
 import analysis
 import export
+import enrichment
 
 
 class MainTableFrame(default_gui.MainWindow):
@@ -135,6 +136,16 @@ class MainTableFrame(default_gui.MainWindow):
                 geompath = dlg.geompath.GetValue()
                 ignore = dlg.ignorelist.GetValue()
                 self.db.import_xml_file(pathname, treepath, geompath, ignore, tree)
+
+        if not self.db.get_spatialite_status()[0]:
+            text = "could not load sqlite extension SpatiaLite.\n" \
+                   "Please download mod_spatialite Windows binaries from http://www.gaia-gis.it/gaia-sins/\n" \
+                   "After Download, put DLLs into the same folder as executable.\n" \
+                   "Some functionality of this program does not work.\n" \
+                   "Exception message: "
+            text += self.db.get_spatialite_status()[1]
+            msg = wx.MessageDialog(self, str(text), style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
 
         self.show_data_in_grid(self.db.get_number_of_columns(),
                                self.db.get_number_of_tablerecords(),
@@ -415,6 +426,18 @@ class MainTableFrame(default_gui.MainWindow):
     def on_geometry_validation(self, event):
         dlg = analysis.AnalyzeGeometryDialog(self)
         dlg.ShowModal()
+
+    def on_add_reference_height_dem(self, event):
+        if self.db.get_spatialite_status()[0]:
+            dlg = enrichment.ImportHeight(self, self.db.get_db_filepath())
+            dlg.ShowModal()
+        else:
+            text = "Cannot perform this operation since SpatiaLite extension could not be loaded"
+            msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
+
+    def on_add_default_reference_height( self, event ):
+        print("not implemented yet")
 
     # method to be called when clicking File > Test
     # overrides method in parent class

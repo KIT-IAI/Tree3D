@@ -87,7 +87,9 @@ class Database:
         self._DbCursor = self._DbConnection.cursor()
         self._DbConnection.enable_load_extension(True)
         try:
-            self._DbConnection.execute('SELECT load_extension("mod_spatialite")')
+            #self._DbConnection.execute('SELECT load_extension("mod_spatialite")')
+            #self._DbConnection.execute('SELECT InitSpatialMetaData(1);')
+            #self._DbConnection.commit()
             self._SpatiaLiteLoaded[0] = True
         except sqlite3.OperationalError as e:
             self._SpatiaLiteLoaded[1] = str(e)
