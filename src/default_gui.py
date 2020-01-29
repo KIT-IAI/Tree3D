@@ -1213,7 +1213,7 @@ class import_dem ( wx.Dialog ):
 		
 		fgSizer18.Add( sbSizer9, 1, wx.EXPAND, 5 )
 		
-		fgSizer21 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer21 = wx.FlexGridSizer( 0, 3, 0, 0 )
 		fgSizer21.SetFlexibleDirection( wx.BOTH )
 		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1228,6 +1228,11 @@ class import_dem ( wx.Dialog ):
 		self.importbutton.Enable( False )
 		
 		fgSizer21.Add( self.importbutton, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		self.next = wx.Button( self, wx.ID_ANY, u"Next", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.next.Enable( False )
+		
+		fgSizer21.Add( self.next, 0, wx.ALL, 5 )
 		
 		
 		fgSizer18.Add( fgSizer21, 1, wx.ALIGN_RIGHT, 5 )
@@ -1244,6 +1249,7 @@ class import_dem ( wx.Dialog ):
 		self.delim.Bind( wx.EVT_CHOICE, self.refresh_preview )
 		self.contains_columns.Bind( wx.EVT_CHECKBOX, self.refresh_preview )
 		self.importbutton.Bind( wx.EVT_BUTTON, self.on_import_dem )
+		self.next.Bind( wx.EVT_BUTTON, self.on_next )
 	
 	def __del__( self ):
 		pass
@@ -1258,6 +1264,101 @@ class import_dem ( wx.Dialog ):
 	
 	
 	
+	def on_import_dem( self, event ):
+		event.Skip()
+	
+	def on_next( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class derive_height
+###########################################################################
+
+class derive_height ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Get Height", pos = wx.DefaultPosition, size = wx.Size( 523,128 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer18 = wx.FlexGridSizer( 5, 1, 0, 0 )
+		fgSizer18.SetFlexibleDirection( wx.BOTH )
+		fgSizer18.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Tree Geometry Properties" ), wx.VERTICAL )
+		
+		fgSizer181 = wx.FlexGridSizer( 2, 6, 0, 0 )
+		fgSizer181.SetFlexibleDirection( wx.BOTH )
+		fgSizer181.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText39.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText39, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		xvalueChoices = []
+		self.xvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, xvalueChoices, 0 )
+		self.xvalue.SetSelection( 0 )
+		fgSizer181.Add( self.xvalue, 0, wx.ALL, 5 )
+		
+		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText40.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText40, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		yvalueChoices = []
+		self.yvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, yvalueChoices, 0 )
+		self.yvalue.SetSelection( 0 )
+		fgSizer181.Add( self.yvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText42 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"EPSG", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText42.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText42, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.epsg = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, u"5677", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer181.Add( self.epsg, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer8.Add( fgSizer181, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer18.Add( sbSizer8, 1, wx.EXPAND, 5 )
+		
+		fgSizer21 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer21.SetFlexibleDirection( wx.BOTH )
+		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.text_rowcount = wx.StaticText( self, wx.ID_ANY, u"0 elevation points imported          ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rowcount.Wrap( -1 )
+		
+		self.text_rowcount.Enable( False )
+		
+		fgSizer21.Add( self.text_rowcount, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		
+		self.importbutton = wx.Button( self, wx.ID_ANY, u"Get Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.importbutton.Enable( False )
+		
+		fgSizer21.Add( self.importbutton, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		
+		
+		fgSizer18.Add( fgSizer21, 1, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( fgSizer18 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.importbutton.Bind( wx.EVT_BUTTON, self.on_import_dem )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
 	def on_import_dem( self, event ):
 		event.Skip()
 	
