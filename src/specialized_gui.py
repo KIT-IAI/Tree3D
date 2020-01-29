@@ -429,8 +429,8 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_add_reference_height_dem(self, event):
         if self.db.get_spatialite_status()[0]:
-            dlg = enrichment.ImportHeight(self, self.db.get_db_filepath())
-            dlg.ShowModal()
+            importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
+            importgui.ShowModal()
         else:
             text = "Cannot perform this operation since SpatiaLite extension could not be loaded"
             msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
