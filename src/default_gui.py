@@ -73,6 +73,9 @@ class MainWindow ( wx.Frame ):
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		
 		self.data = wx.Menu()
+		self.m_menuItem13 = wx.MenuItem( self.data, wx.ID_ANY, u"Add Geometry Column", wx.EmptyString, wx.ITEM_NORMAL )
+		self.data.Append( self.m_menuItem13 )
+		
 		self.m_menu2 = wx.Menu()
 		self.m_menuItem11 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add reference height from DEM", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu2.Append( self.m_menuItem11 )
@@ -100,6 +103,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_geometry_validation, id = self.validateGeom.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_geom, id = self.m_menuItem13.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.m_menuItem11.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.m_menuItem12.GetId() )
 	
@@ -135,6 +139,9 @@ class MainWindow ( wx.Frame ):
 	def on_geometry_validation( self, event ):
 		event.Skip()
 	
+	def on_add_geom( self, event ):
+		event.Skip()
+	
 	def on_add_reference_height_dem( self, event ):
 		event.Skip()
 	
@@ -153,7 +160,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 15, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 17, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1272,13 +1279,13 @@ class import_dem ( wx.Dialog ):
 	
 
 ###########################################################################
-## Class derive_height
+## Class geom_props
 ###########################################################################
 
-class derive_height ( wx.Dialog ):
+class geom_props ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Get Height", pos = wx.DefaultPosition, size = wx.Size( 523,128 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Geometric Properties", pos = wx.DefaultPosition, size = wx.Size( 462,157 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -1288,7 +1295,7 @@ class derive_height ( wx.Dialog ):
 		
 		sbSizer8 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Tree Geometry Properties" ), wx.VERTICAL )
 		
-		fgSizer181 = wx.FlexGridSizer( 2, 6, 0, 0 )
+		fgSizer181 = wx.FlexGridSizer( 2, 4, 0, 0 )
 		fgSizer181.SetFlexibleDirection( wx.BOTH )
 		fgSizer181.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1311,6 +1318,16 @@ class derive_height ( wx.Dialog ):
 		self.yvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, yvalueChoices, 0 )
 		self.yvalue.SetSelection( 0 )
 		fgSizer181.Add( self.yvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText62 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"ID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText62.Wrap( -1 )
+		
+		fgSizer181.Add( self.m_staticText62, 0, wx.ALL, 5 )
+		
+		idChoices = []
+		self.id = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, idChoices, 0 )
+		self.id.SetSelection( 0 )
+		fgSizer181.Add( self.id, 0, wx.ALL, 5 )
 		
 		self.m_staticText42 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"EPSG", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText42.Wrap( -1 )
@@ -1337,10 +1354,10 @@ class derive_height ( wx.Dialog ):
 		
 		fgSizer21.Add( self.text_rowcount, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
-		self.importbutton = wx.Button( self, wx.ID_ANY, u"Get Height", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.importbutton.Enable( False )
+		self.add = wx.Button( self, wx.ID_ANY, u"Add Geoms", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.add.Enable( False )
 		
-		fgSizer21.Add( self.importbutton, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
+		fgSizer21.Add( self.add, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
 		
 		fgSizer18.Add( fgSizer21, 1, wx.ALIGN_RIGHT, 5 )
@@ -1352,14 +1369,24 @@ class derive_height ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.importbutton.Bind( wx.EVT_BUTTON, self.on_import_dem )
+		self.xvalue.Bind( wx.EVT_CHOICE, self.validate )
+		self.yvalue.Bind( wx.EVT_CHOICE, self.validate )
+		self.id.Bind( wx.EVT_CHOICE, self.validate )
+		self.epsg.Bind( wx.EVT_TEXT, self.validate )
+		self.add.Bind( wx.EVT_BUTTON, self.on_add )
 	
 	def __del__( self ):
 		pass
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def on_import_dem( self, event ):
+	def validate( self, event ):
+		event.Skip()
+	
+	
+	
+	
+	def on_add( self, event ):
 		event.Skip()
 	
 
