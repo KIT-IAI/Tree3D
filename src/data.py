@@ -74,6 +74,20 @@ class Database:
                 column_list.append(row[0][1:-1])
         return column_list
 
+    def get_column_names_numeric(self):
+        column_list = []
+        for row in self._lTableColmnNames:
+            if row[1] == "INTEGER" or row[1] == "REAL":
+                column_list.append(row[0][1:-1])
+        return column_list
+
+    def get_column_geom(self):
+        column_list = []
+        for row in self._lTableColmnNames:
+            if row[1] == "GEOM":
+                column_list.append(row[0][1:-1])
+        return column_list
+
     # Prepares Databse for new file to be opened and imported:
     # Drops table and resets list with table column names
     def reset_database_table(self):
@@ -131,7 +145,10 @@ class Database:
     def generate_sql_statement(self):
         statement = "SELECT "
         for colname in self.get_column_names():
-            statement += '"%s", ' % colname
+            if colname == "geom":
+                statement += 'AsText("geom"), '
+            else:
+                statement += '"%s", ' % colname
         statement = statement[:-2]
         statement += " FROM %s;" % self._DbTreeTableName
         self._SQLGetAllDataStatement = statement
@@ -224,6 +241,39 @@ class Database:
     # returns True if rowid is used
     def get_use_rowid(self):
         return self._CreateRowid
+
+    # Add a point geometry column
+    def add_geom_col(self, epsg):
+        statement = 'SELECT AddGeometryColumn("%s", "geom" , %s, "POINT", "XY");' % (self._DbTreeTableName, epsg)
+        self._DbCursor.execute(statement)
+        if "geom" not in self.get_column_names():
+            self._lTableColmnNames.append(["'geom'", "GEOM", True])
+        self.generate_sql_statement()
+
+    # updates a value in a database column
+    def update_value(self, insert_col, insert_val, where_col=None, where_val=None):
+        insert_cursor = self._DbConnection.cursor()
+        statement = 'UPDATE %s SET "%s" = %s' % (self._DbTreeTableName, insert_col, insert_val)
+        if where_col is not None and where_val is not None:
+            statement += ' WHERE "%s" = "%s"' % (where_col, where_val)
+        statement += ';'
+        insert_cursor.execute(statement)
+
+    # removes a column from column list
+    def remove_col_from_collist(self, colname):
+        for index, row in enumerate(self._lTableColmnNames):
+            if row[1] == colname:
+                del self._lTableColmnNames[index]
+                break
+
+    # commits changes in database
+    def commit(self):
+        self._DbConnection.commit()
+
+    # roll back database to last commit
+    def rollback(self):
+        self._DbConnection.rollback()
+
 
     # sets data inspection limit:
     # number of rows that will be analyzed before input to find out data type
