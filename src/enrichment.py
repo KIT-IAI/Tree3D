@@ -69,7 +69,6 @@ class ImportHeight(default_gui.import_dem):
             msg.ShowModal()
             return
 
-
         colstoimport = [self.xvalue.GetSelection(), self.yvalue.GetSelection(), self.heightvalue.GetSelection()]
         importer = DemImporter(self.__filepath, self.__encoding, self.__seperator, colstoimport, self.epsg.GetValue(),
                                self.__EmptyLinesBeforeDataStart, self.__DbFilePath)
@@ -78,8 +77,10 @@ class ImportHeight(default_gui.import_dem):
         if not imp[0]:
             msg = wx.MessageDialog(None, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
+            self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)
             return
-        importer.commit()  # commit
+
+        importer.commit()
         self.__PointsImported = importer.get_rowcount()  # update variable for number of points imported
 
         self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)  # Update label in GUI
@@ -91,8 +92,9 @@ class ImportHeight(default_gui.import_dem):
             importer.close_connection()
             self.on_browse(None)
         else:
-            # Index generieren
-            # Konvexe Hülle generieren
+            importer.generate_spatial_index()
+            importer.generate_convexhull()
+            importer.commit()
             importer.close_connection()
             print("weiter gehts")
 
@@ -107,7 +109,7 @@ class ImportHeight(default_gui.import_dem):
 
             self.initialize()
 
-            if self.previewgrid.GetNumberRows()> 0:
+            if self.previewgrid.GetNumberRows() > 0:
                 self.previewgrid.DeleteRows(0, self.previewgrid.GetNumberRows())
             if self.previewgrid.GetNumberCols() > 0:
                 self.previewgrid.DeleteCols(0, self.previewgrid.GetNumberCols())
@@ -290,17 +292,31 @@ class DemImporter:
                     message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
                     break
                 imported_row_count += 1
-                if imported_row_count % 1000 == 0:
+                if imported_row_count % 10000 == 0:
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
 
         return success, message
 
+    # performs a commit
     def commit(self):
         self.__con.commit()
 
+    # closes database connection
     def close_connection(self):
         self.__con.close()
 
+    # create a spatial over geometries
+    def generate_spatial_index(self):
+        self.__cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
+
+    # returns number of imported points
     def get_rowcount(self):
         self.__cursor.execute("SELECT COUNT(*) FROM elevation")
         return self.__cursor.fetchone()[0]
+
+    # ceate a new table and store a convexhull-polygon in it
+    def generate_convexhull(self):
+        self.__cursor.execute("DROP TABLE IF EXISTS convexhull;")
+        self.__cursor.execute("CREATE TABLE convexhull (typ TEXT)")
+        self.__cursor.execute('SELECT AddGeometryColumn("convexhull", "geom" , %s, "POLYGON", "XY");' % self.__ReferenceSystemCode)
+        self.__cursor.execute('INSERT INTO convexhull SELECT "convex", ConvexHull(Collect(geom)) FROM elevation;')
