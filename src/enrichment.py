@@ -96,12 +96,16 @@ class ImportHeight(default_gui.import_dem):
             importer.generate_convexhull()
             importer.commit()
             importer.close_connection()
+            self.end_next_step()
             print("weiter gehts")
 
     # method to be called when file settings change
     # method triggers refresh of grid preview
     def refresh_preview(self, event):
         self.generate_preview()
+
+    def end_next_step(self):
+        self.EndModal(1234)
 
     # method to generate grid preview and gather information about file
     def generate_preview(self):
@@ -219,8 +223,50 @@ class ImportHeight(default_gui.import_dem):
         self.yvalue.SetItems(self.__FileColumns)
         self.heightvalue.SetItems(self.__FileColumns)
 
+    # Override ShowModal Class of parent to manipulate return value
+    # def EndModal(self, retCode):
+    #    super().EndModal(1234566)
 
-class DemImporter:
+
+class BasicConnection:
+    def __init__(self, databasepath, ref):
+        self._ReferenceSystemCode = ref
+        self._DbFilePath = databasepath
+        self._con = sqlite3.connect(self._DbFilePath)
+        self._cursor = self._con.cursor()
+        self._con.enable_load_extension(True)
+        self._con.execute('SELECT load_extension("mod_spatialite");')
+
+        # next method call to initialize spatial metadata: causes error when called multiple times, but its harmless
+        self._con.execute('SELECT InitSpatialMetaData(1);')
+        self._con.commit()
+
+    # performs a commit
+    def commit(self):
+        self._con.commit()
+
+    # closes database connection
+    def close_connection(self):
+        self._con.close()
+
+    # create a spatial over geometries
+    def generate_spatial_index(self):
+        self._cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
+
+    # returns number of imported points
+    def get_rowcount(self):
+        self._cursor.execute("SELECT COUNT(*) FROM elevation")
+        return self._cursor.fetchone()[0]
+
+    # ceate a new table and store a convexhull-polygon in it
+    def generate_convexhull(self):
+        self._cursor.execute("DROP TABLE IF EXISTS convexhull;")
+        self._cursor.execute("CREATE TABLE convexhull (typ TEXT)")
+        self._cursor.execute(
+            'SELECT AddGeometryColumn("convexhull", "geom" , %s, "POLYGON", "XY");' % self._ReferenceSystemCode)
+        self._cursor.execute('INSERT INTO convexhull SELECT "convex", ConvexHull(Collect(geom)) FROM elevation;')
+
+class DemImporter(BasicConnection):
     def __init__(self, filepath, encoding, sep, colstoimport, ref, emptylines, dbpath):
         self.__filepath = filepath
         self.__encoding = encoding
@@ -228,33 +274,23 @@ class DemImporter:
         self.__XColIndex = colstoimport[0]
         self.__YColIndex = colstoimport[1]
         self.__HColIndex = colstoimport[2]
-        self.__ReferenceSystemCode = ref
         self.__NumberOfEmptyLines = emptylines
-        self.__DbFilePath = dbpath
 
-        self.__con = sqlite3.connect(dbpath)
-        self.__cursor = self.__con.cursor()
-
-        self.__con.enable_load_extension(True)
-
-        self.__con.execute('SELECT load_extension("mod_spatialite");')
-        # next method call to initialize spatial metadata: causes error when called multiple times, but its harmless
-        self.__con.execute('SELECT InitSpatialMetaData(1);')
-        self.__con.commit()
+        BasicConnection.__init__(self, dbpath, ref)
 
     def create_table(self):
-        self.__cursor.execute('CREATE TABLE IF NOT EXISTS elevation (height REAL);')
+        self._cursor.execute('CREATE TABLE IF NOT EXISTS elevation (height REAL);')
 
-        self.__cursor.execute("pragma table_info(elevation);")
+        self._cursor.execute("pragma table_info(elevation);")
 
         colnames = []
-        for row in self.__cursor:
+        for row in self._cursor:
             colnames.append(row[1])
 
         if 'geom' not in colnames:
-            self.__cursor.execute('SELECT AddGeometryColumn("elevation", "geom" , %s, "POINT", "XY");'
-                                  % self.__ReferenceSystemCode)
-        self.__con.commit()
+            self._cursor.execute('SELECT AddGeometryColumn("elevation", "geom" , %s, "POINT", "XY");'
+                                 % self._ReferenceSystemCode)
+        self._con.commit()
 
     def import_file(self, imported_points, text_count):
         success = True
@@ -277,7 +313,7 @@ class DemImporter:
                     y = line[self.__YColIndex]
                     h = line[self.__HColIndex]
                 except IndexError:
-                    self.__con.rollback()
+                    self._con.rollback()
                     success = False
                     message = "Error in line %s" % str(index+self.__NumberOfEmptyLines+1)
                     break
@@ -285,9 +321,9 @@ class DemImporter:
                 pointtext = "GeomFromText('POINT(%s %s)', 5677)" % (x, y)
 
                 try:
-                    self.__cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
+                    self._cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
                 except sqlite3.OperationalError:
-                    self.__con.rollback()
+                    self._con.rollback()
                     success = False
                     message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
                     break
@@ -296,27 +332,3 @@ class DemImporter:
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
 
         return success, message
-
-    # performs a commit
-    def commit(self):
-        self.__con.commit()
-
-    # closes database connection
-    def close_connection(self):
-        self.__con.close()
-
-    # create a spatial over geometries
-    def generate_spatial_index(self):
-        self.__cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
-
-    # returns number of imported points
-    def get_rowcount(self):
-        self.__cursor.execute("SELECT COUNT(*) FROM elevation")
-        return self.__cursor.fetchone()[0]
-
-    # ceate a new table and store a convexhull-polygon in it
-    def generate_convexhull(self):
-        self.__cursor.execute("DROP TABLE IF EXISTS convexhull;")
-        self.__cursor.execute("CREATE TABLE convexhull (typ TEXT)")
-        self.__cursor.execute('SELECT AddGeometryColumn("convexhull", "geom" , %s, "POLYGON", "XY");' % self.__ReferenceSystemCode)
-        self.__cursor.execute('INSERT INTO convexhull SELECT "convex", ConvexHull(Collect(geom)) FROM elevation;')
