@@ -38,7 +38,7 @@ class ImportHeight(default_gui.import_dem):
         self.__filecontainscolumnnames = self.contains_columns.GetValue()
 
     # method to be called when "Browse" button is pushed in UI
-    def on_browse( self, event ):
+    def on_browse(self, event):
         self.initialize()
         dialog = wx.FileDialog(self, "Open DEM file", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         if dialog.ShowModal() == wx.ID_CANCEL:
@@ -101,7 +101,7 @@ class ImportHeight(default_gui.import_dem):
     def refresh_preview(self, event):
         self.generate_preview()
 
-    def on_next( self, event ):
+    def on_next(self, event):
         self.end_next_step()
 
     def end_next_step(self):
@@ -125,7 +125,7 @@ class ImportHeight(default_gui.import_dem):
 
             filereader = csv.reader(file, delimiter=self.__seperator)
 
-            headersFound = False
+            headers_found = False
             headers = []
             start_data = 0
             data_started = False
@@ -144,9 +144,9 @@ class ImportHeight(default_gui.import_dem):
                         subtractor += 1
                     continue
 
-                if self.__filecontainscolumnnames and not headersFound:
+                if self.__filecontainscolumnnames and not headers_found:
                     headers = line
-                    headersFound = True
+                    headers_found = True
                     max_rows += 1
                     continue
 
@@ -270,6 +270,7 @@ class BasicConnection:
         self._cursor.execute(
             'SELECT AddGeometryColumn("convexhull", "geom" , %s, "POLYGON", "XY");' % self._ReferenceSystemCode)
         self._cursor.execute('INSERT INTO convexhull SELECT "convex", ConvexHull(Collect(geom)) FROM elevation;')
+
 
 class DemImporter(BasicConnection):
     def __init__(self, filepath, encoding, sep, colstoimport, ref, emptylines, dbpath):
