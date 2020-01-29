@@ -88,14 +88,11 @@ class ImportHeight(default_gui.import_dem):
 
         msg = wx.MessageDialog(None, "Do you like to import another file to the database?",
                                "Import other file?", style=wx.YES_NO)
+        importer.close_connection()
         if msg.ShowModal() == wx.ID_YES:
-            importer.close_connection()
+            self.next.Enable()
             self.on_browse(None)
         else:
-            importer.generate_spatial_index()
-            importer.generate_convexhull()
-            importer.commit()
-            importer.close_connection()
             self.end_next_step()
             print("weiter gehts")
 
@@ -104,7 +101,15 @@ class ImportHeight(default_gui.import_dem):
     def refresh_preview(self, event):
         self.generate_preview()
 
+    def on_next( self, event ):
+        self.end_next_step()
+
     def end_next_step(self):
+        connection = BasicConnection(self.__DbFilePath, self.epsg.GetValue())
+        connection.generate_spatial_index()
+        connection.generate_convexhull()
+        connection.commit()
+        connection.close_connection()
         self.EndModal(1234)
 
     # method to generate grid preview and gather information about file
@@ -332,3 +337,8 @@ class DemImporter(BasicConnection):
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
 
         return success, message
+
+
+class GrabHeight(default_gui.derive_height):
+    def __init__(self, parent):
+        default_gui.derive_height.__init__(self, parent)
