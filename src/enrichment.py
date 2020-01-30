@@ -101,9 +101,11 @@ class ImportHeight(default_gui.import_dem):
     def refresh_preview(self, event):
         self.generate_preview()
 
+    # method to be called when "Next" button is pushed
     def on_next(self, event):
         self.end_next_step()
 
+    # method to be called when all files are imported. Finish up import, initialize next step
     def end_next_step(self):
         connection = BasicConnection(self.__DbFilePath, self.epsg.GetValue())
         connection.generate_spatial_index()
@@ -114,9 +116,8 @@ class ImportHeight(default_gui.import_dem):
 
     # method to generate grid preview and gather information about file
     def generate_preview(self):
+        self.initialize()
         with open(self.__filepath, encoding=self.encoding.GetValue()) as file:
-
-            self.initialize()
 
             if self.previewgrid.GetNumberRows() > 0:
                 self.previewgrid.DeleteRows(0, self.previewgrid.GetNumberRows())
@@ -136,6 +137,7 @@ class ImportHeight(default_gui.import_dem):
                 if RowIndex > max_rows:
                     break
 
+                # what to do if line has no data
                 if not line:
                     max_rows += 1
                     if not data_started:
@@ -144,6 +146,7 @@ class ImportHeight(default_gui.import_dem):
                         subtractor += 1
                     continue
 
+                # get column names from file
                 if self.__filecontainscolumnnames and not headers_found:
                     headers = line
                     headers_found = True
@@ -152,9 +155,11 @@ class ImportHeight(default_gui.import_dem):
 
                 data_started = True
 
+                # Add new column to previewgrid if it does not have enough
                 if len(line) > self.previewgrid.GetNumberCols():
                     self.previewgrid.AppendCols(len(line)-self.previewgrid.GetNumberCols())
 
+                # Add row to grid and fill it with data
                 self.previewgrid.AppendRows()
                 if self.__filecontainscolumnnames:
                     for ColIndex, value in enumerate(line):
@@ -163,10 +168,12 @@ class ImportHeight(default_gui.import_dem):
                     for ColIndex, value in enumerate(line):
                         self.previewgrid.SetCellValue(RowIndex-start_data-subtractor, ColIndex, value)
 
+        # generate column names in case file has none
         if not self.__filecontainscolumnnames:
             for element in range(0, self.previewgrid.GetNumberCols()):
                 headers.append("col_"+str(element+1))
 
+        # set column headers
         for idx, header in enumerate(headers):
             self.previewgrid.SetColLabelValue(idx, header)
         self.__FileColumns = headers
@@ -227,10 +234,6 @@ class ImportHeight(default_gui.import_dem):
         self.xvalue.SetItems(self.__FileColumns)
         self.yvalue.SetItems(self.__FileColumns)
         self.heightvalue.SetItems(self.__FileColumns)
-
-    # Override ShowModal Class of parent to manipulate return value
-    # def EndModal(self, retCode):
-    #    super().EndModal(1234566)
 
 
 class BasicConnection:
@@ -340,6 +343,84 @@ class DemImporter(BasicConnection):
         return success, message
 
 
-class GrabHeight(default_gui.derive_height):
+# Class for GUI to assign Height to Trees
+class AddGeometry(default_gui.geom_props):
     def __init__(self, parent):
-        default_gui.derive_height.__init__(self, parent)
+        default_gui.geom_props.__init__(self, parent)
+        self.populate_dropdown()
+
+    # method to populate dropdowns
+    def populate_dropdown(self):
+        col_list = self.GetParent().db.get_column_names()
+        num_col_list = self.GetParent().db.get_column_names_numeric()
+        self.xvalue.SetItems(num_col_list)
+        self.yvalue.SetItems(num_col_list)
+        self.id.SetItems(col_list)
+        self.Layout()
+
+    # activate button if all dropdowns are used
+    def validate(self, event):
+        valid = True
+
+        if self.xvalue.GetSelection() == wx.NOT_FOUND:
+            valid = False
+        if self.yvalue.GetSelection() == wx.NOT_FOUND:
+            valid = False
+        if self.id.GetSelection() == wx.NOT_FOUND:
+            valid = False
+        if self.epsg.GetValue() == "":
+            valid = False
+
+        if valid:
+            self.add.Enable(True)
+        else:
+            self.add.Enable(False)
+
+    # Method to call when button "Get Height" is pressed
+    def on_add(self, event):
+        if not self.validate_input()[0]:
+            msg = wx.MessageDialog(None, self.validate_input()[1], style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
+            return
+
+        self.GetParent().db.add_geom_col(self.epsg.GetValue())
+
+        collist = [self.id.GetStringSelection(), self.xvalue.GetStringSelection(), self.yvalue.GetStringSelection()]
+        cursor = self.GetParent().db.get_data_by_collist(collist)
+        for row in cursor:
+            try:
+                self.GetParent().db.update_value("geom", "GeomFromText('POINT(%s %s)',%s)" % (row[1], row[2],
+                                                                                              self.epsg.GetValue()),
+                                                 self.id.GetStringSelection(), row[0])
+            except sqlite3.OperationalError:
+                self.GetParent().db.rollback()
+                self.GetParent().db.remove_col_from_list("geom")
+                msg = "Something went wrong while creating geometries."
+                dlg = wx.MessageDialog(None, msg, style=wx.ICON_WARNING | wx.CENTRE)
+                dlg.ShowModal()
+                break
+        else:
+            self.GetParent().db.commit()
+
+        self.GetParent().show_data_in_grid(self.GetParent().db.get_number_of_columns(),
+                                           self.GetParent().db.get_number_of_tablerecords(),
+                                           self.GetParent().db.get_data())
+        self.EndModal(1)
+
+    # method to validate user input
+    def validate_input(self):
+        valid = True
+        message = ""
+
+        try:
+            int(self.epsg.GetValue())
+        except ValueError:
+            valid = False
+            message = "Please enter a valid EPSG Code\n" \
+                      "EPSG Input must be an integer number"
+
+        if self.xvalue.GetSelection() == self.yvalue.GetSelection():
+            valid = False
+            message = "X Value and Y Value must not be the same column"
+
+        return valid, message
