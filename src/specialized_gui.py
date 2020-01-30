@@ -427,6 +427,10 @@ class MainTableFrame(default_gui.MainWindow):
         dlg = analysis.AnalyzeGeometryDialog(self)
         dlg.ShowModal()
 
+    def on_add_geom(self, event):
+        dlg = enrichment.AddGeometry(self)
+        dlg.ShowModal()
+
     def on_add_reference_height_dem(self, event):
         if self.db.get_spatialite_status()[0]:
             importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
