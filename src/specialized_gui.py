@@ -428,14 +428,19 @@ class MainTableFrame(default_gui.MainWindow):
         dlg.ShowModal()
 
     def on_add_geom(self, event):
-        dlg = enrichment.AddGeometry(self)
-        dlg.ShowModal()
+        if self.db.get_spatialite_status()[0]:
+            dlg = enrichment.AddGeometry(self)
+            dlg.ShowModal()
+        else:
+            text = "Cannot perform this operation since SpatiaLite extension could not be loaded"
+            msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
 
     def on_add_reference_height_dem(self, event):
         if self.db.get_spatialite_status()[0]:
             importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
             if importgui.ShowModal() == 1234:
-                derivegui = enrichment.GrabHeight(self)
+                derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
                 derivegui.ShowModal()
 
         else:
