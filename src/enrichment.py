@@ -94,7 +94,6 @@ class ImportHeight(default_gui.import_dem):
             self.on_browse(None)
         else:
             self.end_next_step()
-            print("weiter gehts")
 
     # method to be called when file settings change
     # method triggers refresh of grid preview
@@ -107,7 +106,7 @@ class ImportHeight(default_gui.import_dem):
 
     # method to be called when all files are imported. Finish up import, initialize next step
     def end_next_step(self):
-        connection = BasicConnection(self.__DbFilePath, self.epsg.GetValue())
+        connection = BasicDemConnection(self.__DbFilePath, self.epsg.GetValue())
         connection.generate_spatial_index()
         connection.generate_convexhull()
         connection.commit()
@@ -237,8 +236,7 @@ class ImportHeight(default_gui.import_dem):
 
 
 class BasicConnection:
-    def __init__(self, databasepath, ref):
-        self._ReferenceSystemCode = ref
+    def __init__(self, databasepath):
         self._DbFilePath = databasepath
         self._con = sqlite3.connect(self._DbFilePath)
         self._cursor = self._con.cursor()
@@ -257,14 +255,16 @@ class BasicConnection:
     def close_connection(self):
         self._con.close()
 
-    # create a spatial over geometries
-    def generate_spatial_index(self):
-        self._cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
-
     # returns number of imported points
     def get_rowcount(self):
         self._cursor.execute("SELECT COUNT(*) FROM elevation")
         return self._cursor.fetchone()[0]
+
+
+class BasicDemConnection(BasicConnection):
+    def __init__(self, dbpath, ref):
+        BasicConnection.__init__(self, dbpath)
+        self._ReferenceSystemCode = ref
 
     # ceate a new table and store a convexhull-polygon in it
     def generate_convexhull(self):
@@ -274,8 +274,12 @@ class BasicConnection:
             'SELECT AddGeometryColumn("convexhull", "geom" , %s, "POLYGON", "XY");' % self._ReferenceSystemCode)
         self._cursor.execute('INSERT INTO convexhull SELECT "convex", ConvexHull(Collect(geom)) FROM elevation;')
 
+    # create a spatial over geometries
+    def generate_spatial_index(self):
+        self._cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
 
-class DemImporter(BasicConnection):
+
+class DemImporter(BasicDemConnection):
     def __init__(self, filepath, encoding, sep, colstoimport, ref, emptylines, dbpath):
         self.__filepath = filepath
         self.__encoding = encoding
@@ -285,7 +289,7 @@ class DemImporter(BasicConnection):
         self.__HColIndex = colstoimport[2]
         self.__NumberOfEmptyLines = emptylines
 
-        BasicConnection.__init__(self, dbpath, ref)
+        BasicDemConnection.__init__(self, dbpath, ref)
 
     def create_table(self):
         self._cursor.execute('CREATE TABLE IF NOT EXISTS elevation (height REAL);')
@@ -341,6 +345,71 @@ class DemImporter(BasicConnection):
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
 
         return success, message
+
+
+class GrabHeight(default_gui.GrabHeight):
+    def __init__(self, parent, dbpath):
+        default_gui.GrabHeight.__init__(self, parent)
+        self.__DbFilePath = dbpath
+        self.populate_dropdown()
+
+    def populate_dropdown(self):
+        col_names = self.GetParent().db.get_column_names()
+        geom_names = self.GetParent().db.get_column_names_geom()
+        self.id.SetItems(col_names)
+        self.geom.SetItems(geom_names)
+
+    def validate( self, event ):
+        valid = True
+        if self.id.GetSelection() == wx.NOT_FOUND:
+            valid = False
+        if self.geom.GetSelection() == wx.NOT_FOUND:
+            valid = False
+        if valid:
+            self.assign.Enable(True)
+
+    def on_assign(self, event):
+        self.GetParent().db.add_col("height", "REAL")
+        assigner = AssignHeight(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
+                                self.geom.GetStringSelection(), self.GetParent().db.get_tree_table_name())
+        assigner.assign()
+        self.GetParent().db.commit()
+        self.GetParent().show_data_in_grid(self.GetParent().db.get_number_of_columns(),
+                                           self.GetParent().db.get_number_of_tablerecords(),
+                                           self.GetParent().db.get_data())
+        self.EndModal(1)
+
+
+class AssignHeight(BasicConnection):
+    def __init__(self, dbpath, db, idcol, geomcol, treetable):
+        BasicConnection.__init__(self, dbpath)
+        self.__db = db
+        self.__IdCol = idcol
+        self.__GeomCol = geomcol
+        self.__TreeTableName = treetable
+
+    def assign(self):
+        innercursor = self._con.cursor()
+        statement = 'SELECT %s.%s FROM %s, convexhull' % (self.__TreeTableName, self.__IdCol, self.__TreeTableName)
+        statement += ' WHERE Intersects(%s."%s", convexhull.geom)==1' % (self.__TreeTableName, self.__GeomCol)
+        self._cursor.execute(statement)
+        for row in self._cursor:
+            statement = "SELECT elevation.height FROM elevation, %s" % self.__TreeTableName
+            statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
+            statement += ' ORDER BY Distance(%s.%s, elevation.geom) LIMIT 4;' % (self.__TreeTableName, self.__GeomCol)
+            innercursor.execute(statement)
+            #Höhenformel anpassen!!!
+            hoehe = 0
+            index = 0
+            for index, innerrow in enumerate(innercursor):
+                hoehe += innerrow[0]
+            try:
+                hoehe/index
+            except:
+                hoehe = -1
+            self.__db.update_value("height", hoehe, self.__IdCol, row[0])
+
+        print("fertig")
 
 
 # Class for GUI to assign Height to Trees
@@ -400,6 +469,7 @@ class AddGeometry(default_gui.geom_props):
                 dlg.ShowModal()
                 break
         else:
+            self.GetParent().db.add_spatial_index("geom")
             self.GetParent().db.commit()
 
         self.GetParent().show_data_in_grid(self.GetParent().db.get_number_of_columns(),
