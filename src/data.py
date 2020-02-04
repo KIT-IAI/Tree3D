@@ -62,6 +62,9 @@ class Database:
                 self._DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self._DbTreeTableName, col[0], col[1]))
         self._DbConnection.commit()
 
+    def get_tree_table_name(self):
+        return self._DbTreeTableName
+
     # returns the number of table columns
     def get_number_of_columns(self):
         return len(self._lTableColmnNames)
@@ -81,7 +84,7 @@ class Database:
                 column_list.append(row[0][1:-1])
         return column_list
 
-    def get_column_geom(self):
+    def get_column_names_geom(self):
         column_list = []
         for row in self._lTableColmnNames:
             if row[1] == "GEOM":
@@ -246,16 +249,35 @@ class Database:
     def add_geom_col(self, epsg):
         statement = 'SELECT AddGeometryColumn("%s", "geom" , %s, "POINT", "XY");' % (self._DbTreeTableName, epsg)
         self._DbCursor.execute(statement)
-        if "geom" not in self.get_column_names():
-            self._lTableColmnNames.append(["'geom'", "GEOM", True])
+        self.add_col_to_collist("geom", "GEOM")
         self.generate_sql_statement()
+
+    def add_spatial_index(self, colname):
+        self._DbCursor.execute("SELECT CreateSpatialIndex('elevation', '%s');" % colname)
+
+    def add_col(self, name, datatype):
+        statement = "ALTER TABLE %s ADD COLUMN '%s' %s;" % (self._DbTreeTableName, name, datatype)
+        self._DbCursor.execute(statement)
+        self.add_col_to_collist(name, datatype)
+        self.generate_sql_statement()
+
+    def add_col_to_collist(self, name, datatype):
+        if name not in self.get_column_names():
+            self._lTableColmnNames.append(["'%s'" % name, datatype, True])
 
     # updates a value in a database column
     def update_value(self, insert_col, insert_val, where_col=None, where_val=None):
         insert_cursor = self._DbConnection.cursor()
-        statement = 'UPDATE %s SET "%s" = %s' % (self._DbTreeTableName, insert_col, insert_val)
+        statement = "UPDATE"
+        if type(insert_val) == "str":
+            statement += ' %s SET "%s" = "%s"' % (self._DbTreeTableName, insert_col, insert_val)
+        else:
+            statement += ' %s SET "%s" = %s' % (self._DbTreeTableName, insert_col, insert_val)
         if where_col is not None and where_val is not None:
-            statement += ' WHERE "%s" = "%s"' % (where_col, where_val)
+            if type(where_val) == "str":
+                statement += ' WHERE "%s" = "%s"' % (where_col, where_val)
+            else:
+                statement += ' WHERE "%s" = %s' % (where_col, where_val)
         statement += ';'
         insert_cursor.execute(statement)
 
