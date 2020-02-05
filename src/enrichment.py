@@ -393,20 +393,26 @@ class AssignHeight(BasicConnection):
         statement = 'SELECT %s.%s FROM %s, convexhull' % (self.__TreeTableName, self.__IdCol, self.__TreeTableName)
         statement += ' WHERE Intersects(%s."%s", convexhull.geom)==1' % (self.__TreeTableName, self.__GeomCol)
         self._cursor.execute(statement)
-        for row in self._cursor:
-            statement = "SELECT elevation.height FROM elevation, %s" % self.__TreeTableName
-            statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
+        for idx, row in enumerate(self._cursor):
+            print(idx)
+            statement = "SELECT elevation.height, Distance(%s.%s, elevation.geom) FROM elevation, %s"\
+                        % (self.__TreeTableName, self.__GeomCol, self.__TreeTableName)
+            if type(row[0]) == str:
+                statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
+            else:
+                statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
             statement += ' ORDER BY Distance(%s.%s, elevation.geom) LIMIT 4;' % (self.__TreeTableName, self.__GeomCol)
             innercursor.execute(statement)
-            #Höhenformel anpassen!!!
-            hoehe = 0
-            index = 0
-            for index, innerrow in enumerate(innercursor):
-                hoehe += innerrow[0]
-            try:
-                hoehe/index
-            except:
-                hoehe = -1
+
+            # IDW Interpolation (quadratic weights)
+            zaehler = 0
+            nenner = 0
+            for innerrow in innercursor:
+                weight = 1./(innerrow[1])**2
+                zaehler += (weight*innerrow[0])
+                nenner += weight
+            hoehe = zaehler/nenner
+
             self.__db.update_value("height", hoehe, self.__IdCol, row[0])
 
         print("fertig")
@@ -463,7 +469,7 @@ class AddGeometry(default_gui.geom_props):
                                                  self.id.GetStringSelection(), row[0])
             except sqlite3.OperationalError:
                 self.GetParent().db.rollback()
-                self.GetParent().db.remove_col_from_list("geom")
+                self.GetParent().db.remove_col_from_collist("geom")
                 msg = "Something went wrong while creating geometries."
                 dlg = wx.MessageDialog(None, msg, style=wx.ICON_WARNING | wx.CENTRE)
                 dlg.ShowModal()
