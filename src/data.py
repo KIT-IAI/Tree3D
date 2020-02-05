@@ -266,15 +266,12 @@ class Database:
             self._lTableColmnNames.append(["'%s'" % name, datatype, True])
 
     # updates a value in a database column
+    # cannot update with string values yet!!!
     def update_value(self, insert_col, insert_val, where_col=None, where_val=None):
         insert_cursor = self._DbConnection.cursor()
-        statement = "UPDATE"
-        if type(insert_val) == "str":
-            statement += ' %s SET "%s" = "%s"' % (self._DbTreeTableName, insert_col, insert_val)
-        else:
-            statement += ' %s SET "%s" = %s' % (self._DbTreeTableName, insert_col, insert_val)
+        statement = 'UPDATE %s SET "%s" = %s' % (self._DbTreeTableName, insert_col, insert_val)
         if where_col is not None and where_val is not None:
-            if type(where_val) == "str":
+            if type(where_val) == str:
                 statement += ' WHERE "%s" = "%s"' % (where_col, where_val)
             else:
                 statement += ' WHERE "%s" = %s' % (where_col, where_val)
