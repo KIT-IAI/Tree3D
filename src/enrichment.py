@@ -86,9 +86,10 @@ class ImportHeight(default_gui.import_dem):
         self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)  # Update label in GUI
         self.__ImportedFiles.append(self.__filepath)
 
+        importer.close_connection()
+
         msg = wx.MessageDialog(None, "Do you like to import another file to the database?",
                                "Import other file?", style=wx.YES_NO)
-        importer.close_connection()
         if msg.ShowModal() == wx.ID_YES:
             self.next.Enable()
             self.on_browse(None)
