@@ -1,5 +1,6 @@
 import csv
 import sqlite3
+import threading
 
 import wx
 
@@ -69,6 +70,14 @@ class ImportHeight(default_gui.import_dem):
             msg.ShowModal()
             return
 
+        thread = threading.Thread(target=self.start_import)
+        thread.start()
+
+    def start_import(self):
+        self.buttonBrowse.Enable(False)
+        self.importbutton.Enable(False)
+        self.next.Enable(False)
+
         colstoimport = [self.xvalue.GetSelection(), self.yvalue.GetSelection(), self.heightvalue.GetSelection()]
         importer = DemImporter(self.__filepath, self.__encoding, self.__seperator, colstoimport, self.epsg.GetValue(),
                                self.__EmptyLinesBeforeDataStart, self.__DbFilePath)
@@ -88,13 +97,9 @@ class ImportHeight(default_gui.import_dem):
 
         importer.close_connection()
 
-        msg = wx.MessageDialog(None, "Do you like to import another file to the database?",
-                               "Import other file?", style=wx.YES_NO)
-        if msg.ShowModal() == wx.ID_YES:
-            self.next.Enable()
-            self.on_browse(None)
-        else:
-            self.end_next_step()
+        self.buttonBrowse.Enable(True)
+        self.importbutton.Enable(True)
+        self.next.Enable(True)
 
     # method to be called when file settings change
     # method triggers refresh of grid preview
@@ -103,12 +108,18 @@ class ImportHeight(default_gui.import_dem):
 
     # method to be called when "Next" button is pushed
     def on_next(self, event):
-        self.end_next_step()
+        self.buttonBrowse.Enable(False)
+        self.importbutton.Enable(False)
+        self.next.Enable(False)
+        threat = threading.Thread(target=self.end_next_step)
+        threat.start()
 
     # method to be called when all files are imported. Finish up import, initialize next step
     def end_next_step(self):
         connection = BasicDemConnection(self.__DbFilePath, self.epsg.GetValue())
+        self.text_rowcount.SetLabel("Please Wait: Generating Spatial Index...")
         connection.generate_spatial_index()
+        self.text_rowcount.SetLabel("Please Wait: Generating Convexhull...")
         connection.generate_convexhull()
         connection.commit()
         connection.close_connection()
@@ -371,8 +382,13 @@ class GrabHeight(default_gui.GrabHeight):
 
     def on_assign(self, event):
         self.GetParent().db.add_col("height", "REAL")
+        thread = threading.Thread(target=self.start_assign())
+        thread.start()
+
+    def start_assign(self):
         assigner = AssignHeight(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
-                                self.geom.GetStringSelection(), self.GetParent().db.get_tree_table_name())
+                                self.geom.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
+                                self.gauge)
         assigner.assign()
         self.GetParent().db.commit()
         self.GetParent().show_data_in_grid(self.GetParent().db.get_number_of_columns(),
@@ -382,17 +398,22 @@ class GrabHeight(default_gui.GrabHeight):
 
 
 class AssignHeight(BasicConnection):
-    def __init__(self, dbpath, db, idcol, geomcol, treetable):
+    def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge):
         BasicConnection.__init__(self, dbpath)
         self.__db = db
         self.__IdCol = idcol
         self.__GeomCol = geomcol
         self.__TreeTableName = treetable
+        self.__gauge = gauge
 
     def assign(self):
         innercursor = self._con.cursor()
         statement = 'SELECT %s.%s FROM %s, convexhull' % (self.__TreeTableName, self.__IdCol, self.__TreeTableName)
+        countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull' % (self.__TreeTableName, self.__TreeTableName)
         statement += ' WHERE Intersects(%s."%s", convexhull.geom)==1' % (self.__TreeTableName, self.__GeomCol)
+        countstatement += ' WHERE Intersects(%s."%s", convexhull.geom)==1' % (self.__TreeTableName, self.__GeomCol)
+        self._cursor.execute(countstatement)
+        self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
         for idx, row in enumerate(self._cursor):
             print(idx)
@@ -415,6 +436,7 @@ class AssignHeight(BasicConnection):
             hoehe = zaehler/nenner
 
             self.__db.update_value("height", hoehe, self.__IdCol, row[0])
+            self.__gauge.SetValue(self.__gauge.GetValue()+1)
 
         print("fertig")
 
