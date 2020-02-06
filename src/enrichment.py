@@ -394,6 +394,7 @@ class GrabHeight(default_gui.GrabHeight):
             self.assign.Enable(True)
 
     def on_assign(self, event):
+        self.assign.Enable(False)
         self.GetParent().db.add_col("height", "REAL")
         thread = threading.Thread(target=self.start_assign)
         thread.start()
