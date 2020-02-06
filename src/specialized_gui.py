@@ -431,6 +431,9 @@ class MainTableFrame(default_gui.MainWindow):
         if self.db.get_spatialite_status()[0]:
             dlg = enrichment.AddGeometry(self)
             dlg.ShowModal()
+            self.show_data_in_grid(self.db.get_number_of_columns(),
+                                   self.db.get_number_of_tablerecords(),
+                                   self.db.get_data())
         else:
             text = "Cannot perform this operation since SpatiaLite extension could not be loaded"
             msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
@@ -442,6 +445,9 @@ class MainTableFrame(default_gui.MainWindow):
             if importgui.ShowModal() == 1234:
                 derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
                 derivegui.ShowModal()
+                self.show_data_in_grid(self.db.get_number_of_columns(),
+                                       self.db.get_number_of_tablerecords(),
+                                       self.db.get_data())
 
         else:
             text = "Cannot perform this operation since SpatiaLite extension could not be loaded"

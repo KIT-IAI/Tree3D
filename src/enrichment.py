@@ -252,6 +252,7 @@ class BasicConnection:
         self._DbFilePath = databasepath
         self._con = sqlite3.connect(self._DbFilePath)
         self._cursor = self._con.cursor()
+        self._updatecursor = self._con.cursor()
         self._con.enable_load_extension(True)
         self._con.execute('SELECT load_extension("mod_spatialite");')
 
@@ -271,6 +272,18 @@ class BasicConnection:
     def get_rowcount(self):
         self._cursor.execute("SELECT COUNT(*) FROM elevation")
         return self._cursor.fetchone()[0]
+
+    # updates a value in a database column
+    # cannot update with string values yet!!!
+    def update_value(self, tablename, insert_col, insert_val, where_col=None, where_val=None):
+        statement = 'UPDATE %s SET "%s" = %s' % (tablename, insert_col, insert_val)
+        if where_col is not None and where_val is not None:
+            if type(where_val) == str:
+                statement += ' WHERE "%s" = "%s"' % (where_col, where_val)
+            else:
+                statement += ' WHERE "%s" = %s' % (where_col, where_val)
+        statement += ';'
+        self._updatecursor.execute(statement)
 
 
 class BasicDemConnection(BasicConnection):
@@ -382,7 +395,7 @@ class GrabHeight(default_gui.GrabHeight):
 
     def on_assign(self, event):
         self.GetParent().db.add_col("height", "REAL")
-        thread = threading.Thread(target=self.start_assign())
+        thread = threading.Thread(target=self.start_assign)
         thread.start()
 
     def start_assign(self):
@@ -390,10 +403,7 @@ class GrabHeight(default_gui.GrabHeight):
                                 self.geom.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
                                 self.gauge)
         assigner.assign()
-        self.GetParent().db.commit()
-        self.GetParent().show_data_in_grid(self.GetParent().db.get_number_of_columns(),
-                                           self.GetParent().db.get_number_of_tablerecords(),
-                                           self.GetParent().db.get_data())
+        assigner.commit()
         self.EndModal(1)
 
 
@@ -435,7 +445,7 @@ class AssignHeight(BasicConnection):
                 nenner += weight
             hoehe = zaehler/nenner
 
-            self.__db.update_value("height", hoehe, self.__IdCol, row[0])
+            self.update_value(self.__TreeTableName, "height", hoehe, self.__IdCol, row[0])
             self.__gauge.SetValue(self.__gauge.GetValue()+1)
 
         print("fertig")
@@ -500,10 +510,6 @@ class AddGeometry(default_gui.geom_props):
         else:
             self.GetParent().db.add_spatial_index("geom")
             self.GetParent().db.commit()
-
-        self.GetParent().show_data_in_grid(self.GetParent().db.get_number_of_columns(),
-                                           self.GetParent().db.get_number_of_tablerecords(),
-                                           self.GetParent().db.get_data())
         self.EndModal(1)
 
     # method to validate user input
