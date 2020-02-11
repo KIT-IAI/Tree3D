@@ -985,7 +985,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.crown_circ.SetSelection( 0 )
 		fgSizer6.Add( self.crown_circ, 0, wx.ALL, 5 )
 		
-		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species (Latin name)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species Code", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
 		
 		fgSizer6.Add( self.m_staticText19, 0, wx.ALL, 5 )
