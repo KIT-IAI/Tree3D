@@ -566,13 +566,17 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             with open("citygml_vegetation_species_codes.dict", encoding="utf-8") as file:
                 csvfile = csv.reader(file, delimiter=":")
                 for idx, line in enumerate(csvfile):
-                    if not line:  # ignore empty lines
+
+                    # ignore empty lines
+                    if not line:
                         continue
 
-                    if line[0][0] == "#":  # ignore comments
+                    # ignore comments
+                    if line[0][0] == "#":
                         continue
 
-                    if len(line) != 2:  # Error if there are more than two Doppelpunkt in a line
+                    # Error if there are more than two Doppelpunkt in a line
+                    if len(line) != 2:
                         text = "Cannot import Species vegetation codes\n" \
                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
                                "More than one colon detected." % str(idx+1)
@@ -580,7 +584,8 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                         success = False
                         break
 
-                    try:  # Code must be cast to an integer
+                    # Code must be cast to an integer
+                    try:
                         self.__CodeDict[line[0]] = int(line[1])
                     except ValueError:
                         text = "Cannot import Species vegetation codes\n" \
@@ -595,6 +600,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                    "Could not find file citygml_vegetation_species_codes.dict in curent directory."
         return success, text
 
+    # method is called when choice is changed
     def on_choice(self, event):
         self.add_code.Enable(True)
 
@@ -607,12 +613,11 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             self.EndModal(1234)
             return
 
-        veg_column = self.choice_vegetation_col.GetStringSelection()
-        self.GetParent().db.add_col("CityGML Species Code", "INT")
+        veg_column = self.choice_vegetation_col.GetStringSelection()  # get column with botanical name
+        self.GetParent().db.add_col("CityGML Species Code", "INT")  # add column to database table
         self.GetParent().db.commit()
         con = BasicConnection(self.__DbPath)
         for v in self.__CodeDict:
             con.update_value(self.__DbTreeTableName, "CityGML Species Code", self.__CodeDict[v], veg_column, v, True)
         con.commit()
         self.EndModal(12347)
-
