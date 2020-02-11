@@ -438,7 +438,6 @@ class AssignHeight(BasicConnection):
         self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
         for idx, row in enumerate(self._cursor):
-            print(idx)
             statement = "SELECT elevation.height, Distance(%s.%s, elevation.geom) FROM elevation, %s" \
                         % (self.__TreeTableName, self.__GeomCol, self.__TreeTableName)
             if type(row[0]) == str:
@@ -459,8 +458,6 @@ class AssignHeight(BasicConnection):
 
             self.update_value(self.__TreeTableName, "height", hoehe, self.__IdCol, row[0])
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
-
-        print("fertig")
 
 
 # Class for GUI to assign Height to Trees
