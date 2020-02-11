@@ -1,0 +1,614 @@
+# This file maps tree species names to its corresponding CityGML Vegetation SolitaryVegetationObject Species Code-List
+# This is the code list as defined in https://www.sig3d.org/codelists/standard/vegetation/2.0/SolitaryVegetationObject_species.xml
+# You may append or alter this file if the program does not recognize the way you the species type in your dataset
+# When altering this file, ALWAYS use lower-case letters when writing the species type
+
+abienus festuschristus:1630
+abies alba:1640
+abies cephalonica:1650
+abies concolor:1660
+abies grandis:1670
+abies homolepsis:1680
+abies koreana:1690
+abies lasiocarpa:1700
+abies nordmanniana:1710
+abies pinsapo:1720
+abies procera 'glauca':1740
+abies procera:1730
+abies veitchii:1750
+acer campestre:1760
+acer campéstre:1760
+acer capillipes:1770
+acer cappadocicum:1780
+acer circinatum:1790
+acer davidii:1800
+acer ginnala maxim:1810
+acer grosserii:1820
+acer monspessulanum:1830
+acer negundo:1840
+acer palmatum:1850
+acer platanoides 'crimson king':1870
+acer platanoides:1860
+acer pseudoplatanus:1880
+acer rubrum:1890
+acer saccharinum:1900
+acer saccharum marsch:1910
+acer tartaricum:1920
+acer:1090
+actinidia lind:4630
+aeschynanthus jack:4640
+aesculus hippocastanum:1930
+aesculus hippocástanum:1930
+aesculus x carnea:1940
+afzelia africana:1950
+ageratum:4650
+agrostemma githago:4660
+agrostis:4670
+ailanthus altissima:1960
+alchemilla:1170
+allium cepa:4680
+allium fistulosum:4690
+allium porrum:4700
+allium schoenoprasum:4710
+allium ursinum:1150
+alnus cordata:1970
+alnus glutinosa:1980
+alnus incana:1990
+alnus incána:1990
+alnus viridis:2000
+alnus:1060
+aloe:4720
+alonsoa meridionalis ( f.) o. kuntze:4730
+alopecurus pratensis:4740
+alstroemeria:4750
+amaranthus blitoides s. watson:4760
+amaranthus cruentus:4770
+amelanchier ovalis:2010
+amelánchier ovális:2010
+anacardium occidentale:2020
+anigozanthos labil:4780
+anthriscus cerefolium ( ) hoffm.:4790
+anthurium schott:4800
+antirrhinum:4810
+apium graveolens:4820
+aqulilegia:1240
+arabis:1110
+aralia elata:2030
+araucaria araucana:2040
+arctium:4830
+argyranthemum frutescens ( ) schultz bip.:4840
+arnica montana:4850
+aronia medik.:4860
+arrhenatherum elatius ( ) p.beauv. ex j.s. et k.b. presl:4870
+asparagus officinalis:4880
+aster novae:1390
+aster:4890
+aubrieta adans.:4900
+aucuba japonica:2050
+avena sativa:4910
+begonia x hiemalis fotsch:4930
+begonia x tuberhybrida voss:4940
+begonia-semperflorens-hybriden:4950
+begonia:1190
+berberis julianae:2060
+berberis thunbergii:2070
+beta vulgaris   var. altissima doll:4960
+beta vulgaris   var. altissima döll:4960
+beta vulgaris   var. conditiva alef.:4970
+beta vulgaris   var. crassa mansf.:4980
+beta vulgaris   var. vulgaris:4990
+betula alnoides:2080
+betula costata:2090
+betula davurica:2100
+betula ermanii:2110
+betula papyrifera:2120
+betula pendula:2130
+betula pubescens:2140
+betula:1050
+bidens ferulifolia (jacq.) dc.:5000
+brachyscome cass.:5010
+brassica juncea ( ) czernj. et cosson:5020
+brassica napus   (partim):5030
+brassica napus   var. napobrassica ( ) rchb.:5050
+brassica oleracea   convar. acephala (dc.) alef. var. gongylodes:5060
+brassica oleracea   convar. acephala (dc.) alef. var. medullosa thel  und var. viridis:5070
+brassica oleracea   convar. acephala (dc.) alef. var. sabellica:5080
+brassica oleracea   convar. botrytis ( ) alef. var. botrytis:5090
+brassica oleracea   convar. botrytis ( ) alef. var. cymosa duch.:5100
+brassica oleracea   convar. capitata ( ) alef. var. alba dc.:5110
+brassica oleracea   convar. capitata ( ) alef. var. rubra dc.:5120
+brassica oleracea   convar. capitata ( ) alef. var. sabauda:5130
+brassica oleracea   convar. oleracea var. gemmifera dc.:5140
+brassica rapa   var. rapa:5150
+brassica rapa   var. silvestris (lam.) briggs:5170
+bromus:5190
+broussonetia papyrifera:2150
+brunnera macrophylla (adams) johnst.:5200
+buddleja davidii:2160
+butyrospermum parkii:2170
+buxus sempervirens:2180
+bétula péndula:2130
+calceolaria:5210
+calendula:1320
+calluna vulgaris ( ) hull:5220
+calocedrus decurrens 'aureovariegata':2200
+calocedrus decurrens:2190
+calycanthus floridus:2210
+camelina sativa ( ) crantz:5230
+campanula poscharskyana:1130
+campsis radicans:2220
+cannabis sativa:5240
+capsicum annuum:5250
+caragana arborescens:2230
+cardiocrinum giganteum:1400
+carex:5260
+carpinus betulus:2240
+carpínus bétulus:2240
+carthamus tinctorius:5270
+cassia siberiana:2250
+cassia:1610
+castanea sativa:2260
+castanéa satíva:2260
+catalpa bignonioides:2270
+cedrela sinensis:2280
+cedrus atlantica 'glauca':2300
+cedrus atlantica:2290
+cedrus deodara var paktia:2320
+cedrus deodara:2310
+cedrus libani:2330
+celosia:5280
+celtis occidentalis:2340
+centaurea cysanus:1280
+centaurea:1270
+cercis siliquastrum:2350
+chaenomeles japonica:2360
+chamaecyparis lawsonia:2370
+chamaecyparis nootkatensis:2380
+chamomilla recutita ( ) rauschert:5290
+chionanthus virginicus:2390
+cichorium endivia:5300
+cistus:1620
+cladrastis lutea:2400
+clematis montana:2410
+clematis vitalba:2420
+clematis:1520
+colutea arborescens:2430
+convallaria majalis:5320
+coreopsis verticillata:1310
+cornus alba:2440
+cornus florida:2450
+cornus mas:2460
+cornus sanguinea:2470
+coronilla varia:5330
+corylus avellana 'contorta':2490
+corylus avellana:2480
+corylus colurna:2500
+corylus maxima:2510
+corylus:5340
+cotinus coggygria:1480
+cotoneaster frigidus:2530
+crassula schmidtii regel:5350
+crataegus laevigata 'paul's scarlet':2550
+crataegus laevigata:2540
+crataegus lavallei 'carrierei':2560
+crataegus monogyna:2570
+cryptomeria japonica:2580
+cucumis sativus:5360
+cucurbita pepo:5380
+cucurbita:5370
+cuphea p. br.:5390
+cupressus arizonica:2590
+cupressus sempervirens:2600
+cydonia oblonga mil:5400
+cynara cardunculus:5410
+cynara scolymus:5420
+córylus avellána:2480
+córylus colúrna:2500
+daboecia cantabrica (huds.) k. koch:5430
+dactylis:5440
+dahlia cav.:5450
+daucus carota:5460
+davidia involucrata:2610
+delonix regia:2620
+delphinium:1410
+dendranthema x grandiflorum (ramat.) kitam.:5480
+deschampsia cespitosa ( ) p. beauv.:5490
+deutzia scabra:2630
+dianthus barbatus:1340
+dianthus:5500
+digitalis:5510
+dracaena draco:2640
+dracocephalum moldavica:5520
+echinodorus   c. rich. ex engelm.:5530
+elaeagnus angustifolia:2650
+elaeagnus umbellata:2660
+erica:5540
+euonymus alatus:2670
+euonymus europaeus:2680
+euonymus europea:1490
+euonymus fortunei (turcz.) hand.-mazz.:5550
+euonymus planipes:2690
+euphorbia fulgens karw. ex klotzsch:5560
+euphorbia milii des mou  var. milii:5570
+euphorbia pulcherrima willd. ex klotzsch:5580
+euphorbia:1230
+fagopyrum mil:5590
+fagus orientalis:2700
+fagus sylvatica 'pendula':2720
+fagus sylvatica purpurea:2730
+fagus sylvatica:2710
+fagus:1040
+festuca arundinacea schreber:5600
+festuca ovina   sensu lato:5610
+festuca pratensis hudson:5620
+festuca rubra   sensu lato:5630
+ficus benjamina:5640
+ficus carica:2740
+foeniculum vulgare mil:5660
+forsythia vahl:5680
+forsythia x intermedia:2750
+fragaria:5690
+frangula alnus:2760
+fraxinus excelsior:2770
+fraxinus latifolia:2780
+fraxinus ornus:2790
+fraxinus paxiana:2800
+fraxinus:1100
+fraxínus excélsior:2770
+fuchsia:1570
+fágus sylvática purpuréa:2730
+galeobdolon luteum:1120
+galium odoratum:1140
+gazania-hybriden:5710
+gentiana:5720
+geranium macrorrhizum ingwersen:1210
+gerbera:1580
+ginkgo biloba l:2810
+ginkgo biloba:5740
+gleditsia triacanthos:2820
+glycine max ( ) merr.:5750
+gymnocarpium dryopteris:1430
+halesia carolina:2830
+hamamelis virginiana:2840
+hamamelis x intermedia:2850
+hebe comm. ex juss.:5760
+hedera helix:2860
+helianthus annuus:5770
+helianthus tuberosus:5780
+helichrysum italicum (roth) gussone:5790
+heliotropium arborescens:5800
+helleborus:1160
+hemerocallis flava:1360
+hemerocallis:1350
+hibiscus syriacus:2870
+hibiskus:1460
+hippophae rhamnoides:2880
+hippophae:5820
+hordeum vulgare   sensu lato:5830
+humulus lupulus:5850
+hydrangea:1470
+hypericum androsaemum:5870
+hypericum perforatum:5880
+hyssopus officinalis:5890
+ilex aquifolium:2890
+ilex:5900
+impatiens walleriana hybriden:5920
+impatiens:5910
+iris:1180
+jasminum nudiflorum:2900
+juglans nigra:2910
+juglans regia:2920
+juglans-hybriden:5930
+juniperus communis:2930
+juniperus sabina:2940
+kalanchoe adans.:5940
+kerria japonica 'pleniflora':2950
+khaya senegalensis:2960
+koelreuteria paniculata:2970
+kolkwitzia amabilis:2980
+laburnum alpinum:2990
+laburnum anagyroides:3000
+lactuca sativa:5950
+larix decidua:3010
+larix kaempferi:3020
+larix:1020
+leontopodium alpinum cass.:5970
+leucanthemum x superbum (j.w.ingram) bergmans ex kent:5980
+ligustrum vulgare:3030
+lilium:5990
+limonium mil:6000
+linum usitatissimum:6010
+liquidambar orientalis:3040
+liquidambar styraciflua:3050
+liriodendron tulipifera:3060
+lobelia:6030
+lolium   (partim):6040
+lolium multiflorum lam.:6050
+lolium perenne:6060
+lolium x boucheanum kunth:6070
+lonicera maackii:3070
+lonicera nitida wils.:6080
+lonicera tartarica:3080
+lonicera x heckrottii:3090
+lonicera xylosteum:3100
+lotus corniculatus:6090
+lupinus albus:6110
+lupinus angustifolius:6120
+lupinus luteus:6100
+lupinus mutabilis:6130
+lupinus nanus douglas:6140
+lychnis coronaria:1290
+lycopersicon lycopersicum ( ) karsten ex farw.:6150
+lysmachia:1380
+lythrum:1370
+magnolia elisabeth:1450
+magnolia x soulangiana:3110
+mahonia aquifolium:3120
+malus floribunda:3130
+malus mil:6160
+malus sylvestris:3140
+malus toringoides:3150
+malva verticillata:6190
+matteuccia struthiopteris:1440
+medicago lupulina:6200
+medicago sativa:6210
+melissa officinalis:6220
+mespilus germanica:3160
+metasequoia glyptostroboides:3170
+málus sylvéstris:3140
+nicotiana:6230
+nopalxochia:1590
+ocimum basilicum:6240
+onobrychis viciifolia scop.:6250
+orchidaceae:6260
+origanum majorana:6270
+origanum vulgare:6280
+ostrya carpinifolia:3180
+parrotia persica:3190
+parthenocissus quinquefolia:3200
+parthenocissus tricuspidata:3210
+paulownia tomentosa:3220
+pelargonie burc double:1220
+pelargonium l'herit. ex ait.:6290
+pelargonium l'hérit. ex ait.:6290
+pelargonium-grandiflorum-hybriden:6300
+petroselinum crispum (miller) nyman ex a.w. hill:6310
+petunia juss.:6330
+phacelia juss.:6340
+phalaris arundinacea:6350
+phaseolus coccineus:6360
+phaseolus vulgaris:6370
+philadelphus coronarius:3230
+phleum:6390
+phlox paniculata:1330
+physalis:1300
+physocarpus (cambess.) maxim.:6400
+picea a. dietr.:6410
+picea abies 'inversa':3250
+picea abies:3240
+picea asperata:3260
+picea engelmanii:3270
+picea glauca 'conica':3290
+picea glauca:3280
+picea omorika:3300
+picea orientalis:3310
+picea polita:3320
+picea pungens 'glauca':3330
+picea sitchensis:3340
+picea:1000
+pinus aristata:3350
+pinus armandii:3360
+pinus cembra:3370
+pinus contorta:3380
+pinus heldreichii:3390
+pinus jeffreyi:3400
+pinus koraiensis:3410
+pinus leucodermis:3420
+pinus mugo:3430
+pinus nigra var:3450
+pinus nigra:3440
+pinus parviflora:3470
+pinus peuce:3480
+pinus ponderosa:3490
+pinus strobus:3500
+pinus sylvestris:3510
+pinus thunbergii:3520
+pinus wallichiana:3530
+pinus:1010
+pisum sativum   (partim):6430
+platanus acerifolia:3540
+platanus orientalis:3550
+platycladus orientalis:3560
+plumbago:1550
+poa pratensis:6480
+poa:6470
+pontederia:1510
+populus alba:3570
+populus nigra:3580
+populus simonii:3590
+populus tremula:3600
+populus x canadensis:3610
+populus x canescens:3620
+populus:1070
+prunus avium ( ):6520
+prunus avium:3630
+prunus cerasifera 'nigra':3640
+prunus cerasus:6530
+prunus domestica ssp:3660
+prunus domestica:3650
+prunus dulcis:3670
+prunus laurocerasus:3680
+prunus padus:3690
+prunus persica ( ) batsch:6550
+prunus sargentii:3700
+prunus serotina:3710
+prunus serrulata:3720
+prunus spinosa:3730
+prunus subhirtella:3740
+prunus:6500
+prúnus pádus:3690
+pseudotsuga menziesii:3750
+ptelea trifoliata:3760
+pteridium:1420
+pterocarya fraxinifolia:3770
+pterocarya stenoptera:3780
+pyracantha coccinea:3790
+pyracantha m.j. roem.:6570
+pyrus pyraster:3800
+pyrus:6580
+pýrus pyráster:3800
+quercus acutissima:3810
+quercus cerris:3820
+quercus coccinea:3830
+quercus frainetto:3840
+quercus ilex:3850
+quercus libani:3860
+quercus palustris:3870
+quercus petraea:3880
+quercus prinus:3890
+quercus pubescens:3900
+quercus robur:3910
+quercus rubra:3920
+quercus suber:3930
+quercus x hispanica 'lucombeana':3940
+quercus x turneri:3950
+quercus:1030
+ranunculus asiaticus:1200
+raphanobrassica:6610
+raphanus sativus   var. niger (miller) s. kerner:6620
+raphanus sativus   var. oleiformis pers.:6630
+raphanus sativus   var. sativus:6640
+rehmannia libosch. ex fisch. et c. a. mey.:6650
+rhamnus cathartica:3960
+rhamnus imeretinus:3970
+rhododendron simsii planch.:6670
+rhododendron:1500
+rhodotypos scandens:3980
+rhus hirta:3990
+ribes aureum:4000
+ribes nigrum:6700
+ribes sanguineum:4010
+ribes x nidigrolaria r. et a. bauer:6710
+ribes:6680
+robinia pseudoacacia:4020
+rosa canina:4030
+rosa spinosissima:4040
+rosa:6720
+rubus fruticosus:4050
+rubus:6730
+saintpaulia h. wend:6750
+salix alba 'tristis':4070
+salix alba:4060
+salix aurita:4080
+salix babylonica:4090
+salix caprea 'kilmarnock':4110
+salix caprea:4100
+salix cinerea:4120
+salix fragilis:4130
+salix matsudana 'tortuosa':4140
+salix viminalis:4150
+salix:1080
+sambucus nigra:4160
+sambucus racemosa:4170
+sanvitalia lam.:6770
+satureja hortensis:6780
+sciadopitys verticillata:4180
+scorzonera hispanica:6790
+secale:6800
+sedum spectabile und sedum telphium:1260
+sequoia sempervirens:4190
+sequoiadendron giganteum:4200
+shepherdia argentea:4210
+silybum marianum ( ) gaertn.:6820
+sinapis alba:6830
+sinningia nees:6840
+solanum tuberosum:6860
+solanum:6850
+sophora japonica:4220
+sorbus aria:4230
+sorbus aucuparia:4240
+sorbus domestica:4250
+sorbus intermedia:4260
+sorbus torminalis:4270
+spinacia oleracea:6870
+spiraea x billardii:4280
+spiraea x vanhouttei:4290
+staphylea pinnata:4300
+stranvaesia davidiana:4310
+streptocarpus lind:6880
+sutera roth:6890
+symphoricarpos albus:4320
+symphoricarpos duham.:6900
+symphytum officinale:1250
+syringa reflexa:4330
+syringa vulgaris:4340
+syringa:6910
+sórbus aucupária:4240
+tagetes:6920
+tamarix parviflora:4350
+tanacetum parthenium ( ) schultz bip.:6930
+taxodium distichum:4360
+taxus baccata:4370
+thuja occidentalis:4380
+thuja plicata:4390
+thujopsis dolabrata:4400
+tilia cordata:4410
+tilia platyphyllos:4420
+tilia tomentosa:4430
+tilia:6940
+trifolium alexandrinum:6950
+trifolium hybridum:6960
+trifolium incarnatum:6970
+trifolium pratense:6980
+trifolium repens:6990
+trifolium resupinatum:7000
+trisetum flavescens ( ) p. beauv.:7010
+triticum aestivum   emend. fiori et pao:7020
+triticum durum desf.:7040
+triticum monococcum:7050
+triticum spelta:7060
+tropaeolum:1530
+tsuga canadensis:4440
+tulipa:7070
+tussilago farfara:7080
+tília cordáta:4410
+ulex europaeus:4450
+ulmus glabra:4460
+ulmus laevis:4470
+ulmus minor:4480
+ulmus pumila:4490
+ulmus:7090
+unknown:9999
+urtica:7100
+vaccinium:7110
+valeriana officinalis:7120
+valerianella locusta ( ) laterr.:7130
+vallisneria:7140
+viburnum farreri:4500
+viburnum lantana:4510
+viburnum lentago:4520
+viburnum opulus:4530
+viburnum rhytidophyllum:4540
+viburnum tinus:4550
+viburnum x bodnantense:4560
+vicia   (partim):7150
+vicia faba   (partim):7160
+vicia sativa:7180
+vicia, lathyrus:1540
+vinca minor:7190
+viscum album:4570
+vitex agnus-castus:7200
+vitis coignetiae:4580
+vitis vinifera:7220
+vitis:7210
+vriesea splendens (brongn.) lem.:7230
+weigela florida:4590
+wisteria sinensis:4600
+x festulolium:7260
+x triticosecale wittm.:7270
+zantedeschia spreng.:7240
+zantedeschia:1560
+zea mays:7250
+zelkova serrata:4610
+úlmus glábra:4460
+úlmus mínor:4480
