@@ -1,8 +1,18 @@
-#ignore python compiled files
+# ignore python compiled files
 src/__pycache__/
 
-#ignord pycharm ide config files
+# ignord pycharm ide config files
 .idea/
 
-#ignored output file
+# ignore shapefiles
+data/kit_191218/shp/
+
+# ignore point cloud
+data/point_cloud
+
+# ignore qgis maps
+data/treemap_berlin_pariserplatz.qgz
+data/treemap_kit_nord.qgz
+
+# ignored output file
 data/export.citygml
