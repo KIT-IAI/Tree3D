@@ -76,6 +76,9 @@ class MainWindow ( wx.Frame ):
 		self.m_menuItem13 = wx.MenuItem( self.data, wx.ID_ANY, u"Add Geometry Column", wx.EmptyString, wx.ITEM_NORMAL )
 		self.data.Append( self.m_menuItem13 )
 		
+		self.m_menuItem14 = wx.MenuItem( self.data, wx.ID_ANY, u"Add CityGML vegetation code", wx.EmptyString, wx.ITEM_NORMAL )
+		self.data.Append( self.m_menuItem14 )
+		
 		self.m_menu2 = wx.Menu()
 		self.m_menuItem11 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add reference height from DEM", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu2.Append( self.m_menuItem11 )
@@ -104,6 +107,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_geometry_validation, id = self.validateGeom.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_geom, id = self.m_menuItem13.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_citygml_vegetation_code, id = self.m_menuItem14.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.m_menuItem11.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.m_menuItem12.GetId() )
 	
@@ -140,6 +144,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_add_geom( self, event ):
+		event.Skip()
+	
+	def on_add_citygml_vegetation_code( self, event ):
 		event.Skip()
 	
 	def on_add_reference_height_dem( self, event ):
@@ -1475,6 +1482,47 @@ class GrabHeight ( wx.Dialog ):
 	
 	
 	def on_assign( self, event ):
+		event.Skip()
+	
+
+###########################################################################
+## Class add_vegetation_code
+###########################################################################
+
+class add_vegetation_code ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Add CityGML Vegetation Code", pos = wx.DefaultPosition, size = wx.Size( 315,64 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer26 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer26.SetFlexibleDirection( wx.BOTH )
+		fgSizer26.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		choice_vegetation_colChoices = []
+		self.choice_vegetation_col = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_vegetation_colChoices, 0 )
+		self.choice_vegetation_col.SetSelection( 0 )
+		fgSizer26.Add( self.choice_vegetation_col, 0, wx.ALL, 5 )
+		
+		self.add_code = wx.Button( self, wx.ID_ANY, u"Add Code", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer26.Add( self.add_code, 0, wx.ALL, 5 )
+		
+		
+		self.SetSizer( fgSizer26 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.add_code.Bind( wx.EVT_BUTTON, self.on_add_code )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_add_code( self, event ):
 		event.Skip()
 	
 
