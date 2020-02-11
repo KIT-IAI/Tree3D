@@ -278,10 +278,10 @@ class BasicConnection:
 
     # updates a value in a database column
     # cannot update with string values yet!!!
-    def update_value(self, tablename, insert_col, insert_val, where_col=None, where_val=None, where_lower=False):
+    def update_value(self, tablename, insert_col, insert_val, where_col=None, where_val=None, where_lowercase=False):
         statement = 'UPDATE %s SET "%s" = %s' % (tablename, insert_col, insert_val)
         if where_col is not None and where_val is not None:
-            if not where_lower:
+            if not where_lowercase:
                 if type(where_val) == str:
                     statement += ' WHERE "%s" = "%s"' % (where_col, where_val)
                 else:
