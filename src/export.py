@@ -32,7 +32,7 @@ class ExportDialog(default_gui.CityGmlExport):
         self.choiceSpecies.SetItems(colitemlist)
 
     # method to be called when "Browse" button is pushed
-    def on_browse( self, event ):
+    def on_browse(self, event):
         with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
                            style=wx.FD_SAVE) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -92,7 +92,7 @@ class ExportDialog(default_gui.CityGmlExport):
         valid = True
         warningmessage = ""
 
-        if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection() and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
+        if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection()and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Crown diameter cannot be the same column as Trunk diameter"
 
@@ -184,6 +184,11 @@ class CityGmlExport:
             # compare thiw row's x and y vlaues with values in bounding box object
             # boung box updates if new boundries are detected
             self.__bbox.compare(row[self.__x_value_col_index], row[self.__y_value_col_index])
+
+            if self.__species_col_index is not None:
+                if row[self.__species_col_index] is not None:
+                    species = ET.SubElement(SolitaryVegetationObject, "veg:species")
+                    species.text = str(row[self.__species_col_index])
 
             if self.__height_col_index is not None:
                 height = ET.SubElement(SolitaryVegetationObject, "veg:height")
