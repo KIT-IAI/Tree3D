@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import math
+from datetime import date
 
 import default_gui
 import analysis
@@ -184,6 +185,10 @@ class CityGmlExport:
             # compare thiw row's x and y vlaues with values in bounding box object
             # boung box updates if new boundries are detected
             self.__bbox.compare(row[self.__x_value_col_index], row[self.__y_value_col_index])
+
+            # add creationDate into the model
+            creationdate = ET.SubElement(SolitaryVegetationObject, "creationDate")
+            creationdate.text = str(date.today())
 
             if self.__species_col_index is not None:
                 if row[self.__species_col_index] is not None:
