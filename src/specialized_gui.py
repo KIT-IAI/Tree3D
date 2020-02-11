@@ -408,7 +408,7 @@ class MainTableFrame(default_gui.MainWindow):
 
     # method is used to remove column sort indicators (little triangles) from grid
     def remove_col_sort_indicator(self):
-        for col_idx in range(0, self.table_view_panel.grid.GetNumberCols()-1):
+        for col_idx in range(0, self.table_view_panel.grid.GetNumberCols() - 1):
             col_label = self.table_view_panel.grid.GetColLabelValue(col_idx)
             if col_label[-1:] == "▲" or col_label[-1:] == "▼":
                 self.table_view_panel.grid.SetColLabelValue(col_idx, col_label[:-2])
@@ -439,6 +439,13 @@ class MainTableFrame(default_gui.MainWindow):
             msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
 
+    def on_add_citygml_vegetation_code(self, event):
+        dlg = enrichment.AddCityGmlVegetationCodeGUI(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
+        dlg.ShowModal()
+        self.show_data_in_grid(self.db.get_number_of_columns(),
+                               self.db.get_number_of_tablerecords(),
+                               self.db.get_data())
+
     def on_add_reference_height_dem(self, event):
         if self.db.get_spatialite_status()[0]:
             importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
@@ -454,7 +461,7 @@ class MainTableFrame(default_gui.MainWindow):
             msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
 
-    def on_add_default_reference_height( self, event ):
+    def on_add_default_reference_height(self, event):
         print("not implemented yet")
 
     # method to be called when clicking File > Test
@@ -555,7 +562,7 @@ class OpenDialogCSV(OpenDialog):
             valid = False
             warningtext = "Error: Cannot open file. Unknown file encoding: %s.\n" \
                           "Please use python encoding codecs\n" \
-                          "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html"\
+                          "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html" \
                           % self.encoding.GetValue()
         except UnicodeDecodeError:
             valid = False
@@ -617,7 +624,7 @@ class OpenDialogCSV(OpenDialog):
             valid = False
             warningtext = "Error: Cannot open file. Unknown file encoding: %s.\n" \
                           "Please use python encoding codecs\n" \
-                          "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html"\
+                          "They can be found at https://docs.python.org/2.4/lib/standard-encodings.html" \
                           % self.encoding.GetValue()
         except UnicodeDecodeError:
             # validates if file can be encoded using this user input
