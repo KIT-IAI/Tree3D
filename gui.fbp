@@ -14818,7 +14818,7 @@
             <property name="minimum_size"></property>
             <property name="name">add_vegetation_code</property>
             <property name="pos"></property>
-            <property name="size">315,64</property>
+            <property name="size">-1,-1</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass">; ; forward_declare</property>
             <property name="title">Add CityGML Vegetation Code</property>
@@ -14889,7 +14889,7 @@
                 <property name="vgap">0</property>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxALL</property>
+                    <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL</property>
                     <property name="proportion">0</property>
                     <object class="wxChoice" expanded="1">
                         <property name="BottomDockable">1</property>
@@ -14937,7 +14937,7 @@
                         <property name="resize">Resizable</property>
                         <property name="selection">0</property>
                         <property name="show">1</property>
-                        <property name="size"></property>
+                        <property name="size">-1,-1</property>
                         <property name="style"></property>
                         <property name="subclass">; ; forward_declare</property>
                         <property name="toolbar_pane">0</property>
@@ -14984,7 +14984,7 @@
                 </object>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxALL</property>
+                    <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL</property>
                     <property name="proportion">0</property>
                     <object class="wxButton" expanded="1">
                         <property name="BottomDockable">1</property>

@@ -1492,7 +1492,7 @@ class GrabHeight ( wx.Dialog ):
 class add_vegetation_code ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Add CityGML Vegetation Code", pos = wx.DefaultPosition, size = wx.Size( 315,64 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Add CityGML Vegetation Code", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -1501,16 +1501,17 @@ class add_vegetation_code ( wx.Dialog ):
 		fgSizer26.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		choice_vegetation_colChoices = []
-		self.choice_vegetation_col = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_vegetation_colChoices, 0 )
+		self.choice_vegetation_col = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), choice_vegetation_colChoices, 0 )
 		self.choice_vegetation_col.SetSelection( 0 )
-		fgSizer26.Add( self.choice_vegetation_col, 0, wx.ALL, 5 )
+		fgSizer26.Add( self.choice_vegetation_col, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.add_code = wx.Button( self, wx.ID_ANY, u"Add Code", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer26.Add( self.add_code, 0, wx.ALL, 5 )
+		fgSizer26.Add( self.add_code, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		
 		self.SetSizer( fgSizer26 )
 		self.Layout()
+		fgSizer26.Fit( self )
 		
 		self.Centre( wx.BOTH )
 		
