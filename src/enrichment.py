@@ -608,11 +608,11 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             return
 
         veg_column = self.choice_vegetation_col.GetStringSelection()
-        self.GetParent().db.add_col("code", "INT")
+        self.GetParent().db.add_col("CityGML Species Code", "INT")
         self.GetParent().db.commit()
         con = BasicConnection(self.__DbPath)
         for v in self.__CodeDict:
-            con.update_value(self.__DbTreeTableName, "code", self.__CodeDict[v], veg_column, v, True)
+            con.update_value(self.__DbTreeTableName, "CityGML Species Code", self.__CodeDict[v], veg_column, v, True)
         con.commit()
         self.EndModal(12347)
 
