@@ -561,19 +561,47 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
         self.choice_vegetation_col.SetItems(collist)
 
     def fill_dict(self):
-        with open("citygml_vegetation_species_codes.dict", encoding="utf-8") as file:
-            csvfile = csv.reader(file, delimiter=":")
-            for line in csvfile:
-                if not line:
-                    continue
-                if line[0][0] == "#":
-                    continue
-                self.__CodeDict[line[0]] = line[1]
+        success = True
+        text = ""
+        try:
+            with open("citygml_vegetation_species_codes.dict", encoding="utf-8") as file:
+                csvfile = csv.reader(file, delimiter=":")
+                for idx, line in enumerate(csvfile):
+                    if not line:
+                        continue
+                    if line[0][0] == "#":
+                        continue
+                    if len(line) != 2:
+                        text = "Cannot import Species vegetation codes\n" \
+                              "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
+                               "More than one colon detected." % str(idx+1)
+                        self.__CodeDict.clear()
+                        success = False
+                        break
+                    try:
+                        self.__CodeDict[line[0]] = int(line[1])
+                    except ValueError:
+                        text = "Cannot import Species vegetation codes\n" \
+                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
+                               "Code not an integer." % str(idx + 1)
+                        self.__CodeDict.clear()
+                        success = False
+                        break
+        except FileNotFoundError:
+            success = False
+            text = "Cannot import Species Vegetation codes.\n" \
+                   "Could not find file citygml_vegetation_species_codes.dict in curent directory."
+        return success, text
 
     def on_add_code(self, event):
-        veg_column = self.choice_vegetation_col.GetStringSelection()
-        self.fill_dict()
+        success, text = self.fill_dict()
+        if not success:
+            msg = wx.MessageDialog(self, text, style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
+            self.EndModal(1234)
+            return
 
+        veg_column = self.choice_vegetation_col.GetStringSelection()
         self.GetParent().db.add_col("code", "INT")
         self.GetParent().db.commit()
         con = BasicConnection(self.__DbPath)
