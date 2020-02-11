@@ -545,6 +545,7 @@ class AddGeometry(default_gui.geom_props):
         return valid, message
 
 
+# Method to add CityGML's vegetation species code to the dataset
 class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
     def __init__(self, parent, dbpath, tablename):
         default_gui.add_vegetation_code.__init__(self, parent)
@@ -560,6 +561,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
         collist = self.GetParent().db.get_column_names()
         self.choice_vegetation_col.SetItems(collist)
 
+    # method to fill the dictionary which is used to look up values
     def fill_dict(self):
         success = True
         text = ""
@@ -567,18 +569,21 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             with open("citygml_vegetation_species_codes.dict", encoding="utf-8") as file:
                 csvfile = csv.reader(file, delimiter=":")
                 for idx, line in enumerate(csvfile):
-                    if not line:
+                    if not line:  # ignore empty lines
                         continue
-                    if line[0][0] == "#":
+
+                    if line[0][0] == "#":  # ignore comments
                         continue
-                    if len(line) != 2:
+
+                    if len(line) != 2:  # Error if there are more than two Doppelpunkt in a line
                         text = "Cannot import Species vegetation codes\n" \
                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
                                "More than one colon detected." % str(idx+1)
                         self.__CodeDict.clear()
                         success = False
                         break
-                    try:
+
+                    try:  # Code must be cast to an integer
                         self.__CodeDict[line[0]] = int(line[1])
                     except ValueError:
                         text = "Cannot import Species vegetation codes\n" \
@@ -593,6 +598,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                    "Could not find file citygml_vegetation_species_codes.dict in curent directory."
         return success, text
 
+    # Method to be called when button Add Code is pushed
     def on_add_code(self, event):
         success, text = self.fill_dict()
         if not success:
