@@ -530,3 +530,15 @@ class AddGeometry(default_gui.geom_props):
             message = "X Value and Y Value must not be the same column"
 
         return valid, message
+
+
+class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
+    def __init__(self, parent):
+        default_gui.add_vegetation_code.__init__(self, parent)
+        self.populate_dropdowns()
+        self.DoLayoutAdaptation()
+        self.Layout()
+
+    def populate_dropdowns(self):
+        collist = self.GetParent().db.get_column_names()
+        self.choice_vegetation_col.SetItems(collist)
