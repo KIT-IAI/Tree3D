@@ -256,6 +256,12 @@ class Database:
         self._DbCursor.execute("SELECT CreateSpatialIndex('elevation', '%s');" % colname)
 
     def add_col(self, name, datatype):
+        self._DbCursor.execute("pragma table_info('%s')" % self._DbTreeTableName)
+        for row in self._DbCursor:
+            if row[1] == name:
+                self.update_value(name, "null")
+                self.commit()
+                return
         statement = "ALTER TABLE %s ADD COLUMN '%s' %s;" % (self._DbTreeTableName, name, datatype)
         self._DbCursor.execute(statement)
         self.add_col_to_collist(name, datatype)
