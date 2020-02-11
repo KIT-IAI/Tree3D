@@ -598,6 +598,9 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                    "Could not find file citygml_vegetation_species_codes.dict in curent directory."
         return success, text
 
+    def on_choice(self, event):
+        self.add_code.Enable(True)
+
     # Method to be called when button Add Code is pushed
     def on_add_code(self, event):
         success, text = self.fill_dict()

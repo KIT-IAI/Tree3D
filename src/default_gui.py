@@ -73,18 +73,22 @@ class MainWindow ( wx.Frame ):
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		
 		self.data = wx.Menu()
-		self.m_menuItem13 = wx.MenuItem( self.data, wx.ID_ANY, u"Add Geometry Column", wx.EmptyString, wx.ITEM_NORMAL )
-		self.data.Append( self.m_menuItem13 )
+		self.add_geom_col = wx.MenuItem( self.data, wx.ID_ANY, u"Add Geometry Column", wx.EmptyString, wx.ITEM_NORMAL )
+		self.data.Append( self.add_geom_col )
+		self.add_geom_col.Enable( False )
 		
-		self.m_menuItem14 = wx.MenuItem( self.data, wx.ID_ANY, u"Add CityGML vegetation code", wx.EmptyString, wx.ITEM_NORMAL )
-		self.data.Append( self.m_menuItem14 )
+		self.vegetation_code = wx.MenuItem( self.data, wx.ID_ANY, u"Add CityGML vegetation code", wx.EmptyString, wx.ITEM_NORMAL )
+		self.data.Append( self.vegetation_code )
+		self.vegetation_code.Enable( False )
 		
 		self.m_menu2 = wx.Menu()
-		self.m_menuItem11 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add reference height from DEM", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu2.Append( self.m_menuItem11 )
+		self.add_height_dem = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add reference height from DEM", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu2.Append( self.add_height_dem )
+		self.add_height_dem.Enable( False )
 		
-		self.m_menuItem12 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add default reference height", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu2.Append( self.m_menuItem12 )
+		self.add_height_default = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add default reference height", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu2.Append( self.add_height_default )
+		self.add_height_default.Enable( False )
 		
 		self.data.AppendSubMenu( self.m_menu2, u"Add reference height" )
 		
@@ -106,10 +110,10 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_geometry_validation, id = self.validateGeom.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_add_geom, id = self.m_menuItem13.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_add_citygml_vegetation_code, id = self.m_menuItem14.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.m_menuItem11.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.m_menuItem12.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_geom, id = self.add_geom_col.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_citygml_vegetation_code, id = self.vegetation_code.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.add_height_dem.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.add_height_default.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -1506,6 +1510,8 @@ class add_vegetation_code ( wx.Dialog ):
 		fgSizer26.Add( self.choice_vegetation_col, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.add_code = wx.Button( self, wx.ID_ANY, u"Add Code", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.add_code.Enable( False )
+		
 		fgSizer26.Add( self.add_code, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		
@@ -1516,6 +1522,7 @@ class add_vegetation_code ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.choice_vegetation_col.Bind( wx.EVT_CHOICE, self.on_choice )
 		self.add_code.Bind( wx.EVT_BUTTON, self.on_add_code )
 	
 	def __del__( self ):
@@ -1523,6 +1530,9 @@ class add_vegetation_code ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def on_choice( self, event ):
+		event.Skip()
+	
 	def on_add_code( self, event ):
 		event.Skip()
 	
