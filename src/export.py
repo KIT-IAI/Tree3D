@@ -190,10 +190,9 @@ class CityGmlExport:
             creationdate = ET.SubElement(SolitaryVegetationObject, "creationDate")
             creationdate.text = str(date.today())
 
-            if self.__species_col_index is not None:
-                if row[self.__species_col_index] is not None:
-                    species = ET.SubElement(SolitaryVegetationObject, "veg:species")
-                    species.text = str(row[self.__species_col_index])
+            if self.__species_col_index is not None and row[self.__species_col_index] is not None:
+                species = ET.SubElement(SolitaryVegetationObject, "veg:species")
+                species.text = str(row[self.__species_col_index])
 
             if self.__height_col_index is not None:
                 height = ET.SubElement(SolitaryVegetationObject, "veg:height")
