@@ -459,7 +459,7 @@ class AssignHeight(BasicConnection):
                 nenner += weight
             hoehe = zaehler / nenner
 
-            self.update_value(self.__TreeTableName, "height", hoehe, self.__IdCol, row[0])
+            self.update_value(self.__TreeTableName, "Height_DEM", hoehe, self.__IdCol, row[0])
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
 
 
