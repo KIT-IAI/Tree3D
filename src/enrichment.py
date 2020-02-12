@@ -87,6 +87,7 @@ class ImportHeight(default_gui.import_dem):
         importer.create_table()  # create table in database for elevation data (if not exists already)
         imp = importer.import_file(self.__PointsImported, self.text_rowcount)  # start file import
         if not imp[0]:
+            importer.rollback()
             msg = wx.MessageDialog(None, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)
@@ -270,6 +271,9 @@ class BasicConnection:
     def commit(self):
         self._con.commit()
 
+    def rollback(self):
+        self._con.rollback()
+
     # closes database connection
     def close_connection(self):
         self._con.close()
@@ -363,7 +367,6 @@ class DemImporter(BasicDemConnection):
                     y = line[self.__YColIndex]
                     h = line[self.__HColIndex]
                 except IndexError:
-                    self._con.rollback()
                     success = False
                     message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
                     break
@@ -373,10 +376,10 @@ class DemImporter(BasicDemConnection):
                 try:
                     self._cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
                 except sqlite3.OperationalError:
-                    self._con.rollback()
                     success = False
                     message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
                     break
+
                 imported_row_count += 1
                 if imported_row_count % 10000 == 0:
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
