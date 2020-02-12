@@ -203,6 +203,9 @@ class ImportHeight(default_gui.import_dem):
         else:
             self.__EmptyLinesBeforeDataStart = start_data
 
+        self.DoLayoutAdaptation()
+        self.Layout()
+
     def validate_input(self):
         valid = True
         message = ""
