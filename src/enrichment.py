@@ -436,21 +436,21 @@ class AssignHeight(BasicConnection):
 
     def assign(self):
         innercursor = self._con.cursor()
-        statement = 'SELECT %s.%s FROM %s, convexhull' % (self.__TreeTableName, self.__IdCol, self.__TreeTableName)
+        statement = 'SELECT %s."%s" FROM %s, convexhull' % (self.__TreeTableName, self.__IdCol, self.__TreeTableName)
         countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull' % (self.__TreeTableName, self.__TreeTableName)
-        statement += ' WHERE Intersects(%s."%s", convexhull.geom)==1;' % (self.__TreeTableName, self.__GeomCol)
-        countstatement += ' WHERE Intersects(%s."%s", convexhull.geom)==1;' % (self.__TreeTableName, self.__GeomCol)
+        statement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
+        countstatement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
         self._cursor.execute(countstatement)
         self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
         for idx, row in enumerate(self._cursor):
-            statement = "SELECT elevation.height, Distance(%s.%s, elevation.geom) FROM elevation, %s" \
+            statement = 'SELECT elevation.height, Distance(%s."%s", elevation."geom") FROM elevation, %s' \
                         % (self.__TreeTableName, self.__GeomCol, self.__TreeTableName)
             if type(row[0]) == str:
                 statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
             else:
                 statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
-            statement += ' ORDER BY Distance(%s.%s, elevation.geom) LIMIT 4;' % (self.__TreeTableName, self.__GeomCol)
+            statement += ' ORDER BY Distance(%s."%s", elevation."geom") LIMIT 4;' % (self.__TreeTableName, self.__GeomCol)
             innercursor.execute(statement)
 
             # IDW Interpolation (quadratic weights)
