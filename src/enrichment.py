@@ -391,6 +391,7 @@ class GrabHeight(default_gui.GrabHeight):
     def __init__(self, parent, dbpath):
         default_gui.GrabHeight.__init__(self, parent)
         self.__DbFilePath = dbpath
+        self.__running = False
         self.populate_dropdown()
         self.DoLayoutAdaptation()
         self.Layout()
@@ -406,9 +407,12 @@ class GrabHeight(default_gui.GrabHeight):
 
     def validate(self, event):
         valid = True
-        if self.id.GetSelection() == wx.NOT_FOUND:
-            valid = False
-        if self.geom.GetSelection() == wx.NOT_FOUND:
+        if not self.__running:
+            if self.id.GetSelection() == wx.NOT_FOUND:
+                valid = False
+            if self.geom.GetSelection() == wx.NOT_FOUND:
+                valid = False
+        else:
             valid = False
         if valid:
             self.assign.Enable(True)
@@ -420,6 +424,7 @@ class GrabHeight(default_gui.GrabHeight):
             msg.ShowModal()
             return
         self.assign.Enable(False)
+        self.__running = True
         self.GetParent().db.add_col("Height_DEM", "REAL")
         thread = threading.Thread(target=self.start_assign)
         thread.start()
