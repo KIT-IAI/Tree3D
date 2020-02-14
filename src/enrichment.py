@@ -401,6 +401,9 @@ class GrabHeight(default_gui.GrabHeight):
         self.id.SetItems(col_names)
         self.geom.SetItems(geom_names)
 
+    def on_checkbox_hit(self, event):
+        self.radius.Enabled = not self.radius.Enabled
+
     def validate(self, event):
         valid = True
         if self.id.GetSelection() == wx.NOT_FOUND:
@@ -411,32 +414,59 @@ class GrabHeight(default_gui.GrabHeight):
             self.assign.Enable(True)
 
     def on_assign(self, event):
+        valid, message = self.validate_input()
+        if not valid:
+            msg = wx.MessageDialog(self, message, style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
+            return
         self.assign.Enable(False)
         self.GetParent().db.add_col("Height_DEM", "REAL")
         thread = threading.Thread(target=self.start_assign)
         thread.start()
 
+    def validate_input(self):
+        valid = True
+        message = ""
+        if self.use_radius.GetValue():
+            try:
+                int(self.radius.GetValue())
+            except ValueError:
+                valid = False
+                message = "Radius must be an integer"
+
+        return valid, message
+
     def start_assign(self):
+        try:
+            radius = int(self.radius.GetValue())
+        except ValueError:
+            radius = 0
         assigner = AssignHeight(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
                                 self.geom.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
-                                self.gauge)
+                                self.gauge, self.use_radius.GetValue(), radius)
         assigner.assign()
         assigner.commit()
         self.EndModal(1)
 
 
 class AssignHeight(BasicConnection):
-    def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge):
+    def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge, use_searchradius, searchradius):
         BasicConnection.__init__(self, dbpath)
         self.__db = db
         self.__IdCol = idcol
         self.__GeomCol = geomcol
         self.__TreeTableName = treetable
         self.__gauge = gauge
+        self.__use_searchradius = use_searchradius
+        self.__searchradius = searchradius
 
     def assign(self):
         innercursor = self._con.cursor()
-        statement = 'SELECT %s."%s" FROM %s, convexhull' % (self.__TreeTableName, self.__IdCol, self.__TreeTableName)
+        statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s") FROM %s, convexhull'\
+                    % (self.__TreeTableName, self.__IdCol,
+                       self.__TreeTableName, self.__GeomCol,
+                       self.__TreeTableName, self.__GeomCol,
+                       self.__TreeTableName)
         countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull' % (self.__TreeTableName, self.__TreeTableName)
         statement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
         countstatement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
@@ -450,6 +480,13 @@ class AssignHeight(BasicConnection):
                 statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
             else:
                 statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
+
+            if self.__use_searchradius:
+                x = row[1]
+                y = row[2]
+                statement += ''' AND elevation.ROWID IN'''
+                statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'elevation' '''
+                statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s))''' % (x, y, self.__searchradius)
             statement += ' ORDER BY Distance(%s."%s", elevation."geom") LIMIT 4;' % (self.__TreeTableName, self.__GeomCol)
             innercursor.execute(statement)
 

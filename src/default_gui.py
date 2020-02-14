@@ -1412,41 +1412,55 @@ class GrabHeight ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer36 = wx.FlexGridSizer( 2, 1, 0, 0 )
+		fgSizer36 = wx.FlexGridSizer( 4, 1, 0, 0 )
 		fgSizer36.SetFlexibleDirection( wx.BOTH )
 		fgSizer36.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-		
-		sbSizer17 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"label" ), wx.VERTICAL )
 		
 		fgSizer33 = wx.FlexGridSizer( 1, 4, 0, 0 )
 		fgSizer33.SetFlexibleDirection( wx.BOTH )
 		fgSizer33.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText63 = wx.StaticText( sbSizer17.GetStaticBox(), wx.ID_ANY, u"ID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText63 = wx.StaticText( self, wx.ID_ANY, u"ID", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText63.Wrap( -1 )
 		
 		fgSizer33.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		idChoices = []
-		self.id = wx.Choice( sbSizer17.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, idChoices, 0 )
+		self.id = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, idChoices, 0 )
 		self.id.SetSelection( 0 )
 		fgSizer33.Add( self.id, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText64 = wx.StaticText( sbSizer17.GetStaticBox(), wx.ID_ANY, u"Geometry", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText64 = wx.StaticText( self, wx.ID_ANY, u"Geometry", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText64.Wrap( -1 )
 		
 		fgSizer33.Add( self.m_staticText64, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		geomChoices = []
-		self.geom = wx.Choice( sbSizer17.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geomChoices, 0 )
+		self.geom = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geomChoices, 0 )
 		self.geom.SetSelection( 0 )
 		fgSizer33.Add( self.geom, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		sbSizer17.Add( fgSizer33, 1, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		fgSizer36.Add( fgSizer33, 1, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		fgSizer27 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer27.SetFlexibleDirection( wx.BOTH )
+		fgSizer27.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.use_radius = wx.CheckBox( self, wx.ID_ANY, u"Use search radius (faster)(m)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer27.Add( self.use_radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.radius = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radius.SetMaxLength( 4 ) 
+		self.radius.Enable( False )
+		
+		fgSizer27.Add( self.radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		fgSizer36.Add( sbSizer17, 1, wx.EXPAND, 5 )
+		fgSizer36.Add( fgSizer27, 1, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer36.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		fgSizer34 = wx.FlexGridSizer( 1, 2, 0, 0 )
 		fgSizer34.SetFlexibleDirection( wx.BOTH )
@@ -1474,6 +1488,7 @@ class GrabHeight ( wx.Dialog ):
 		# Connect Events
 		self.id.Bind( wx.EVT_CHOICE, self.validate )
 		self.geom.Bind( wx.EVT_CHOICE, self.validate )
+		self.use_radius.Bind( wx.EVT_CHECKBOX, self.on_checkbox_hit )
 		self.assign.Bind( wx.EVT_BUTTON, self.on_assign )
 	
 	def __del__( self ):
@@ -1484,6 +1499,9 @@ class GrabHeight ( wx.Dialog ):
 	def validate( self, event ):
 		event.Skip()
 	
+	
+	def on_checkbox_hit( self, event ):
+		event.Skip()
 	
 	def on_assign( self, event ):
 		event.Skip()
