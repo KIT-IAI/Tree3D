@@ -7,6 +7,7 @@ import wx
 import default_gui
 
 
+# GUI class to import DEM into database
 class ImportHeight(default_gui.import_dem):
     def __init__(self, parent, dbpath):
         default_gui.import_dem.__init__(self, parent)
@@ -73,9 +74,11 @@ class ImportHeight(default_gui.import_dem):
             msg.ShowModal()
             return
 
+        # create and start new thread to do the import
         thread = threading.Thread(target=self.start_import)
         thread.start()
 
+    # method to start the import (executed in new thread
     def start_import(self):
         self.buttonBrowse.Enable(False)
         self.importbutton.Enable(False)
@@ -84,7 +87,11 @@ class ImportHeight(default_gui.import_dem):
         colstoimport = [self.xvalue.GetSelection(), self.yvalue.GetSelection(), self.heightvalue.GetSelection()]
         importer = DemImporter(self.__filepath, self.__encoding, self.__seperator, colstoimport, self.epsg.GetValue(),
                                self.__EmptyLinesBeforeDataStart, self.__DbFilePath)
-        importer.create_table()  # create table in database for elevation data (if not exists already)
+
+        # create table in database for elevation data (if not exists already)
+        importer.create_table()
+
+        # start the import of file
         imp = importer.import_file(self.__PointsImported, self.text_rowcount)  # start file import
         if not imp[0]:
             importer.rollback()
@@ -94,13 +101,17 @@ class ImportHeight(default_gui.import_dem):
             return
 
         importer.commit()
-        self.__PointsImported = importer.get_rowcount()  # update variable for number of points imported
 
+        # update variable for number of points imported
+        self.__PointsImported = importer.get_rowcount()
+
+        # Update Text in GUI to show number of points imported
         self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)  # Update label in GUI
         self.__ImportedFiles.append(self.__filepath)
 
         importer.close_connection()
 
+        # activate buttons to import further DEM files
         self.buttonBrowse.Enable(True)
         self.importbutton.Enable(True)
         self.next.Enable(True)
@@ -254,6 +265,8 @@ class ImportHeight(default_gui.import_dem):
         self.heightvalue.SetItems(self.__FileColumns)
 
 
+# Real basic database connection with basic functionality
+# All other database connections inherit from this class
 class BasicConnection:
     def __init__(self, databasepath):
         self._DbFilePath = databasepath
@@ -302,6 +315,7 @@ class BasicConnection:
         self._updatecursor.execute(statement)
 
 
+# Class with basic functionality for DEM importing
 class BasicDemConnection(BasicConnection):
     def __init__(self, dbpath, ref):
         BasicConnection.__init__(self, dbpath)
@@ -320,6 +334,7 @@ class BasicDemConnection(BasicConnection):
         self._cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
 
 
+# Class to import DEM into database
 class DemImporter(BasicDemConnection):
     def __init__(self, filepath, encoding, sep, colstoimport, ref, emptylines, dbpath):
         self.__filepath = filepath
@@ -332,6 +347,7 @@ class DemImporter(BasicDemConnection):
 
         BasicDemConnection.__init__(self, dbpath, ref)
 
+    # class to create elevation table
     def create_table(self):
         self._cursor.execute('CREATE TABLE IF NOT EXISTS elevation (height REAL);')
 
@@ -346,12 +362,14 @@ class DemImporter(BasicDemConnection):
                                  % self._ReferenceSystemCode)
         self._con.commit()
 
+    # class to DEM file into database
     def import_file(self, imported_points, text_count):
         success = True
         message = ""
         imported_row_count = imported_points
         with open(self.__filepath, newline='', encoding=self.__encoding) as file:
 
+            # skip empty lines at beginning of file
             counter = 0
             while counter < self.__NumberOfEmptyLines:
                 file.readline()
@@ -359,6 +377,7 @@ class DemImporter(BasicDemConnection):
 
             csvreader = csv.reader(file, delimiter=self.__seperator)
             for index, line in enumerate(csvreader):
+                # skip empty lines
                 if not line:
                     continue
 
@@ -371,8 +390,10 @@ class DemImporter(BasicDemConnection):
                     message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
                     break
 
+                # Create Text to insert point into database
                 pointtext = "GeomFromText('POINT(%s %s)', 5677)" % (x, y)
 
+                # insert point into database
                 try:
                     self._cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
                 except sqlite3.OperationalError:
@@ -381,12 +402,15 @@ class DemImporter(BasicDemConnection):
                     break
 
                 imported_row_count += 1
+
+                # Update label in GUI every 10.000 imported lines
                 if imported_row_count % 10000 == 0:
                     text_count.SetLabel("%s elevation points imported" % imported_row_count)
 
         return success, message
 
 
+# Derived GUI class to hight values
 class GrabHeight(default_gui.GrabHeight):
     def __init__(self, parent, dbpath):
         default_gui.GrabHeight.__init__(self, parent)
@@ -396,15 +420,20 @@ class GrabHeight(default_gui.GrabHeight):
         self.DoLayoutAdaptation()
         self.Layout()
 
+    # method to populate dropdowns
     def populate_dropdown(self):
         col_names = self.GetParent().db.get_column_names()
         geom_names = self.GetParent().db.get_column_names_geom()
         self.id.SetItems(col_names)
         self.geom.SetItems(geom_names)
 
+    # method called when checkbox is hit:
+    # activates TextBox to enter Search radius
     def on_checkbox_hit(self, event):
         self.radius.Enabled = not self.radius.Enabled
 
+    # method called when dropdown changes
+    # if all dropdowns have been chosen, Button to Assign hight activates (if program is not running)
     def validate(self, event):
         valid = True
         if not self.__running:
@@ -417,6 +446,8 @@ class GrabHeight(default_gui.GrabHeight):
         if valid:
             self.assign.Enable(True)
 
+    # method to be called when Assign Height button is pushed:
+    # Starts height assigning process
     def on_assign(self, event):
         valid, message = self.validate_input()
         if not valid:
@@ -425,10 +456,13 @@ class GrabHeight(default_gui.GrabHeight):
             return
         self.assign.Enable(False)
         self.__running = True
-        self.GetParent().db.add_col("Height_DEM", "REAL")
+        self.GetParent().db.add_col("Height_DEM", "REAL")  # Adds Hight_DEM column to Tree data table
+
+        # Create and start new thread
         thread = threading.Thread(target=self.start_assign)
         thread.start()
 
+    # method to validate user input (search radius)
     def validate_input(self):
         valid = True
         message = ""
@@ -441,6 +475,7 @@ class GrabHeight(default_gui.GrabHeight):
 
         return valid, message
 
+    # method to administer the assigning (called in new thread)
     def start_assign(self):
         try:
             radius = int(self.radius.GetValue())
@@ -454,6 +489,7 @@ class GrabHeight(default_gui.GrabHeight):
         self.EndModal(1)
 
 
+# class that adds hight to the trees
 class AssignHeight(BasicConnection):
     def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge, use_searchradius, searchradius):
         BasicConnection.__init__(self, dbpath)
@@ -465,34 +501,48 @@ class AssignHeight(BasicConnection):
         self.__use_searchradius = use_searchradius
         self.__searchradius = searchradius
 
+    # method to do the actual assigning of hights
     def assign(self):
         innercursor = self._con.cursor()
+
+        # SELECT part of the statemnet
         statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s") FROM %s, convexhull'\
                     % (self.__TreeTableName, self.__IdCol,
                        self.__TreeTableName, self.__GeomCol,
                        self.__TreeTableName, self.__GeomCol,
                        self.__TreeTableName)
         countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull' % (self.__TreeTableName, self.__TreeTableName)
+
+        # WHERE part of the statement
         statement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
         countstatement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
         self._cursor.execute(countstatement)
         self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
+
         for idx, row in enumerate(self._cursor):
+            # SELECT part of the inner statement
             statement = 'SELECT elevation.height, Distance(%s."%s", elevation."geom") FROM elevation, %s' \
                         % (self.__TreeTableName, self.__GeomCol, self.__TreeTableName)
+
+            # WHERE part of the inner statement
             if type(row[0]) == str:
                 statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
             else:
                 statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
 
+            # Add index constraints to statements (MUCH faster querying!)
             if self.__use_searchradius:
-                x = row[1]
-                y = row[2]
+                x = row[1]  # X koordinate of tree
+                y = row[2]  # Y koordinate of tree
                 statement += ''' AND elevation.ROWID IN'''
                 statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'elevation' '''
                 statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s))''' % (x, y, self.__searchradius)
-            statement += ' ORDER BY Distance(%s."%s", elevation."geom") LIMIT 4;' % (self.__TreeTableName, self.__GeomCol)
+
+            # ORDER BY part of inner statement to find 4 closest points
+            statement += ' ORDER BY Distance(%s."%s", elevation."geom") LIMIT 4;'\
+                         % (self.__TreeTableName, self.__GeomCol)
+
             innercursor.execute(statement)
 
             # IDW Interpolation (quadratic weights)
@@ -508,7 +558,7 @@ class AssignHeight(BasicConnection):
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
 
 
-# Class for GUI to assign Height to Trees
+# Class to add Geom objects into the database
 class AddGeometry(default_gui.geom_props):
     def __init__(self, parent):
         default_gui.geom_props.__init__(self, parent)
@@ -543,7 +593,7 @@ class AddGeometry(default_gui.geom_props):
         else:
             self.add.Enable(False)
 
-    # Method to call when button "Get Height" is pressed
+    # Method to call when button to create geometries is pressed
     def on_add(self, event):
         if not self.validate_input()[0]:
             msg = wx.MessageDialog(self, self.validate_input()[1], style=wx.ICON_WARNING | wx.CENTRE)
@@ -590,7 +640,7 @@ class AddGeometry(default_gui.geom_props):
         return valid, message
 
 
-# Method to add CityGML's vegetation species code to the dataset
+# class to add CityGML's vegetation species code to the dataset
 class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
     def __init__(self, parent, dbpath, tablename):
         default_gui.add_vegetation_code.__init__(self, parent)
