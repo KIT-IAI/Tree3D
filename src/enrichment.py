@@ -48,7 +48,7 @@ class ImportHeight(default_gui.import_dem):
         if dialog.ShowModal() == wx.ID_CANCEL:
             return
         if dialog.GetPath() in self.__ImportedFiles:
-            msg = wx.MessageDialog(None, "This file seems to have been imported into the database already.\n"
+            msg = wx.MessageDialog(self, "This file seems to have been imported into the database already.\n"
                                          "Do you like to import it anyway?",
                                    "Import warning?", style=wx.YES_NO | wx.ICON_WARNING)
             if msg.ShowModal() == wx.ID_YES:
@@ -69,7 +69,7 @@ class ImportHeight(default_gui.import_dem):
         valid = self.validate_input()[0]
         message = self.validate_input()[1]
         if not valid:
-            msg = wx.MessageDialog(None, message, style=wx.ICON_WARNING | wx.CENTRE)
+            msg = wx.MessageDialog(self, message, style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             return
 
@@ -88,7 +88,7 @@ class ImportHeight(default_gui.import_dem):
         imp = importer.import_file(self.__PointsImported, self.text_rowcount)  # start file import
         if not imp[0]:
             importer.rollback()
-            msg = wx.MessageDialog(None, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
+            msg = wx.MessageDialog(self, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)
             return
@@ -541,7 +541,7 @@ class AddGeometry(default_gui.geom_props):
     # Method to call when button "Get Height" is pressed
     def on_add(self, event):
         if not self.validate_input()[0]:
-            msg = wx.MessageDialog(None, self.validate_input()[1], style=wx.ICON_WARNING | wx.CENTRE)
+            msg = wx.MessageDialog(self, self.validate_input()[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             return
 
@@ -558,7 +558,7 @@ class AddGeometry(default_gui.geom_props):
                 self.GetParent().db.rollback()
                 self.GetParent().db.remove_col_from_collist("geom")
                 msg = "Something went wrong while creating geometries."
-                dlg = wx.MessageDialog(None, msg, style=wx.ICON_WARNING | wx.CENTRE)
+                dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
                 dlg.ShowModal()
                 break
         else:
