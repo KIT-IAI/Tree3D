@@ -1,7 +1,11 @@
 # This file maps tree species names to its corresponding CityGML Vegetation SolitaryVegetationObject Species Code-List
-# This is the code list as defined in https://www.sig3d.org/codelists/standard/vegetation/2.0/SolitaryVegetationObject_species.xml
-# You may append or alter this file if the program does not recognize the way you the species type in your dataset
-# When altering this file, ALWAYS use lower-case letters when writing the species type
+# This file also maps species names to CityGML Vegetation SolitaryVegetationObject Class Code List
+# Species code list is defined in https://www.sig3d.org/codelists/standard/vegetation/2.0/SolitaryVegetationObject_species.xml
+# Class code list is defined in https://www.sig3d.org/codelists/standard/vegetation/2.0/SolitaryVegetationObject_class.xml
+# Note that 3D geometries can only be created for coniferous trees (1060) and deciduous trees (1070)
+# You may append or alter this file if the program does not recognize the way you the species name in your dataset
+# When altering this file, ALWAYS use lower-case letters when writing the species name
+# Format: <species_name>:<species_code>:<class_code>
 
 abienus festuschristus:1630
 abies alba:1640
