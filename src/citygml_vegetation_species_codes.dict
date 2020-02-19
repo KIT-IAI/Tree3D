@@ -189,7 +189,7 @@ corylus avellana 'contorta':2490:1070
 corylus avellana:2480:1070
 corylus colurna:2500:1070
 corylus maxima:2510:1070
-corylus:5340:1070:9999
+corylus:5340:1070
 cotinus coggygria:1480:9999
 cotoneaster frigidus:2530:1070
 crassula schmidtii regel:5350:9999
@@ -316,7 +316,7 @@ laburnum anagyroides:3000:1070
 lactuca sativa:5950:9999
 larix decidua:3010:1060
 larix kaempferi:3020:1060
-larix:1020:1060:1060
+larix:1020:1060
 leontopodium alpinum cass.:5970:9999
 leucanthemum x superbum (j.w.ingram) bergmans ex kent:5980:9999
 ligustrum vulgare:3030:9999
@@ -462,7 +462,7 @@ pyracantha m.j. roem.:6570:9999
 pyrus pyraster:3800:1070
 pyrus:6580:1070
 pýrus pyráster:3800:1070
-quercus acutissima:3810
+quercus acutissima:3810:1070
 quercus cerris:3820:1070
 quercus coccinea:3830:1070
 quercus frainetto:3840:1070
@@ -614,7 +614,7 @@ x festulolium:7260:9999
 x triticosecale wittm.:7270:9999
 zantedeschia spreng.:7240:9999
 zantedeschia:1560:9999
-zea mays:7250:9999:9999
+zea mays:7250:9999
 zelkova serrata:4610:1070
 úlmus glábra:4460:1070
 úlmus mínor:4480:1070
