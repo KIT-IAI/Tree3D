@@ -646,7 +646,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
         default_gui.add_vegetation_code.__init__(self, parent)
         self.__DbPath = dbpath
         self.__DbTreeTableName = tablename
-        self.__CodeDict = {}
+        self.__CodeList = []
 
         self.populate_dropdowns()
         self.DoLayoutAdaptation()
@@ -674,22 +674,31 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                         continue
 
                     # Error if there are more than two Doppelpunkt in a line
-                    if len(line) != 2:
+                    if len(line) < 3:
                         text = "Cannot import Species vegetation codes\n" \
                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
-                               "More than one colon detected." % str(idx+1)
-                        self.__CodeDict.clear()
+                               "Less than 3 colons in line detected." % str(idx+1)
+                        self.__CodeList.clear()
                         success = False
                         break
 
-                    # Code must be cast to an integer
+                    # Error if there are more than two Doppelpunkt in a line
+                    if len(line) > 3:
+                        text = "Cannot import Species vegetation codes\n" \
+                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
+                               "More than 3 colons in line detected." % str(idx + 1)
+                        self.__CodeList.clear()
+                        success = False
+                        break
+
+                    # species code must be cast to an integer
                     try:
-                        self.__CodeDict[line[0]] = int(line[1])
+                        self.__CodeList.append([line[0], int(line[1]), int(line[2])])
                     except ValueError:
                         text = "Cannot import Species vegetation codes\n" \
                                "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
                                "Code not an integer." % str(idx + 1)
-                        self.__CodeDict.clear()
+                        self.__CodeList.clear()
                         success = False
                         break
         except FileNotFoundError:
@@ -712,10 +721,12 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             return
 
         veg_column = self.choice_vegetation_col.GetStringSelection()  # get column with botanical name
-        self.GetParent().db.add_col("CityGML Species Code", "INT")  # add column to database table
+        self.GetParent().db.add_col("CityGML Species Code", "INT")  # add species code column to database table
+        self.GetParent().db.add_col("CityGML Class Code", "INT")  # add species code column to database table
         self.GetParent().db.commit()
         con = BasicConnection(self.__DbPath)
-        for v in self.__CodeDict:
-            con.update_value(self.__DbTreeTableName, "CityGML Species Code", self.__CodeDict[v], veg_column, v, True)
+        for entry in self.__CodeList:
+            con.update_value(self.__DbTreeTableName, "CityGML Species Code", entry[1], veg_column, entry[0], True)
+            con.update_value(self.__DbTreeTableName, "CityGML Class Code", entry[2], veg_column, entry[0], True)
         con.commit()
         self.EndModal(12347)
