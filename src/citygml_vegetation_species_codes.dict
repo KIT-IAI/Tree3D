@@ -225,10 +225,10 @@ digitalis:5510:9999
 dracaena draco:2640:9999
 dracocephalum moldavica:5520:9999
 echinodorus   c. rich. ex engelm.:5530:9999
-elaeagnus angustifolia:2650:1020
-elaeagnus umbellata:2660:1020
+elaeagnus angustifolia:2650:1070
+elaeagnus umbellata:2660:1070
 erica:5540:9999
-euonymus alatus:2670:1979
+euonymus alatus:2670:1070
 euonymus europaeus:2680:1070
 euonymus europea:1490:1070
 euonymus fortunei (turcz.) hand.-mazz.:5550:1070
@@ -618,3 +618,33 @@ zea mays:7250:9999
 zelkova serrata:4610:1070
 úlmus glábra:4460:1070
 úlmus mínor:4480:1070
+
+# KIT specific species names: These names are not in the official code list
+abies:9999:1060
+acer ginnala:1810:1070
+acer negundo 'Variegatum':1840:1070
+acer platanoides 'Globosum':1860:1070
+acer platanoides 'rubra':1860:1070
+acer pseudoplatanus 'rubra':1880:1070
+aesculus:9999:1070
+carpinus betulus 'Fastigiata':9999:1070
+catalpa bignonioides 'Nana':2270:1070
+chamaecyparis:9999:1060
+fagus sylvatica 'Atropunicea':2710:1070
+liquidambar:9999:1070
+liriodendron:9999:1070
+malus:9999:1070
+malus domestica:9999:1070
+picea pungens:3330:1060
+platanus x acerifolia:3540:1070
+populus canescens:3610:1070
+populus nigra 'Italica':3580:1070
+prunus x:6500:1070
+pseudotsuga:9999:1060
+quercus robur 'Fastigiata':3910:1070
+robinia pseudoacacia 'Umbraculifera':4020:1070
+species:9999:9999
+thuja:9999:1060
+tilia x:6940:1070
+tilia x euchlora:9999:1070
+ulmus hollandica:9999:1070
