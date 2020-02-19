@@ -833,7 +833,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 439,509 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,504 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -860,47 +860,48 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer4 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
 		
-		fgSizer7 = wx.FlexGridSizer( 4, 2, 0, 0 )
+		fgSizer7 = wx.FlexGridSizer( 4, 4, 0, 0 )
 		fgSizer7.SetFlexibleDirection( wx.BOTH )
 		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_staticText171 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText171.Wrap( -1 )
 		
-		fgSizer7.Add( self.m_staticText171, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText171, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceXvalueChoices = []
 		self.choiceXvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceXvalueChoices, 0 )
 		self.choiceXvalue.SetSelection( 0 )
-		fgSizer7.Add( self.choiceXvalue, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.choiceXvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText18 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText18.Wrap( -1 )
 		
-		fgSizer7.Add( self.m_staticText18, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText18, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceYvalueChoices = []
 		self.choiceYvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceYvalueChoices, 0 )
 		self.choiceYvalue.SetSelection( 0 )
 		fgSizer7.Add( self.choiceYvalue, 0, wx.ALL, 5 )
 		
+		self.m_staticText53 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Reference Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText53.Wrap( -1 )
+		
+		fgSizer7.Add( self.m_staticText53, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		choiceRefheightChoices = []
+		self.choiceRefheight = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceRefheightChoices, 0 )
+		self.choiceRefheight.SetSelection( 0 )
+		fgSizer7.Add( self.choiceRefheight, 0, wx.ALL, 5 )
+		
 		self.m_staticText20 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText20.Wrap( -1 )
 		
-		fgSizer7.Add( self.m_staticText20, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.m_staticText20, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_textCtrl3 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_textCtrl3.SetMaxLength( 6 ) 
 		fgSizer7.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
-		
-		self.m_staticText21 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code (output)", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText21.Wrap( -1 )
-		
-		fgSizer7.Add( self.m_staticText21, 0, wx.ALL, 5 )
-		
-		self.m_textCtrl4 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_textCtrl4.SetMaxLength( 6 ) 
-		fgSizer7.Add( self.m_textCtrl4, 0, wx.ALL, 5 )
 		
 		
 		sbSizer4.Add( fgSizer7, 1, wx.EXPAND, 5 )
@@ -927,14 +928,14 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
 		
-		fgSizer6 = wx.FlexGridSizer( 4, 4, 0, 0 )
+		fgSizer6 = wx.FlexGridSizer( 5, 4, 0, 0 )
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
 		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText15.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText15, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText15, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceHeightChoices = []
 		self.choiceHeight = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightChoices, 0 )
@@ -952,7 +953,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText17.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText17, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText17, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceTrunkChoices = []
 		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
@@ -972,7 +973,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText16, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText16, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceCrownChoices = []
 		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
@@ -989,15 +990,41 @@ class CityGmlExport ( wx.Dialog ):
 		self.crown_circ.SetSelection( 0 )
 		fgSizer6.Add( self.crown_circ, 0, wx.ALL, 5 )
 		
-		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Species Code", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"CityGML Species Code", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText19.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText19, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText19, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceSpeciesChoices = []
 		self.choiceSpecies = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceSpeciesChoices, 0 )
 		self.choiceSpecies.SetSelection( 0 )
 		fgSizer6.Add( self.choiceSpecies, 0, wx.ALL, 5 )
+		
+		
+		fgSizer6.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer6.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.m_staticText52 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"CityGML Class Code", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText52.Wrap( -1 )
+		
+		fgSizer6.Add( self.m_staticText52, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		choiceClassChoices = []
+		self.choiceClass = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceClassChoices, 0 )
+		self.choiceClass.SetSelection( 0 )
+		fgSizer6.Add( self.choiceClass, 0, wx.ALL, 5 )
+		
+		self.m_staticText54 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"default", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText54.Wrap( -1 )
+		
+		fgSizer6.Add( self.m_staticText54, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_choice40Choices = [ u"deciduous tree", u"coniferous tree" ]
+		self.m_choice40 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice40Choices, 0 )
+		self.m_choice40.SetSelection( 0 )
+		fgSizer6.Add( self.m_choice40, 0, wx.ALL, 5 )
 		
 		
 		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
