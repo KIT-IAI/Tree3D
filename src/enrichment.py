@@ -661,7 +661,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
         success = True
         text = ""
         try:
-            with open("citygml_vegetation_species_codes.dict", encoding="utf-8") as file:
+            with open("citygml_vegetation_codes.code", encoding="utf-8") as file:
                 csvfile = csv.reader(file, delimiter=":")
                 for idx, line in enumerate(csvfile):
 
