@@ -27,10 +27,12 @@ class ExportDialog(default_gui.CityGmlExport):
         colitemlist = self.GetParent().db.get_column_names()
         self.choiceXvalue.SetItems(colitemlist)
         self.choiceYvalue.SetItems(colitemlist)
+        self.choiceRefheight.SetItems(colitemlist)
         self.choiceHeight.SetItems(colitemlist)
         self.choiceTrunk.SetItems(colitemlist)
         self.choiceCrown.SetItems(colitemlist)
         self.choiceSpecies.SetItems(colitemlist)
+        self.choiceClass.SetItems(colitemlist)
 
     # method to be called when "Browse" button is pushed
     def on_browse(self, event):
@@ -57,6 +59,9 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceYvalue.GetSelection() != wx.NOT_FOUND:
             exporter.set_y_col_idx(self.choiceYvalue.GetSelection())
 
+        if self.choiceRefheight.GetSelection() != wx.NOT_FOUND:
+            exporter.set_ref_height_col_idx(self.choiceRefheight.GetSelection())
+
         if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             exporter.set_height_col_index(self.choiceHeight.GetSelection())
             exporter.set_height_unit(self.choiceHeightUnit.GetString(self.choiceHeightUnit.GetSelection()))
@@ -77,6 +82,9 @@ class ExportDialog(default_gui.CityGmlExport):
 
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
+
+        if self.choiceClass.GetSelection() != wx.NOT_FOUND:
+            exporter.set_class_col_index(self.choiceClass.GetSelection())
 
         export_status = exporter.export(self.progress)
 
@@ -142,6 +150,7 @@ class CityGmlExport:
         self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
         self.__x_value_col_index = None  # index of column in which x value is stored
         self.__y_value_col_index = None  # index of column in which y value is stored
+        self.__ref_height_col_index = None  # index of column in which reference height is stored
         self.__EPSG = None  # EPSG-Code of coordinates
         self.__EPSG_output = None  # EPSG-Code of coordinates in output
 
@@ -156,7 +165,9 @@ class CityGmlExport:
         self.__crown_diam_unit = None  # variable to store the unit of the crown diameter
         self.__crown_is_circ = None  # boolean variable to indicate if crown diam must be calculated from circumference
 
-        self.__species_col_index = None  # index of species column
+        self.__species_col_index = None  # index of CityGML species code column
+        self.__class_col_index = None  # index of CityGML class code column
+        self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
     # method to initiate citygml export
     def export(self, progressbar):
@@ -189,6 +200,10 @@ class CityGmlExport:
             # add creationDate into the model
             creationdate = ET.SubElement(SolitaryVegetationObject, "creationDate")
             creationdate.text = str(date.today())
+
+            if self.__class_col_index is not None and row[self.__class_col_index] is not None:
+                klasse = ET.SubElement(SolitaryVegetationObject, "veg:class")
+                klasse.text = str(row[self.__class_col_index])
 
             if self.__species_col_index is not None and row[self.__species_col_index] is not None:
                 species = ET.SubElement(SolitaryVegetationObject, "veg:species")
@@ -324,11 +339,11 @@ class CityGmlExport:
     def set_y_col_idx(self, idx):
         self.__y_value_col_index = idx
 
+    def set_ref_height_col_idx(self, idx):
+        self.__ref_height_col_index = idx
+
     def set_EPSG(self, epsg_code):
         self.__EPSG = epsg_code
-
-    def set_EPSG_output(self, epsg_code):
-        self.__EPSG_output = epsg_code
 
     def set_height_col_index(self, idx):
         self.__height_col_index = idx
@@ -341,6 +356,12 @@ class CityGmlExport:
 
     def set_species_col_index(self, index):
         self.__species_col_index = index
+
+    def set_class_col_index(self, index):
+        self.__class_col_index = index
+
+    def set_default_export_type(self, type):
+        self.__default_export_type = type
 
     def set_height_unit(self, unit):
         self.__height_unit = unit
