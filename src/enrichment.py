@@ -676,7 +676,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                     # Error if there are more than two Doppelpunkt in a line
                     if len(line) < 3:
                         text = "Cannot import Species vegetation codes\n" \
-                              "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
+                              "Error in file citygml_vegetation_codes.code in line %s:\n" \
                                "Less than 3 colons in line detected." % str(idx+1)
                         self.__CodeList.clear()
                         success = False
@@ -685,7 +685,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                     # Error if there are more than two Doppelpunkt in a line
                     if len(line) > 3:
                         text = "Cannot import Species vegetation codes\n" \
-                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
+                               "Error in file citygml_vegetation_codes.code in line %s:\n" \
                                "More than 3 colons in line detected." % str(idx + 1)
                         self.__CodeList.clear()
                         success = False
@@ -693,18 +693,29 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
 
                     # species code must be cast to an integer
                     try:
-                        self.__CodeList.append([line[0], int(line[1]), int(line[2])])
+                        entry = [line[0], int(line[1]), int(line[2])]
                     except ValueError:
                         text = "Cannot import Species vegetation codes\n" \
-                               "Error in file citygml_vegetation_species_codes.dict in line %s:\n" \
+                               "Error in file citygml_vegetation_codes.code in line %s:\n" \
                                "Code not an integer." % str(idx + 1)
                         self.__CodeList.clear()
                         success = False
                         break
+
+                    if entry[2] not in [1060, 1070, 9999]:
+                        text = "Cannot import Species vegetation codes.\n" \
+                               "Error in file citygml_vegetation_codes.code in line %s:\n" \
+                               "CityGML class code not supported. Supported class codes are 1060, 1070, 9999.\n" \
+                               "Class code %s detected." % (str(idx+1), str(entry[2]))
+                        self.__CodeList.clear()
+                        success = False
+                        break
+
+                    self.__CodeList.append(entry)
         except FileNotFoundError:
             success = False
             text = "Cannot import Species Vegetation codes.\n" \
-                   "Could not find file citygml_vegetation_species_codes.dict in curent directory."
+                   "Could not find file citygml_vegetation_codes.code in curent directory."
         return success, text
 
     # method is called when choice is changed
