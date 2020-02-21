@@ -253,8 +253,11 @@ class CityGmlExport:
                 crown.text = str(diam)
                 crown.set("uom", self.__crown_diam_unit)
 
+            #lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
+            #self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
+
             lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
-            self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
+            self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 4)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -368,6 +371,39 @@ class CityGmlExport:
         element_pos_list = ET.SubElement(line_string, "gml:posList")
         element_pos_list.set("srsDimension", str(3))
         element_pos_list.text = s_pos_list
+
+    def generate_billboard_rectangle_geometry(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, segments):
+        angle = 0
+        rotate = 360./segments
+        points = []
+        for _ in range(0, segments):
+            x = math.cos(math.radians(angle)) * (crown_dm/2.0)
+            y = math.sin(math.radians(angle)) * (crown_dm/2.0)
+            points.append([x, y])
+            angle += rotate
+        print(points)
+
+        composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
+        composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
+        composite_surface.set("srsDimension", "3")
+
+        for point in points:
+            l_pos_list = [tree_x, tree_y, ref_h,
+                          tree_x, tree_y, ref_h+tree_h,
+                          tree_x + point[0], tree_y + point[1], ref_h + tree_h,
+                          tree_x + point[0], tree_y + point[1], ref_h,
+                          tree_x, tree_y, ref_h]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+
+            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+            pos_list.text = s_pos_list
+
+
 
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
