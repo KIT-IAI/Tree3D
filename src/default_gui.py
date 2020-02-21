@@ -899,9 +899,9 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer7.Add( self.m_staticText20, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl3 = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_textCtrl3.SetMaxLength( 6 ) 
-		fgSizer7.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
+		self.epsg = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.epsg.SetMaxLength( 6 ) 
+		fgSizer7.Add( self.epsg, 0, wx.ALL, 5 )
 		
 		
 		sbSizer4.Add( fgSizer7, 1, wx.EXPAND, 5 )
