@@ -421,6 +421,6 @@ class CityGmlExport:
         s_poslist = ""
         l_poslist = poslist
         for element in poslist:
-            s_poslist += "%s " % str(element)
+            s_poslist += "%.2f " % element
         s_poslist = s_poslist[:-2]
         return s_poslist
