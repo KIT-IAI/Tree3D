@@ -62,6 +62,9 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceRefheight.GetSelection() != wx.NOT_FOUND:
             exporter.set_ref_height_col_idx(self.choiceRefheight.GetSelection())
 
+        if self.epsg.GetValue() != "":
+            exporter.set_EPSG(int(self.epsg.GetValue()))
+
         if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             exporter.set_height_col_index(self.choiceHeight.GetSelection())
             exporter.set_height_unit(self.choiceHeightUnit.GetString(self.choiceHeightUnit.GetSelection()))
@@ -112,6 +115,16 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceHeight.GetSelection() == self.choiceTrunk.GetSelection() and self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Height cannot be the same column as Trunk diameter"
+
+        try:
+            int(self.epsg.GetValue())
+        except:
+            valid = False
+            warningmessage = "EPSG Code must be an integer number."
+
+        if self.epsg.GetValue() == "":
+            valid = False
+            warningmessage = "EPSG Code must not be empty."
 
         if self.choiceXvalue.GetSelection() == self.choiceYvalue.GetSelection():
             valid = False
@@ -179,9 +192,15 @@ class CityGmlExport:
         self.fill_data_cursor()
         for row in self.__DataCursor:
 
+            x_value = row[self.__x_value_col_index]
+            y_value =row[self.__y_value_col_index]
+            ref_height = row[self.__ref_height_col_index]
+            tree_height = row[self.__height_col_index]
+            trunk_diam = row[self.__trunk_diam_col_index]
+            crown_diam = row[self.__crown_diam_col_index]
+
             # validate tree parametrs
-            valid = self.validate_tree_parameters(row[self.__height_col_index], row[self.__trunk_diam_col_index],
-                                                  row[self.__crown_diam_col_index])
+            valid = self.validate_tree_parameters(tree_height, trunk_diam, crown_diam)
 
             # continue, if this trees parameters are invalid
             if not valid:
@@ -233,6 +252,9 @@ class CityGmlExport:
                     diam = value
                 crown.text = str(diam)
                 crown.set("uom", self.__crown_diam_unit)
+
+            lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
+            self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -333,6 +355,18 @@ class CityGmlExport:
     def fill_data_cursor(self):
         self.__DataCursor = self.__db.get_data()
 
+    def generate_line_geometry(self, parent, x, y, ref_h, tree_h):
+        l_pos_list = [x, y, ref_h, x, y, ref_h+tree_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+
+        line_string = ET.SubElement(parent, "gml:LineString")
+        line_string.set("srsName", "EPSG:%s" % self.__EPSG)
+        line_string.set("srsDimension", str(3))
+
+        element_pos_list = ET.SubElement(line_string, "gml:posList")
+        element_pos_list.set("srsDimension", str(3))
+        element_pos_list.text = s_pos_list
+
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
 
@@ -380,3 +414,11 @@ class CityGmlExport:
 
     def set_prettyprint(self, value):
         self.__prettyprint = value
+
+    def poslist_list_to_string(self, poslist):
+        s_poslist = ""
+        l_poslist = poslist
+        for element in poslist:
+            s_poslist += "%s " % str(element)
+        s_poslist = s_poslist[:-2]
+        return s_poslist
