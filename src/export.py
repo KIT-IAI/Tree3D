@@ -287,6 +287,8 @@ class CityGmlExport:
         bbox = self.__bbox.get_bbox()
         boundedby = ET.Element("gml:boundedBy")
         envelope = ET.SubElement(boundedby, "gml:Envelope")
+        envelope.set("srsDimension", "2")
+        envelope.set("srsName", "EPSG:%s" % self.__EPSG)
 
         lower_corner = ET.SubElement(envelope, "gml:lowerCorner")
         upper_corner = ET.SubElement(envelope, "gml:upperCorner")
