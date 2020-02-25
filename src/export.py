@@ -373,28 +373,21 @@ class CityGmlExport:
         element_pos_list.text = s_pos_list
 
     def generate_billboard_rectangle_geometry(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, segments):
-        angle = 0
-        rotate = 360./segments
-        points = []
-        for _ in range(0, segments):
-            x = math.cos(math.radians(angle)) * (crown_dm/2.0)
-            y = math.sin(math.radians(angle)) * (crown_dm/2.0)
-            points.append([x, y])
-            angle += rotate
-        print(points)
-
         composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
         composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
         composite_surface.set("srsDimension", "3")
 
-        for point in points:
+        angle = 0
+        rotate = 360./segments
+        for _ in range(0, segments):
+            x = math.cos(math.radians(angle)) * (crown_dm/2.0)
+            y = math.sin(math.radians(angle)) * (crown_dm/2.0)
             l_pos_list = [tree_x, tree_y, ref_h,
-                          tree_x, tree_y, ref_h+tree_h,
-                          tree_x + point[0], tree_y + point[1], ref_h + tree_h,
-                          tree_x + point[0], tree_y + point[1], ref_h,
+                          tree_x, tree_y, ref_h + tree_h,
+                          tree_x + x, tree_y + y, ref_h + tree_h,
+                          tree_x + x, tree_y + y, ref_h,
                           tree_x, tree_y, ref_h]
             s_pos_list = self.poslist_list_to_string(l_pos_list)
-
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
             exterior = ET.SubElement(polygon, "gml:exterior")
@@ -402,8 +395,7 @@ class CityGmlExport:
             pos_list = ET.SubElement(linear_ring, "gml:posList")
             pos_list.set("srsDimension", "3")
             pos_list.text = s_pos_list
-
-
+            angle += rotate
 
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
