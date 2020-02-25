@@ -256,8 +256,11 @@ class CityGmlExport:
             #lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
             #self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
 
+            #lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
+            #self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 4)
+
             lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
-            self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 4)
+            self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -360,6 +363,7 @@ class CityGmlExport:
     def fill_data_cursor(self):
         self.__DataCursor = self.__db.get_data()
 
+    # method to generate a vertiecal line geometry
     def generate_line_geometry(self, parent, x, y, ref_h, tree_h):
         l_pos_list = [x, y, ref_h, x, y, ref_h+tree_h]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
@@ -372,6 +376,7 @@ class CityGmlExport:
         element_pos_list.set("srsDimension", str(3))
         element_pos_list.text = s_pos_list
 
+    # method to generate rectangle billboard geometries
     def generate_billboard_rectangle_geometry(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, segments):
         composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
         composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
@@ -396,6 +401,115 @@ class CityGmlExport:
             pos_list.set("srsDimension", "3")
             pos_list.text = s_pos_list
             angle += rotate
+
+    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz = None):
+        if laubansatz is None:
+            laubansatz = tree_h-crown_dm
+        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
+        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
+        composite_solid.set("srsDimension", "3")
+
+        # --- generate stem geometry ---
+        stem_solidmember = ET.SubElement(composite_solid, "gml:solidMember")
+        stem_solid = ET.SubElement(stem_solidmember, "gml:Solid")
+        stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
+        stem_exterior_composite_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
+
+        # generate bottom polygon of stem
+        surfacemember_stem_bottom = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
+        polygon_stem_bottom = ET.SubElement(surfacemember_stem_bottom, "gml:Polygon")
+        polygon_stem_bottom_exterior = ET.SubElement(polygon_stem_bottom, "gml:exterior")
+        polygon_stem_bottom_exterior_linearring = ET.SubElement(polygon_stem_bottom_exterior, "gml:LinearRing")
+        polygon_stem_bottom_exterior_linearring_poslist = ET.SubElement(polygon_stem_bottom_exterior_linearring,
+                                                                        "gml:posList")
+        polygon_stem_bottom_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h,
+                      tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h,
+                      tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h,
+                      tree_x + stem_dm/2, tree_y - stem_dm/2, ref_h,
+                      tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_stem_bottom_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate left side polygon for stem
+        surfacemember_stem_left = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
+        polygon_stem_left = ET.SubElement(surfacemember_stem_left, "gml:Polygon")
+        polygon_stem_left_exterior = ET.SubElement(polygon_stem_left, "gml:exterior")
+        polygon_stem_left_exterior_linearring = ET.SubElement(polygon_stem_left_exterior, "gml:LinearRing")
+        polygon_stem_left_exterior_linearring_poslist = ET.SubElement(polygon_stem_left_exterior_linearring,
+                                                                      "gml:posList")
+        polygon_stem_left_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h,
+                      tree_x - stem_dm/2, tree_y - stem_dm/2, laubansatz,
+                      tree_x - stem_dm/2, tree_y + stem_dm/2, laubansatz,
+                      tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h,
+                      tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_stem_left_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate back side polygon for stem
+        surfacemember_stem_back = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
+        polygon_stem_back = ET.SubElement(surfacemember_stem_back, "gml:Polygon")
+        polygon_stem_back_exterior = ET.SubElement(polygon_stem_back, "gml:exterior")
+        polygon_stem_back_exterior_linearring = ET.SubElement(polygon_stem_back_exterior, "gml:LinearRing")
+        polygon_stem_back_exterior_linearring_poslist = ET.SubElement(polygon_stem_back_exterior_linearring,
+                                                                      "gml:posList")
+        polygon_stem_back_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h,
+                      tree_x - stem_dm/2, tree_y + stem_dm/2, laubansatz,
+                      tree_x + stem_dm/2, tree_y + stem_dm/2, laubansatz,
+                      tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h,
+                      tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_stem_back_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate right side polygon for stem
+        surfacemember_stem_right = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
+        polygon_stem_right = ET.SubElement(surfacemember_stem_right, "gml:Polygon")
+        polygon_stem_right_exterior = ET.SubElement(polygon_stem_right, "gml:exterior")
+        polygon_stem_right_exterior_linearring = ET.SubElement(polygon_stem_right_exterior, "gml:LinearRing")
+        polygon_stem_right_exterior_linearring_poslist = ET.SubElement(polygon_stem_right_exterior_linearring,
+                                                                       "gml:posList")
+        polygon_stem_right_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h,
+                      tree_x + stem_dm/2, tree_y + stem_dm/2, laubansatz,
+                      tree_x + stem_dm/2, tree_y - stem_dm/2, laubansatz,
+                      tree_x + stem_dm/2, tree_y - stem_dm/2, ref_h,
+                      tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_stem_right_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate front side polygon for stem
+        surfacemember_stem_front = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
+        polygon_stem_front = ET.SubElement(surfacemember_stem_front, "gml:Polygon")
+        polygon_stem_front_exterior = ET.SubElement(polygon_stem_front, "gml:exterior")
+        polygon_stem_front_exterior_linearring = ET.SubElement(polygon_stem_front_exterior, "gml:LinearRing")
+        polygon_stem_front_exterior_linearring_poslist = ET.SubElement(polygon_stem_front_exterior_linearring,
+                                                                       "gml:posList")
+        polygon_stem_front_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h,
+                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
+                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
+                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h,
+                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_stem_front_exterior_linearring_poslist.text = s_pos_list
+
+        # generate bottom polygon of stem
+        surfacemember_stem_top = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
+        polygon_stem_top = ET.SubElement(surfacemember_stem_top, "gml:Polygon")
+        polygon_stem_top_exterior = ET.SubElement(polygon_stem_top, "gml:exterior")
+        polygon_stem_top_exterior_linearring = ET.SubElement(polygon_stem_top_exterior, "gml:LinearRing")
+        polygon_stem_top_exterior_linearring_poslist = ET.SubElement(polygon_stem_top_exterior_linearring,
+                                                                     "gml:posList")
+        polygon_stem_top_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
+                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
+                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
+                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
+                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_stem_top_exterior_linearring_poslist.text = s_pos_list
 
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
