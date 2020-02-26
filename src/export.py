@@ -413,7 +413,7 @@ class CityGmlExport:
             angle += rotate
 
     def generate_billboard_polygon_coniferous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
-                                              laubansatz = None):
+                                              laubansatz=None):
         if laubansatz is None:
             laubansatz = ref_h + tree_h - crown_dm
         tree_h = tree_h + ref_h
@@ -563,7 +563,7 @@ class CityGmlExport:
         polygon_stem_top_exterior_linearring_poslist.text = s_pos_list
 
     # method to generate a cuboid geometry for deciduous trees
-    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz = None):
+    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz=None):
         if laubansatz is None:
             laubansatz = ref_h + tree_h - crown_dm
         tree_h = tree_h + ref_h
