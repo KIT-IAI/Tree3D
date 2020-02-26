@@ -430,8 +430,8 @@ class CityGmlExport:
 
             # creating stem polygon
             l_pos_list = [tree_x, tree_y, ref_h,
-                          tree_x + math.cos(angle) * (stem_dm / 2.0), tree_y + math.sin(angle) * (stem_dm / 2.0), ref_h,
-                          tree_x + math.cos(angle) * (stem_dm / 2.0), tree_y + math.sin(angle) * (stem_dm / 2.0), laubansatz,
+                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h,
+                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz,
                           tree_x, tree_y, laubansatz,
                           tree_x, tree_y, ref_h]
             s_pos_list = self.poslist_list_to_string(l_pos_list)
