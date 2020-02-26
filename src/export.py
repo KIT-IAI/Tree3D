@@ -495,7 +495,7 @@ class CityGmlExport:
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_front_exterior_linearring_poslist.text = s_pos_list
 
-        # generate bottom polygon of stem
+        # generate top polygon of stem
         surfacemember_stem_top = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
         polygon_stem_top = ET.SubElement(surfacemember_stem_top, "gml:Polygon")
         polygon_stem_top_exterior = ET.SubElement(polygon_stem_top, "gml:exterior")
@@ -510,6 +510,108 @@ class CityGmlExport:
                       tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_top_exterior_linearring_poslist.text = s_pos_list
+
+        # --- generate crown geometry ---
+        crown_solidmember = ET.SubElement(composite_solid, "gml:solidMember")
+        crown_solid = ET.SubElement(crown_solidmember, "gml:Solid")
+        crown_exterior = ET.SubElement(crown_solid, "gml:exterior")
+        crown_exterior_composite_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
+
+        # generate bottom polygon of crown
+        surfacemember_crown_bottom = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
+        polygon_crown_bottom = ET.SubElement(surfacemember_crown_bottom, "gml:Polygon")
+        polygon_crown_bottom_exterior = ET.SubElement(polygon_crown_bottom, "gml:exterior")
+        polygon_crown_bottom_exterior_linearring = ET.SubElement(polygon_crown_bottom_exterior, "gml:LinearRing")
+        polygon_crown_bottom_exterior_linearring_poslist = ET.SubElement(polygon_crown_bottom_exterior_linearring,
+                                                                         "gml:posList")
+        polygon_crown_bottom_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
+                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
+                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
+                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
+                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_crown_bottom_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate left side polygon for crown
+        surfacemember_crown_left = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
+        polygon_crown_left = ET.SubElement(surfacemember_crown_left, "gml:Polygon")
+        polygon_crown_left_exterior = ET.SubElement(polygon_crown_left, "gml:exterior")
+        polygon_crown_left_exterior_linearring = ET.SubElement(polygon_crown_left_exterior, "gml:LinearRing")
+        polygon_crown_left_exterior_linearring_poslist = ET.SubElement(polygon_crown_left_exterior_linearring,
+                                                                       "gml:posList")
+        polygon_crown_left_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
+                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h,
+                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h,
+                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
+                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_crown_left_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate back side polygon for crown
+        surfacemember_crown_back = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
+        polygon_crown_back = ET.SubElement(surfacemember_crown_back, "gml:Polygon")
+        polygon_crown_back_exterior = ET.SubElement(polygon_crown_back, "gml:exterior")
+        polygon_crown_back_exterior_linearring = ET.SubElement(polygon_crown_back_exterior, "gml:LinearRing")
+        polygon_crown_back_exterior_linearring_poslist = ET.SubElement(polygon_crown_back_exterior_linearring,
+                                                                       "gml:posList")
+        polygon_crown_back_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
+                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h,
+                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h,
+                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
+                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_crown_back_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate right side polygon for crown
+        surfacemember_crown_right = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
+        polygon_crown_right = ET.SubElement(surfacemember_crown_right, "gml:Polygon")
+        polygon_crown_right_exterior = ET.SubElement(polygon_crown_right, "gml:exterior")
+        polygon_crown_right_exterior_linearring = ET.SubElement(polygon_crown_right_exterior, "gml:LinearRing")
+        polygon_crown_right_exterior_linearring_poslist = ET.SubElement(polygon_crown_right_exterior_linearring,
+                                                                        "gml:posList")
+        polygon_crown_right_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
+                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h,
+                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h,
+                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
+                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_crown_right_exterior_linearring_poslist.text = s_pos_list
+
+        # gemerate front side polygon for crown
+        surfacemember_crown_front = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
+        polygon_crown_front = ET.SubElement(surfacemember_crown_front, "gml:Polygon")
+        polygon_crown_front_exterior = ET.SubElement(polygon_crown_front, "gml:exterior")
+        polygon_crown_front_exterior_linearring = ET.SubElement(polygon_crown_front_exterior, "gml:LinearRing")
+        polygon_crown_front_exterior_linearring_poslist = ET.SubElement(polygon_crown_front_exterior_linearring,
+                                                                        "gml:posList")
+        polygon_crown_front_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
+                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h,
+                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h,
+                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
+                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_crown_front_exterior_linearring_poslist.text = s_pos_list
+
+        # generate top polygon of crown
+        surfacemember_crown_top = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
+        polygon_crown_top = ET.SubElement(surfacemember_crown_top, "gml:Polygon")
+        polygon_crown_top_exterior = ET.SubElement(polygon_crown_top, "gml:exterior")
+        polygon_crown_top_exterior_linearring = ET.SubElement(polygon_crown_top_exterior, "gml:LinearRing")
+        polygon_crown_top_exterior_linearring_poslist = ET.SubElement(polygon_crown_top_exterior_linearring,
+                                                                      "gml:posList")
+        polygon_crown_top_exterior_linearring_poslist.set("srsDimension", "3")
+        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h,
+                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h,
+                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h,
+                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h,
+                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h]
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        polygon_crown_top_exterior_linearring_poslist.text = s_pos_list
 
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
