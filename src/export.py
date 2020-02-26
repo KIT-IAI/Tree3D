@@ -230,28 +230,31 @@ class CityGmlExport:
 
             if self.__height_col_index is not None:
                 height = ET.SubElement(SolitaryVegetationObject, "veg:height")
-                height.text = str(row[self.__height_col_index])
-                height.set("uom", self.__height_unit)
+                if self.__height_unit == "cm":
+                    tree_height = tree_height / 100.0
+                height.text = str(tree_height)
+                height.set("uom", "m")
 
             if self.__trunk_diam_col_index is not None:
                 trunk = ET.SubElement(SolitaryVegetationObject, "veg:trunkDiameter")
-                value = row[self.__trunk_diam_col_index]
+                if self.__trunk_diam_unit == "cm":
+                    trunk_diam = trunk_diam/100.0
                 if self.__trunk_is_circ:
-                    diam = value / math.pi
-                else:
-                    diam = value
-                trunk.text = str(diam)
-                trunk.set("uom", self.__trunk_diam_unit)
+                    trunk_diam = trunk_diam / math.pi
+                trunk.text = str(trunk_diam)
+                trunk.set("uom", "m")
 
             if self.__crown_diam_col_index is not None:
                 crown = ET.SubElement(SolitaryVegetationObject, "veg:crownDiameter")
-                value = row[self.__crown_diam_col_index]
+                value = crown_diam
+                if self.__crown_diam_unit == "cm":
+                    crown_diam = crown_diam/100.0
                 if self.__crown_is_circ:
-                    diam = value / math.pi
+                    crown_diam = crown_diam / math.pi
                 else:
                     diam = value
-                crown.text = str(diam)
-                crown.set("uom", self.__crown_diam_unit)
+                crown.text = str(crown_diam)
+                crown.set("uom", "m")
 
             #lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
             #self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
