@@ -404,7 +404,9 @@ class CityGmlExport:
 
     def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz = None):
         if laubansatz is None:
-            laubansatz = tree_h-crown_dm
+            laubansatz = ref_h + tree_h - crown_dm
+        tree_h = tree_h + ref_h
+
         composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
         composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
         composite_solid.set("srsDimension", "3")
