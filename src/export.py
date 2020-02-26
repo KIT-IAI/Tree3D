@@ -425,12 +425,30 @@ class CityGmlExport:
         angle = 0.
         rotate = (2*math.pi) / segments
         for _ in range(0, segments):
+            sinx = math.sin(angle)
+            cosx = math.cos(angle)
+
+            # creating stem polygon
             l_pos_list = [tree_x, tree_y, ref_h,
                           tree_x + math.cos(angle) * (stem_dm / 2.0), tree_y + math.sin(angle) * (stem_dm / 2.0), ref_h,
                           tree_x + math.cos(angle) * (stem_dm / 2.0), tree_y + math.sin(angle) * (stem_dm / 2.0), laubansatz,
-                          tree_x + math.cos(angle) * (crown_dm / 2.0), tree_y + math.sin(angle) * (crown_dm / 2.0), laubansatz,
-                          tree_x, tree_y, tree_h,
+                          tree_x, tree_y, laubansatz,
                           tree_x, tree_y, ref_h]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+            pos_list.text = s_pos_list
+
+            # creatin crown polygon
+            l_pos_list = [tree_x, tree_y, laubansatz,
+                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz,
+                          tree_x + cosx * (crown_dm / 2.0), tree_y + sinx * (crown_dm / 2.0), laubansatz,
+                          tree_x, tree_y, tree_h,
+                          tree_x, tree_y, laubansatz]
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
