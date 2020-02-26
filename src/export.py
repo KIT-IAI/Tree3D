@@ -777,5 +777,5 @@ class CityGmlExport:
         l_poslist = poslist
         for element in poslist:
             s_poslist += "%.2f " % element
-        s_poslist = s_poslist[:-2]
+        s_poslist = s_poslist[:-1]
         return s_poslist
