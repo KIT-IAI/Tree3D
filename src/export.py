@@ -405,17 +405,8 @@ class CityGmlExport:
             pos_list.text = s_pos_list
             angle += rotate
 
-    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz = None):
-        if laubansatz is None:
-            laubansatz = ref_h + tree_h - crown_dm
-        tree_h = tree_h + ref_h
-
-        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
-        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_solid.set("srsDimension", "3")
-
-        # --- generate stem geometry ---
-        stem_solidmember = ET.SubElement(composite_solid, "gml:solidMember")
+    def generate_cuboid_geometry_stem(self, parent, tree_x, tree_y, ref_h, stem_dm, laubansatz):
+        stem_solidmember = ET.SubElement(parent, "gml:solidMember")
         stem_solid = ET.SubElement(stem_solidmember, "gml:Solid")
         stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
         stem_exterior_composite_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
@@ -428,11 +419,11 @@ class CityGmlExport:
         polygon_stem_bottom_exterior_linearring_poslist = ET.SubElement(polygon_stem_bottom_exterior_linearring,
                                                                         "gml:posList")
         polygon_stem_bottom_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h,
-                      tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h,
-                      tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h,
-                      tree_x + stem_dm/2, tree_y - stem_dm/2, ref_h,
-                      tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h]
+        l_pos_list = [tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h,
+                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h,
+                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h,
+                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h,
+                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_bottom_exterior_linearring_poslist.text = s_pos_list
 
@@ -444,11 +435,11 @@ class CityGmlExport:
         polygon_stem_left_exterior_linearring_poslist = ET.SubElement(polygon_stem_left_exterior_linearring,
                                                                       "gml:posList")
         polygon_stem_left_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h,
-                      tree_x - stem_dm/2, tree_y - stem_dm/2, laubansatz,
-                      tree_x - stem_dm/2, tree_y + stem_dm/2, laubansatz,
-                      tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h,
-                      tree_x - stem_dm/2, tree_y - stem_dm/2, ref_h]
+        l_pos_list = [tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h,
+                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
+                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
+                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h,
+                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_left_exterior_linearring_poslist.text = s_pos_list
 
@@ -460,11 +451,11 @@ class CityGmlExport:
         polygon_stem_back_exterior_linearring_poslist = ET.SubElement(polygon_stem_back_exterior_linearring,
                                                                       "gml:posList")
         polygon_stem_back_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h,
-                      tree_x - stem_dm/2, tree_y + stem_dm/2, laubansatz,
-                      tree_x + stem_dm/2, tree_y + stem_dm/2, laubansatz,
-                      tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h,
-                      tree_x - stem_dm/2, tree_y + stem_dm/2, ref_h]
+        l_pos_list = [tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h,
+                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
+                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
+                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h,
+                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_back_exterior_linearring_poslist.text = s_pos_list
 
@@ -476,11 +467,11 @@ class CityGmlExport:
         polygon_stem_right_exterior_linearring_poslist = ET.SubElement(polygon_stem_right_exterior_linearring,
                                                                        "gml:posList")
         polygon_stem_right_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h,
-                      tree_x + stem_dm/2, tree_y + stem_dm/2, laubansatz,
-                      tree_x + stem_dm/2, tree_y - stem_dm/2, laubansatz,
-                      tree_x + stem_dm/2, tree_y - stem_dm/2, ref_h,
-                      tree_x + stem_dm/2, tree_y + stem_dm/2, ref_h]
+        l_pos_list = [tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h,
+                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
+                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
+                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h,
+                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_right_exterior_linearring_poslist.text = s_pos_list
 
@@ -515,6 +506,18 @@ class CityGmlExport:
                       tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_stem_top_exterior_linearring_poslist.text = s_pos_list
+
+    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz = None):
+        if laubansatz is None:
+            laubansatz = ref_h + tree_h - crown_dm
+        tree_h = tree_h + ref_h
+
+        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
+        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
+        composite_solid.set("srsDimension", "3")
+
+        # --- generate stem geometry ---
+        self.generate_cuboid_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz)
 
         # --- generate crown geometry ---
         crown_solidmember = ET.SubElement(composite_solid, "gml:solidMember")
