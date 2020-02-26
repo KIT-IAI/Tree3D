@@ -264,9 +264,11 @@ class CityGmlExport:
 
             lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
             if row[self.__class_col_index] == 1060:
-                self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
+                #self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
             elif row[self.__class_col_index == 1070]:
-                self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                print("deciduous tree not geom creation not defined yet")
+                #self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
             else:
                 print("weder nadel noch laubbaum: default verwendetn")
 
@@ -424,10 +426,11 @@ class CityGmlExport:
         rotate = (2*math.pi) / segments
         for _ in range(0, segments):
             l_pos_list = [tree_x, tree_y, ref_h,
-                          math.cos(angle) * (stem_dm / 2.0), math.sin(angle) * (stem_dm / 2.0), ref_h,
-                          math.cos(angle) * (stem_dm / 2.0), math.sin(angle) * (stem_dm / 2.0), laubansatz,
-                          math.cos(angle) * (crown_dm / 2.0), math.sin(angle) * (crown_dm / 2.0), laubansatz,
-                          tree_x, tree_y, tree_h]
+                          tree_x + math.cos(angle) * (stem_dm / 2.0), tree_y + math.sin(angle) * (stem_dm / 2.0), ref_h,
+                          tree_x + math.cos(angle) * (stem_dm / 2.0), tree_y + math.sin(angle) * (stem_dm / 2.0), laubansatz,
+                          tree_x + math.cos(angle) * (crown_dm / 2.0), tree_y + math.sin(angle) * (crown_dm / 2.0), laubansatz,
+                          tree_x, tree_y, tree_h,
+                          tree_x, tree_y, ref_h]
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
