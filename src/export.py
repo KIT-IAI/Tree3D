@@ -256,21 +256,25 @@ class CityGmlExport:
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
-            #lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
+            lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
+            #lod_2_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod2Geometry")
             #self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
 
-            #lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
             #self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 4)
 
-            lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
             if row[self.__class_col_index] == 1060:
-                self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
-                #self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                #self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
+                #self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                pass
             elif row[self.__class_col_index == 1070]:
-                self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
-                #self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                #self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
+                #self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                pass
             else:
-                print("weder nadel noch laubbaum: default verwendetn")
+                #print("weder nadel noch laubbaum: default verwendetn")
+                pass
+
+            self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 20)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -522,6 +526,72 @@ class CityGmlExport:
             pos_list.set("srsDimension", "3")
             pos_list.text = s_pos_list
             angle += rotate
+
+    # method to generate cylinder geometry
+    def generate_cylinder_geometry(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, segments):
+        tree_h = tree_h + ref_h
+
+        solid = ET.SubElement(parent, "gml:Solid")
+        solid.set("srsName", "EPSG:%s" % self.__EPSG)
+        solid.set("srsDimension", "3")
+        exterior = ET.SubElement(solid, "gml:exterior")
+        comp_surface = ET.SubElement(exterior, "gml:CompositeSurface")
+
+        angle = 0
+        rotate = 2*math.pi / segments
+
+        coordinates = []
+        for _ in range(0, segments):
+            pnt = [tree_x + (crown_dm/2) * math.cos(angle), tree_y + (crown_dm/2) * math.sin(angle)]
+            coordinates.append(pnt)
+            angle += rotate
+
+        # generate walls of cylinder
+        for index in range(0, len(coordinates)):
+            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+
+            l_pos_list = [coordinates[index][0], coordinates[index][1], ref_h,
+                          coordinates[index][0], coordinates[index][1], tree_h,
+                          coordinates[index-1][0], coordinates[index-1][1], tree_h,
+                          coordinates[index-1][0], coordinates[index-1][1], ref_h,
+                          coordinates[index][0], coordinates[index][1], ref_h]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            pos_list.text = s_pos_list
+
+        # generate top of cylinder
+        top_poslsit = []
+        for point in coordinates:
+            top_poslsit.extend([point[0], point[1], tree_h])
+        top_poslsit.extend([coordinates[0][0], coordinates[0][1], tree_h])
+
+        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+        polygon = ET.SubElement(surface_member, "gml:Polygon")
+        exterior = ET.SubElement(polygon, "gml:exterior")
+        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+        pos_list = ET.SubElement(linear_ring, "gml:posList")
+        pos_list.set("srsDimension", "3")
+        s_pos_list = self.poslist_list_to_string(top_poslsit)
+        pos_list.text = s_pos_list
+
+        # generate bottom of cylinder
+        bototm_poslist = []
+        for point in reversed(coordinates):
+            bototm_poslist.extend([point[0], point[1], ref_h])
+        bototm_poslist.extend([coordinates[-1][0], coordinates[-1][1], ref_h])
+
+        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+        polygon = ET.SubElement(surface_member, "gml:Polygon")
+        exterior = ET.SubElement(polygon, "gml:exterior")
+        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+        pos_list = ET.SubElement(linear_ring, "gml:posList")
+        pos_list.set("srsDimension", "3")
+        s_pos_list = self.poslist_list_to_string(bototm_poslist)
+        pos_list.text = s_pos_list
 
     # method to generate the stem for cuboid geometries
     def generate_cuboid_geometry_stem(self, parent, tree_x, tree_y, ref_h, stem_dm, laubansatz):
