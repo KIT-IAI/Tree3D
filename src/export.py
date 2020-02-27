@@ -412,6 +412,7 @@ class CityGmlExport:
             pos_list.text = s_pos_list
             angle += rotate
 
+    # generate billboard from polygon outlines for deciduous trees
     def generate_billboard_polygon_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
                                               laubansatz=None):
         if laubansatz is None:
@@ -451,14 +452,18 @@ class CityGmlExport:
             l_pos_list = [tree_x, tree_y, laubansatz+delta,
                           tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz + delta]
 
+            # generate circle points for crown
             for v_angle in range(0, 180, 10):
                 if math.radians(v_angle) < alpha:
                     continue
                 l_pos_list.append(tree_x + (crown_dm/2) * math.sin(math.radians(180-v_angle)) * cosx)
                 l_pos_list.append(tree_y + (crown_dm/2) * math.sin(math.radians(180-v_angle)) * sinx)
                 l_pos_list.append(laubansatz + crown_dm/2 + ((tree_h-laubansatz)/2)*math.cos(math.radians(180-v_angle)))
+
+            # finish crown geometry
             l_pos_list.extend([tree_x, tree_y, tree_h])
             l_pos_list.extend([tree_x, tree_y, laubansatz+delta])
+
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
@@ -470,6 +475,7 @@ class CityGmlExport:
 
             angle += rotate
 
+    # generate billboard from polygon outlines for coniferous trees
     def generate_billboard_polygon_coniferous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
                                               laubansatz=None):
         if laubansatz is None:
