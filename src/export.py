@@ -267,7 +267,7 @@ class CityGmlExport:
                 self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
                 #self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
             elif row[self.__class_col_index == 1070]:
-                print("deciduous tree not geom creation not defined yet")
+                self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
                 #self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
             else:
                 print("weder nadel noch laubbaum: default verwendetn")
@@ -410,6 +410,64 @@ class CityGmlExport:
             pos_list = ET.SubElement(linear_ring, "gml:posList")
             pos_list.set("srsDimension", "3")
             pos_list.text = s_pos_list
+            angle += rotate
+
+    def generate_billboard_polygon_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
+                                              laubansatz=None):
+        if laubansatz is None:
+            laubansatz = ref_h + tree_h - crown_dm
+        tree_h = tree_h + ref_h
+
+        composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
+        composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
+        composite_surface.set("srsDimension", "3")
+
+        angle = 0.
+        rotate = (2*math.pi) / segments
+
+        alpha = math.asin((stem_dm/2)/(crown_dm/2))
+        delta = (tree_h-laubansatz)/2 - (crown_dm/2)*math.cos(alpha)
+
+        for _ in range(0, segments):
+            sinx = math.sin(angle)
+            cosx = math.cos(angle)
+
+            # creating stem polygon
+            l_pos_list = [tree_x, tree_y, ref_h,
+                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h,
+                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz+delta,
+                          tree_x, tree_y, laubansatz+delta,
+                          tree_x, tree_y, ref_h]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+            pos_list.text = s_pos_list
+
+            # create crown polygon
+            l_pos_list = [tree_x, tree_y, laubansatz+delta,
+                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz + delta]
+
+            for v_angle in range(0, 180, 10):
+                if math.radians(v_angle) < alpha:
+                    continue
+                l_pos_list.append(tree_x + (crown_dm/2) * math.sin(math.radians(180-v_angle)) * cosx)
+                l_pos_list.append(tree_y + (crown_dm/2) * math.sin(math.radians(180-v_angle)) * sinx)
+                l_pos_list.append(laubansatz + crown_dm/2 + ((tree_h-laubansatz)/2)*math.cos(math.radians(180-v_angle)))
+            l_pos_list.extend([tree_x, tree_y, tree_h])
+            l_pos_list.extend([tree_x, tree_y, laubansatz+delta])
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+            pos_list.text = s_pos_list
+
             angle += rotate
 
     def generate_billboard_polygon_coniferous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
