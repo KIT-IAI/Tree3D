@@ -268,6 +268,7 @@ class CityGmlExport:
             if row[self.__class_col_index] == 1060:
                 #self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
                 #self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 20)
                 pass
             elif row[self.__class_col_index == 1070]:
                 #self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
@@ -277,7 +278,7 @@ class CityGmlExport:
                 #print("weder nadel noch laubbaum: default verwendetn")
                 pass
 
-            self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 20)
+            #self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 20)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -913,6 +914,126 @@ class CityGmlExport:
                       tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_crown_front_exterior_linearring_poslist.text = s_pos_list
+
+    def generate_geometry_stem(self, parent, tree_x, tree_y, ref_h,
+                               stem_dm, laubansatz, segments):
+        stem_solidmember = ET.SubElement(parent, "gml:solidMember")
+        stem_solid = ET.SubElement(stem_solidmember, "gml:Solid")
+        stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
+        comp_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
+
+        angle = 0
+        rotate = 2 * math.pi / segments
+
+        coordinates = []
+        for _ in range(0, segments):
+            pnt = [tree_x + (stem_dm / 2) * math.cos(angle), tree_y + (stem_dm / 2) * math.sin(angle)]
+            coordinates.append(pnt)
+            angle += rotate
+
+        # generate walls of cylinder
+        for index in range(0, len(coordinates)):
+            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+
+            l_pos_list = [coordinates[index][0], coordinates[index][1], ref_h,
+                          coordinates[index][0], coordinates[index][1], laubansatz,
+                          coordinates[index - 1][0], coordinates[index - 1][1], laubansatz,
+                          coordinates[index - 1][0], coordinates[index - 1][1], ref_h,
+                          coordinates[index][0], coordinates[index][1], ref_h]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            pos_list.text = s_pos_list
+
+        # generate top of cylinder
+        top_poslsit = []
+        for point in coordinates:
+            top_poslsit.extend([point[0], point[1], laubansatz])
+        top_poslsit.extend([coordinates[0][0], coordinates[0][1], laubansatz])
+
+        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+        polygon = ET.SubElement(surface_member, "gml:Polygon")
+        exterior = ET.SubElement(polygon, "gml:exterior")
+        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+        pos_list = ET.SubElement(linear_ring, "gml:posList")
+        pos_list.set("srsDimension", "3")
+        s_pos_list = self.poslist_list_to_string(top_poslsit)
+        pos_list.text = s_pos_list
+
+        # generate bottom of cylinder
+        bototm_poslist = []
+        for point in reversed(coordinates):
+            bototm_poslist.extend([point[0], point[1], ref_h])
+        bototm_poslist.extend([coordinates[-1][0], coordinates[-1][1], ref_h])
+
+        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+        polygon = ET.SubElement(surface_member, "gml:Polygon")
+        exterior = ET.SubElement(polygon, "gml:exterior")
+        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+        pos_list = ET.SubElement(linear_ring, "gml:posList")
+        pos_list.set("srsDimension", "3")
+        s_pos_list = self.poslist_list_to_string(bototm_poslist)
+        pos_list.text = s_pos_list
+
+    def generate_geometry_coniferous(self, parent, tree_x, tree_y, ref_h,
+                                     tree_h, crown_dm, stem_dm, segments, laubansatz=None):
+        if laubansatz is None:
+            laubansatz = ref_h + tree_h - crown_dm
+        tree_h = tree_h + ref_h
+
+        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
+        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
+        composite_solid.set("srsDimension", "3")
+
+        # generate stem geometry
+        self.generate_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments)
+
+        # generate crown geometry (cone)
+        solid_member_stem = ET.SubElement(composite_solid, "gml:solidMember")
+        solid = ET.SubElement(solid_member_stem, "gml:Solid")
+        crown_exterior = ET.SubElement(solid, "gml:exterior")
+        comp_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
+
+        # generate walls of cone
+        angle = 0
+        rotate = 2 * math.pi / segments
+
+        coordinates = []
+        for _ in range(0, segments):
+            pnt = [tree_x + (crown_dm / 2) * math.cos(angle), tree_y + (crown_dm / 2) * math.sin(angle)]
+            coordinates.append(pnt)
+            angle += rotate
+
+        for index in range(0, len(coordinates)):
+            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+            l_pos_list = [coordinates[index][0], coordinates[index][1], laubansatz,
+                          tree_x, tree_y, tree_h,
+                          coordinates[index-1][0], coordinates[index-1][1], laubansatz,
+                          coordinates[index][0], coordinates[index][1], laubansatz]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            pos_list.text = s_pos_list
+
+        # generate bottom of cone
+        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+        polygon = ET.SubElement(surface_member, "gml:Polygon")
+        exterior = ET.SubElement(polygon, "gml:exterior")
+        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+        pos_list = ET.SubElement(linear_ring, "gml:posList")
+        pos_list.set("srsDimension", "3")
+        l_pos_list = []
+        for point in reversed(coordinates):
+            l_pos_list.extend([point[0], point[1], laubansatz])
+        l_pos_list.extend([coordinates[-1][0], coordinates[-1][1], laubansatz])
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        pos_list.text = s_pos_list
 
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
