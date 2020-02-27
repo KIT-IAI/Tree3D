@@ -63,7 +63,7 @@ class ExportDialog(default_gui.CityGmlExport):
             exporter.set_ref_height_col_idx(self.choiceRefheight.GetSelection())
 
         if self.epsg.GetValue() != "":
-            exporter.set_EPSG(int(self.epsg.GetValue()))
+            exporter.set_epsg(int(self.epsg.GetValue()))
 
         if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             exporter.set_height_col_index(self.choiceHeight.GetSelection())
@@ -104,15 +104,18 @@ class ExportDialog(default_gui.CityGmlExport):
         valid = True
         warningmessage = ""
 
-        if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection()and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
+        if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection()\
+                and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Crown diameter cannot be the same column as Trunk diameter"
 
-        if self.choiceHeight.GetSelection() == self.choiceCrown.GetSelection() and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
+        if self.choiceHeight.GetSelection() == self.choiceCrown.GetSelection()\
+                and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Height cannot be the same column as Crown diameter"
 
-        if self.choiceHeight.GetSelection() == self.choiceTrunk.GetSelection() and self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
+        if self.choiceHeight.GetSelection() == self.choiceTrunk.GetSelection()\
+                and self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Height cannot be the same column as Trunk diameter"
 
@@ -193,7 +196,7 @@ class CityGmlExport:
         for row in self.__DataCursor:
 
             x_value = row[self.__x_value_col_index]
-            y_value =row[self.__y_value_col_index]
+            y_value = row[self.__y_value_col_index]
             ref_height = row[self.__ref_height_col_index]
             tree_height = row[self.__height_col_index]
             trunk_diam = row[self.__trunk_diam_col_index]
@@ -208,35 +211,35 @@ class CityGmlExport:
                 invalid_trees += 1
                 continue
 
-            cityObjectMember = ET.SubElement(self.__root, "cityObjectMember")
+            city_object_member = ET.SubElement(self.__root, "cityObjectMember")
 
-            SolitaryVegetationObject = ET.SubElement(cityObjectMember, "veg:SolitaryVegetationObject")
+            solitary_vegetation_object = ET.SubElement(city_object_member, "veg:SolitaryVegetationObject")
 
             # compare thiw row's x and y vlaues with values in bounding box object
             # boung box updates if new boundries are detected
             self.__bbox.compare(row[self.__x_value_col_index], row[self.__y_value_col_index])
 
             # add creationDate into the model
-            creationdate = ET.SubElement(SolitaryVegetationObject, "creationDate")
+            creationdate = ET.SubElement(solitary_vegetation_object, "creationDate")
             creationdate.text = str(date.today())
 
             if self.__class_col_index is not None and row[self.__class_col_index] is not None:
-                klasse = ET.SubElement(SolitaryVegetationObject, "veg:class")
+                klasse = ET.SubElement(solitary_vegetation_object, "veg:class")
                 klasse.text = str(row[self.__class_col_index])
 
             if self.__species_col_index is not None and row[self.__species_col_index] is not None:
-                species = ET.SubElement(SolitaryVegetationObject, "veg:species")
+                species = ET.SubElement(solitary_vegetation_object, "veg:species")
                 species.text = str(row[self.__species_col_index])
 
             if self.__height_col_index is not None:
-                height = ET.SubElement(SolitaryVegetationObject, "veg:height")
+                height = ET.SubElement(solitary_vegetation_object, "veg:height")
                 if self.__height_unit == "cm":
                     tree_height = tree_height / 100.0
                 height.text = str(tree_height)
                 height.set("uom", "m")
 
             if self.__trunk_diam_col_index is not None:
-                trunk = ET.SubElement(SolitaryVegetationObject, "veg:trunkDiameter")
+                trunk = ET.SubElement(solitary_vegetation_object, "veg:trunkDiameter")
                 if self.__trunk_diam_unit == "cm":
                     trunk_diam = trunk_diam/100.0
                 if self.__trunk_is_circ:
@@ -245,7 +248,7 @@ class CityGmlExport:
                 trunk.set("uom", "m")
 
             if self.__crown_diam_col_index is not None:
-                crown = ET.SubElement(SolitaryVegetationObject, "veg:crownDiameter")
+                crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
                 value = crown_diam
                 if self.__crown_diam_unit == "cm":
                     crown_diam = crown_diam/100.0
@@ -256,7 +259,7 @@ class CityGmlExport:
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
-            lod_1_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod1Geometry")
+            lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
             #lod_2_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod2Geometry")
             #self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
 
@@ -391,7 +394,8 @@ class CityGmlExport:
         element_pos_list.text = s_pos_list
 
     # method to generate rectangle billboard geometries
-    def generate_billboard_rectangle_geometry(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, segments):
+    def generate_billboard_rectangle_geometry(self, parent, tree_x, tree_y, ref_h,
+                                              tree_h, crown_dm, segments):
         composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
         composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
         composite_surface.set("srsDimension", "3")
@@ -417,8 +421,8 @@ class CityGmlExport:
             angle += rotate
 
     # generate billboard from polygon outlines for deciduous trees
-    def generate_billboard_polygon_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
-                                              laubansatz=None):
+    def generate_billboard_polygon_deciduous(self, parent, tree_x, tree_y, ref_h,
+                                             tree_h, crown_dm, stem_dm, segments, laubansatz=None):
         if laubansatz is None:
             laubansatz = ref_h + tree_h - crown_dm
         tree_h = tree_h + ref_h
@@ -480,8 +484,8 @@ class CityGmlExport:
             angle += rotate
 
     # generate billboard from polygon outlines for coniferous trees
-    def generate_billboard_polygon_coniferous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, segments,
-                                              laubansatz=None):
+    def generate_billboard_polygon_coniferous(self, parent, tree_x, tree_y, ref_h,
+                                              tree_h, crown_dm, stem_dm, segments, laubansatz=None):
         if laubansatz is None:
             laubansatz = ref_h + tree_h - crown_dm
         tree_h = tree_h + ref_h
@@ -528,7 +532,8 @@ class CityGmlExport:
             angle += rotate
 
     # method to generate cylinder geometry
-    def generate_cylinder_geometry(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, segments):
+    def generate_cylinder_geometry(self, parent, tree_x, tree_y, ref_h,
+                                   tree_h, crown_dm, segments):
         tree_h = tree_h + ref_h
 
         solid = ET.SubElement(parent, "gml:Solid")
@@ -594,7 +599,8 @@ class CityGmlExport:
         pos_list.text = s_pos_list
 
     # method to generate the stem for cuboid geometries
-    def generate_cuboid_geometry_stem(self, parent, tree_x, tree_y, ref_h, stem_dm, laubansatz):
+    def generate_cuboid_geometry_stem(self, parent, tree_x, tree_y, ref_h,
+                                      stem_dm, laubansatz):
         stem_solidmember = ET.SubElement(parent, "gml:solidMember")
         stem_solid = ET.SubElement(stem_solidmember, "gml:Solid")
         stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
@@ -697,7 +703,8 @@ class CityGmlExport:
         polygon_stem_top_exterior_linearring_poslist.text = s_pos_list
 
     # method to generate a cuboid geometry for deciduous trees
-    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h, tree_h, crown_dm, stem_dm, laubansatz=None):
+    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h,
+                                           tree_h, crown_dm, stem_dm, laubansatz=None):
         if laubansatz is None:
             laubansatz = ref_h + tree_h - crown_dm
         tree_h = tree_h + ref_h
@@ -916,7 +923,7 @@ class CityGmlExport:
     def set_ref_height_col_idx(self, idx):
         self.__ref_height_col_index = idx
 
-    def set_EPSG(self, epsg_code):
+    def set_epsg(self, epsg_code):
         self.__EPSG = epsg_code
 
     def set_height_col_index(self, idx):
@@ -934,8 +941,8 @@ class CityGmlExport:
     def set_class_col_index(self, index):
         self.__class_col_index = index
 
-    def set_default_export_type(self, type):
-        self.__default_export_type = type
+    def set_default_export_type(self, typ):
+        self.__default_export_type = typ
 
     def set_height_unit(self, unit):
         self.__height_unit = unit
