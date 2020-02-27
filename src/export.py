@@ -435,8 +435,8 @@ class CityGmlExport:
         angle = 0.
         rotate = (2*math.pi) / segments
 
-        alpha = math.asin((stem_dm/2)/(crown_dm/2))
-        delta = (tree_h-laubansatz)/2 - (crown_dm/2)*math.cos(alpha)
+        alpha = math.asin((stem_dm/2.0)/(crown_dm/2.0))
+        delta = (tree_h-laubansatz)/2.0 - (crown_dm/2.0)*math.cos(alpha)
 
         for _ in range(0, segments):
             sinx = math.sin(angle)
@@ -465,9 +465,10 @@ class CityGmlExport:
             for v_angle in range(0, 180, 10):
                 if math.radians(v_angle) < alpha:
                     continue
-                l_pos_list.append(tree_x + (crown_dm/2) * math.sin(math.radians(180-v_angle)) * cosx)
-                l_pos_list.append(tree_y + (crown_dm/2) * math.sin(math.radians(180-v_angle)) * sinx)
-                l_pos_list.append(laubansatz + crown_dm/2 + ((tree_h-laubansatz)/2)*math.cos(math.radians(180-v_angle)))
+                l_pos_list.append(tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * cosx)
+                l_pos_list.append(tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * sinx)
+                l_pos_list.append(laubansatz + crown_dm/2.0 +
+                                  ((tree_h-laubansatz)/2.0) * math.cos(math.radians(180-v_angle)))
 
             # finish crown geometry
             l_pos_list.extend([tree_x, tree_y, tree_h])
