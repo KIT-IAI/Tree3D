@@ -273,6 +273,7 @@ class CityGmlExport:
             elif row[self.__class_col_index == 1070]:
                 #self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
                 #self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
+                self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 20)
                 pass
             else:
                 #print("weder nadel noch laubbaum: default verwendetn")
@@ -1033,6 +1034,112 @@ class CityGmlExport:
         for point in reversed(coordinates):
             l_pos_list.extend([point[0], point[1], laubansatz])
         l_pos_list.extend([coordinates[-1][0], coordinates[-1][1], laubansatz])
+        s_pos_list = self.poslist_list_to_string(l_pos_list)
+        pos_list.text = s_pos_list
+
+    def generate_geometry_deciduous(self, parent, tree_x, tree_y, ref_h,
+                                    tree_h, crown_dm, stem_dm, segments, laubansatz=None):
+        if laubansatz is None:
+            laubansatz = ref_h + tree_h - crown_dm
+        tree_h = tree_h + ref_h
+
+        alpha = math.asin((stem_dm / 2.0) / (crown_dm / 2.0))
+        delta = (tree_h - laubansatz) / 2.0 - (crown_dm / 2.0) * math.cos(alpha)
+
+        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
+        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
+        composite_solid.set("srsDimension", "3")
+
+        # generate stem geometry
+        self.generate_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments)
+
+        # generate crown geometry (ellipsoid)
+        solid_member_stem = ET.SubElement(composite_solid, "gml:solidMember")
+        solid = ET.SubElement(solid_member_stem, "gml:Solid")
+        crown_exterior = ET.SubElement(solid, "gml:exterior")
+        comp_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
+
+        # generate ellipsoid points: first row
+        coordinates = []
+        row = []
+        for h_angle in range(0, 360, int(360/segments)):
+            pnt = [tree_x - (crown_dm/2.0) * math.sin(2*math.pi-alpha) * math.cos(math.radians(h_angle)),
+                   tree_y - (crown_dm/2.0) * math.sin(2*math.pi-alpha) * math.sin(math.radians(h_angle)),
+                   laubansatz + delta]
+            row.append(pnt)
+        coordinates.append(row)
+
+        # generate ellipsoid points: all other rows
+        for v_angle in range(0, 180, int(180/(segments/2))):
+            if math.radians(v_angle) < alpha:
+                continue
+            row = []
+            for h_angle in range(0, 360, int(360/segments)):
+                pnt = [tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * math.cos(math.radians(h_angle)),
+                       tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * math.sin(math.radians(h_angle)),
+                       laubansatz + x(tree_h-laubansatz)/2 + ((tree_h-laubansatz)/2) * math.cos(math.radians(180-v_angle))]
+                row.append(pnt)
+            coordinates.append(row)
+
+        # generate side segments for ellipsoid
+        for row_index in range(1, len(coordinates)):
+            for pnt_index in range(0, len(coordinates[row_index])):
+                surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+                polygon = ET.SubElement(surface_member, "gml:Polygon")
+                exterior = ET.SubElement(polygon, "gml:exterior")
+                linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+                pos_list = ET.SubElement(linear_ring, "gml:posList")
+                pos_list.set("srsDimension", "3")
+                l_pos_list = []
+
+                pnt1 = [coordinates[row_index][pnt_index][0],
+                        coordinates[row_index][pnt_index][1],
+                        coordinates[row_index][pnt_index][2]]
+                pnt2 = [coordinates[row_index][pnt_index-1][0],
+                        coordinates[row_index][pnt_index-1][1],
+                        coordinates[row_index][pnt_index-1][2]]
+                pnt3 = [coordinates[row_index-1][pnt_index - 1][0],
+                        coordinates[row_index-1][pnt_index - 1][1],
+                        coordinates[row_index-1][pnt_index - 1][2]]
+                pnt4 = [coordinates[row_index - 1][pnt_index][0],
+                        coordinates[row_index - 1][pnt_index][1],
+                        coordinates[row_index - 1][pnt_index][2]]
+
+                l_pos_list.extend(pnt1)
+                l_pos_list.extend(pnt2)
+                l_pos_list.extend(pnt3)
+                l_pos_list.extend(pnt4)
+                l_pos_list.extend(pnt1)
+                s_pos_list = self.poslist_list_to_string(l_pos_list)
+                pos_list.text = s_pos_list
+
+        # generate top triangle segments
+        top_row = coordinates[-1]
+        for index in range(0, len(top_row)):
+            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+            polygon = ET.SubElement(surface_member, "gml:Polygon")
+            exterior = ET.SubElement(polygon, "gml:exterior")
+            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+            pos_list = ET.SubElement(linear_ring, "gml:posList")
+            pos_list.set("srsDimension", "3")
+            l_pos_list = [top_row[index][0], top_row[index][1], top_row[index][2],
+                          tree_x, tree_y, tree_h,
+                          top_row[index-1][0], top_row[index-1][1], top_row[index-1][2],
+                          top_row[index][0], top_row[index][1], top_row[index][2]]
+            s_pos_list = self.poslist_list_to_string(l_pos_list)
+            pos_list.text = s_pos_list
+
+        # generate bottom polygon
+        bottom_row = coordinates[0]
+        l_pos_list = []
+        for point in reversed(bottom_row):
+            l_pos_list.extend([point[0], point[1], point[2]])
+        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
+        polygon = ET.SubElement(surface_member, "gml:Polygon")
+        exterior = ET.SubElement(polygon, "gml:exterior")
+        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
+        pos_list = ET.SubElement(linear_ring, "gml:posList")
+        pos_list.set("srsDimension", "3")
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         pos_list.text = s_pos_list
 
