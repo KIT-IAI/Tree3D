@@ -1201,6 +1201,6 @@ class CityGmlExport:
     def poslist_list_to_string(self, poslist):
         s_poslist = ""
         for element in poslist:
-            s_poslist += "%.2f " % element
+            s_poslist += "%.3f " % element
         s_poslist = s_poslist[:-1]
         return s_poslist
