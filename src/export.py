@@ -1196,6 +1196,8 @@ class CityGmlExport:
     def set_prettyprint(self, value):
         self.__prettyprint = value
 
+    # a list of coordinates to a string to be used in posList
+    # [x1, y1, z1, x2, y, z2, ...] --> "x1 y1 z1 x2 y2 z2 ..."
     def poslist_list_to_string(self, poslist):
         s_poslist = ""
         for element in poslist:
