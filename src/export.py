@@ -917,6 +917,7 @@ class CityGmlExport:
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         polygon_crown_front_exterior_linearring_poslist.text = s_pos_list
 
+    # generate stem for geometries: cylinder
     def generate_geometry_stem(self, parent, tree_x, tree_y, ref_h,
                                stem_dm, laubansatz, segments):
         stem_solidmember = ET.SubElement(parent, "gml:solidMember")
@@ -980,6 +981,8 @@ class CityGmlExport:
         s_pos_list = self.poslist_list_to_string(bototm_poslist)
         pos_list.text = s_pos_list
 
+    # generate most detailed geometry for coniferous trees
+    # cylinder for stem, cone for crown
     def generate_geometry_coniferous(self, parent, tree_x, tree_y, ref_h,
                                      tree_h, crown_dm, stem_dm, segments, laubansatz=None):
         if laubansatz is None:
@@ -1037,6 +1040,8 @@ class CityGmlExport:
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         pos_list.text = s_pos_list
 
+    # generate most detailed geometry for deciduous trees:
+    # cylinder for stem, ellipsoid for crown
     def generate_geometry_deciduous(self, parent, tree_x, tree_y, ref_h,
                                     tree_h, crown_dm, stem_dm, segments, laubansatz=None):
         if laubansatz is None:
