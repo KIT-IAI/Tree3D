@@ -97,34 +97,22 @@ class ExportDialog(default_gui.CityGmlExport):
                                 "detailled": 5}
         if self.lod1.GetValue():
             geomcode = geomtype_to_geomcode[self.lod1_geomtype.GetStringSelection()]
-            try:
-                segments = int(self.lod1_segments.GetStringSelection())
-            except ValueError:
-                segments = None
+            segments = int(self.lod1_segments.GetStringSelection())
             exporter.setup_lod1(True, geomcode, segments)
 
         if self.lod2.GetValue():
             geomcode = geomtype_to_geomcode[self.lod2_geomtype.GetStringSelection()]
-            try:
-                segments = int(self.lod2_segments.GetStringSelection())
-            except ValueError:
-                segments = None
+            segments = int(self.lod2_segments.GetStringSelection())
             exporter.setup_lod2(True, geomcode, segments)
 
         if self.lod3.GetValue():
             geomcode = geomtype_to_geomcode[self.lod3_geomtype.GetStringSelection()]
-            try:
-                segments = int(self.lod3_segments.GetStringSelection())
-            except ValueError:
-                segments = None
+            segments = int(self.lod3_segments.GetStringSelection())
             exporter.setup_lod3(True, geomcode, segments)
 
         if self.lod4.GetValue():
             geomcode = geomtype_to_geomcode[self.lod4_geomtype.GetStringSelection()]
-            try:
-                segments = int(self.lod4_segments.GetStringSelection())
-            except ValueError:
-                segments = None
+            segments = int(self.lod4_segments.GetStringSelection())
             exporter.setup_lod4(True, geomcode, segments)
 
         export_status = exporter.export(self.progress)
