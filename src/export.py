@@ -89,6 +89,44 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceClass.GetSelection() != wx.NOT_FOUND:
             exporter.set_class_col_index(self.choiceClass.GetSelection())
 
+        geomtype_to_geomcode = {"line": 0,
+                                "cylinder": 1,
+                                "rectangle": 2,
+                                "polygon outlines": 3,
+                                "cuboid": 4,
+                                "detailled": 5}
+        if self.lod1.GetValue():
+            geomcode = geomtype_to_geomcode[self.lod1_geomtype.GetStringSelection()]
+            try:
+                segments = int(self.lod1_segments.GetStringSelection())
+            except ValueError:
+                segments = None
+            exporter.setup_lod1(True, geomcode, segments)
+
+        if self.lod2.GetValue():
+            geomcode = geomtype_to_geomcode[self.lod2_geomtype.GetStringSelection()]
+            try:
+                segments = int(self.lod2_segments.GetStringSelection())
+            except ValueError:
+                segments = None
+            exporter.setup_lod2(True, geomcode, segments)
+
+        if self.lod3.GetValue():
+            geomcode = geomtype_to_geomcode[self.lod3_geomtype.GetStringSelection()]
+            try:
+                segments = int(self.lod3_segments.GetStringSelection())
+            except ValueError:
+                segments = None
+            exporter.setup_lod3(True, geomcode, segments)
+
+        if self.lod4.GetValue():
+            geomcode = geomtype_to_geomcode[self.lod4_geomtype.GetStringSelection()]
+            try:
+                segments = int(self.lod4_segments.GetStringSelection())
+            except ValueError:
+                segments = None
+            exporter.setup_lod4(True, geomcode, segments)
+
         export_status = exporter.export(self.progress)
 
         message = "Export to CityGML finished.\n" \
@@ -98,6 +136,106 @@ class ExportDialog(default_gui.CityGmlExport):
         msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
         self.progress.SetValue(0)
+
+    def on_lod1_checkbox(self, event):
+        val = self.lod1.GetValue()
+        self.lod1_geomtype.Enable(val)
+        if not val:
+            self.lod1_geomtype.SetSelection(0)
+            self.lod1_segments_text.Show(val)
+            self.lod1_segments.Show(val)
+
+    def on_lod2_checkbox(self, event):
+        val = self.lod2.GetValue()
+        self.lod2_geomtype.Enable(val)
+        if not val:
+            self.lod2_geomtype.SetSelection(0)
+            self.lod2_segments_text.Show(val)
+            self.lod2_segments.Show(val)
+
+    def on_lod3_checkbox(self, event):
+        val = self.lod3.GetValue()
+        self.lod3_geomtype.Enable(val)
+        if not val:
+            self.lod3_geomtype.SetSelection(0)
+            self.lod3_segments_text.Show(val)
+            self.lod3_segments.Show(val)
+
+    def on_lod4_checkbox(self, event):
+        val = self.lod4.GetValue()
+        self.lod4_geomtype.Enable(val)
+        if not val:
+            self.lod4_geomtype.SetSelection(0)
+            self.lod4_segments_text.Show(val)
+            self.lod4_segments.Show(val)
+
+    def on_lod1_choice(self, event):
+        val = self.lod1_geomtype.GetSelection()
+        if val == 1 or val == 2 or val == 3 or val == 5:
+            self.lod1_segments_text.Show(True)
+            self.lod1_segments.Show(True)
+        else:
+            self.lod1_segments_text.Show(False)
+            self.lod1_segments.Show(False)
+
+        if val == 2 or val == 3:
+            self.lod1_segments.SetItems(["4", "6", "8"])
+            self.lod1_segments.SetSelection(0)
+        elif val == 1 or val == 5:
+            self.lod1_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod1_segments.SetSelection(1)
+        self.Layout()
+
+    def on_lod2_choice(self, event):
+        val = self.lod2_geomtype.GetSelection()
+        if val == 1 or val == 2 or val == 3 or val == 5:
+            self.lod2_segments_text.Show(True)
+            self.lod2_segments.Show(True)
+        else:
+            self.lod2_segments_text.Show(False)
+            self.lod2_segments.Show(False)
+
+        if val == 2 or val == 3:
+            self.lod2_segments.SetItems(["4", "6", "8"])
+            self.lod2_segments.SetSelection(0)
+        elif val == 1 or val == 5:
+            self.lod2_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod2_segments.SetSelection(1)
+        self.Layout()
+
+    def on_lod3_choice(self, event):
+        val = self.lod3_geomtype.GetSelection()
+        if val == 1 or val == 2 or val == 3 or val == 5:
+            self.lod3_segments_text.Show(True)
+            self.lod3_segments.Show(True)
+        else:
+            self.lod3_segments_text.Show(False)
+            self.lod3_segments.Show(False)
+
+        if val == 2 or val == 3:
+            self.lod3_segments.SetItems(["4", "6", "8"])
+            self.lod3_segments.SetSelection(0)
+        elif val == 1 or val == 5:
+            self.lod3_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod3_segments.SetSelection(1)
+        self.Layout()
+
+    def on_lod4_choice(self, event):
+        val = self.lod4_geomtype.GetSelection()
+        if val == 1 or val == 2 or val == 3 or val == 5:
+            self.lod4_segments_text.Show(True)
+            self.lod4_segments.Show(True)
+        else:
+            self.lod4_segments_text.Show(False)
+            self.lod4_segments.Show(False)
+
+        if val == 2 or val == 3:
+            self.lod4_segments.SetItems(["4", "6", "8"])
+            self.lod4_segments.SetSelection(0)
+        elif val == 1 or val == 5:
+            self.lod4_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod4_segments.SetSelection(1)
+        self.Layout()
 
     # method to validate user input and show error message is user input is invalid
     def validate_input(self):
@@ -185,6 +323,22 @@ class CityGmlExport:
         self.__class_col_index = None  # index of CityGML class code column
         self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
+        self.__use_lod1 = False
+        self.__lod1_geomtype = None
+        self.__lod1_segments = None
+
+        self.__use_lod2 = False
+        self.__lod2_geomtype = None
+        self.__lod2_segments = None
+
+        self.__use_lod3 = False
+        self.__lod3_geomtype = None
+        self.__lod3_segments = None
+
+        self.__use_lod4 = False
+        self.__lod4_geomtype = None
+        self.__lod4_segments = None
+
     # method to initiate citygml export
     def export(self, progressbar):
         self.__root = ET.Element("CityModel")
@@ -259,27 +413,141 @@ class CityGmlExport:
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
-            lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
-            #lod_2_geom = ET.SubElement(SolitaryVegetationObject, "veg:lod2Geometry")
-            #self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
+            if self.__use_lod1:
+                lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
+                if self.__lod1_geomtype == 0:
+                    self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
+                elif self.__lod1_geomtype == 1:
+                    self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height,
+                                                    tree_height, crown_diam, self.__lod1_segments)
+                elif self.__lod1_geomtype == 2:
+                    self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height,
+                                                               tree_height, crown_diam, self.__lod1_segments)
+                elif self.__lod1_geomtype == 3:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, trunk_diam,
+                                                                   self.__lod1_segments)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod1_segments)
+                elif self.__lod1_geomtype == 4:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                tree_height, crown_diam, trunk_diam)
+                elif self.__lod1_geomtype == 5:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                          tree_height, crown_diam, trunk_diam, self.__lod1_segments)
+                    elif row[self.__class_col_index == 1070]:
+                        self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                         tree_height, crown_diam, trunk_diam, self.__lod1_segments)
 
-            #self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 4)
+            if self.__use_lod2:
+                lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
+                if self.__lod2_geomtype == 0:
+                    self.generate_line_geometry(lod_2_geom, x_value, y_value, ref_height, tree_height)
+                elif self.__lod2_geomtype == 1:
+                    self.generate_cylinder_geometry(lod_2_geom, x_value, y_value, ref_height,
+                                                    tree_height, crown_diam, self.__lod2_segments)
+                elif self.__lod2_geomtype == 2:
+                    self.generate_billboard_rectangle_geometry(lod_2_geom, x_value, y_value, ref_height,
+                                                               tree_height, crown_diam, self.__lod2_segments)
+                elif self.__lod2_geomtype == 3:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, trunk_diam,
+                                                                   self.__lod2_segments)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod2_segments)
+                elif self.__lod2_geomtype == 4:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                tree_height, crown_diam, trunk_diam)
+                elif self.__lod2_geomtype == 5:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                          tree_height, crown_diam, trunk_diam, self.__lod2_segments)
+                    elif row[self.__class_col_index == 1070]:
+                        self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                         tree_height, crown_diam, trunk_diam, self.__lod2_segments)
 
-            if row[self.__class_col_index] == 1060:
-                #self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
-                #self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
-                self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 20)
-                pass
-            elif row[self.__class_col_index == 1070]:
-                #self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 4)
-                #self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam)
-                self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, trunk_diam, 20)
-                pass
-            else:
-                #print("weder nadel noch laubbaum: default verwendetn")
-                pass
+            if self.__use_lod3:
+                lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
+                if self.__lod3_geomtype == 0:
+                    self.generate_line_geometry(lod_3_geom, x_value, y_value, ref_height, tree_height)
+                elif self.__lod3_geomtype == 1:
+                    self.generate_cylinder_geometry(lod_3_geom, x_value, y_value, ref_height,
+                                                    tree_height, crown_diam, self.__lod3_segments)
+                elif self.__lod3_geomtype == 2:
+                    self.generate_billboard_rectangle_geometry(lod_3_geom, x_value, y_value, ref_height,
+                                                               tree_height, crown_diam, self.__lod3_segments)
+                elif self.__lod3_geomtype == 3:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, trunk_diam,
+                                                                   self.__lod3_segments)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod3_segments)
+                elif self.__lod3_geomtype == 4:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                tree_height, crown_diam, trunk_diam)
+                elif self.__lod3_geomtype == 5:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                          tree_height, crown_diam, trunk_diam, self.__lod3_segments)
+                    elif row[self.__class_col_index == 1070]:
+                        self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                         tree_height, crown_diam, trunk_diam, self.__lod3_segments)
 
-            #self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height, crown_diam, 20)
+            if self.__use_lod4:
+                lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
+                if self.__lod4_geomtype == 0:
+                    self.generate_line_geometry(lod_4_geom, x_value, y_value, ref_height, tree_height)
+                elif self.__lod4_geomtype == 1:
+                    self.generate_cylinder_geometry(lod_4_geom, x_value, y_value, ref_height,
+                                                    tree_height, crown_diam, self.__lod4_segments)
+                elif self.__lod4_geomtype == 2:
+                    self.generate_billboard_rectangle_geometry(lod_4_geom, x_value, y_value, ref_height,
+                                                               tree_height, crown_diam, self.__lod4_segments)
+                elif self.__lod4_geomtype == 3:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, trunk_diam,
+                                                                   self.__lod4_segments)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod4_segments)
+                elif self.__lod4_geomtype == 4:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam)
+                    elif row[self.__class_col_index] == 1070:
+                        self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                tree_height, crown_diam, trunk_diam)
+                elif self.__lod4_geomtype == 5:
+                    if row[self.__class_col_index] == 1060:
+                        self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                          tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+                    elif row[self.__class_col_index == 1070]:
+                        self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                         tree_height, crown_diam, trunk_diam, self.__lod4_segments)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -1195,6 +1463,30 @@ class CityGmlExport:
 
     def set_prettyprint(self, value):
         self.__prettyprint = value
+
+    def setup_lod1(self, value, geomtype, segments=None):
+        self.__use_lod1 = value
+        self.__lod1_geomtype = geomtype
+        if segments is not None:
+            self.__lod1_segments = segments
+
+    def setup_lod2(self, value, geomtype, segments=None):
+        self.__use_lod2 = value
+        self.__lod2_geomtype = geomtype
+        if segments is not None:
+            self.__lod2_segments = segments
+
+    def setup_lod3(self, value, geomtype, segments=None):
+        self.__use_lod3 = value
+        self.__lod3_geomtype = geomtype
+        if segments is not None:
+            self.__lod3_segments = segments
+
+    def setup_lod4(self, value, geomtype, segments=None):
+        self.__use_lod4 = value
+        self.__lod4_geomtype = geomtype
+        if segments is not None:
+            self.__lod4_segments = segments
 
     # a list of coordinates to a string to be used in posList
     # [x1, y1, z1, x2, y, z2, ...] --> "x1 y1 z1 x2 y2 z2 ..."
