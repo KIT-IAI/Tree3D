@@ -403,13 +403,10 @@ class CityGmlExport:
 
             if self.__crown_diam_col_index is not None:
                 crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
-                value = crown_diam
                 if self.__crown_diam_unit == "cm":
                     crown_diam = crown_diam/100.0
                 if self.__crown_is_circ:
                     crown_diam = crown_diam / math.pi
-                else:
-                    diam = value
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
