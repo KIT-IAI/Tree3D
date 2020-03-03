@@ -89,6 +89,11 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceClass.GetSelection() != wx.NOT_FOUND:
             exporter.set_class_col_index(self.choiceClass.GetSelection())
 
+        if self.explicit_geom.GetValue():
+            exporter.set_geomtype("EXPLICIT")
+        else:
+            exporter.set_geomtype("IMPLICIT")
+
         # Dictionary to find the geometry code to each geometry type
         geomtype_to_geomcode = {"line": 0,
                                 "cylinder": 1,
@@ -100,25 +105,37 @@ class ExportDialog(default_gui.CityGmlExport):
         # Setup of LOD1-Geometry
         if self.lod1.GetValue():
             geomcode = geomtype_to_geomcode[self.lod1_geomtype.GetStringSelection()]
-            segments = int(self.lod1_segments.GetStringSelection())
+            try:
+                segments = int(self.lod1_segments.GetStringSelection())
+            except ValueError:
+                segments = None
             exporter.setup_lod1(True, geomcode, segments)
 
         # Setup of LOD2-Geometry
         if self.lod2.GetValue():
             geomcode = geomtype_to_geomcode[self.lod2_geomtype.GetStringSelection()]
-            segments = int(self.lod2_segments.GetStringSelection())
+            try:
+                segments = int(self.lod2_segments.GetStringSelection())
+            except ValueError:
+                segments = None
             exporter.setup_lod2(True, geomcode, segments)
 
         # Setup of LOD3-Geometry
         if self.lod3.GetValue():
             geomcode = geomtype_to_geomcode[self.lod3_geomtype.GetStringSelection()]
-            segments = int(self.lod3_segments.GetStringSelection())
+            try:
+                segments = int(self.lod3_segments.GetStringSelection())
+            except:
+                segments = None
             exporter.setup_lod3(True, geomcode, segments)
 
         # Setup of LOD4-Geometry
         if self.lod4.GetValue():
             geomcode = geomtype_to_geomcode[self.lod4_geomtype.GetStringSelection()]
-            segments = int(self.lod4_segments.GetStringSelection())
+            try:
+                segments = int(self.lod4_segments.GetStringSelection())
+            except:
+                segments = None
             exporter.setup_lod4(True, geomcode, segments)
 
         export_status = exporter.export(self.progress)
@@ -325,6 +342,8 @@ class CityGmlExport:
         self.__class_col_index = None  # index of CityGML class code column
         self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
+        self.__geom_type = ""  # kann Werte "IMPLICIT" oder "EXPLICIT" annehmen
+
         self.__use_lod1 = False
         self.__lod1_geomtype = None
         self.__lod1_segments = None
@@ -412,145 +431,333 @@ class CityGmlExport:
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
-            # Calls methods to generate geometries for LOD1, depending on user input
-            if self.__use_lod1:
-                lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
-                if self.__lod1_geomtype == 0:
-                    self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
-                elif self.__lod1_geomtype == 1:
-                    self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height,
-                                                    tree_height, crown_diam, self.__lod1_segments)
-                elif self.__lod1_geomtype == 2:
-                    self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height,
-                                                               tree_height, crown_diam, self.__lod1_segments)
-                elif self.__lod1_geomtype == 3:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, trunk_diam,
-                                                                   self.__lod1_segments)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod1_segments)
-                elif self.__lod1_geomtype == 4:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                tree_height, crown_diam, trunk_diam)
-                elif self.__lod1_geomtype == 5:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                          tree_height, crown_diam, trunk_diam, self.__lod1_segments)
-                    elif row[self.__class_col_index == 1070]:
-                        self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                         tree_height, crown_diam, trunk_diam, self.__lod1_segments)
+            if self.__geom_type == "EXPLICIT":
+                # Calls methods to generate geometries for LOD1, depending on user input
+                if self.__use_lod1:
+                    lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
+                    if self.__lod1_geomtype == 0:
+                        self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
+                    elif self.__lod1_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height,
+                                                        tree_height, crown_diam, self.__lod1_segments)
+                    elif self.__lod1_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, self.__lod1_segments)
+                    elif self.__lod1_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod1_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod1_segments)
+                    elif self.__lod1_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod1_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod1_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod1_segments)
 
-            # Calls methods to generate geometries for LOD2, depending on user input
-            if self.__use_lod2:
-                lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
-                if self.__lod2_geomtype == 0:
-                    self.generate_line_geometry(lod_2_geom, x_value, y_value, ref_height, tree_height)
-                elif self.__lod2_geomtype == 1:
-                    self.generate_cylinder_geometry(lod_2_geom, x_value, y_value, ref_height,
-                                                    tree_height, crown_diam, self.__lod2_segments)
-                elif self.__lod2_geomtype == 2:
-                    self.generate_billboard_rectangle_geometry(lod_2_geom, x_value, y_value, ref_height,
-                                                               tree_height, crown_diam, self.__lod2_segments)
-                elif self.__lod2_geomtype == 3:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, trunk_diam,
-                                                                   self.__lod2_segments)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod2_segments)
-                elif self.__lod2_geomtype == 4:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                tree_height, crown_diam, trunk_diam)
-                elif self.__lod2_geomtype == 5:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                          tree_height, crown_diam, trunk_diam, self.__lod2_segments)
-                    elif row[self.__class_col_index == 1070]:
-                        self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                         tree_height, crown_diam, trunk_diam, self.__lod2_segments)
+                # Calls methods to generate geometries for LOD2, depending on user input
+                if self.__use_lod2:
+                    lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
+                    if self.__lod2_geomtype == 0:
+                        self.generate_line_geometry(lod_2_geom, x_value, y_value, ref_height, tree_height)
+                    elif self.__lod2_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_2_geom, x_value, y_value, ref_height,
+                                                        tree_height, crown_diam, self.__lod2_segments)
+                    elif self.__lod2_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_2_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, self.__lod2_segments)
+                    elif self.__lod2_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod2_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod2_segments)
+                    elif self.__lod2_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod2_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod2_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod2_segments)
 
-            # Calls methods to generate geometries for LOD3, depending on user input
-            if self.__use_lod3:
-                lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
-                if self.__lod3_geomtype == 0:
-                    self.generate_line_geometry(lod_3_geom, x_value, y_value, ref_height, tree_height)
-                elif self.__lod3_geomtype == 1:
-                    self.generate_cylinder_geometry(lod_3_geom, x_value, y_value, ref_height,
-                                                    tree_height, crown_diam, self.__lod3_segments)
-                elif self.__lod3_geomtype == 2:
-                    self.generate_billboard_rectangle_geometry(lod_3_geom, x_value, y_value, ref_height,
-                                                               tree_height, crown_diam, self.__lod3_segments)
-                elif self.__lod3_geomtype == 3:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, trunk_diam,
-                                                                   self.__lod3_segments)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod3_segments)
-                elif self.__lod3_geomtype == 4:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                tree_height, crown_diam, trunk_diam)
-                elif self.__lod3_geomtype == 5:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                          tree_height, crown_diam, trunk_diam, self.__lod3_segments)
-                    elif row[self.__class_col_index == 1070]:
-                        self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                         tree_height, crown_diam, trunk_diam, self.__lod3_segments)
+                # Calls methods to generate geometries for LOD3, depending on user input
+                if self.__use_lod3:
+                    lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
+                    if self.__lod3_geomtype == 0:
+                        self.generate_line_geometry(lod_3_geom, x_value, y_value, ref_height, tree_height)
+                    elif self.__lod3_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_3_geom, x_value, y_value, ref_height,
+                                                        tree_height, crown_diam, self.__lod3_segments)
+                    elif self.__lod3_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_3_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, self.__lod3_segments)
+                    elif self.__lod3_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod3_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod3_segments)
+                    elif self.__lod3_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod3_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod3_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod3_segments)
 
-            # Calls methods to generate geometries for LOD4, depending on user input
-            if self.__use_lod4:
-                lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
-                if self.__lod4_geomtype == 0:
-                    self.generate_line_geometry(lod_4_geom, x_value, y_value, ref_height, tree_height)
-                elif self.__lod4_geomtype == 1:
-                    self.generate_cylinder_geometry(lod_4_geom, x_value, y_value, ref_height,
-                                                    tree_height, crown_diam, self.__lod4_segments)
-                elif self.__lod4_geomtype == 2:
-                    self.generate_billboard_rectangle_geometry(lod_4_geom, x_value, y_value, ref_height,
-                                                               tree_height, crown_diam, self.__lod4_segments)
-                elif self.__lod4_geomtype == 3:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, trunk_diam,
-                                                                   self.__lod4_segments)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod4_segments)
-                elif self.__lod4_geomtype == 4:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam)
-                    elif row[self.__class_col_index] == 1070:
-                        self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                tree_height, crown_diam, trunk_diam)
-                elif self.__lod4_geomtype == 5:
-                    if row[self.__class_col_index] == 1060:
-                        self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                          tree_height, crown_diam, trunk_diam, self.__lod4_segments)
-                    elif row[self.__class_col_index == 1070]:
-                        self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                         tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+                # Calls methods to generate geometries for LOD4, depending on user input
+                if self.__use_lod4:
+                    lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
+                    if self.__lod4_geomtype == 0:
+                        self.generate_line_geometry(lod_4_geom, x_value, y_value, ref_height, tree_height)
+                    elif self.__lod4_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_4_geom, x_value, y_value, ref_height,
+                                                        tree_height, crown_diam, self.__lod4_segments)
+                    elif self.__lod4_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_4_geom, x_value, y_value, ref_height,
+                                                                   tree_height, crown_diam, self.__lod4_segments)
+                    elif self.__lod4_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod4_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod4_segments)
+                    elif self.__lod4_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod4_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+            elif self.__geom_type == "IMPLICIT":
+                if self.__use_lod1:
+                    lod1_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod1ImplicitRepresentation")
+                    implicit_geometry = ET.SubElement(lod1_implicit_geometry, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
+                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+                    lod_1_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
+                    if self.__lod1_geomtype == 0:
+                        self.generate_line_geometry(lod_1_geom, 0, 0, 0, tree_height)
+                    elif self.__lod1_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_1_geom, 0, 0, 0,
+                                                        tree_height, crown_diam, self.__lod1_segments)
+                    elif self.__lod1_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_1_geom, 0, 0, 0,
+                                                                   tree_height, crown_diam, self.__lod1_segments)
+                    elif self.__lod1_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_1_geom, 0, 0, 0,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod1_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_1_geom, 0, 0, 0,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod1_segments)
+                    elif self.__lod1_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_1_geom, 0, 0, 0,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_1_geom, 0, 0, 0,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod1_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_1_geom, 0, 0, 0,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod1_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_1_geom, 0, 0, 0,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod1_segments)
+                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
+                    gml_point = ET.SubElement(ref_point, "gml:Point")
+                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
+                    gml_point.set("srsDimension", "3")
+                    gml_pos = ET.SubElement(gml_point, "gml:pos")
+                    gml_pos.set("srsDimension", "3")
+                    pos_list = [x_value, y_value, ref_height]
+                    gml_pos.text = self.poslist_list_to_string(pos_list)
+
+                # Calls methods to generate geometries for LOD2, depending on user input
+                if self.__use_lod2:
+                    lod2_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod2ImplicitRepresentation")
+                    implicit_geometry = ET.SubElement(lod2_implicit_geometry, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
+                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+                    lod_2_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
+                    if self.__lod2_geomtype == 0:
+                        self.generate_line_geometry(lod_2_geom, 0, 0, 0, tree_height)
+                    elif self.__lod2_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_2_geom, 0, 0, 0,
+                                                        tree_height, crown_diam, self.__lod2_segments)
+                    elif self.__lod2_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_2_geom, 0, 0, 0,
+                                                                   tree_height, crown_diam, self.__lod2_segments)
+                    elif self.__lod2_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_2_geom, 0, 0, 0,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod2_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_2_geom, 0, 0, 0,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod2_segments)
+                    elif self.__lod2_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_2_geom, 0, 0, 0,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_2_geom, 0, 0, 0,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod2_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_2_geom, 0, 0, 0,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod2_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_2_geom, 0, 0, 0,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod2_segments)
+                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
+                    gml_point = ET.SubElement(ref_point, "gml:Point")
+                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
+                    gml_point.set("srsDimension", "3")
+                    gml_pos = ET.SubElement(gml_point, "gml:pos")
+                    gml_pos.set("srsDimension", "3")
+                    pos_list = [x_value, y_value, ref_height]
+                    gml_pos.text = self.poslist_list_to_string(pos_list)
+
+                # Calls methods to generate geometries for LOD3, depending on user input
+                if self.__use_lod3:
+                    lod3_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod3ImplicitRepresentation")
+                    implicit_geometry = ET.SubElement(lod3_implicit_geometry, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
+                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+                    lod_3_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
+                    if self.__lod3_geomtype == 0:
+                        self.generate_line_geometry(lod_3_geom, 0, 0, 0, tree_height)
+                    elif self.__lod3_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_3_geom, 0, 0, 0,
+                                                        tree_height, crown_diam, self.__lod3_segments)
+                    elif self.__lod3_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_3_geom, 0, 0, 0,
+                                                                   tree_height, crown_diam, self.__lod3_segments)
+                    elif self.__lod3_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_3_geom, 0, 0, 0,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod3_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_3_geom, 0, 0, 0,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod3_segments)
+                    elif self.__lod3_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_3_geom, 0, 0, 0,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_3_geom, 0, 0, 0,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod3_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_3_geom, 0, 0, 0,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod3_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_3_geom, 0, 0, 0,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod3_segments)
+                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
+                    gml_point = ET.SubElement(ref_point, "gml:Point")
+                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
+                    gml_point.set("srsDimension", "3")
+                    gml_pos = ET.SubElement(gml_point, "gml:pos")
+                    gml_pos.set("srsDimension", "3")
+                    pos_list = [x_value, y_value, ref_height]
+                    gml_pos.text = self.poslist_list_to_string(pos_list)
+
+                # Calls methods to generate geometries for LOD4, depending on user input
+                if self.__use_lod4:
+                    lod4_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod4ImplicitRepresentation")
+                    implicit_geometry = ET.SubElement(lod4_implicit_geometry, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
+                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+                    lod_4_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
+                    if self.__lod4_geomtype == 0:
+                        self.generate_line_geometry(lod_4_geom, 0, 0, 0, tree_height)
+                    elif self.__lod4_geomtype == 1:
+                        self.generate_cylinder_geometry(lod_4_geom, 0, 0, 0,
+                                                        tree_height, crown_diam, self.__lod4_segments)
+                    elif self.__lod4_geomtype == 2:
+                        self.generate_billboard_rectangle_geometry(lod_4_geom, 0, 0, 0,
+                                                                   tree_height, crown_diam, self.__lod4_segments)
+                    elif self.__lod4_geomtype == 3:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_billboard_polygon_coniferous(lod_4_geom, 0, 0, 0,
+                                                                       tree_height, crown_diam, trunk_diam,
+                                                                       self.__lod4_segments)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_billboard_polygon_deciduous(lod_4_geom, 0, 0, 0,
+                                                                      tree_height, crown_diam, trunk_diam,
+                                                                      self.__lod4_segments)
+                    elif self.__lod4_geomtype == 4:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_cuboid_geometry_coniferous(lod_4_geom, 0, 0, 0,
+                                                                     tree_height, crown_diam, trunk_diam)
+                        elif row[self.__class_col_index] == 1070:
+                            self.generate_cuboid_geometry_deciduous(lod_4_geom, 0, 0, 0,
+                                                                    tree_height, crown_diam, trunk_diam)
+                    elif self.__lod4_geomtype == 5:
+                        if row[self.__class_col_index] == 1060:
+                            self.generate_geometry_coniferous(lod_4_geom, 0, 0, 0,
+                                                              tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+                        elif row[self.__class_col_index == 1070]:
+                            self.generate_geometry_deciduous(lod_4_geom, 0, 0, 0,
+                                                             tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
+                    gml_point = ET.SubElement(ref_point, "gml:Point")
+                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
+                    gml_point.set("srsDimension", "3")
+                    gml_pos = ET.SubElement(gml_point, "gml:pos")
+                    gml_pos.set("srsDimension", "3")
+                    pos_list = [x_value, y_value, ref_height]
+                    gml_pos.text = self.poslist_list_to_string(pos_list)
 
             valid_trees += 1
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -1466,6 +1673,9 @@ class CityGmlExport:
 
     def set_prettyprint(self, value):
         self.__prettyprint = value
+
+    def set_geomtype(self, geomtype):
+        self.__geom_type = geomtype
 
     # method to setup LOD1 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod1(self, value, geomtype, segments=None):
