@@ -89,27 +89,33 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceClass.GetSelection() != wx.NOT_FOUND:
             exporter.set_class_col_index(self.choiceClass.GetSelection())
 
+        # Dictionary to find the geometry code to each geometry type
         geomtype_to_geomcode = {"line": 0,
                                 "cylinder": 1,
                                 "rectangle": 2,
                                 "polygon outlines": 3,
                                 "cuboid": 4,
                                 "detailled": 5}
+
+        # Setup of LOD1-Geometry
         if self.lod1.GetValue():
             geomcode = geomtype_to_geomcode[self.lod1_geomtype.GetStringSelection()]
             segments = int(self.lod1_segments.GetStringSelection())
             exporter.setup_lod1(True, geomcode, segments)
 
+        # Setup of LOD2-Geometry
         if self.lod2.GetValue():
             geomcode = geomtype_to_geomcode[self.lod2_geomtype.GetStringSelection()]
             segments = int(self.lod2_segments.GetStringSelection())
             exporter.setup_lod2(True, geomcode, segments)
 
+        # Setup of LOD3-Geometry
         if self.lod3.GetValue():
             geomcode = geomtype_to_geomcode[self.lod3_geomtype.GetStringSelection()]
             segments = int(self.lod3_segments.GetStringSelection())
             exporter.setup_lod3(True, geomcode, segments)
 
+        # Setup of LOD4-Geometry
         if self.lod4.GetValue():
             geomcode = geomtype_to_geomcode[self.lod4_geomtype.GetStringSelection()]
             segments = int(self.lod4_segments.GetStringSelection())
@@ -125,6 +131,7 @@ class ExportDialog(default_gui.CityGmlExport):
         msg.ShowModal()
         self.progress.SetValue(0)
 
+    # method is called when LOD1-Checkbox is hit in GUI: enables/disables LOD1-Options
     def on_lod1_checkbox(self, event):
         val = self.lod1.GetValue()
         self.lod1_geomtype.Enable(val)
@@ -133,6 +140,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod1_segments_text.Show(val)
             self.lod1_segments.Show(val)
 
+    # method is called when LOD2-Checkbox is hit in GUI: enables/disables LOD2-Options
     def on_lod2_checkbox(self, event):
         val = self.lod2.GetValue()
         self.lod2_geomtype.Enable(val)
@@ -141,6 +149,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod2_segments_text.Show(val)
             self.lod2_segments.Show(val)
 
+    # method is called when LOD3-Checkbox is hit in GUI: enables/disables LOD3-Options
     def on_lod3_checkbox(self, event):
         val = self.lod3.GetValue()
         self.lod3_geomtype.Enable(val)
@@ -149,6 +158,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod3_segments_text.Show(val)
             self.lod3_segments.Show(val)
 
+    # method is called when LOD4-Checkbox is hit in GUI: enables/disables LOD4-Options
     def on_lod4_checkbox(self, event):
         val = self.lod4.GetValue()
         self.lod4_geomtype.Enable(val)
@@ -157,6 +167,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod4_segments_text.Show(val)
             self.lod4_segments.Show(val)
 
+    # method is called when LOD1-geomtype choice changes: enables/disables further geomtype options
     def on_lod1_choice(self, event):
         val = self.lod1_geomtype.GetSelection()
         if val == 1 or val == 2 or val == 3 or val == 5:
@@ -174,6 +185,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod1_segments.SetSelection(1)
         self.Layout()
 
+    # method is called when LOD2-geomtype choice changes: enables/disables further geomtype options
     def on_lod2_choice(self, event):
         val = self.lod2_geomtype.GetSelection()
         if val == 1 or val == 2 or val == 3 or val == 5:
@@ -191,6 +203,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod2_segments.SetSelection(1)
         self.Layout()
 
+    # method is called when LOD3-geomtype choice changes: enables/disables further geomtype options
     def on_lod3_choice(self, event):
         val = self.lod3_geomtype.GetSelection()
         if val == 1 or val == 2 or val == 3 or val == 5:
@@ -208,6 +221,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod3_segments.SetSelection(1)
         self.Layout()
 
+    # method is called when LOD4-geomtype choice changes: enables/disables further geomtype options
     def on_lod4_choice(self, event):
         val = self.lod4_geomtype.GetSelection()
         if val == 1 or val == 2 or val == 3 or val == 5:
@@ -398,6 +412,7 @@ class CityGmlExport:
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
+            # Calls methods to generate geometries for LOD1, depending on user input
             if self.__use_lod1:
                 lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
                 if self.__lod1_geomtype == 0:
@@ -432,6 +447,7 @@ class CityGmlExport:
                         self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
                                                          tree_height, crown_diam, trunk_diam, self.__lod1_segments)
 
+            # Calls methods to generate geometries for LOD2, depending on user input
             if self.__use_lod2:
                 lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
                 if self.__lod2_geomtype == 0:
@@ -466,6 +482,7 @@ class CityGmlExport:
                         self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
                                                          tree_height, crown_diam, trunk_diam, self.__lod2_segments)
 
+            # Calls methods to generate geometries for LOD3, depending on user input
             if self.__use_lod3:
                 lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
                 if self.__lod3_geomtype == 0:
@@ -500,6 +517,7 @@ class CityGmlExport:
                         self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
                                                          tree_height, crown_diam, trunk_diam, self.__lod3_segments)
 
+            # Calls methods to generate geometries for LOD4, depending on user input
             if self.__use_lod4:
                 lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
                 if self.__lod4_geomtype == 0:
@@ -1449,24 +1467,28 @@ class CityGmlExport:
     def set_prettyprint(self, value):
         self.__prettyprint = value
 
+    # method to setup LOD1 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod1(self, value, geomtype, segments=None):
         self.__use_lod1 = value
         self.__lod1_geomtype = geomtype
         if segments is not None:
             self.__lod1_segments = segments
 
+    # method to setup LOD2 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod2(self, value, geomtype, segments=None):
         self.__use_lod2 = value
         self.__lod2_geomtype = geomtype
         if segments is not None:
             self.__lod2_segments = segments
 
+    # method to setup LOD3 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod3(self, value, geomtype, segments=None):
         self.__use_lod3 = value
         self.__lod3_geomtype = geomtype
         if segments is not None:
             self.__lod3_segments = segments
 
+    # method to setup LOD4 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod4(self, value, geomtype, segments=None):
         self.__use_lod4 = value
         self.__lod4_geomtype = geomtype
