@@ -181,7 +181,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod1_segments.SetItems(["4", "6", "8"])
             self.lod1_segments.SetSelection(0)
         elif val == 1 or val == 5:
-            self.lod1_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod1_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod1_segments.SetSelection(1)
         self.Layout()
 
@@ -199,7 +199,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod2_segments.SetItems(["4", "6", "8"])
             self.lod2_segments.SetSelection(0)
         elif val == 1 or val == 5:
-            self.lod2_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod2_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod2_segments.SetSelection(1)
         self.Layout()
 
@@ -217,7 +217,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod3_segments.SetItems(["4", "6", "8"])
             self.lod3_segments.SetSelection(0)
         elif val == 1 or val == 5:
-            self.lod3_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod3_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod3_segments.SetSelection(1)
         self.Layout()
 
@@ -235,7 +235,7 @@ class ExportDialog(default_gui.CityGmlExport):
             self.lod4_segments.SetItems(["4", "6", "8"])
             self.lod4_segments.SetSelection(0)
         elif val == 1 or val == 5:
-            self.lod4_segments.SetItems(["5", "10", "15", "18", "20"])
+            self.lod4_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod4_segments.SetSelection(1)
         self.Layout()
 
