@@ -833,11 +833,11 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,504 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,641 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
-		fgSizer4 = wx.FlexGridSizer( 8, 1, 0, 0 )
+		fgSizer4 = wx.FlexGridSizer( 9, 1, 0, 0 )
 		fgSizer4.SetFlexibleDirection( wx.BOTH )
 		fgSizer4.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1032,6 +1032,114 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
 		
+		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML LODs" ), wx.VERTICAL )
+		
+		fgSizer28 = wx.FlexGridSizer( 4, 4, 0, 0 )
+		fgSizer28.SetFlexibleDirection( wx.BOTH )
+		fgSizer28.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.lod1 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer28.Add( self.lod1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod1_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		self.lod1_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod1_geomtypeChoices, 0 )
+		self.lod1_geomtype.SetSelection( 0 )
+		self.lod1_geomtype.Enable( False )
+		
+		fgSizer28.Add( self.lod1_geomtype, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod1_segments_text = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"segments", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.lod1_segments_text.Wrap( -1 )
+		
+		self.lod1_segments_text.Hide()
+		
+		fgSizer28.Add( self.lod1_segments_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod1_segmentsChoices = []
+		self.lod1_segments = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod1_segmentsChoices, 0 )
+		self.lod1_segments.SetSelection( 0 )
+		self.lod1_segments.Hide()
+		
+		fgSizer28.Add( self.lod1_segments, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod2 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD2", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer28.Add( self.lod2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod2_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		self.lod2_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod2_geomtypeChoices, 0 )
+		self.lod2_geomtype.SetSelection( 0 )
+		self.lod2_geomtype.Enable( False )
+		
+		fgSizer28.Add( self.lod2_geomtype, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod2_segments_text = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"segments", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.lod2_segments_text.Wrap( -1 )
+		
+		self.lod2_segments_text.Hide()
+		
+		fgSizer28.Add( self.lod2_segments_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod2_segmentsChoices = []
+		self.lod2_segments = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod2_segmentsChoices, 0 )
+		self.lod2_segments.SetSelection( 0 )
+		self.lod2_segments.Hide()
+		
+		fgSizer28.Add( self.lod2_segments, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod3 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD3", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer28.Add( self.lod3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod3_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		self.lod3_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod3_geomtypeChoices, 0 )
+		self.lod3_geomtype.SetSelection( 0 )
+		self.lod3_geomtype.Enable( False )
+		
+		fgSizer28.Add( self.lod3_geomtype, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod3_segments_text = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"segments", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.lod3_segments_text.Wrap( -1 )
+		
+		self.lod3_segments_text.Hide()
+		
+		fgSizer28.Add( self.lod3_segments_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod3_segmentsChoices = []
+		self.lod3_segments = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod3_segmentsChoices, 0 )
+		self.lod3_segments.SetSelection( 0 )
+		self.lod3_segments.Hide()
+		
+		fgSizer28.Add( self.lod3_segments, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod4 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD4", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer28.Add( self.lod4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod4_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		self.lod4_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod4_geomtypeChoices, 0 )
+		self.lod4_geomtype.SetSelection( 0 )
+		self.lod4_geomtype.Enable( False )
+		
+		fgSizer28.Add( self.lod4_geomtype, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.lod4_segments_text = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"segments", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.lod4_segments_text.Wrap( -1 )
+		
+		self.lod4_segments_text.Hide()
+		
+		fgSizer28.Add( self.lod4_segments_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		lod4_segmentsChoices = []
+		self.lod4_segments = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod4_segmentsChoices, 0 )
+		self.lod4_segments.SetSelection( 0 )
+		self.lod4_segments.Hide()
+		
+		fgSizer28.Add( self.lod4_segments, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer11.Add( fgSizer28, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer4.Add( sbSizer11, 1, wx.EXPAND, 5 )
+		
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
@@ -1057,6 +1165,14 @@ class CityGmlExport ( wx.Dialog ):
 		
 		# Connect Events
 		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
+		self.lod1.Bind( wx.EVT_CHECKBOX, self.on_lod1_checkbox )
+		self.lod1_geomtype.Bind( wx.EVT_CHOICE, self.on_lod1_choice )
+		self.lod2.Bind( wx.EVT_CHECKBOX, self.on_lod2_checkbox )
+		self.lod2_geomtype.Bind( wx.EVT_CHOICE, self.on_lod2_choice )
+		self.lod3.Bind( wx.EVT_CHECKBOX, self.on_lod3_checkbox )
+		self.lod3_geomtype.Bind( wx.EVT_CHOICE, self.on_lod3_choice )
+		self.lod4.Bind( wx.EVT_CHECKBOX, self.on_lod4_checkbox )
+		self.lod4_geomtype.Bind( wx.EVT_CHOICE, self.on_lod4_choice )
 		self.buttonExport.Bind( wx.EVT_BUTTON, self.on_export )
 	
 	def __del__( self ):
@@ -1065,6 +1181,30 @@ class CityGmlExport ( wx.Dialog ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def on_browse( self, event ):
+		event.Skip()
+	
+	def on_lod1_checkbox( self, event ):
+		event.Skip()
+	
+	def on_lod1_choice( self, event ):
+		event.Skip()
+	
+	def on_lod2_checkbox( self, event ):
+		event.Skip()
+	
+	def on_lod2_choice( self, event ):
+		event.Skip()
+	
+	def on_lod3_checkbox( self, event ):
+		event.Skip()
+	
+	def on_lod3_choice( self, event ):
+		event.Skip()
+	
+	def on_lod4_checkbox( self, event ):
+		event.Skip()
+	
+	def on_lod4_choice( self, event ):
 		event.Skip()
 	
 	def on_export( self, event ):
