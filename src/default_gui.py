@@ -1061,7 +1061,6 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer28.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.lod1 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD1", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.lod1.SetValue(True) 
 		fgSizer28.Add( self.lod1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		lod1_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
