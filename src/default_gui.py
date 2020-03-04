@@ -909,23 +909,6 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer4.Add( sbSizer4, 1, wx.EXPAND, 5 )
 		
-		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
-		
-		gSizer4 = wx.GridSizer( 1, 2, 0, 0 )
-		
-		self.explicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.explicit_geom.SetValue( True ) 
-		gSizer4.Add( self.explicit_geom, 0, wx.ALL, 5 )
-		
-		self.implicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		gSizer4.Add( self.implicit_geom, 0, wx.ALL, 5 )
-		
-		
-		sbSizer2.Add( gSizer4, 1, wx.EXPAND, 5 )
-		
-		
-		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
-		
 		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
 		
 		fgSizer6 = wx.FlexGridSizer( 5, 4, 0, 0 )
@@ -1031,6 +1014,23 @@ class CityGmlExport ( wx.Dialog ):
 		
 		
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
+		
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
+		
+		gSizer4 = wx.GridSizer( 1, 2, 0, 0 )
+		
+		self.explicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.explicit_geom.SetValue( True ) 
+		gSizer4.Add( self.explicit_geom, 0, wx.ALL, 5 )
+		
+		self.implicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		gSizer4.Add( self.implicit_geom, 0, wx.ALL, 5 )
+		
+		
+		sbSizer2.Add( gSizer4, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
 		
 		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML LODs" ), wx.VERTICAL )
 		
