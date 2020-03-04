@@ -51,24 +51,31 @@ class ExportDialog(default_gui.CityGmlExport):
 
         exporter = CityGmlExport(self.__pathname, self.GetParent().db)
 
+        # configure if pretty print should be used in output file
         exporter.set_prettyprint(self.box_prettyprint.GetValue())
 
+        # configure x column index
         if self.choiceXvalue.GetSelection() != wx.NOT_FOUND:
             exporter.set_x_col_idx(self.choiceXvalue.GetSelection())
 
+        # configure y column index
         if self.choiceYvalue.GetSelection() != wx.NOT_FOUND:
             exporter.set_y_col_idx(self.choiceYvalue.GetSelection())
 
+        # configure reference height value index
         if self.choiceRefheight.GetSelection() != wx.NOT_FOUND:
             exporter.set_ref_height_col_idx(self.choiceRefheight.GetSelection())
 
+        # set epsg code for output geometries
         if self.epsg.GetValue() != "":
             exporter.set_epsg(int(self.epsg.GetValue()))
 
+        # configure tree height column index
         if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             exporter.set_height_col_index(self.choiceHeight.GetSelection())
             exporter.set_height_unit(self.choiceHeightUnit.GetString(self.choiceHeightUnit.GetSelection()))
 
+        # configure trunk diameter column index
         if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             exporter.set_trunk_diam_col_index(self.choiceTrunk.GetSelection())
             exporter.set_trunk_diam_unit(self.choiceTrunkUnit.GetString(self.choiceTrunkUnit.GetSelection()))
@@ -76,6 +83,7 @@ class ExportDialog(default_gui.CityGmlExport):
             if trunk_circ == 1:
                 exporter.set_trunk_is_circ(True)
 
+        # configure crown diameter column index
         if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             exporter.set_crown_diam_col_index(self.choiceCrown.GetSelection())
             exporter.set_crown_diam_unit(self.choiceCrownUnit.GetString(self.choiceCrownUnit.GetSelection()))
@@ -83,12 +91,15 @@ class ExportDialog(default_gui.CityGmlExport):
             if crown_circ == 1:
                 exporter.set_crown_is_circ(True)
 
+        # configure species column index
         if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
             exporter.set_species_col_index(self.choiceSpecies.GetSelection())
 
+        # configure vegetation class column index
         if self.choiceClass.GetSelection() != wx.NOT_FOUND:
             exporter.set_class_col_index(self.choiceClass.GetSelection())
 
+        # configure wether explicit or implicit geometries should be used
         if self.explicit_geom.GetValue():
             exporter.set_geomtype("EXPLICIT")
         else:
@@ -138,6 +149,7 @@ class ExportDialog(default_gui.CityGmlExport):
                 segments = None
             exporter.setup_lod4(True, geomcode, segments)
 
+        # configure, how crown height should be calculated
         crown_height_to_code = {"same as crown diameter": 0,
                                 "1/2 the height": 1,
                                 "2/3 the height": 2,
@@ -147,14 +159,18 @@ class ExportDialog(default_gui.CityGmlExport):
         crown_height_code = crown_height_to_code[self.crown_height_choice.GetStringSelection()]
         exporter.set_crown_height_code(crown_height_code)
 
+        # start the export
         export_status = exporter.export(self.progress)
 
+        # show dialog after export with short report
         message = "Export to CityGML finished.\n" \
                   "%s trees exported successfully.\n" \
                   "%s trees left out from export due to invalid parameters.\n" \
                   'See "Analyze > Geometry validation" for details.' % export_status
         msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
+
+        # reset gauge to 0
         self.progress.SetValue(0)
 
     # method is called when LOD1-Checkbox is hit in GUI: enables/disables LOD1-Options
@@ -351,12 +367,12 @@ class CityGmlExport:
         self.__class_col_index = None  # index of CityGML class code column
         self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
-        self.__geom_type = ""  # kann Werte "IMPLICIT" oder "EXPLICIT" annehmen
-        self.__crown_height_code = None
+        self.__geom_type = ""  # configures geom type: Only EXPLICIT or IMPLICIT are allowed values
+        self.__crown_height_code = None  # configures how crown hight should be calulated (only values between 0-4)
 
-        self.__use_lod1 = False
-        self.__lod1_geomtype = None
-        self.__lod1_segments = None
+        self.__use_lod1 = False  # variable determines if LOD1 is generated
+        self.__lod1_geomtype = None  # variable determines type of geometry that should be generated for LOD1 (0-5)
+        self.__lod1_segments = None  # variable determines number of segments to be used in geometry (not always used)
 
         self.__use_lod2 = False
         self.__lod2_geomtype = None
@@ -380,6 +396,7 @@ class CityGmlExport:
         self.fill_data_cursor()
         for row in self.__DataCursor:
 
+            # assign geometric values to variables
             x_value = row[self.__x_value_col_index]
             y_value = row[self.__y_value_col_index]
             ref_height = row[self.__ref_height_col_index]
@@ -387,6 +404,7 @@ class CityGmlExport:
             trunk_diam = row[self.__trunk_diam_col_index]
             crown_diam = row[self.__crown_diam_col_index]
 
+            # calculate crown height
             crown_height = 0
             if self.__crown_height_code == 0:
                 crown_height = crown_diam
@@ -402,7 +420,7 @@ class CityGmlExport:
             # validate tree parametrs
             valid = self.validate_tree_parameters(tree_height, trunk_diam, crown_diam)
 
-            # continue, if this trees parameters are invalid
+            # continue, if this tree's parameters are invalid
             if not valid:
                 progressbar.SetValue(progressbar.GetValue() + 1)
                 invalid_trees += 1
@@ -825,18 +843,24 @@ class CityGmlExport:
                     pos_list = [x_value, y_value, ref_height]
                     gml_pos.text = self.poslist_list_to_string(pos_list)
 
+            # update couter for valid trees
             valid_trees += 1
+
+            # update gauge in GUI
             progressbar.SetValue(progressbar.GetValue() + 1)
 
         # add bounding box information to root
         self.bounded_by()
 
+        # reformat to prettyprint xml output
         if self.__prettyprint:
             CityGmlExport.indent(self.__root)
 
+        # write tree to output file
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
 
+        # return number of exported valid trees and number of trees that were not exported
         return valid_trees, invalid_trees
 
     # method to add namespaces and schema location to xml file
