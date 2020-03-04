@@ -980,7 +980,7 @@ class CityGmlExport:
         rotate = (2*math.pi) / segments
 
         alpha = math.asin((stem_dm/2.0)/(crown_dm/2.0))
-        delta = (tree_h-laubansatz)/2.0 - (crown_dm/2.0)*math.cos(alpha)
+        delta = (tree_h-laubansatz)/2.0 - (crown_height/2.0)*math.cos(alpha)
 
         for _ in range(0, segments):
             sinx = math.sin(angle)
@@ -1011,8 +1011,8 @@ class CityGmlExport:
                     continue
                 l_pos_list.append(tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * cosx)
                 l_pos_list.append(tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * sinx)
-                l_pos_list.append(laubansatz + crown_dm/2.0 +
-                                  ((tree_h-laubansatz)/2.0) * math.cos(math.radians(180-v_angle)))
+                l_pos_list.append(laubansatz + crown_height/2.0 +
+                                  (crown_height/2.0) * math.cos(math.radians(180-v_angle)))
 
             # finish crown geometry
             l_pos_list.extend([tree_x, tree_y, tree_h])
@@ -1587,7 +1587,7 @@ class CityGmlExport:
         tree_h = tree_h + ref_h
 
         alpha = math.asin((stem_dm / 2.0) / (crown_dm / 2.0))
-        delta = (tree_h - laubansatz) / 2.0 - (crown_dm / 2.0) * math.cos(alpha)
+        delta = (tree_h - laubansatz) / 2.0 - (crown_height / 2.0) * math.cos(alpha)
 
         composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
         composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
