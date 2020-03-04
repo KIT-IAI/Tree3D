@@ -16875,7 +16875,7 @@
                                 <event name="OnAux2Up"></event>
                                 <event name="OnChar"></event>
                                 <event name="OnCharHook"></event>
-                                <event name="OnCheckBox"></event>
+                                <event name="OnCheckBox">on_checkbox_defaultheight_hit</event>
                                 <event name="OnEnterWindow"></event>
                                 <event name="OnEraseBackground"></event>
                                 <event name="OnKeyDown"></event>
@@ -17068,7 +17068,7 @@
                                 <event name="OnAux2Up"></event>
                                 <event name="OnChar"></event>
                                 <event name="OnCharHook"></event>
-                                <event name="OnCheckBox">on_checkbox_hit</event>
+                                <event name="OnCheckBox">on_checkbox_radius_hit</event>
                                 <event name="OnEnterWindow"></event>
                                 <event name="OnEraseBackground"></event>
                                 <event name="OnKeyDown"></event>

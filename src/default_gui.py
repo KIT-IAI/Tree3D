@@ -1685,7 +1685,8 @@ class GrabHeight ( wx.Dialog ):
 		# Connect Events
 		self.id.Bind( wx.EVT_CHOICE, self.validate )
 		self.geom.Bind( wx.EVT_CHOICE, self.validate )
-		self.use_radius.Bind( wx.EVT_CHECKBOX, self.on_checkbox_hit )
+		self.use_defaultheight.Bind( wx.EVT_CHECKBOX, self.on_checkbox_defaultheight_hit )
+		self.use_radius.Bind( wx.EVT_CHECKBOX, self.on_checkbox_radius_hit )
 		self.assign.Bind( wx.EVT_BUTTON, self.on_assign )
 	
 	def __del__( self ):
@@ -1697,7 +1698,10 @@ class GrabHeight ( wx.Dialog ):
 		event.Skip()
 	
 	
-	def on_checkbox_hit( self, event ):
+	def on_checkbox_defaultheight_hit( self, event ):
+		event.Skip()
+	
+	def on_checkbox_radius_hit( self, event ):
 		event.Skip()
 	
 	def on_assign( self, event ):
