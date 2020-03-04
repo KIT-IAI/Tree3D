@@ -398,14 +398,17 @@ class CityGmlExport:
             creationdate = ET.SubElement(solitary_vegetation_object, "creationDate")
             creationdate.text = str(date.today())
 
+            # Add class attribute to parameterized tree model
             if self.__class_col_index is not None and row[self.__class_col_index] is not None:
                 klasse = ET.SubElement(solitary_vegetation_object, "veg:class")
                 klasse.text = str(row[self.__class_col_index])
 
+            # Add species attribute to parameterized tree model
             if self.__species_col_index is not None and row[self.__species_col_index] is not None:
                 species = ET.SubElement(solitary_vegetation_object, "veg:species")
                 species.text = str(row[self.__species_col_index])
 
+            # Add hight attribute to parameterized tree model
             if self.__height_col_index is not None:
                 height = ET.SubElement(solitary_vegetation_object, "veg:height")
                 if self.__height_unit == "cm":
@@ -413,6 +416,7 @@ class CityGmlExport:
                 height.text = str(tree_height)
                 height.set("uom", "m")
 
+            # Add trunk (stem) diameter attribute to parameterized tree model
             if self.__trunk_diam_col_index is not None:
                 trunk = ET.SubElement(solitary_vegetation_object, "veg:trunkDiameter")
                 if self.__trunk_diam_unit == "cm":
@@ -422,6 +426,7 @@ class CityGmlExport:
                 trunk.text = str(trunk_diam)
                 trunk.set("uom", "m")
 
+            # Add crown diameter attribute to parameterized tree model
             if self.__crown_diam_col_index is not None:
                 crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
                 if self.__crown_diam_unit == "cm":
@@ -431,6 +436,7 @@ class CityGmlExport:
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
+            # Create explicit geometries
             if self.__geom_type == "EXPLICIT":
                 # Calls methods to generate geometries for LOD1, depending on user input
                 if self.__use_lod1:
@@ -571,12 +577,17 @@ class CityGmlExport:
                         elif row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+
+            # Create implicit geometries
             elif self.__geom_type == "IMPLICIT":
                 if self.__use_lod1:
                     lod1_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod1ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod1_implicit_geometry, "ImplicitGeometry")
+
+                    # add transformation matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
                     matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+
                     lod_1_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
                     if self.__lod1_geomtype == 0:
                         self.generate_line_geometry(lod_1_geom, 0, 0, 0, tree_height)
@@ -609,6 +620,8 @@ class CityGmlExport:
                         elif row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_1_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam, self.__lod1_segments)
+
+                    # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
                     gml_point = ET.SubElement(ref_point, "gml:Point")
                     gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
@@ -622,8 +635,11 @@ class CityGmlExport:
                 if self.__use_lod2:
                     lod2_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod2ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod2_implicit_geometry, "ImplicitGeometry")
+
+                    # add transformation matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
                     matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+
                     lod_2_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
                     if self.__lod2_geomtype == 0:
                         self.generate_line_geometry(lod_2_geom, 0, 0, 0, tree_height)
@@ -656,6 +672,8 @@ class CityGmlExport:
                         elif row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_2_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam, self.__lod2_segments)
+
+                    # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
                     gml_point = ET.SubElement(ref_point, "gml:Point")
                     gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
@@ -669,8 +687,11 @@ class CityGmlExport:
                 if self.__use_lod3:
                     lod3_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod3ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod3_implicit_geometry, "ImplicitGeometry")
+
+                    # add transformation matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
                     matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+
                     lod_3_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
                     if self.__lod3_geomtype == 0:
                         self.generate_line_geometry(lod_3_geom, 0, 0, 0, tree_height)
@@ -703,6 +724,8 @@ class CityGmlExport:
                         elif row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_3_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam, self.__lod3_segments)
+
+                    # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
                     gml_point = ET.SubElement(ref_point, "gml:Point")
                     gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
@@ -716,8 +739,11 @@ class CityGmlExport:
                 if self.__use_lod4:
                     lod4_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod4ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod4_implicit_geometry, "ImplicitGeometry")
+
+                    # add transformaiton matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
                     matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
+
                     lod_4_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
                     if self.__lod4_geomtype == 0:
                         self.generate_line_geometry(lod_4_geom, 0, 0, 0, tree_height)
@@ -750,6 +776,8 @@ class CityGmlExport:
                         elif row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_4_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam, self.__lod4_segments)
+
+                    # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
                     gml_point = ET.SubElement(ref_point, "gml:Point")
                     gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
