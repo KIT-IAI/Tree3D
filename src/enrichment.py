@@ -314,6 +314,11 @@ class BasicConnection:
         statement += ';'
         self._updatecursor.execute(statement)
 
+    def update_value_where_col_is_null(self, tablename, insert_col, insert_val, where_col):
+        statement = 'UPDATE %s SET "%s" = %s' % (tablename, insert_col, insert_val)
+        statement += ' WHERE "%s" is null;' % where_col
+        self._updatecursor.execute(statement)
+
 
 # Class with basic functionality for DEM importing
 class BasicDemConnection(BasicConnection):
@@ -429,8 +434,13 @@ class GrabHeight(default_gui.GrabHeight):
 
     # method called when checkbox is hit:
     # activates TextBox to enter Search radius
-    def on_checkbox_hit(self, event):
+    def on_checkbox_radius_hit(self, event):
         self.radius.Enabled = not self.radius.Enabled
+
+    def on_checkbox_defaultheight_hit(self, event):
+        self.default_height.Enabled = not self.default_height.Enabled
+        if not self.use_defaultheight.GetValue:
+            self.default_height.SetValue(0)
 
     # method called when dropdown changes
     # if all dropdowns have been chosen, Button to Assign hight activates (if program is not running)
@@ -466,6 +476,13 @@ class GrabHeight(default_gui.GrabHeight):
     def validate_input(self):
         valid = True
         message = ""
+        if self.use_defaultheight.GetValue():
+            try:
+                float(self.default_height.GetValue().replace(",", "."))
+            except:
+                valid = False
+                message = "Default height must be an integer or a float"
+
         if self.use_radius.GetValue():
             try:
                 int(self.radius.GetValue())
@@ -481,9 +498,15 @@ class GrabHeight(default_gui.GrabHeight):
             radius = int(self.radius.GetValue())
         except ValueError:
             radius = 0
+
+        try:
+            defaultheight = float(self.default_height.GetValue().replace(",", "."))
+        except ValueError:
+            defaultheight = 0
         assigner = AssignHeight(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
                                 self.geom.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
-                                self.gauge, self.use_radius.GetValue(), radius)
+                                self.gauge, self.use_defaultheight.GetValue(), defaultheight,
+                                self.use_radius.GetValue(), radius)
         assigner.assign()
         assigner.commit()
         self.EndModal(1)
@@ -491,13 +514,16 @@ class GrabHeight(default_gui.GrabHeight):
 
 # class that adds hight to the trees
 class AssignHeight(BasicConnection):
-    def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge, use_searchradius, searchradius):
+    def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge,
+                 use_defaultheight, defaultheight, use_searchradius, searchradius):
         BasicConnection.__init__(self, dbpath)
         self.__db = db
         self.__IdCol = idcol
         self.__GeomCol = geomcol
         self.__TreeTableName = treetable
         self.__gauge = gauge
+        self.__use_defaultheight = use_defaultheight
+        self.__defaultheight = defaultheight
         self.__use_searchradius = use_searchradius
         self.__searchradius = searchradius
 
@@ -556,6 +582,11 @@ class AssignHeight(BasicConnection):
 
             self.update_value(self.__TreeTableName, "Height_DEM", hoehe, self.__IdCol, row[0])
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
+
+        # assign defaultheight to all other trees
+        if self.__use_defaultheight:
+            self.update_value_where_col_is_null(self.__TreeTableName, "Height_DEM", self.__defaultheight,
+                                                "Height_DEM")
 
 
 # Class to add Geom objects into the database
