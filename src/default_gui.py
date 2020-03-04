@@ -833,7 +833,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,641 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,666 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -1015,19 +1015,41 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
 		
-		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Type" ), wx.VERTICAL )
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Options" ), wx.VERTICAL )
 		
-		gSizer4 = wx.GridSizer( 1, 2, 0, 0 )
+		fgSizer29 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer29.SetFlexibleDirection( wx.BOTH )
+		fgSizer29.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText62 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Geometry Type", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText62.Wrap( -1 )
+		
+		fgSizer29.Add( self.m_staticText62, 0, wx.ALL, 5 )
+		
+		gSizer5 = wx.GridSizer( 1, 2, 0, 0 )
 		
 		self.explicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.explicit_geom.SetValue( True ) 
-		gSizer4.Add( self.explicit_geom, 0, wx.ALL, 5 )
+		gSizer5.Add( self.explicit_geom, 0, wx.ALL, 5 )
 		
 		self.implicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
-		gSizer4.Add( self.implicit_geom, 0, wx.ALL, 5 )
+		gSizer5.Add( self.implicit_geom, 0, wx.ALL, 5 )
 		
 		
-		sbSizer2.Add( gSizer4, 1, wx.EXPAND, 5 )
+		fgSizer29.Add( gSizer5, 1, wx.EXPAND, 5 )
+		
+		self.m_staticText63 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Crown height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText63.Wrap( -1 )
+		
+		fgSizer29.Add( self.m_staticText63, 0, wx.ALL, 5 )
+		
+		m_choice54Choices = [ u"same as crown diameter", u"half the height", u"2/3 the height", u"3/4 the height", u"1/2 the height", u"4/5 the height" ]
+		self.m_choice54 = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice54Choices, 0 )
+		self.m_choice54.SetSelection( 0 )
+		fgSizer29.Add( self.m_choice54, 0, wx.ALL, 5 )
+		
+		
+		sbSizer2.Add( fgSizer29, 1, wx.EXPAND, 5 )
 		
 		
 		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
@@ -1039,6 +1061,7 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer28.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.lod1 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.lod1.SetValue(True) 
 		fgSizer28.Add( self.lod1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		lod1_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
