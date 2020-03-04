@@ -1636,10 +1636,18 @@ class GrabHeight ( wx.Dialog ):
 		fgSizer27.SetFlexibleDirection( wx.BOTH )
 		fgSizer27.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.use_radius = wx.CheckBox( self, wx.ID_ANY, u"Use search radius (faster)(m)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_defaultheight = wx.CheckBox( self, wx.ID_ANY, u"Default height (if tree is out of DEM range)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer27.Add( self.use_defaultheight, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		self.default_height = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.default_height.Enable( False )
+		
+		fgSizer27.Add( self.default_height, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.use_radius = wx.CheckBox( self, wx.ID_ANY, u"Use search radius (m) (faster)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer27.Add( self.use_radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.radius = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radius = wx.TextCtrl( self, wx.ID_ANY, u"5", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.radius.SetMaxLength( 4 ) 
 		self.radius.Enable( False )
 		
