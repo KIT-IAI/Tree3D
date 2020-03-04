@@ -1043,10 +1043,10 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer29.Add( self.m_staticText63, 0, wx.ALL, 5 )
 		
-		m_choice54Choices = [ u"same as crown diameter", u"1/2 the height", u"2/3 the height", u"3/4 the height", u"4/5 the height" ]
-		self.m_choice54 = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice54Choices, 0 )
-		self.m_choice54.SetSelection( 0 )
-		fgSizer29.Add( self.m_choice54, 0, wx.ALL, 5 )
+		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the height", u"2/3 the height", u"3/4 the height", u"4/5 the height" ]
+		self.crown_height_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_choiceChoices, 0 )
+		self.crown_height_choice.SetSelection( 0 )
+		fgSizer29.Add( self.crown_height_choice, 0, wx.ALL, 5 )
 		
 		
 		sbSizer2.Add( fgSizer29, 1, wx.EXPAND, 5 )
