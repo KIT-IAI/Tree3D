@@ -1043,7 +1043,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer29.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the height", u"2/3 the height", u"3/4 the height", u"4/5 the height" ]
+		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the tree height", u"2/3 the tree height", u"3/4 the tree height", u"4/5 the tree height" ]
 		self.crown_height_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_choiceChoices, 0 )
 		self.crown_height_choice.SetSelection( 0 )
 		fgSizer29.Add( self.crown_height_choice, 0, wx.ALL, 5 )
