@@ -383,7 +383,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         if self.choiceClass.GetSelection() == wx.NOT_FOUND:
             valid = False
-            "Vegetation class must be specified"
+            warningmessage = "Vegetation class must be specified"
 
         if self.choiceRefheight.GetSelection() == wx.NOT_FOUND:
             valid = False
