@@ -381,7 +381,7 @@ class AnalyzeTreeGeoms:
     # trunk and crown must BOTH be diam
     def __init__(self, height, trunk_diam, crown_diam):
         self.__Height = height
-        self.__TrunDiam = trunk_diam
+        self.__TrunkDiam = trunk_diam
         self.__CrownDiam = crown_diam
 
     # method to analyze parameters
@@ -399,13 +399,13 @@ class AnalyzeTreeGeoms:
             valid = False
             msg = "Hight is smaller that 0"
 
-        if self.__TrunDiam == 0:
+        if self.__TrunkDiam == 0:
             valid = False
             msg = "Trunk diameter is 0"
-        elif self.__TrunDiam is None:
+        elif self.__TrunkDiam is None:
             valid = False
             msg = "No trunk diameter specified"
-        elif self.__TrunDiam < 0:
+        elif self.__TrunkDiam < 0:
             valid = False
             msg = "Trunk diameter is smaller than 0"
 
@@ -419,14 +419,14 @@ class AnalyzeTreeGeoms:
             valid = False
             msg = "Crown diameter is smaller than 0"
 
-        if self.__TrunDiam is not None and self.__CrownDiam is not None:
-            if self.__TrunDiam > self.__CrownDiam:
+        if self.__TrunkDiam is not None and self.__CrownDiam is not None:
+            if self.__TrunkDiam > self.__CrownDiam:
                 valid = False
                 msg = "Trunk diameter is greater than crown diameter"
             if self.__CrownDiam > self.__Height:
                 valid = False
                 msg = "Crown diameter is greater than tree height"
-            if self.__TrunDiam > self.__Height:
+            if self.__TrunkDiam > self.__Height:
                 valid = False
                 msg = "Trunk diameter is greater than tree height"
 
