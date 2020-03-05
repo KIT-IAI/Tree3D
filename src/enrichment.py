@@ -436,6 +436,8 @@ class GrabHeight(default_gui.GrabHeight):
     # activates TextBox to enter Search radius
     def on_checkbox_radius_hit(self, event):
         self.radius.Enabled = not self.radius.Enabled
+        if not self.use_radius.GetValue():
+            self.radius.SetValue("5")
 
     # method called when checkbox to use defaultheight is checked
     # activates textbox to enter default height
