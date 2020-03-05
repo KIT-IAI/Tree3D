@@ -1063,7 +1063,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.lod1 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD1", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer28.Add( self.lod1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		lod1_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		lod1_geomtypeChoices = []
 		self.lod1_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod1_geomtypeChoices, 0 )
 		self.lod1_geomtype.SetSelection( 0 )
 		self.lod1_geomtype.Enable( False )
@@ -1087,7 +1087,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.lod2 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD2", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer28.Add( self.lod2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		lod2_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		lod2_geomtypeChoices = []
 		self.lod2_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod2_geomtypeChoices, 0 )
 		self.lod2_geomtype.SetSelection( 0 )
 		self.lod2_geomtype.Enable( False )
@@ -1111,7 +1111,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.lod3 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD3", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer28.Add( self.lod3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		lod3_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		lod3_geomtypeChoices = []
 		self.lod3_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod3_geomtypeChoices, 0 )
 		self.lod3_geomtype.SetSelection( 0 )
 		self.lod3_geomtype.Enable( False )
@@ -1135,7 +1135,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.lod4 = wx.CheckBox( sbSizer11.GetStaticBox(), wx.ID_ANY, u"LOD4", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer28.Add( self.lod4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		lod4_geomtypeChoices = [ u"line", u"cylinder", u"rectangle", u"polygon outlines", u"cuboid", u"detailled" ]
+		lod4_geomtypeChoices = []
 		self.lod4_geomtype = wx.Choice( sbSizer11.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, lod4_geomtypeChoices, 0 )
 		self.lod4_geomtype.SetSelection( 0 )
 		self.lod4_geomtype.Enable( False )
@@ -1187,6 +1187,9 @@ class CityGmlExport ( wx.Dialog ):
 		
 		# Connect Events
 		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
+		self.choiceHeight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceTrunk.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceCrown.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.lod1.Bind( wx.EVT_CHECKBOX, self.on_lod1_checkbox )
 		self.lod1_geomtype.Bind( wx.EVT_CHOICE, self.on_lod1_choice )
 		self.lod2.Bind( wx.EVT_CHECKBOX, self.on_lod2_checkbox )
@@ -1204,6 +1207,11 @@ class CityGmlExport ( wx.Dialog ):
 	# Virtual event handlers, overide them in your derived class
 	def on_browse( self, event ):
 		event.Skip()
+	
+	def check_geometries_to_generate( self, event ):
+		event.Skip()
+	
+	
 	
 	def on_lod1_checkbox( self, event ):
 		event.Skip()

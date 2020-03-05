@@ -9124,7 +9124,7 @@
                                         <event name="OnAux2Up"></event>
                                         <event name="OnChar"></event>
                                         <event name="OnCharHook"></event>
-                                        <event name="OnChoice"></event>
+                                        <event name="OnChoice">check_geometries_to_generate</event>
                                         <event name="OnEnterWindow"></event>
                                         <event name="OnEraseBackground"></event>
                                         <event name="OnKeyDown"></event>
@@ -9415,7 +9415,7 @@
                                         <event name="OnAux2Up"></event>
                                         <event name="OnChar"></event>
                                         <event name="OnCharHook"></event>
-                                        <event name="OnChoice"></event>
+                                        <event name="OnChoice">check_geometries_to_generate</event>
                                         <event name="OnEnterWindow"></event>
                                         <event name="OnEraseBackground"></event>
                                         <event name="OnKeyDown"></event>
@@ -9791,7 +9791,7 @@
                                         <event name="OnAux2Up"></event>
                                         <event name="OnChar"></event>
                                         <event name="OnCharHook"></event>
-                                        <event name="OnChoice"></event>
+                                        <event name="OnChoice">check_geometries_to_generate</event>
                                         <event name="OnEnterWindow"></event>
                                         <event name="OnEraseBackground"></event>
                                         <event name="OnKeyDown"></event>
@@ -11119,7 +11119,7 @@
                             <property name="border">5</property>
                             <property name="flag">wxEXPAND</property>
                             <property name="proportion">1</property>
-                            <object class="wxFlexGridSizer" expanded="0">
+                            <object class="wxFlexGridSizer" expanded="1">
                                 <property name="cols">4</property>
                                 <property name="flexible_direction">wxBOTH</property>
                                 <property name="growablecols"></property>
@@ -11244,7 +11244,7 @@
                                         <property name="caption"></property>
                                         <property name="caption_visible">1</property>
                                         <property name="center_pane">0</property>
-                                        <property name="choices">&quot;line&quot; &quot;cylinder&quot; &quot;rectangle&quot; &quot;polygon outlines&quot; &quot;cuboid&quot; &quot;detailled&quot;</property>
+                                        <property name="choices"></property>
                                         <property name="close_button">1</property>
                                         <property name="context_help"></property>
                                         <property name="context_menu">1</property>
@@ -11620,7 +11620,7 @@
                                         <property name="caption"></property>
                                         <property name="caption_visible">1</property>
                                         <property name="center_pane">0</property>
-                                        <property name="choices">&quot;line&quot; &quot;cylinder&quot; &quot;rectangle&quot; &quot;polygon outlines&quot; &quot;cuboid&quot; &quot;detailled&quot;</property>
+                                        <property name="choices"></property>
                                         <property name="close_button">1</property>
                                         <property name="context_help"></property>
                                         <property name="context_menu">1</property>
@@ -11996,7 +11996,7 @@
                                         <property name="caption"></property>
                                         <property name="caption_visible">1</property>
                                         <property name="center_pane">0</property>
-                                        <property name="choices">&quot;line&quot; &quot;cylinder&quot; &quot;rectangle&quot; &quot;polygon outlines&quot; &quot;cuboid&quot; &quot;detailled&quot;</property>
+                                        <property name="choices"></property>
                                         <property name="close_button">1</property>
                                         <property name="context_help"></property>
                                         <property name="context_menu">1</property>
@@ -12372,7 +12372,7 @@
                                         <property name="caption"></property>
                                         <property name="caption_visible">1</property>
                                         <property name="center_pane">0</property>
-                                        <property name="choices">&quot;line&quot; &quot;cylinder&quot; &quot;rectangle&quot; &quot;polygon outlines&quot; &quot;cuboid&quot; &quot;detailled&quot;</property>
+                                        <property name="choices"></property>
                                         <property name="close_button">1</property>
                                         <property name="context_help"></property>
                                         <property name="context_menu">1</property>
