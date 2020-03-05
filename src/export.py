@@ -173,8 +173,44 @@ class ExportDialog(default_gui.CityGmlExport):
         # reset gauge to 0
         self.progress.SetValue(0)
 
+    def check_geometries_to_generate(self, event):
+        height = self.choiceHeight.GetSelection()
+        stem = self.choiceTrunk.GetSelection()
+        crown = self.choiceCrown.GetSelection()
+
+        geom_types = []
+
+        if height != wx.NOT_FOUND:
+            geom_types.append("line")
+
+        if height != wx.NOT_FOUND and crown != wx.NOT_FOUND:
+            geom_types.append("cylinder")
+            geom_types.append("rectangle")
+
+        if height != wx.NOT_FOUND and crown != wx.NOT_FOUND and stem != wx.NOT_FOUND:
+            geom_types.append("polygon outlines")
+            geom_types.append("cuboid")
+            geom_types.append("detailled")
+
+        self.lod1_geomtype.SetItems(geom_types)
+        self.lod2_geomtype.SetItems(geom_types)
+        self.lod3_geomtype.SetItems(geom_types)
+        self.lod4_geomtype.SetItems(geom_types)
+
+        self.lod1_geomtype.SetSelection(0)
+        self.lod2_geomtype.SetSelection(0)
+        self.lod3_geomtype.SetSelection(0)
+        self.lod4_geomtype.SetSelection(0)
+
     # method is called when LOD1-Checkbox is hit in GUI: enables/disables LOD1-Options
     def on_lod1_checkbox(self, event):
+        if self.lod1_geomtype.GetSelection() == wx.NOT_FOUND:
+            self.lod1.SetValue(False)
+            msg = "Specify tree attributes first!"
+            dlg = wx.MessageDialog(self, msg, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            dlg.ShowModal()
+            return
+
         val = self.lod1.GetValue()
         self.lod1_geomtype.Enable(val)
         if not val:
@@ -184,6 +220,13 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method is called when LOD2-Checkbox is hit in GUI: enables/disables LOD2-Options
     def on_lod2_checkbox(self, event):
+        if self.lod2_geomtype.GetSelection() == wx.NOT_FOUND:
+            self.lod2.SetValue(False)
+            msg = "Specify tree attributes first!"
+            dlg = wx.MessageDialog(self, msg, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            dlg.ShowModal()
+            return
+
         val = self.lod2.GetValue()
         self.lod2_geomtype.Enable(val)
         if not val:
@@ -193,6 +236,13 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method is called when LOD3-Checkbox is hit in GUI: enables/disables LOD3-Options
     def on_lod3_checkbox(self, event):
+        if self.lod3_geomtype.GetSelection() == wx.NOT_FOUND:
+            self.lod3.SetValue(False)
+            msg = "Specify tree attributes first!"
+            dlg = wx.MessageDialog(self, msg, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            dlg.ShowModal()
+            return
+
         val = self.lod3.GetValue()
         self.lod3_geomtype.Enable(val)
         if not val:
@@ -202,6 +252,13 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method is called when LOD4-Checkbox is hit in GUI: enables/disables LOD4-Options
     def on_lod4_checkbox(self, event):
+        if self.lod4_geomtype.GetSelection() == wx.NOT_FOUND:
+            self.lod4.SetValue(False)
+            msg = "Specify tree attributes first!"
+            dlg = wx.MessageDialog(self, msg, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            dlg.ShowModal()
+            return
+
         val = self.lod4.GetValue()
         self.lod4_geomtype.Enable(val)
         if not val:
