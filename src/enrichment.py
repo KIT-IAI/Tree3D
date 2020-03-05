@@ -442,7 +442,6 @@ class GrabHeight(default_gui.GrabHeight):
     def on_checkbox_defaultheight_hit(self, event):
         self.default_height.Enabled = not self.default_height.Enabled
         if not self.use_defaultheight.GetValue():
-            print("aus")
             self.default_height.SetValue("0")
 
     # method called when dropdown changes
