@@ -173,6 +173,8 @@ class ExportDialog(default_gui.CityGmlExport):
         # reset gauge to 0
         self.progress.SetValue(0)
 
+    # method to check what geometries can be generated
+    # called whenever dropdowns to tree parameters (height, stem-diam, crown-diam) change
     def check_geometries_to_generate(self, event):
         height = self.choiceHeight.GetSelection()
         stem = self.choiceTrunk.GetSelection()
@@ -192,11 +194,13 @@ class ExportDialog(default_gui.CityGmlExport):
             geom_types.append("cuboid")
             geom_types.append("detailled")
 
+        # set dropdown lists
         self.lod1_geomtype.SetItems(geom_types)
         self.lod2_geomtype.SetItems(geom_types)
         self.lod3_geomtype.SetItems(geom_types)
         self.lod4_geomtype.SetItems(geom_types)
 
+        # set dropdown values
         self.lod1_geomtype.SetSelection(0)
         self.lod2_geomtype.SetSelection(0)
         self.lod3_geomtype.SetSelection(0)
