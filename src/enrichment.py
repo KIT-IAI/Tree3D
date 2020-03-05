@@ -432,15 +432,18 @@ class GrabHeight(default_gui.GrabHeight):
         self.id.SetItems(col_names)
         self.geom.SetItems(geom_names)
 
-    # method called when checkbox is hit:
+    # method called when checkbox to use search radius is hit:
     # activates TextBox to enter Search radius
     def on_checkbox_radius_hit(self, event):
         self.radius.Enabled = not self.radius.Enabled
 
+    # method called when checkbox to use defaultheight is checked
+    # activates textbox to enter default height
     def on_checkbox_defaultheight_hit(self, event):
         self.default_height.Enabled = not self.default_height.Enabled
-        if not self.use_defaultheight.GetValue:
-            self.default_height.SetValue(0)
+        if not self.use_defaultheight.GetValue():
+            print("aus")
+            self.default_height.SetValue("0")
 
     # method called when dropdown changes
     # if all dropdowns have been chosen, Button to Assign hight activates (if program is not running)
