@@ -1024,7 +1024,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.m_staticText62 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Geometry Type", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText62.Wrap( -1 )
 		
-		fgSizer29.Add( self.m_staticText62, 0, wx.ALL, 5 )
+		fgSizer29.Add( self.m_staticText62, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		gSizer5 = wx.GridSizer( 1, 2, 0, 0 )
 		
@@ -1041,7 +1041,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.m_staticText63 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Crown height", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText63.Wrap( -1 )
 		
-		fgSizer29.Add( self.m_staticText63, 0, wx.ALL, 5 )
+		fgSizer29.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the height", u"2/3 the height", u"3/4 the height", u"4/5 the height" ]
 		self.crown_height_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_choiceChoices, 0 )
