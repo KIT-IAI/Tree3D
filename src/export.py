@@ -381,18 +381,6 @@ class ExportDialog(default_gui.CityGmlExport):
             valid = False
             "Vegetation class must be specified"
 
-        if self.choiceCrown.GetSelection() == wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Crown diameter must be specified"
-
-        if self.choiceTrunk.GetSelection() == wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Trunk diameter must be specified"
-
-        if self.choiceHeight.GetSelection() == wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Tree Height value must be specified"
-
         if self.choiceRefheight.GetSelection() == wx.NOT_FOUND:
             valid = False
             warningmessage = "Reference Height must be specified"
