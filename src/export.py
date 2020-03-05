@@ -474,22 +474,32 @@ class CityGmlExport:
             x_value = row[self.__x_value_col_index]
             y_value = row[self.__y_value_col_index]
             ref_height = row[self.__ref_height_col_index]
-            tree_height = row[self.__height_col_index]
-            trunk_diam = row[self.__trunk_diam_col_index]
-            crown_diam = row[self.__crown_diam_col_index]
+            if self.__height_col_index is not None:
+                tree_height = row[self.__height_col_index]
+            else:
+                tree_height = None
+            if self.__trunk_diam_col_index is not None:
+                trunk_diam = row[self.__trunk_diam_col_index]
+            else:
+                trunk_diam = None
+            if self.__crown_diam_col_index is not None:
+                crown_diam = row[self.__crown_diam_col_index]
+            else:
+                crown_diam = None
 
             # calculate crown height
             crown_height = 0
-            if self.__crown_height_code == 0:
-                crown_height = crown_diam
-            elif self.__crown_height_code == 1:
-                crown_height = 0.5 * tree_height
-            elif self.__crown_height_code == 2:
-                crown_height = (2/3.0) * tree_height
-            elif self.__crown_height_code == 3:
-                crown_height = (3/4.0) * tree_height
-            elif self.__crown_height_code == 4:
-                crown_height = (4/5.0) * tree_height
+            if self.__crown_diam_col_index is not None:
+                if self.__crown_height_code == 0:
+                    crown_height = crown_diam
+                elif self.__crown_height_code == 1:
+                    crown_height = 0.5 * tree_height
+                elif self.__crown_height_code == 2:
+                    crown_height = (2/3.0) * tree_height
+                elif self.__crown_height_code == 3:
+                    crown_height = (3/4.0) * tree_height
+                elif self.__crown_height_code == 4:
+                    crown_height = (4/5.0) * tree_height
 
             # validate tree parametrs
             valid = self.validate_tree_parameters(tree_height, trunk_diam, crown_diam)
