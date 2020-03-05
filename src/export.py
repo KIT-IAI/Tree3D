@@ -474,6 +474,7 @@ class CityGmlExport:
             x_value = row[self.__x_value_col_index]
             y_value = row[self.__y_value_col_index]
             ref_height = row[self.__ref_height_col_index]
+
             if self.__height_col_index is not None:
                 tree_height = row[self.__height_col_index]
             else:
