@@ -833,7 +833,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,666 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,695 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -864,7 +864,7 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer7.SetFlexibleDirection( wx.BOTH )
 		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText171 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText171 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Easting", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText171.Wrap( -1 )
 		
 		fgSizer7.Add( self.m_staticText171, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -874,7 +874,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceXvalue.SetSelection( 0 )
 		fgSizer7.Add( self.choiceXvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText18 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText18 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Northing", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText18.Wrap( -1 )
 		
 		fgSizer7.Add( self.m_staticText18, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -909,7 +909,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer4.Add( sbSizer4, 1, wx.EXPAND, 5 )
 		
-		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
+		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML SolitaryVegetationObject attributes" ), wx.VERTICAL )
 		
 		fgSizer6 = wx.FlexGridSizer( 5, 4, 0, 0 )
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
@@ -999,25 +999,15 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceClass.SetSelection( 0 )
 		fgSizer6.Add( self.choiceClass, 0, wx.ALL, 5 )
 		
-		self.m_staticText54 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"default", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText54.Wrap( -1 )
-		
-		fgSizer6.Add( self.m_staticText54, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		m_choice40Choices = [ u"deciduous tree", u"coniferous tree" ]
-		self.m_choice40 = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice40Choices, 0 )
-		self.m_choice40.SetSelection( 0 )
-		fgSizer6.Add( self.m_choice40, 0, wx.ALL, 5 )
-		
 		
 		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
 		
 		
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
 		
-		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Geometry Options" ), wx.VERTICAL )
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML geometric modelling options" ), wx.VERTICAL )
 		
-		fgSizer29 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer29 = wx.FlexGridSizer( 3, 2, 0, 0 )
 		fgSizer29.SetFlexibleDirection( wx.BOTH )
 		fgSizer29.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1048,13 +1038,23 @@ class CityGmlExport ( wx.Dialog ):
 		self.crown_height_choice.SetSelection( 0 )
 		fgSizer29.Add( self.crown_height_choice, 0, wx.ALL, 5 )
 		
+		self.m_staticText54 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"default", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText54.Wrap( -1 )
+		
+		fgSizer29.Add( self.m_staticText54, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_choice40Choices = [ u"deciduous tree", u"coniferous tree" ]
+		self.m_choice40 = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice40Choices, 0 )
+		self.m_choice40.SetSelection( 0 )
+		fgSizer29.Add( self.m_choice40, 0, wx.ALL, 5 )
+		
 		
 		sbSizer2.Add( fgSizer29, 1, wx.EXPAND, 5 )
 		
 		
 		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
 		
-		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML LODs" ), wx.VERTICAL )
+		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Level-Of-Detail options" ), wx.VERTICAL )
 		
 		fgSizer28 = wx.FlexGridSizer( 4, 4, 0, 0 )
 		fgSizer28.SetFlexibleDirection( wx.BOTH )
@@ -1239,7 +1239,7 @@ class CityGmlExport ( wx.Dialog ):
 
 class data_panel ( wx.Panel ):
 	
-	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1000,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
+	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
 		wx.Panel.__init__ ( self, parent, id = id, pos = pos, size = size, style = style, name = name )
 		
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
@@ -1273,6 +1273,7 @@ class data_panel ( wx.Panel ):
 		
 		self.SetSizer( bSizer2 )
 		self.Layout()
+		bSizer2.Fit( self )
 	
 	def __del__( self ):
 		pass
