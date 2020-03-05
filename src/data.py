@@ -208,6 +208,7 @@ class Database:
         self._DbCursor.execute(statement)
         return self._DbCursor
 
+    # get data in a form so that it can find duplicates based on geometry
     def get_data_for_duplicatecheck_geom(self, collist):
         # generate sql statement
         statement = "SELECT "
@@ -252,13 +253,17 @@ class Database:
         self.add_col_to_collist("geom", "GEOM")
         self.generate_sql_statement()
 
+    # method to generate a spatial Index for a specific column
     def add_spatial_index(self, colname):
         self._DbCursor.execute("SELECT CreateSpatialIndex('elevation', '%s');" % colname)
 
+    # method to add a column to the tree database table
     def add_col(self, name, datatype):
+        # find out if a column with this name already exists
         self._DbCursor.execute("pragma table_info('%s')" % self._DbTreeTableName)
         for row in self._DbCursor:
             if row[1] == name:
+                # if a column with this name already exists, overwrite it with null values
                 self.update_value(name, "null")
                 self.commit()
                 return
@@ -267,6 +272,7 @@ class Database:
         self.add_col_to_collist(name, datatype)
         self.generate_sql_statement()
 
+    # method to add a column to the program's internal list of table columns
     def add_col_to_collist(self, name, datatype):
         if name not in self.get_column_names():
             self._lTableColmnNames.append(["'%s'" % name, datatype, True])
@@ -298,7 +304,6 @@ class Database:
     # roll back database to last commit
     def rollback(self):
         self._DbConnection.rollback()
-
 
     # sets data inspection limit:
     # number of rows that will be analyzed before input to find out data type
