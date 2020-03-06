@@ -1043,10 +1043,10 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer29.Add( self.m_staticText54, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		m_choice40Choices = [ u"deciduous tree", u"coniferous tree" ]
-		self.m_choice40 = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice40Choices, 0 )
-		self.m_choice40.SetSelection( 0 )
-		fgSizer29.Add( self.m_choice40, 0, wx.ALL, 5 )
+		default_choiceChoices = [ u"deciduous tree", u"coniferous tree" ]
+		self.default_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, default_choiceChoices, 0 )
+		self.default_choice.SetSelection( 0 )
+		fgSizer29.Add( self.default_choice, 0, wx.ALL, 5 )
 		
 		
 		sbSizer2.Add( fgSizer29, 1, wx.EXPAND, 5 )
