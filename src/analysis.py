@@ -384,6 +384,63 @@ class AnalyzeTreeGeoms:
         self.__TrunkDiam = trunk_diam
         self.__CrownDiam = crown_diam
 
+    def analyze_height(self):
+        valid = True
+        msg = ""
+
+        if self.__Height == 0:
+            valid = False
+            msg = "Height is 0"
+        elif self.__Height is None:
+            valid = False
+            msg = "No height value specified"
+        elif self.__Height < 0:
+            valid = False
+            msg = "Hight is smaller that 0"
+
+        return valid, msg
+
+    def analyze_height_crown(self):
+        valid, msg = self.analyze_height()
+
+        if self.__CrownDiam == 0:
+            valid = False
+            msg = "Crown diameter is 0"
+        elif self.__CrownDiam is None:
+            valid = False
+            msg = "No crown diameter specified"
+        elif self.__CrownDiam < 0:
+            valid = False
+            msg = "Crown diameter is smaller than 0"
+
+        return valid, msg
+
+    def analyze_height_crown_trunk(self):
+        valid, msg = self.analyze_height_crown()
+
+        if self.__TrunkDiam == 0:
+            valid = False
+            msg = "Trunk diameter is 0"
+        elif self.__TrunkDiam is None:
+            valid = False
+            msg = "No trunk diameter specified"
+        elif self.__TrunkDiam < 0:
+            valid = False
+            msg = "Trunk diameter is smaller than 0"
+
+        if self.__Height is not None and self.__TrunkDiam is not None and self.__CrownDiam is not None:
+            if self.__TrunkDiam > self.__CrownDiam:
+                valid = False
+                msg = "Trunk diameter is greater than crown diameter"
+            if self.__CrownDiam > self.__Height:
+                valid = False
+                msg = "Crown diameter is greater than tree height"
+            if self.__TrunkDiam > self.__Height:
+                valid = False
+                msg = "Trunk diameter is greater than tree height"
+
+        return valid, msg
+
     # method to analyze parameters
     def analyze(self):
         valid = True
@@ -419,7 +476,7 @@ class AnalyzeTreeGeoms:
             valid = False
             msg = "Crown diameter is smaller than 0"
 
-        if self.__TrunkDiam is not None and self.__CrownDiam is not None:
+        if self.__Height is not None and self.__TrunkDiam is not None and self.__CrownDiam is not None:
             if self.__TrunkDiam > self.__CrownDiam:
                 valid = False
                 msg = "Trunk diameter is greater than crown diameter"
