@@ -519,8 +519,8 @@ class CityGmlExport:
                 elif self.__crown_height_code == 4:
                     crown_height = (4/5.0) * tree_height
 
-            # converting everything into its correct unit
-            # converting circumferences to diameter
+            # converting everything into its correct units
+            # converting cm -> m and circumferences -> diameter
             if self.__height_col_index is not None and self.__height_unit == "cm":
                 tree_height = tree_height / 100.0
 
@@ -543,6 +543,7 @@ class CityGmlExport:
             lod3_valid = False
             lod4_valid = False
 
+            # validate tree parameters for LOD1 geometry
             if self.__lod1_geomtype == 0:
                 lod1_valid, _ = validator.analyze_height()
             elif self.__lod1_geomtype == 1 or self.__lod1_geomtype == 2:
@@ -550,6 +551,7 @@ class CityGmlExport:
             elif self.__lod1_geomtype == 3 or self.__lod1_geomtype == 4 or self.__lod1_geomtype == 5:
                 lod1_valid, _ = validator.analyze_height_crown_trunk()
 
+            # validate tree parameters for LOD2 geometry
             if self.__lod2_geomtype == 0:
                 lod2_valid, _ = validator.analyze_height()
             elif self.__lod2_geomtype == 1 or self.__lod2_geomtype == 2:
@@ -557,6 +559,7 @@ class CityGmlExport:
             elif self.__lod2_geomtype == 3 or self.__lod2_geomtype == 4 or self.__lod2_geomtype == 5:
                 lod2_valid, _ = validator.analyze_height_crown_trunk()
 
+            # validate tree parameters for LOD3 geometry
             if self.__lod3_geomtype == 0:
                 lod3_valid, _ = validator.analyze_height()
             elif self.__lod3_geomtype == 1 or self.__lod3_geomtype == 2:
@@ -564,6 +567,7 @@ class CityGmlExport:
             elif self.__lod3_geomtype == 3 or self.__lod3_geomtype == 4 or self.__lod3_geomtype == 5:
                 lod3_valid, _ = validator.analyze_height_crown_trunk()
 
+            # validate tree parameters for LOD4 geometry
             if self.__lod4_geomtype == 0:
                 lod4_valid, _ = validator.analyze_height()
             elif self.__lod4_geomtype == 1 or self.__lod4_geomtype == 2:
