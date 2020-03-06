@@ -99,6 +99,16 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceClass.GetSelection() != wx.NOT_FOUND:
             exporter.set_class_col_index(self.choiceClass.GetSelection())
 
+        # configure what type of tree (deciduous or coniferous) should be used
+        # this type is used if class code is invalid (not 1060 or 1070) or no class column is specified
+        if self.default_choice.GetSelection() == 0:
+            default_type = 0000
+        elif self.default_choice.GetSelection() == 1:
+            default_type = 1070
+        elif self.default_choice.GetSelection() == 2:
+            default_type = 1060
+        exporter.set_default_export_type(default_type)
+
         # configure wether explicit or implicit geometries should be used
         if self.explicit_geom.GetValue():
             exporter.set_geomtype("EXPLICIT")
@@ -394,10 +404,6 @@ class ExportDialog(default_gui.CityGmlExport):
             valid = False
             warningmessage = "X Value and Y Value must not be the same column"
 
-        if self.choiceClass.GetSelection() == wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Vegetation class must be specified"
-
         if self.choiceRefheight.GetSelection() == wx.NOT_FOUND:
             valid = False
             warningmessage = "Reference Height must be specified"
@@ -635,30 +641,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height,
                                                                    tree_height, crown_diam, self.__lod1_segments)
                     elif self.__lod1_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod1_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod1_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod1_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod1_segments, crown_height)
                     elif self.__lod1_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod1_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod1_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod1_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod1_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod1_segments, crown_height)
                 else:
                     if self.__use_lod1:
                         invalid_lod1 += 1
@@ -675,30 +708,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_2_geom, x_value, y_value, ref_height,
                                                                    tree_height, crown_diam, self.__lod2_segments)
                     elif self.__lod2_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod2_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod2_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod2_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod2_segments, crown_height)
                     elif self.__lod2_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod2_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod2_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod2_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod2_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod2_segments, crown_height)
                 else:
                     if self.__use_lod2:
                         invalid_lod2 += 1
@@ -715,30 +775,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_3_geom, x_value, y_value, ref_height,
                                                                    tree_height, crown_diam, self.__lod3_segments)
                     elif self.__lod3_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod3_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod3_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod3_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod3_segments, crown_height)
                     elif self.__lod3_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod3_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod3_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod3_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod3_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod3_segments, crown_height)
                 else:
                     if self.__use_lod3:
                         invalid_lod3 += 1
@@ -755,30 +842,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_4_geom, x_value, y_value, ref_height,
                                                                    tree_height, crown_diam, self.__lod4_segments)
                     elif self.__lod4_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod4_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod4_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod4_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod4_segments, crown_height)
                     elif self.__lod4_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod4_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod4_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod4_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod4_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod4_segments, crown_height)
                 else:
                     if self.__use_lod4:
                         invalid_lod4 += 1
@@ -803,30 +917,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_1_geom, 0, 0, 0,
                                                                    tree_height, crown_diam, self.__lod1_segments)
                     elif self.__lod1_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_1_geom, 0, 0, 0,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod1_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_1_geom, 0, 0, 0,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod1_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_1_geom, 0, 0, 0,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod1_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_1_geom, 0, 0, 0,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod1_segments, crown_height)
                     elif self.__lod1_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_1_geom, 0, 0, 0,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_1_geom, 0, 0, 0,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_1_geom, 0, 0, 0,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_1_geom, 0, 0, 0,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod1_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_1_geom, 0, 0, 0,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod1_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_1_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod1_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_1_geom, 0, 0, 0,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod1_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_1_geom, 0, 0, 0,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod1_segments, crown_height)
 
                     # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
@@ -861,30 +1002,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_2_geom, 0, 0, 0,
                                                                    tree_height, crown_diam, self.__lod2_segments)
                     elif self.__lod2_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_2_geom, 0, 0, 0,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod2_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_2_geom, 0, 0, 0,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod2_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_2_geom, 0, 0, 0,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod2_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_2_geom, 0, 0, 0,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod2_segments, crown_height)
                     elif self.__lod2_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_2_geom, 0, 0, 0,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_2_geom, 0, 0, 0,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_2_geom, 0, 0, 0,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_2_geom, 0, 0, 0,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod2_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_2_geom, 0, 0, 0,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod2_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_2_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod2_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_2_geom, 0, 0, 0,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod2_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_2_geom, 0, 0, 0,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod2_segments, crown_height)
 
                     # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
@@ -919,30 +1087,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_3_geom, 0, 0, 0,
                                                                    tree_height, crown_diam, self.__lod3_segments)
                     elif self.__lod3_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_3_geom, 0, 0, 0,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod3_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_3_geom, 0, 0, 0,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod3_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_3_geom, 0, 0, 0,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod3_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_3_geom, 0, 0, 0,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod3_segments, crown_height)
                     elif self.__lod3_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_3_geom, 0, 0, 0,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_3_geom, 0, 0, 0,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_3_geom, 0, 0, 0,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_3_geom, 0, 0, 0,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod3_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_3_geom, 0, 0, 0,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod3_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_3_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod3_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_3_geom, 0, 0, 0,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod3_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_3_geom, 0, 0, 0,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod3_segments, crown_height)
 
                     # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
@@ -977,30 +1172,57 @@ class CityGmlExport:
                         self.generate_billboard_rectangle_geometry(lod_4_geom, 0, 0, 0,
                                                                    tree_height, crown_diam, self.__lod4_segments)
                     elif self.__lod4_geomtype == 3:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_billboard_polygon_coniferous(lod_4_geom, 0, 0, 0,
                                                                        tree_height, crown_diam, trunk_diam,
                                                                        self.__lod4_segments, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_billboard_polygon_deciduous(lod_4_geom, 0, 0, 0,
                                                                       tree_height, crown_diam, trunk_diam,
                                                                       self.__lod4_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_billboard_polygon_coniferous(lod_4_geom, 0, 0, 0,
+                                                                           tree_height, crown_diam, trunk_diam,
+                                                                           self.__lod4_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_billboard_polygon_deciduous(lod_4_geom, 0, 0, 0,
+                                                                          tree_height, crown_diam, trunk_diam,
+                                                                          self.__lod4_segments, crown_height)
                     elif self.__lod4_geomtype == 4:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_cuboid_geometry_coniferous(lod_4_geom, 0, 0, 0,
                                                                      tree_height, crown_diam, trunk_diam, crown_height)
-                        elif row[self.__class_col_index] == 1070:
+                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
                             self.generate_cuboid_geometry_deciduous(lod_4_geom, 0, 0, 0,
                                                                     tree_height, crown_diam, trunk_diam, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_cuboid_geometry_coniferous(lod_4_geom, 0, 0, 0,
+                                                                         tree_height, crown_diam, trunk_diam,
+                                                                         crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_cuboid_geometry_deciduous(lod_4_geom, 0, 0, 0,
+                                                                        tree_height, crown_diam, trunk_diam,
+                                                                        crown_height)
                     elif self.__lod4_geomtype == 5:
-                        if row[self.__class_col_index] == 1060:
+                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
                             self.generate_geometry_coniferous(lod_4_geom, 0, 0, 0,
                                                               tree_height, crown_diam, trunk_diam,
                                                               self.__lod4_segments, crown_height)
-                        elif row[self.__class_col_index == 1070]:
+                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
                             self.generate_geometry_deciduous(lod_4_geom, 0, 0, 0,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod4_segments, crown_height)
+                        else:
+                            if self.__default_export_type == 1060:
+                                self.generate_geometry_coniferous(lod_4_geom, 0, 0, 0,
+                                                                  tree_height, crown_diam, trunk_diam,
+                                                                  self.__lod4_segments, crown_height)
+                            elif self.__default_export_type == 1070:
+                                self.generate_geometry_deciduous(lod_4_geom, 0, 0, 0,
+                                                                 tree_height, crown_diam, trunk_diam,
+                                                                 self.__lod4_segments, crown_height)
 
                     # add reference point
                     ref_point = ET.SubElement(implicit_geometry, "referencePoint")
