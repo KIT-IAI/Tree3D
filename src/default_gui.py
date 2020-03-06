@@ -212,7 +212,7 @@ class OnOpenDialog ( wx.Dialog ):
 		self.m_staticText25 = wx.StaticText( self, wx.ID_ANY, u"Separator", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText25.Wrap( -1 )
 		
-		fgSizer8.Add( self.m_staticText25, 0, wx.ALL, 5 )
+		fgSizer8.Add( self.m_staticText25, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		seperatorChoices = [ u"Semicolon", u"Comma", u"Tabulator" ]
 		self.seperator = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, seperatorChoices, 0 )
@@ -225,7 +225,7 @@ class OnOpenDialog ( wx.Dialog ):
 		self.m_staticText26 = wx.StaticText( self, wx.ID_ANY, u"Encoding", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText26.Wrap( -1 )
 		
-		fgSizer8.Add( self.m_staticText26, 0, wx.ALL, 5 )
+		fgSizer8.Add( self.m_staticText26, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.encoding = wx.TextCtrl( self, wx.ID_ANY, u"utf-8-sig", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer8.Add( self.encoding, 0, wx.ALL, 5 )
@@ -267,9 +267,13 @@ class OnOpenDialog ( wx.Dialog ):
 		sbSizer1 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"unique tree IDs" ), wx.VERTICAL )
 		
 		self.generate_rowid_checkbox = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate incrementing IDs", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.generate_rowid_checkbox.SetToolTip( u"use this, if there is no ID associated with data" )
+		
 		sbSizer1.Add( self.generate_rowid_checkbox, 0, wx.ALL, 5 )
 		
 		self.generate_ID_box = wx.CheckBox( sbSizer1.GetStaticBox(), wx.ID_ANY, u"Generate tree IDs from CSV file columns", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.generate_ID_box.SetToolTip( u"use this, if an ID can be created by combining two columns" )
+		
 		sbSizer1.Add( self.generate_ID_box, 0, wx.ALL, 5 )
 		
 		self.m_staticText4 = wx.StaticText( sbSizer1.GetStaticBox(), wx.ID_ANY, u"ArbokaTransformer can create an ID out of two\ncolumns in the CSV table for each entry. \nGenerated ID column will be highlighted  in table.", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -284,7 +288,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.IdText_Col1.Enable( False )
 		
-		gSizer2.Add( self.IdText_Col1, 0, wx.ALL, 5 )
+		gSizer2.Add( self.IdText_Col1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		id_col1Choices = []
 		self.id_col1 = wx.Choice( sbSizer1.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, id_col1Choices, 0 )
@@ -298,7 +302,7 @@ class OnOpenDialog ( wx.Dialog ):
 		
 		self.IdText_Col2.Enable( False )
 		
-		gSizer2.Add( self.IdText_Col2, 0, wx.ALL, 5 )
+		gSizer2.Add( self.IdText_Col2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		id_col2Choices = []
 		self.id_col2 = wx.Choice( sbSizer1.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, id_col2Choices, 0 )
@@ -686,7 +690,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
 		fgSizer6.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Tree height", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText15.Wrap( -1 )
 		
 		fgSizer6.Add( self.m_staticText15, 0, wx.ALL, 5 )
@@ -872,6 +876,8 @@ class CityGmlExport ( wx.Dialog ):
 		choiceXvalueChoices = []
 		self.choiceXvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceXvalueChoices, 0 )
 		self.choiceXvalue.SetSelection( 0 )
+		self.choiceXvalue.SetToolTip( u"Select value for easting" )
+		
 		fgSizer7.Add( self.choiceXvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText18 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Northing", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -882,6 +888,8 @@ class CityGmlExport ( wx.Dialog ):
 		choiceYvalueChoices = []
 		self.choiceYvalue = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceYvalueChoices, 0 )
 		self.choiceYvalue.SetSelection( 0 )
+		self.choiceYvalue.SetToolTip( u"Select value for northing" )
+		
 		fgSizer7.Add( self.choiceYvalue, 0, wx.ALL, 5 )
 		
 		self.m_staticText53 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"Reference Height", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -892,6 +900,8 @@ class CityGmlExport ( wx.Dialog ):
 		choiceRefheightChoices = []
 		self.choiceRefheight = wx.Choice( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceRefheightChoices, 0 )
 		self.choiceRefheight.SetSelection( 0 )
+		self.choiceRefheight.SetToolTip( u"select column that contains the tree's reference height" )
+		
 		fgSizer7.Add( self.choiceRefheight, 0, wx.ALL, 5 )
 		
 		self.m_staticText20 = wx.StaticText( sbSizer4.GetStaticBox(), wx.ID_ANY, u"EPSG-Code", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -901,6 +911,8 @@ class CityGmlExport ( wx.Dialog ):
 		
 		self.epsg = wx.TextCtrl( sbSizer4.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.epsg.SetMaxLength( 6 ) 
+		self.epsg.SetToolTip( u"enter epsg code of coordinate reference system" )
+		
 		fgSizer7.Add( self.epsg, 0, wx.ALL, 5 )
 		
 		
@@ -923,6 +935,8 @@ class CityGmlExport ( wx.Dialog ):
 		choiceHeightChoices = []
 		self.choiceHeight = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightChoices, 0 )
 		self.choiceHeight.SetSelection( 0 )
+		self.choiceHeight.SetToolTip( u"select column that contains tree height" )
+		
 		fgSizer6.Add( self.choiceHeight, 0, wx.ALL, 5 )
 		
 		choiceHeightUnitChoices = [ u"m", u"cm" ]
@@ -941,16 +955,22 @@ class CityGmlExport ( wx.Dialog ):
 		choiceTrunkChoices = []
 		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
 		self.choiceTrunk.SetSelection( 0 )
+		self.choiceTrunk.SetToolTip( u"select column that contains values to calculate trunk diameter from" )
+		
 		fgSizer6.Add( self.choiceTrunk, 0, wx.ALL, 5 )
 		
 		choiceTrunkUnitChoices = [ u"m", u"cm" ]
 		self.choiceTrunkUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkUnitChoices, 0 )
 		self.choiceTrunkUnit.SetSelection( 0 )
+		self.choiceTrunkUnit.SetToolTip( u"select unit of meassurement used in data" )
+		
 		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
 		
 		trunk_circChoices = [ u"is diameter", u"is circumference" ]
 		self.trunk_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, trunk_circChoices, 0 )
 		self.trunk_circ.SetSelection( 0 )
+		self.trunk_circ.SetToolTip( u"select if data for trunk diameter is diameter or circumference" )
+		
 		fgSizer6.Add( self.trunk_circ, 0, wx.ALL, 5 )
 		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -961,16 +981,22 @@ class CityGmlExport ( wx.Dialog ):
 		choiceCrownChoices = []
 		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
 		self.choiceCrown.SetSelection( 0 )
+		self.choiceCrown.SetToolTip( u"select column that contains values to calculate crown diameter from" )
+		
 		fgSizer6.Add( self.choiceCrown, 0, wx.ALL, 5 )
 		
 		choiceCrownUnitChoices = [ u"m", u"cm" ]
 		self.choiceCrownUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownUnitChoices, 0 )
 		self.choiceCrownUnit.SetSelection( 0 )
+		self.choiceCrownUnit.SetToolTip( u"select unit of meassurement used in data" )
+		
 		fgSizer6.Add( self.choiceCrownUnit, 0, wx.ALL, 5 )
 		
 		crown_circChoices = [ u"is diameter", u"is circumference" ]
 		self.crown_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_circChoices, 0 )
 		self.crown_circ.SetSelection( 0 )
+		self.crown_circ.SetToolTip( u"select if data for trunk diameter is diameter or circumference" )
+		
 		fgSizer6.Add( self.crown_circ, 0, wx.ALL, 5 )
 		
 		self.m_staticText19 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"CityGML Species Code", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -981,6 +1007,8 @@ class CityGmlExport ( wx.Dialog ):
 		choiceSpeciesChoices = []
 		self.choiceSpecies = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceSpeciesChoices, 0 )
 		self.choiceSpecies.SetSelection( 0 )
+		self.choiceSpecies.SetToolTip( u"select column that contains CityGML species code" )
+		
 		fgSizer6.Add( self.choiceSpecies, 0, wx.ALL, 5 )
 		
 		
@@ -997,6 +1025,8 @@ class CityGmlExport ( wx.Dialog ):
 		choiceClassChoices = []
 		self.choiceClass = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceClassChoices, 0 )
 		self.choiceClass.SetSelection( 0 )
+		self.choiceClass.SetToolTip( u"select column that contains CityGML SolitaryVegetationObject class code. Determines what kind of tree is created (coniferous or deciduous)" )
+		
 		fgSizer6.Add( self.choiceClass, 0, wx.ALL, 5 )
 		
 		
@@ -1020,9 +1050,13 @@ class CityGmlExport ( wx.Dialog ):
 		
 		self.explicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Explicit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.explicit_geom.SetValue( True ) 
+		self.explicit_geom.SetToolTip( u"select if explicit geometries should be created" )
+		
 		gSizer5.Add( self.explicit_geom, 0, wx.ALL, 5 )
 		
 		self.implicit_geom = wx.RadioButton( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Implicit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.implicit_geom.SetToolTip( u"select if implicit geometries should be created" )
+		
 		gSizer5.Add( self.implicit_geom, 0, wx.ALL, 5 )
 		
 		
@@ -1036,6 +1070,8 @@ class CityGmlExport ( wx.Dialog ):
 		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the tree height", u"2/3 the tree height", u"3/4 the tree height", u"4/5 the tree height" ]
 		self.crown_height_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_choiceChoices, 0 )
 		self.crown_height_choice.SetSelection( 0 )
+		self.crown_height_choice.SetToolTip( u"select, how crown height should be calculated" )
+		
 		fgSizer29.Add( self.crown_height_choice, 0, wx.ALL, 5 )
 		
 		self.m_staticText54 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"default", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1046,6 +1082,8 @@ class CityGmlExport ( wx.Dialog ):
 		default_choiceChoices = [ u"none", u"deciduous tree", u"coniferous tree" ]
 		self.default_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, default_choiceChoices, 0 )
 		self.default_choice.SetSelection( 0 )
+		self.default_choice.SetToolTip( u"select, what kind of tree should be generated if vegetation class is not set or vegetation class is unknown" )
+		
 		fgSizer29.Add( self.default_choice, 0, wx.ALL, 5 )
 		
 		
@@ -1174,6 +1212,8 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer13.Add( self.progress, 0, wx.ALL, 5 )
 		
 		self.buttonExport = wx.Button( self, wx.ID_ANY, u"Export", wx.DefaultPosition, wx.Size( 90,-1 ), 0 )
+		self.buttonExport.SetToolTip( u"Start CityGML Export" )
+		
 		fgSizer13.Add( self.buttonExport, 0, wx.ALL, 5 )
 		
 		
@@ -1310,6 +1350,8 @@ class import_dem ( wx.Dialog ):
 		fgSizer71.Add( self.filepat_textbox, 0, wx.ALL, 5 )
 		
 		self.buttonBrowse = wx.Button( self, wx.ID_ANY, u"Browse", wx.DefaultPosition, wx.Size( 90,-1 ), 0 )
+		self.buttonBrowse.SetToolTip( u"Browse to select DEM text file" )
+		
 		fgSizer71.Add( self.buttonBrowse, 0, wx.ALL, 5 )
 		
 		
@@ -1327,6 +1369,8 @@ class import_dem ( wx.Dialog ):
 		fgSizer20.Add( self.m_staticText37, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.encoding = wx.TextCtrl( sbSizer7.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.encoding.SetToolTip( u"enter encoding of file" )
+		
 		fgSizer20.Add( self.encoding, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText38 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Delimiter:", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1337,6 +1381,8 @@ class import_dem ( wx.Dialog ):
 		delimChoices = [ u"Space", u"Comma", u"Tabulator", u"Semicolon" ]
 		self.delim = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, delimChoices, 0 )
 		self.delim.SetSelection( 0 )
+		self.delim.SetToolTip( u"select file delimiter" )
+		
 		fgSizer20.Add( self.delim, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -1354,7 +1400,7 @@ class import_dem ( wx.Dialog ):
 		fgSizer181.SetFlexibleDirection( wx.BOTH )
 		fgSizer181.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Easting", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText39.Wrap( -1 )
 		
 		fgSizer181.Add( self.m_staticText39, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -1362,9 +1408,11 @@ class import_dem ( wx.Dialog ):
 		xvalueChoices = []
 		self.xvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, xvalueChoices, 0 )
 		self.xvalue.SetSelection( 0 )
+		self.xvalue.SetToolTip( u"Select easting column" )
+		
 		fgSizer181.Add( self.xvalue, 0, wx.ALL, 5 )
 		
-		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Northing", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText40.Wrap( -1 )
 		
 		fgSizer181.Add( self.m_staticText40, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -1372,6 +1420,8 @@ class import_dem ( wx.Dialog ):
 		yvalueChoices = []
 		self.yvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, yvalueChoices, 0 )
 		self.yvalue.SetSelection( 0 )
+		self.yvalue.SetToolTip( u"Select northing column" )
+		
 		fgSizer181.Add( self.yvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText41 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Height", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1382,6 +1432,8 @@ class import_dem ( wx.Dialog ):
 		heightvalueChoices = []
 		self.heightvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, heightvalueChoices, 0 )
 		self.heightvalue.SetSelection( 0 )
+		self.heightvalue.SetToolTip( u"select height column" )
+		
 		fgSizer181.Add( self.heightvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText42 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"EPSG", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1390,6 +1442,8 @@ class import_dem ( wx.Dialog ):
 		fgSizer181.Add( self.m_staticText42, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.epsg = wx.TextCtrl( sbSizer8.GetStaticBox(), wx.ID_ANY, u"5677", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.epsg.SetToolTip( u"select epsg code of DEM" )
+		
 		fgSizer181.Add( self.epsg, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -1442,11 +1496,13 @@ class import_dem ( wx.Dialog ):
 		
 		self.importbutton = wx.Button( self, wx.ID_ANY, u"Import DEM", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.importbutton.Enable( False )
+		self.importbutton.SetToolTip( u"Push button to start DEM Import" )
 		
 		fgSizer21.Add( self.importbutton, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, 5 )
 		
 		self.next = wx.Button( self, wx.ID_ANY, u"Next", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.next.Enable( False )
+		self.next.SetToolTip( u"When all DEM files are imported, push button to go to next step" )
 		
 		fgSizer21.Add( self.next, 0, wx.ALL, 5 )
 		
@@ -1508,7 +1564,7 @@ class geom_props ( wx.Dialog ):
 		fgSizer181.SetFlexibleDirection( wx.BOTH )
 		fgSizer181.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText39 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Easting", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText39.Wrap( -1 )
 		
 		fgSizer181.Add( self.m_staticText39, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -1516,9 +1572,11 @@ class geom_props ( wx.Dialog ):
 		xvalueChoices = []
 		self.xvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, xvalueChoices, 0 )
 		self.xvalue.SetSelection( 0 )
+		self.xvalue.SetToolTip( u"select easting column" )
+		
 		fgSizer181.Add( self.xvalue, 0, wx.ALL, 5 )
 		
-		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText40 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"Northing", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText40.Wrap( -1 )
 		
 		fgSizer181.Add( self.m_staticText40, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -1526,6 +1584,8 @@ class geom_props ( wx.Dialog ):
 		yvalueChoices = []
 		self.yvalue = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, yvalueChoices, 0 )
 		self.yvalue.SetSelection( 0 )
+		self.yvalue.SetToolTip( u"select northing column" )
+		
 		fgSizer181.Add( self.yvalue, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText62 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"ID", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1536,6 +1596,8 @@ class geom_props ( wx.Dialog ):
 		idChoices = []
 		self.id = wx.Choice( sbSizer8.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, idChoices, 0 )
 		self.id.SetSelection( 0 )
+		self.id.SetToolTip( u"select ID column" )
+		
 		fgSizer181.Add( self.id, 0, wx.ALL, 5 )
 		
 		self.m_staticText42 = wx.StaticText( sbSizer8.GetStaticBox(), wx.ID_ANY, u"EPSG", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1626,6 +1688,8 @@ class GrabHeight ( wx.Dialog ):
 		idChoices = []
 		self.id = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, idChoices, 0 )
 		self.id.SetSelection( 0 )
+		self.id.SetToolTip( u"select ID column" )
+		
 		fgSizer33.Add( self.id, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText64 = wx.StaticText( self, wx.ID_ANY, u"Geometry", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1636,6 +1700,8 @@ class GrabHeight ( wx.Dialog ):
 		geomChoices = []
 		self.geom = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geomChoices, 0 )
 		self.geom.SetSelection( 0 )
+		self.geom.SetToolTip( u"select geometry column" )
+		
 		fgSizer33.Add( self.geom, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -1646,6 +1712,8 @@ class GrabHeight ( wx.Dialog ):
 		fgSizer27.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.use_defaultheight = wx.CheckBox( self, wx.ID_ANY, u"Default height (if tree is out of DEM range)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_defaultheight.SetToolTip( u"assign a default height to all trees that are not within DEM range" )
+		
 		fgSizer27.Add( self.use_defaultheight, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		self.default_height = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1654,6 +1722,8 @@ class GrabHeight ( wx.Dialog ):
 		fgSizer27.Add( self.default_height, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.use_radius = wx.CheckBox( self, wx.ID_ANY, u"Use search radius (m) (faster)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_radius.SetToolTip( u"use a search radius to speed things up. At least four DEM points must be within this radius." )
+		
 		fgSizer27.Add( self.use_radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.radius = wx.TextCtrl( self, wx.ID_ANY, u"5", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1678,6 +1748,7 @@ class GrabHeight ( wx.Dialog ):
 		
 		self.assign = wx.Button( self, wx.ID_ANY, u"Assign", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.assign.Enable( False )
+		self.assign.SetToolTip( u"Start assigning process" )
 		
 		fgSizer34.Add( self.assign, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
 		
@@ -1735,6 +1806,8 @@ class add_vegetation_code ( wx.Dialog ):
 		choice_vegetation_colChoices = []
 		self.choice_vegetation_col = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,-1 ), choice_vegetation_colChoices, 0 )
 		self.choice_vegetation_col.SetSelection( 0 )
+		self.choice_vegetation_col.SetToolTip( u"select column that contains biological tree species names" )
+		
 		fgSizer26.Add( self.choice_vegetation_col, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.add_code = wx.Button( self, wx.ID_ANY, u"Add Code", wx.DefaultPosition, wx.DefaultSize, 0 )
