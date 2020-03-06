@@ -691,6 +691,7 @@ class AddGeometry(default_gui.geom_props):
         else:
             self.GetParent().db.add_spatial_index("geom")
             self.GetParent().db.commit()
+        self.GetParent().db.set_contains_geom(True)
         self.EndModal(1)
 
     # method to validate user input

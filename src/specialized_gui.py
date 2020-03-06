@@ -456,6 +456,12 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_add_reference_height_dem(self, event):
         if self.db.get_spatialite_status()[0]:
+            if not self.db.get_contains_geom():
+                msg = "No point geometry object has been created yet.\n" \
+                      "Create point geometry object first (Data > Add geometry column)"
+                dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
+                dlg.ShowModal()
+                return
             importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
             if importgui.ShowModal() == 1234:
                 derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())

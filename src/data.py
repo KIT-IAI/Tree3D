@@ -35,6 +35,8 @@ class Database:
 
         self._CreateRowid = False  # variable to determine weather sqlite rowid should be used
 
+        self._ContainsGeom = False
+
     # Creates Database Path
     # Database is stored in temporary folder by default
     # Path to temporary folder is read from environment variables TMP or TEMP
@@ -426,6 +428,12 @@ class DatabaseFromCsv(Database):
     # sets file encoding for csv file
     def set_file_encoding(self, codec):
         self.__FileEncoding = codec
+
+    def set_contains_geom(self, value):
+        self._ContainsGeom = value
+
+    def get_contains_geom(self):
+        return self._ContainsGeom
 
 
 class DatabaseFromXml(Database):
