@@ -1858,9 +1858,9 @@ class DefaultHeight ( wx.Dialog ):
 		
 		fgSizer30.Add( self.m_staticText59, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl15 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_textCtrl15.SetMaxLength( 6 ) 
-		fgSizer30.Add( self.m_textCtrl15, 0, wx.ALL, 5 )
+		self.height_input = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.height_input.SetMaxLength( 6 ) 
+		fgSizer30.Add( self.height_input, 0, wx.ALL, 5 )
 		
 		
 		fgSizer30.Add( ( 0, 0), 1, wx.EXPAND, 5 )
