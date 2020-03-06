@@ -602,7 +602,8 @@ class DefaulgHeight(default_gui.DefaultHeight):
     def on_assign(self, event):
         valid, msg = self.validate_input()
         if not valid:
-            print(msg)
+            dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
+            dlg.ShowModal()
             return
 
         self.GetParent().db.add_col("Height_Default", "REAL")  # Adds Hight_DEM column to Tree data table
