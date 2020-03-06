@@ -575,15 +575,17 @@ class CityGmlExport:
             elif self.__lod4_geomtype == 3 or self.__lod4_geomtype == 4 or self.__lod4_geomtype == 5:
                 lod4_valid, _ = validator.analyze_height_crown_trunk()
 
+            # create CityObjectMember in XML Tree
             city_object_member = ET.SubElement(self.__root, "cityObjectMember")
 
+            # Create SolitaryVegetationObject in XML Tree
             solitary_vegetation_object = ET.SubElement(city_object_member, "veg:SolitaryVegetationObject")
 
             # compare thiw row's x and y vlaues with values in bounding box object
             # boung box updates if new boundries are detected
             self.__bbox.compare(row[self.__x_value_col_index], row[self.__y_value_col_index])
 
-            # add creationDate into the model
+            # add creationDate into the model: Today's date is always used for CreationDate
             creationdate = ET.SubElement(solitary_vegetation_object, "creationDate")
             creationdate.text = str(date.today())
 
@@ -616,8 +618,11 @@ class CityGmlExport:
                 crown.set("uom", "m")
 
             # Create explicit geometries
+            # geomtype 0 -> linie, geomtype 1 -> cylinder, geomtype 2 -> rectangles,
+            # geomtype 3 -> polygons, geomtype 4 -> cuboid, geomtype 5 -> detailled
+            # vegetation class 1060 -> coniferous, vegetation class 1070 -> deciduous, anything else -> default
             if self.__geom_type == "EXPLICIT":
-                # Calls methods to generate geometries for LOD1, depending on user input
+                # Calls methods to generate geometries for LOD1 if it is valid, depending on user input
                 if self.__use_lod1 and lod1_valid:
                     lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
                     if self.__lod1_geomtype == 0:
