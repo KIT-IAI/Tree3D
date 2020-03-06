@@ -101,6 +101,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # configure what type of tree (deciduous or coniferous) should be used
         # this type is used if class code is invalid (not 1060 or 1070) or no class column is specified
+        default_type = 0
         if self.default_choice.GetSelection() == 0:
             default_type = 0000
         elif self.default_choice.GetSelection() == 1:
