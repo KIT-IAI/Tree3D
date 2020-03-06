@@ -164,9 +164,22 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # show dialog after export with short report
         message = "Export to CityGML finished.\n" \
-                  "%s trees exported successfully.\n" \
-                  "%s trees left out from export due to invalid parameters.\n" \
-                  'See "Analyze > Geometry validation" for details.' % export_status
+                  "%s SolitaryVegetationObjects exported to CityGML file." % export_status[0]
+
+        if export_status[1] > 0:
+            message += "\nLOD1: %s geometries could not be created" % export_status[1]
+
+        if export_status[2] > 0:
+            message += "\nLOD2: %s geometries could not be created" % export_status[2]
+
+        if export_status[3] > 0:
+            message += "\nLOD3: %s geometries could not be created" % export_status[3]
+
+        if export_status[4] > 0:
+            message += "\nLOD4: %s geometries could not be created" % export_status[4]
+
+        if export_status[1] > 0 or export_status[2] > 0 or export_status[3] > 0 or export_status[4] > 0:
+            message += '\nSee "Analyze > Geometry validation" for details.'
         msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
 
@@ -465,8 +478,12 @@ class CityGmlExport:
         self.__root = ET.Element("CityModel")
         self.add_namespaces()
 
-        valid_trees = 0
-        invalid_trees = 0
+        exported_trees = 0
+        invalid_lod1 = 0
+        invalid_lod2 = 0
+        invalid_lod3 = 0
+        invalid_lod4 = 0
+
         self.fill_data_cursor()
         for row in self.__DataCursor:
 
@@ -502,14 +519,57 @@ class CityGmlExport:
                 elif self.__crown_height_code == 4:
                     crown_height = (4/5.0) * tree_height
 
-            # validate tree parametrs
-            valid = self.validate_tree_parameters(tree_height, trunk_diam, crown_diam)
+            # converting everything into its correct unit
+            # converting circumferences to diameter
+            if self.__height_col_index is not None and self.__height_unit == "cm":
+                tree_height = tree_height / 100.0
 
-            # continue, if this tree's parameters are invalid
-            if not valid:
-                progressbar.SetValue(progressbar.GetValue() + 1)
-                invalid_trees += 1
-                continue
+            if self.__trunk_diam_col_index is not None and trunk_diam is not None:
+                if self.__trunk_diam_unit == "cm":
+                    trunk_diam = trunk_diam/100.0
+                if self.__trunk_is_circ:
+                    trunk_diam = trunk_diam / math.pi
+
+            if self.__crown_diam_col_index is not None and crown_diam is not None:
+                if self.__crown_diam_unit == "cm":
+                    crown_diam = crown_diam/100.0
+                if self.__crown_is_circ:
+                    crown_diam = crown_diam / math.pi
+
+            # validate tree parametrs
+            validator = analysis.AnalyzeTreeGeoms(tree_height, trunk_diam, crown_diam)
+            lod1_valid = False
+            lod2_valid = False
+            lod3_valid = False
+            lod4_valid = False
+
+            if self.__lod1_geomtype == 0:
+                lod1_valid, _ = validator.analyze_height()
+            elif self.__lod1_geomtype == 1 or self.__lod1_geomtype == 2:
+                lod1_valid, _ = validator.analyze_height_crown()
+            elif self.__lod1_geomtype == 3 or self.__lod1_geomtype == 4 or self.__lod1_geomtype == 5:
+                lod1_valid, _ = validator.analyze_height_crown_trunk()
+
+            if self.__lod2_geomtype == 0:
+                lod2_valid, _ = validator.analyze_height()
+            elif self.__lod2_geomtype == 1 or self.__lod2_geomtype == 2:
+                lod2_valid, _ = validator.analyze_height_crown()
+            elif self.__lod2_geomtype == 3 or self.__lod2_geomtype == 4 or self.__lod2_geomtype == 5:
+                lod2_valid, _ = validator.analyze_height_crown_trunk()
+
+            if self.__lod3_geomtype == 0:
+                lod3_valid, _ = validator.analyze_height()
+            elif self.__lod3_geomtype == 1 or self.__lod3_geomtype == 2:
+                lod3_valid, _ = validator.analyze_height_crown()
+            elif self.__lod3_geomtype == 3 or self.__lod3_geomtype == 4 or self.__lod3_geomtype == 5:
+                lod3_valid, _ = validator.analyze_height_crown_trunk()
+
+            if self.__lod4_geomtype == 0:
+                lod4_valid, _ = validator.analyze_height()
+            elif self.__lod4_geomtype == 1 or self.__lod4_geomtype == 2:
+                lod4_valid, _ = validator.analyze_height_crown()
+            elif self.__lod4_geomtype == 3 or self.__lod4_geomtype == 4 or self.__lod4_geomtype == 5:
+                lod4_valid, _ = validator.analyze_height_crown_trunk()
 
             city_object_member = ET.SubElement(self.__root, "cityObjectMember")
 
@@ -536,38 +596,29 @@ class CityGmlExport:
             # Add hight attribute to parameterized tree model
             if self.__height_col_index is not None:
                 height = ET.SubElement(solitary_vegetation_object, "veg:height")
-                if self.__height_unit == "cm":
-                    tree_height = tree_height / 100.0
                 height.text = str(tree_height)
                 height.set("uom", "m")
 
             # Add trunk (stem) diameter attribute to parameterized tree model
             if self.__trunk_diam_col_index is not None:
                 trunk = ET.SubElement(solitary_vegetation_object, "veg:trunkDiameter")
-                if self.__trunk_diam_unit == "cm":
-                    trunk_diam = trunk_diam/100.0
-                if self.__trunk_is_circ:
-                    trunk_diam = trunk_diam / math.pi
                 trunk.text = str(trunk_diam)
                 trunk.set("uom", "m")
 
             # Add crown diameter attribute to parameterized tree model
             if self.__crown_diam_col_index is not None:
                 crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
-                if self.__crown_diam_unit == "cm":
-                    crown_diam = crown_diam/100.0
-                if self.__crown_is_circ:
-                    crown_diam = crown_diam / math.pi
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
 
             # Create explicit geometries
             if self.__geom_type == "EXPLICIT":
                 # Calls methods to generate geometries for LOD1, depending on user input
-                if self.__use_lod1:
+                if self.__use_lod1 and lod1_valid:
                     lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
                     if self.__lod1_geomtype == 0:
                         self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
+
                     elif self.__lod1_geomtype == 1:
                         self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height,
                                                         tree_height, crown_diam, self.__lod1_segments)
@@ -599,9 +650,12 @@ class CityGmlExport:
                             self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod1_segments, crown_height)
+                else:
+                    if self.__use_lod1:
+                        invalid_lod1 += 1
 
                 # Calls methods to generate geometries for LOD2, depending on user input
-                if self.__use_lod2:
+                if self.__use_lod2 and lod2_valid:
                     lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
                     if self.__lod2_geomtype == 0:
                         self.generate_line_geometry(lod_2_geom, x_value, y_value, ref_height, tree_height)
@@ -636,9 +690,12 @@ class CityGmlExport:
                             self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod2_segments, crown_height)
+                else:
+                    if self.__use_lod2:
+                        invalid_lod2 += 1
 
                 # Calls methods to generate geometries for LOD3, depending on user input
-                if self.__use_lod3:
+                if self.__use_lod3 and lod3_valid:
                     lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
                     if self.__lod3_geomtype == 0:
                         self.generate_line_geometry(lod_3_geom, x_value, y_value, ref_height, tree_height)
@@ -673,9 +730,12 @@ class CityGmlExport:
                             self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod3_segments, crown_height)
+                else:
+                    if self.__use_lod3:
+                        invalid_lod3 += 1
 
                 # Calls methods to generate geometries for LOD4, depending on user input
-                if self.__use_lod4:
+                if self.__use_lod4 and lod4_valid:
                     lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
                     if self.__lod4_geomtype == 0:
                         self.generate_line_geometry(lod_4_geom, x_value, y_value, ref_height, tree_height)
@@ -710,10 +770,13 @@ class CityGmlExport:
                             self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
                                                              tree_height, crown_diam, trunk_diam,
                                                              self.__lod4_segments, crown_height)
+                else:
+                    if self.__use_lod4:
+                        invalid_lod4 += 1
 
             # Create implicit geometries
             elif self.__geom_type == "IMPLICIT":
-                if self.__use_lod1:
+                if self.__use_lod1 and lod1_valid:
                     lod1_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod1ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod1_implicit_geometry, "ImplicitGeometry")
 
@@ -766,8 +829,12 @@ class CityGmlExport:
                     pos_list = [x_value, y_value, ref_height]
                     gml_pos.text = self.poslist_list_to_string(pos_list)
 
+                else:
+                    if self.__use_lod1:
+                        invalid_lod1 += 1
+
                 # Calls methods to generate geometries for LOD2, depending on user input
-                if self.__use_lod2:
+                if self.__use_lod2 and lod2_valid:
                     lod2_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod2ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod2_implicit_geometry, "ImplicitGeometry")
 
@@ -820,8 +887,12 @@ class CityGmlExport:
                     pos_list = [x_value, y_value, ref_height]
                     gml_pos.text = self.poslist_list_to_string(pos_list)
 
+                else:
+                    if self.__use_lod2:
+                        invalid_lod2 += 1
+
                 # Calls methods to generate geometries for LOD3, depending on user input
-                if self.__use_lod3:
+                if self.__use_lod3 and lod3_valid:
                     lod3_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod3ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod3_implicit_geometry, "ImplicitGeometry")
 
@@ -874,8 +945,12 @@ class CityGmlExport:
                     pos_list = [x_value, y_value, ref_height]
                     gml_pos.text = self.poslist_list_to_string(pos_list)
 
+                else:
+                    if self.__use_lod3:
+                        invalid_lod3 += 1
+
                 # Calls methods to generate geometries for LOD4, depending on user input
-                if self.__use_lod4:
+                if self.__use_lod4 and lod4_valid:
                     lod4_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod4ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod4_implicit_geometry, "ImplicitGeometry")
 
@@ -928,8 +1003,12 @@ class CityGmlExport:
                     pos_list = [x_value, y_value, ref_height]
                     gml_pos.text = self.poslist_list_to_string(pos_list)
 
+                else:
+                    if self.__use_lod4:
+                        invalid_lod4 += 1
+
             # update couter for valid trees
-            valid_trees += 1
+            exported_trees += 1
 
             # update gauge in GUI
             progressbar.SetValue(progressbar.GetValue() + 1)
@@ -946,7 +1025,7 @@ class CityGmlExport:
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
 
         # return number of exported valid trees and number of trees that were not exported
-        return valid_trees, invalid_trees
+        return exported_trees, invalid_lod1, invalid_lod2, invalid_lod3, invalid_lod4
 
     # method to add namespaces and schema location to xml file
     def add_namespaces(self):
@@ -976,41 +1055,6 @@ class CityGmlExport:
 
         # add bounded-by-element to the top root subelements
         self.__root.insert(0, boundedby)
-
-    # method to check if tree parameters are valid
-    # uses same method as in analyze > geometry validation
-    def validate_tree_parameters(self, hight, trunk, crown):
-        if self.__height_unit == "cm":
-            try:
-                hight = hight / 100
-            except TypeError:
-                pass
-
-        if self.__trunk_diam_unit == "cm":
-            try:
-                trunk = trunk / 100
-            except TypeError:
-                pass
-        if self.__trunk_is_circ:
-            try:
-                trunk = trunk / math.pi
-            except TypeError:
-                pass
-
-        if self.__crown_diam_unit == "cm":
-            try:
-                crown = crown / 100
-            except TypeError:
-                pass
-        if self.__crown_is_circ:
-            try:
-                crown = crown / math.pi
-            except TypeError:
-                pass
-
-        analyzer = analysis.AnalyzeTreeGeoms(hight, trunk, crown)
-        valid, _ = analyzer.analyze()
-        return valid
 
     # Prints a tree with each node indented according to its depth.
     # This is done by first indenting the tree (see below), and then serializing it as usual.
