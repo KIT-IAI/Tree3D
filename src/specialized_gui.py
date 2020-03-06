@@ -470,7 +470,11 @@ class MainTableFrame(default_gui.MainWindow):
             msg.ShowModal()
 
     def on_add_default_reference_height(self, event):
-        print("not implemented yet")
+        dlg = enrichment.DefaulgHeight(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
+        dlg.ShowModal()
+        self.show_data_in_grid(self.db.get_number_of_columns(),
+                               self.db.get_number_of_tablerecords(),
+                               self.db.get_data())
 
     # method to be called when clicking File > Test
     # overrides method in parent class

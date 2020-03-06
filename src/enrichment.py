@@ -593,6 +593,42 @@ class AssignHeight(BasicConnection):
                                                 "Height_DEM")
 
 
+class DefaulgHeight(default_gui.DefaultHeight):
+    def __init__(self, parent, filepath, table):
+        default_gui.DefaultHeight.__init__(self, parent)
+        self.__dbpath = filepath
+        self.__TreeTableName = table
+
+    def on_assign(self, event):
+        valid, msg = self.validate_input()
+        if not valid:
+            print(msg)
+            return
+
+        self.GetParent().db.add_col("Height_Default", "REAL")  # Adds Hight_DEM column to Tree data table
+        self.GetParent().db.commit()
+
+        height = float(self.height_input.GetValue().replace(",", "."))
+
+        db = BasicConnection(self.__dbpath)
+        db.update_value(self.__TreeTableName, "Height_Default", height)
+        db.commit()
+
+        self.EndModal(1234)
+
+    def validate_input(self):
+        valid = True
+        message = ""
+
+        try:
+            float(self.height_input.GetValue().replace(",", "."))
+        except ValueError:
+            valid = False
+            message = "Height value must be a float number"
+
+        return valid, message
+
+
 # Class to add Geom objects into the database
 class AddGeometry(default_gui.geom_props):
     def __init__(self, parent):
