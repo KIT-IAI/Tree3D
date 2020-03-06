@@ -1838,3 +1838,52 @@ class add_vegetation_code ( wx.Dialog ):
 		event.Skip()
 	
 
+###########################################################################
+## Class MyDialog10
+###########################################################################
+
+class MyDialog10 ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Add default reference height", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer30 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer30.SetFlexibleDirection( wx.BOTH )
+		fgSizer30.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText59 = wx.StaticText( self, wx.ID_ANY, u"default reference height (m)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText59.Wrap( -1 )
+		
+		fgSizer30.Add( self.m_staticText59, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrl15 = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_textCtrl15.SetMaxLength( 6 ) 
+		fgSizer30.Add( self.m_textCtrl15, 0, wx.ALL, 5 )
+		
+		
+		fgSizer30.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.m_button13 = wx.Button( self, wx.ID_ANY, u"Assign", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer30.Add( self.m_button13, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( fgSizer30 )
+		self.Layout()
+		fgSizer30.Fit( self )
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.m_button13.Bind( wx.EVT_BUTTON, self.on_assign )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_assign( self, event ):
+		event.Skip()
+	
+
