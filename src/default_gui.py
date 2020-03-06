@@ -1839,10 +1839,10 @@ class add_vegetation_code ( wx.Dialog ):
 	
 
 ###########################################################################
-## Class MyDialog10
+## Class DefaultHeight
 ###########################################################################
 
-class MyDialog10 ( wx.Dialog ):
+class DefaultHeight ( wx.Dialog ):
 	
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Add default reference height", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
