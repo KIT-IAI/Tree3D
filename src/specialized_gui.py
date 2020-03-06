@@ -455,25 +455,26 @@ class MainTableFrame(default_gui.MainWindow):
                                self.db.get_data())
 
     def on_add_reference_height_dem(self, event):
-        if self.db.get_spatialite_status()[0]:
-            if not self.db.get_contains_geom():
-                msg = "No point geometry object has been created yet.\n" \
-                      "Create point geometry object first (Data > Add geometry column)"
-                dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
-                dlg.ShowModal()
-                return
-            importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
-            if importgui.ShowModal() == 1234:
-                derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
-                derivegui.ShowModal()
-                self.show_data_in_grid(self.db.get_number_of_columns(),
-                                       self.db.get_number_of_tablerecords(),
-                                       self.db.get_data())
-
-        else:
+        if not self.db.get_spatialite_status()[0]:
             text = "Cannot perform this operation since SpatiaLite extension could not be loaded"
             msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
+            return
+
+        if not self.db.get_contains_geom():
+            msg = "No point geometry object has been created yet.\n" \
+                  "Create point geometry object first (Data > Add geometry column)"
+            dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
+            dlg.ShowModal()
+            return
+
+        importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
+        if importgui.ShowModal() == 1234:
+            derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
+            derivegui.ShowModal()
+            self.show_data_in_grid(self.db.get_number_of_columns(),
+                                   self.db.get_number_of_tablerecords(),
+                                   self.db.get_data())
 
     def on_add_default_reference_height(self, event):
         dlg = enrichment.DefaulgHeight(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
