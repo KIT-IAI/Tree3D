@@ -99,6 +99,11 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.choiceClass.GetSelection() != wx.NOT_FOUND:
             exporter.set_class_col_index(self.choiceClass.GetSelection())
 
+        # set variable to generate generic CityGML attributes
+        exporter.set_generate_generic_attributes(self.check_generate_generic.GetValue())
+        exporter.set_col_datatypes(self.GetParent().db.get_column_datatypes())
+        exporter.set_col_names(self.GetParent().db.get_column_names())
+
         # configure what type of tree (deciduous or coniferous) should be used
         # this type is used if class code is invalid (not 1060 or 1070) or no class column is specified
         default_type = 0
@@ -459,6 +464,11 @@ class CityGmlExport:
 
         self.__species_col_index = None  # index of CityGML species code column
         self.__class_col_index = None  # index of CityGML class code column
+
+        self.__generate_generic_attributes = None # variable to generate generic attributes (Trud/False)
+        self.__col_datatypes = None
+        self.__col_names = None
+
         self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
         self.__geom_type = ""  # configures geom type: Only EXPLICIT or IMPLICIT are allowed values
@@ -490,6 +500,16 @@ class CityGmlExport:
         invalid_lod2 = 0
         invalid_lod3 = 0
         invalid_lod4 = 0
+
+        # list to keep track of what columns are used. All other will be used for generic attributes
+        used_cols = [self.__x_value_col_index,
+                     self.__y_value_col_index,
+                     self.__ref_height_col_index,
+                     self.__height_col_index,
+                     self.__crown_diam_col_index,
+                     self.__trunk_diam_col_index,
+                     self.__class_col_index,
+                     self.__species_col_index]
 
         self.fill_data_cursor()
         for row in self.__DataCursor:
@@ -595,6 +615,35 @@ class CityGmlExport:
             # add creationDate into the model: Today's date is always used for CreationDate
             creationdate = ET.SubElement(solitary_vegetation_object, "creationDate")
             creationdate.text = str(date.today())
+
+            # generate generic attributes if requested
+            if self.__generate_generic_attributes:
+                for index, value in enumerate(row):
+                    if index in used_cols:
+                        continue
+                    if value is None:
+                        continue
+
+                    typ = self.__col_datatypes[index]
+                    col_name = self.__col_names[index]
+
+                    if typ == "GEOM":
+                        continue
+                    elif typ == "INTEGER":
+                        int_attribute = ET.SubElement(solitary_vegetation_object, "gen:intAttribute")
+                        int_attribute.set("name", col_name)
+                        val = ET.SubElement(int_attribute, "gen:value")
+                        val.text = str(value)
+                    elif typ == "REAL":
+                        double_attribute = ET.SubElement(solitary_vegetation_object, "gen:doubleAttribute")
+                        double_attribute.set("name", col_name)
+                        val = ET.SubElement(double_attribute, "gen:value")
+                        val.text = str(value)
+                    elif typ == "TEXT":
+                        string_attribute = ET.SubElement(solitary_vegetation_object, "gen:stringAttribute")
+                        string_attribute.set("name", col_name)
+                        val = ET.SubElement(string_attribute, "gen:value")
+                        val.text = str(value)
 
             # Add class attribute to parameterized tree model
             if self.__class_col_index is not None and row[self.__class_col_index] is not None:
@@ -2120,6 +2169,15 @@ class CityGmlExport:
 
     def set_crown_is_circ(self, val):
         self.__crown_is_circ = val
+
+    def set_generate_generic_attributes(self, val):
+        self.__generate_generic_attributes = val
+
+    def set_col_names(self, names):
+        self.__col_names = names
+
+    def set_col_datatypes(self, types):
+        self.__col_datatypes = types
 
     def set_prettyprint(self, value):
         self.__prettyprint = value
