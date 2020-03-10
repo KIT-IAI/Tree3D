@@ -167,10 +167,10 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # configure, how crown height should be calculated
         crown_height_to_code = {"same as crown diameter": 0,
-                                "1/2 the height": 1,
-                                "2/3 the height": 2,
-                                "3/4 the height": 3,
-                                "4/5 the height": 4
+                                "1/2 the tree height": 1,
+                                "2/3 the tree height": 2,
+                                "3/4 the tree height": 3,
+                                "4/5 the tree height": 4
                                 }
         crown_height_code = crown_height_to_code[self.crown_height_choice.GetStringSelection()]
         exporter.set_crown_height_code(crown_height_code)
