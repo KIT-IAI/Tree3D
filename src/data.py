@@ -93,6 +93,12 @@ class Database:
                 column_list.append(row[0][1:-1])
         return column_list
 
+    def get_column_datatypes(self):
+        type_list = []
+        for row in self._lTableColmnNames:
+            type_list.append(row[1])
+        return type_list
+
     # Prepares Databse for new file to be opened and imported:
     # Drops table and resets list with table column names
     def reset_database_table(self):
