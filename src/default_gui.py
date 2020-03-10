@@ -837,7 +837,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,695 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,720 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
