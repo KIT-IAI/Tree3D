@@ -607,19 +607,19 @@ class CityGmlExport:
                 species.text = str(row[self.__species_col_index])
 
             # Add hight attribute to parameterized tree model
-            if self.__height_col_index is not None:
+            if self.__height_col_index is not None and row[self.__height_col_index] is not None:
                 height = ET.SubElement(solitary_vegetation_object, "veg:height")
                 height.text = str(tree_height)
                 height.set("uom", "m")
 
             # Add trunk (stem) diameter attribute to parameterized tree model
-            if self.__trunk_diam_col_index is not None:
+            if self.__trunk_diam_col_index is not None and row[self.__trunk_diam_col_index] is not None:
                 trunk = ET.SubElement(solitary_vegetation_object, "veg:trunkDiameter")
                 trunk.text = str(trunk_diam)
                 trunk.set("uom", "m")
 
             # Add crown diameter attribute to parameterized tree model
-            if self.__crown_diam_col_index is not None:
+            if self.__crown_diam_col_index is not None and row[self.__crown_diam_col_index] is not None:
                 crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
                 crown.text = str(crown_diam)
                 crown.set("uom", "m")
