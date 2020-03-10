@@ -1032,6 +1032,9 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
 		
+		self.check_generate_generic = wx.CheckBox( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Create generic attributes from all other table columns", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer3.Add( self.check_generate_generic, 0, wx.ALL, 5 )
+		
 		
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
 		
