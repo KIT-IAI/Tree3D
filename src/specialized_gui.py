@@ -468,7 +468,7 @@ class MainTableFrame(default_gui.MainWindow):
             dlg.ShowModal()
             return
 
-        importgui = enrichment.ImportHeight(self, self.db.get_db_filepath())
+        importgui = enrichment.ImportHeight(self, self.db.get_db_filepath(), "dem")
         if importgui.ShowModal() == 1234:
             derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
             derivegui.ShowModal()
@@ -482,6 +482,28 @@ class MainTableFrame(default_gui.MainWindow):
         self.show_data_in_grid(self.db.get_number_of_columns(),
                                self.db.get_number_of_tablerecords(),
                                self.db.get_data())
+
+    def on_derive_from_pointcloud(self, event):
+        if not self.db.get_spatialite_status()[0]:
+            text = "Cannot perform this operation since SpatiaLite extension could not be loaded"
+            msg = wx.MessageDialog(None, text, style=wx.ICON_WARNING | wx.CENTRE)
+            msg.ShowModal()
+            return
+
+        if not self.db.get_contains_geom():
+            msg = "No point geometry object has been created yet.\n" \
+                  "Create point geometry object first (Data > Add geometry column)"
+            dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
+            dlg.ShowModal()
+            return
+
+        importgui = enrichment.ImportHeight(self, self.db.get_db_filepath(), "pointcloud")
+        if importgui.ShowModal() == 1234:
+            derivegui = enrichment.DerivePointcloudGUI(self, self.db.get_db_filepath())
+            derivegui.ShowModal()
+            self.show_data_in_grid(self.db.get_number_of_columns(),
+                                   self.db.get_number_of_tablerecords(),
+                                   self.db.get_data())
 
     # method to be called when clicking File > Test
     # overrides method in parent class
