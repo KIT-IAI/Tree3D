@@ -7,8 +7,11 @@ src/__pycache__/
 # ignore shapefiles
 data/kit_191218/shp/
 
+# ignore dgm
+data/dgm/
+
 # ignore point cloud
-data/point_cloud
+data/punktwolke/
 
 # ignore qgis maps
 data/treemap_berlin_pariserplatz.qgz
