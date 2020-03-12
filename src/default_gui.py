@@ -92,6 +92,9 @@ class MainWindow ( wx.Frame ):
 		
 		self.data.AppendSubMenu( self.m_menu2, u"Add reference height" )
 		
+		self.add_pointcloud_parameters = wx.MenuItem( self.data, wx.ID_ANY, u"Derive tree parameters from point cloud", wx.EmptyString, wx.ITEM_NORMAL )
+		self.data.Append( self.add_pointcloud_parameters )
+		
 		self.m_menubar7.Append( self.data, u"Data" ) 
 		
 		self.SetMenuBar( self.m_menubar7 )
@@ -114,6 +117,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_add_citygml_vegetation_code, id = self.vegetation_code.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.add_height_dem.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.add_height_default.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_derive_from_pointcloud, id = self.add_pointcloud_parameters.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -157,6 +161,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_add_default_reference_height( self, event ):
+		event.Skip()
+	
+	def on_derive_from_pointcloud( self, event ):
 		event.Skip()
 	
 
