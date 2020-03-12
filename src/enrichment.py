@@ -652,6 +652,208 @@ class DefaulgHeight(default_gui.DefaultHeight):
         return valid, message
 
 
+class DerivePointcloudGUI(default_gui.pointcloud_process):
+    def __init__(self, parent, dbpath):
+        default_gui.pointcloud_process.__init__(self, parent)
+        self.__DbFilePath = dbpath
+        self.__running = False
+        self.populate_dropdown()
+        self.DoLayoutAdaptation()
+        self.Layout()
+
+    def populate_dropdown(self):
+        col_names = self.GetParent().db.get_column_names()
+        geom_names = self.GetParent().db.get_column_names_geom()
+        numeric_names = self.GetParent().db.get_column_names_numeric()
+        self.id.SetItems(col_names)
+        self.geom.SetItems(geom_names)
+        self.ref_height.SetItems(numeric_names)
+        self.crown_diam.SetItems(numeric_names)
+
+    def on_derive(self, event):
+        valid, msg = self.validate_input()
+        if not valid:
+            dlg = wx.MessageDialog(self, msg, style=wx.ICON_WARNING | wx.CENTRE)
+            dlg.ShowModal()
+            return
+
+        self.derive.Enable(False)
+        self.__running = True
+
+        if self.derive_height.GetValue():
+            self.GetParent().db.add_col("tree_h_pointcloud", "REAL")  # Adds height column to Tree data table
+            self.GetParent().db.commit()
+
+        if self.derive_crown.GetValue():
+            self.GetParent().db.add_col("crown_height_pointcloud", "REAL")  # Adds crown height column to Tree data table
+            self.GetParent().db.commit()
+
+        thread = threading.Thread(target=self.start_derive)
+        thread.start()
+
+        self.EndModal(1)
+
+    def start_derive(self):
+        processor = ProcessPointcloud(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
+                                      self.geom.GetStringSelection(), self.ref_height.GetStringSelection(),
+                                      self.crown_diam.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
+                                      self.gauge)
+
+        height_precision = 0.0
+        if self.choice_height_points.GetSelection() == 0:
+            height_precision = 0.05
+        elif self.choice_height_points.GetSelection() == 1:
+            height_precision = 0.1
+        processor.set_height_precision(height_precision)
+
+        crown_precision = 0.0
+        if self.choice_crown_points.GetSelection() == 0:
+            crown_precision = 0.05
+        elif self.choice_crown_points.GetSelection() == 1:
+            crown_precision = 0.1
+        processor.set_crown_precision(crown_precision)
+
+        if self.derive_height.GetValue():
+            processor.derive_tree_height()
+
+        processor.commit()
+
+        if self.derive_crown.GetValue():
+            processor.derive_crown_height()
+
+        processor.commit()
+
+    def validate_input(self):
+        valid = True
+        msg = ""
+
+        if self.crown_diam.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            msg = "Crown diameter column not specified"
+
+        if self.ref_height.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            msg = "Tree reference height collumn not specified"
+
+        if self.geom.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            msg = "Geometry column not specified"
+
+        if self.id.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            msg = "ID Column not specified"
+
+        return valid, msg
+
+    def on_checkbox_height_hit(self, event):
+        self.height_info_text.Enable(self.derive_height.GetValue())
+        self.choice_height_points.Enable(self.derive_height.GetValue())
+
+        if self.derive_height.GetValue() or self.derive_crown.GetValue:
+            self.derive.Enable(True)
+        else:
+            self.derive.Enable(False)
+
+    def on_checkbox_crown_hit(self, event):
+        self.crown_info_text.Enable(self.derive_crown.GetValue())
+        self.choice_crown_points.Enable(self.derive_crown.GetValue())
+
+        if self.derive_height.GetValue() or self.derive_crown.GetValue:
+            self.derive.Enable(True)
+        else:
+            self.derive.Enable(False)
+
+
+class ProcessPointcloud(BasicConnection):
+    def __init__(self, dbpath, db, idcol, geomcol, refcol, crowncol, treetable, gauge):
+        BasicConnection.__init__(self, dbpath, "pointcloud")
+        self.__db = db
+        self.__IdCol = idcol
+        self.__GeomCol = geomcol
+        self.__RefHeightCol = refcol
+        self.__CrownDiamCol = crowncol
+        self.__TreeTableName = treetable
+        self.__gauge = gauge
+
+        self.__height_precision = 0.0
+        self.__crown_precision = 0.0
+
+    def derive_tree_height(self):
+        innercursor = self._con.cursor()
+
+        # SELECT part of the statemnet
+        statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s"), %s."%s", %s."%s" FROM %s, convexhull_pointcloud' \
+                    % (self.__TreeTableName, self.__IdCol,
+                       self.__TreeTableName, self.__GeomCol,
+                       self.__TreeTableName, self.__GeomCol,
+                       self.__TreeTableName, self.__CrownDiamCol,
+                       self.__TreeTableName, self.__RefHeightCol,
+                       self.__TreeTableName)
+        countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull_pointcloud'\
+                         % (self.__TreeTableName, self.__TreeTableName)
+
+        # WHERE part of the statement
+        statement += ' WHERE Intersects(%s."%s", convexhull_pointcloud."geom")==1;'\
+                     % (self.__TreeTableName, self.__GeomCol)
+        countstatement += ' WHERE Intersects(%s."%s", convexhull_pointcloud."geom")==1;'\
+                          % (self.__TreeTableName, self.__GeomCol)
+        self._cursor.execute(countstatement)
+        self.__gauge.SetRange(self._cursor.fetchone()[0])
+        self._cursor.execute(statement)
+
+        for idx, row in enumerate(self._cursor):
+            # SELECT part of the inner statement
+            statement = 'SELECT pointcloud.height FROM pointcloud, %s' % self.__TreeTableName
+
+            # WHERE part of the inner statement
+            if type(row[0]) == str:
+                statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
+            else:
+                statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
+
+            x = row[1]  # X koordinate of tree
+            y = row[2]  # Y koordinate of tree
+            diam = row[3]  # crown diameter of tree
+            ref_height = row[4]
+
+            statement += ''' AND pointcloud.ROWID IN'''
+            statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'pointcloud' '''
+            statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s));''' % (x, y, diam)
+
+            innercursor.execute(statement)
+
+            height_values = []
+            for innerrow in innercursor:
+                height_values.append(innerrow[0])
+
+            height_values.sort(reverse=True)
+            num_height_values = len(height_values)
+            num_height_values_used = round(num_height_values * self.__height_precision)
+            height_values_used = height_values[0:num_height_values_used]
+
+            average = 0
+            for num in height_values_used:
+                average += num
+
+            try:
+                average /= num_height_values_used
+                self.update_value(self.__TreeTableName, "tree_h_pointcloud", average-ref_height, self.__IdCol, row[0])
+            except ZeroDivisionError:
+                if num_height_values_used == 0:
+                    self.update_value(self.__TreeTableName, "tree_h_pointcloud", height_values_used[0] - ref_height,
+                                      self.__IdCol, row[0])
+            self.__gauge.SetValue(self.__gauge.GetValue() + 1)
+
+    def derive_crown_height(self):
+        pass
+
+    def set_height_precision(self, val):
+        self.__height_precision = val
+
+    def set_crown_precision(self, val):
+        self.__crown_precision = val
+
+
 # Class to add Geom objects into the database
 class AddGeometry(default_gui.geom_props):
     def __init__(self, parent):
