@@ -9,7 +9,7 @@ import default_gui
 
 # GUI class to import DEM into database
 class ImportHeight(default_gui.import_dem):
-    def __init__(self, parent, dbpath):
+    def __init__(self, parent, dbpath, mode):
         default_gui.import_dem.__init__(self, parent)
 
         self.__filepath = ""  # variable for DEM filepath
@@ -21,6 +21,14 @@ class ImportHeight(default_gui.import_dem):
         self.__EmptyLinesBeforeDataStart = -1  # variable for number of lines before data starts
         self.__PointsImported = 0  # number of points imported to database
         self.__DbFilePath = dbpath  # path of database
+
+        self.__mode = mode  # determines mode of this gui: dem or pointcloud
+
+        # set title of gui
+        if self.__mode == "dem":
+            self.SetTitle("Import DEM")
+        elif self.__mode == "pointcloud":
+            self.SetTitle("Import point cloud")
 
         self.DoLayoutAdaptation()
         self.Layout()
@@ -86,7 +94,7 @@ class ImportHeight(default_gui.import_dem):
 
         colstoimport = [self.xvalue.GetSelection(), self.yvalue.GetSelection(), self.heightvalue.GetSelection()]
         importer = DemImporter(self.__filepath, self.__encoding, self.__seperator, colstoimport, self.epsg.GetValue(),
-                               self.__EmptyLinesBeforeDataStart, self.__DbFilePath)
+                               self.__EmptyLinesBeforeDataStart, self.__DbFilePath, self.__mode)
 
         # create table in database for elevation data (if not exists already)
         importer.create_table()
@@ -106,7 +114,7 @@ class ImportHeight(default_gui.import_dem):
         self.__PointsImported = importer.get_rowcount()
 
         # Update Text in GUI to show number of points imported
-        self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)  # Update label in GUI
+        self.text_rowcount.SetLabel("%s points imported" % self.__PointsImported)  # Update label in GUI
         self.__ImportedFiles.append(self.__filepath)
 
         importer.close_connection()
@@ -131,7 +139,7 @@ class ImportHeight(default_gui.import_dem):
 
     # method to be called when all files are imported. Finish up import, initialize next step
     def end_next_step(self):
-        connection = BasicDemConnection(self.__DbFilePath, self.epsg.GetValue())
+        connection = BasicDemConnection(self.__DbFilePath, self.epsg.GetValue(), self.__mode)
         self.text_rowcount.SetLabel("Please Wait: Generating Spatial Index...")
         connection.generate_spatial_index()
         self.text_rowcount.SetLabel("Please Wait: Generating Convexhull...")
@@ -268,7 +276,7 @@ class ImportHeight(default_gui.import_dem):
 # Real basic database connection with basic functionality
 # All other database connections inherit from this class
 class BasicConnection:
-    def __init__(self, databasepath):
+    def __init__(self, databasepath, mode):
         self._DbFilePath = databasepath
         self._con = sqlite3.connect(self._DbFilePath)
         self._cursor = self._con.cursor()
@@ -279,6 +287,18 @@ class BasicConnection:
         # next method call to initialize spatial metadata: causes error when called multiple times, but its harmless
         self._con.execute('SELECT InitSpatialMetaData(1);')
         self._con.commit()
+
+        self._mode = mode  # importer mode: "dem" or "pointcloud"
+        self._height_table_name = ""  # name of table into which file is imported
+        self._convexhull_table_name = ""  # name of convexhull table
+
+        # name of tables is determined
+        if self._mode == "dem":
+            self._height_table_name = "elevation"
+            self._convexhull_table_name = "convexhull_elevation"
+        elif self._mode == "pointcloud":
+            self._height_table_name = "pointcloud"
+            self._convexhull_table_name = "convexhull_pointcloud"
 
     # performs a commit
     def commit(self):
@@ -293,7 +313,7 @@ class BasicConnection:
 
     # returns number of imported points
     def get_rowcount(self):
-        self._cursor.execute("SELECT COUNT(*) FROM elevation")
+        self._cursor.execute("SELECT COUNT(*) FROM %s" % self._height_table_name)
         return self._cursor.fetchone()[0]
 
     # updates a value in a database column
@@ -322,26 +342,28 @@ class BasicConnection:
 
 # Class with basic functionality for DEM importing
 class BasicDemConnection(BasicConnection):
-    def __init__(self, dbpath, ref):
-        BasicConnection.__init__(self, dbpath)
+    def __init__(self, dbpath, ref, mode):
+        BasicConnection.__init__(self, dbpath, mode)
         self._ReferenceSystemCode = ref
 
     # ceate a new table and store a convexhull-polygon in it
     def generate_convexhull(self):
-        self._cursor.execute("DROP TABLE IF EXISTS convexhull;")
-        self._cursor.execute("CREATE TABLE convexhull (typ TEXT)")
+        self._cursor.execute("DROP TABLE IF EXISTS %s;" % self._convexhull_table_name)
+        self._cursor.execute("CREATE TABLE %s (typ TEXT)" % self._convexhull_table_name)
         self._cursor.execute(
-            'SELECT AddGeometryColumn("convexhull", "geom" , %s, "POLYGON", "XY");' % self._ReferenceSystemCode)
-        self._cursor.execute('INSERT INTO convexhull SELECT "convex", ConvexHull(Collect(geom)) FROM elevation;')
+            'SELECT AddGeometryColumn("%s", "geom" , %s, "POLYGON", "XY");'
+            % (self._convexhull_table_name, self._ReferenceSystemCode))
+        self._cursor.execute('INSERT INTO %s SELECT "convex", ConvexHull(Collect(geom)) FROM %s;'
+                             % (self._convexhull_table_name, self._height_table_name))
 
     # create a spatial over geometries
     def generate_spatial_index(self):
-        self._cursor.execute("SELECT CreateSpatialIndex('elevation', 'geom');")
+        self._cursor.execute("SELECT CreateSpatialIndex('%s', 'geom');" % self._height_table_name)
 
 
 # Class to import DEM into database
 class DemImporter(BasicDemConnection):
-    def __init__(self, filepath, encoding, sep, colstoimport, ref, emptylines, dbpath):
+    def __init__(self, filepath, encoding, sep, colstoimport, ref, emptylines, dbpath, mode):
         self.__filepath = filepath
         self.__encoding = encoding
         self.__seperator = sep
@@ -350,21 +372,21 @@ class DemImporter(BasicDemConnection):
         self.__HColIndex = colstoimport[2]
         self.__NumberOfEmptyLines = emptylines
 
-        BasicDemConnection.__init__(self, dbpath, ref)
+        BasicDemConnection.__init__(self, dbpath, ref, mode)
 
     # class to create elevation table
     def create_table(self):
-        self._cursor.execute('CREATE TABLE IF NOT EXISTS elevation (height REAL);')
+        self._cursor.execute('CREATE TABLE IF NOT EXISTS %s (height REAL);' % self._height_table_name)
 
-        self._cursor.execute("pragma table_info(elevation);")
+        self._cursor.execute("pragma table_info(%s);" % self._height_table_name)
 
         colnames = []
         for row in self._cursor:
             colnames.append(row[1])
 
         if 'geom' not in colnames:
-            self._cursor.execute('SELECT AddGeometryColumn("elevation", "geom" , %s, "POINT", "XY");'
-                                 % self._ReferenceSystemCode)
+            self._cursor.execute('SELECT AddGeometryColumn("%s", "geom" , %s, "POINT", "XY");'
+                                 % (self._height_table_name, self._ReferenceSystemCode))
         self._con.commit()
 
     # class to DEM file into database
@@ -400,7 +422,7 @@ class DemImporter(BasicDemConnection):
 
                 # insert point into database
                 try:
-                    self._cursor.execute('INSERT INTO elevation VALUES (%s, %s);' % (h, pointtext))
+                    self._cursor.execute('INSERT INTO %s VALUES (%s, %s);' % (self._height_table_name, h, pointtext))
                 except sqlite3.OperationalError:
                     success = False
                     message = "Error in line %s" % str(index + self.__NumberOfEmptyLines + 1)
@@ -410,7 +432,7 @@ class DemImporter(BasicDemConnection):
 
                 # Update label in GUI every 10.000 imported lines
                 if imported_row_count % 10000 == 0:
-                    text_count.SetLabel("%s elevation points imported" % imported_row_count)
+                    text_count.SetLabel("%s points imported" % imported_row_count)
 
         return success, message
 
@@ -520,7 +542,7 @@ class GrabHeight(default_gui.GrabHeight):
 class AssignHeight(BasicConnection):
     def __init__(self, dbpath, db, idcol, geomcol, treetable, gauge,
                  use_defaultheight, defaultheight, use_searchradius, searchradius):
-        BasicConnection.__init__(self, dbpath)
+        BasicConnection.__init__(self, dbpath, "dgm")
         self.__db = db
         self.__IdCol = idcol
         self.__GeomCol = geomcol
@@ -536,16 +558,16 @@ class AssignHeight(BasicConnection):
         innercursor = self._con.cursor()
 
         # SELECT part of the statemnet
-        statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s") FROM %s, convexhull'\
+        statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s") FROM %s, convexhull_elevation'\
                     % (self.__TreeTableName, self.__IdCol,
                        self.__TreeTableName, self.__GeomCol,
                        self.__TreeTableName, self.__GeomCol,
                        self.__TreeTableName)
-        countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull' % (self.__TreeTableName, self.__TreeTableName)
+        countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull_elevation' % (self.__TreeTableName, self.__TreeTableName)
 
         # WHERE part of the statement
-        statement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
-        countstatement += ' WHERE Intersects(%s."%s", convexhull."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
+        statement += ' WHERE Intersects(%s."%s", convexhull_elevation."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
+        countstatement += ' WHERE Intersects(%s."%s", convexhull_elevation."geom")==1;' % (self.__TreeTableName, self.__GeomCol)
         self._cursor.execute(countstatement)
         self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
@@ -611,7 +633,7 @@ class DefaulgHeight(default_gui.DefaultHeight):
 
         height = float(self.height_input.GetValue().replace(",", "."))
 
-        db = BasicConnection(self.__dbpath)
+        db = BasicConnection(self.__dbpath, "dgm")
         db.update_value(self.__TreeTableName, "Height_Default", height)
         db.commit()
 
@@ -808,7 +830,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
         self.GetParent().db.add_col("CityGML_Species_Code", "INT")  # add species code column to database table
         self.GetParent().db.add_col("CityGML_Class_Code", "INT")  # add species code column to database table
         self.GetParent().db.commit()
-        con = BasicConnection(self.__DbPath)
+        con = BasicConnection(self.__DbPath, None)
         for entry in self.__CodeList:
             con.update_value(self.__DbTreeTableName, "CityGML_Species_Code", entry[1], veg_column, entry[0], True)
             con.update_value(self.__DbTreeTableName, "CityGML_Class_Code", entry[2], veg_column, entry[0], True)
