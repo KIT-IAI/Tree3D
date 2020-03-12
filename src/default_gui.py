@@ -1897,3 +1897,150 @@ class DefaultHeight ( wx.Dialog ):
 		event.Skip()
 	
 
+###########################################################################
+## Class pointcloud_process
+###########################################################################
+
+class pointcloud_process ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Derive values from point cloud", pos = wx.DefaultPosition, size = wx.DefaultSize, style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		fgSizer36 = wx.FlexGridSizer( 4, 1, 0, 0 )
+		fgSizer36.SetFlexibleDirection( wx.BOTH )
+		fgSizer36.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		fgSizer33 = wx.FlexGridSizer( 4, 4, 0, 0 )
+		fgSizer33.SetFlexibleDirection( wx.BOTH )
+		fgSizer33.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText63 = wx.StaticText( self, wx.ID_ANY, u"ID", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText63.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		idChoices = []
+		self.id = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, idChoices, 0 )
+		self.id.SetSelection( 0 )
+		self.id.SetToolTip( u"select ID column" )
+		
+		fgSizer33.Add( self.id, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText64 = wx.StaticText( self, wx.ID_ANY, u"Geometry", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText64.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText64, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		geomChoices = []
+		self.geom = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geomChoices, 0 )
+		self.geom.SetSelection( 0 )
+		self.geom.SetToolTip( u"select geometry column" )
+		
+		fgSizer33.Add( self.geom, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText641 = wx.StaticText( self, wx.ID_ANY, u"Tree reference height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText641.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText641, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		ref_heightChoices = []
+		self.ref_height = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ref_heightChoices, 0 )
+		self.ref_height.SetSelection( 0 )
+		fgSizer33.Add( self.ref_height, 0, wx.ALL, 5 )
+		
+		self.m_staticText65 = wx.StaticText( self, wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText65.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText65, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		crown_diamChoices = []
+		self.crown_diam = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_diamChoices, 0 )
+		self.crown_diam.SetSelection( 0 )
+		fgSizer33.Add( self.crown_diam, 0, wx.ALL, 5 )
+		
+		
+		fgSizer36.Add( fgSizer33, 1, 0, 5 )
+		
+		fgSizer27 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer27.SetFlexibleDirection( wx.BOTH )
+		fgSizer27.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.use_defaultheight = wx.CheckBox( self, wx.ID_ANY, u"Derive tree height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_defaultheight.SetToolTip( u"assign a default height to all trees that are not within DEM range" )
+		
+		fgSizer27.Add( self.use_defaultheight, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		self.default_height = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.default_height.Enable( False )
+		
+		fgSizer27.Add( self.default_height, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.use_radius = wx.CheckBox( self, wx.ID_ANY, u"Derive crown height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_radius.SetToolTip( u"use a search radius to speed things up. At least four DEM points must be within this radius." )
+		
+		fgSizer27.Add( self.use_radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.radius = wx.TextCtrl( self, wx.ID_ANY, u"5", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radius.SetMaxLength( 4 ) 
+		self.radius.Enable( False )
+		
+		fgSizer27.Add( self.radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		fgSizer36.Add( fgSizer27, 1, 0, 5 )
+		
+		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		fgSizer36.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
+		
+		fgSizer34 = wx.FlexGridSizer( 1, 2, 0, 0 )
+		fgSizer34.SetFlexibleDirection( wx.BOTH )
+		fgSizer34.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.gauge = wx.Gauge( self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 250,-1 ), wx.GA_HORIZONTAL )
+		self.gauge.SetValue( 0 ) 
+		fgSizer34.Add( self.gauge, 0, wx.ALIGN_RIGHT|wx.ALL|wx.EXPAND, 5 )
+		
+		self.derive = wx.Button( self, wx.ID_ANY, u"Derive", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.derive.Enable( False )
+		self.derive.SetToolTip( u"Start assigning process" )
+		
+		fgSizer34.Add( self.derive, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
+		
+		
+		fgSizer36.Add( fgSizer34, 1, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		
+		self.SetSizer( fgSizer36 )
+		self.Layout()
+		fgSizer36.Fit( self )
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.id.Bind( wx.EVT_CHOICE, self.validate )
+		self.geom.Bind( wx.EVT_CHOICE, self.validate )
+		self.use_defaultheight.Bind( wx.EVT_CHECKBOX, self.on_checkbox_defaultheight_hit )
+		self.use_radius.Bind( wx.EVT_CHECKBOX, self.on_checkbox_radius_hit )
+		self.derive.Bind( wx.EVT_BUTTON, self.on_derive )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def validate( self, event ):
+		event.Skip()
+	
+	
+	def on_checkbox_defaultheight_hit( self, event ):
+		event.Skip()
+	
+	def on_checkbox_radius_hit( self, event ):
+		event.Skip()
+	
+	def on_derive( self, event ):
+		event.Skip()
+	
+
