@@ -1963,30 +1963,39 @@ class pointcloud_process ( wx.Dialog ):
 		
 		fgSizer36.Add( fgSizer33, 1, 0, 5 )
 		
-		fgSizer27 = wx.FlexGridSizer( 2, 2, 0, 0 )
+		fgSizer27 = wx.FlexGridSizer( 2, 3, 0, 0 )
 		fgSizer27.SetFlexibleDirection( wx.BOTH )
 		fgSizer27.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.use_defaultheight = wx.CheckBox( self, wx.ID_ANY, u"Derive tree height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.use_defaultheight.SetToolTip( u"assign a default height to all trees that are not within DEM range" )
+		self.derive_height = wx.CheckBox( self, wx.ID_ANY, u"Derive tree height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.derive_height.SetToolTip( u"assign a default height to all trees that are not within DEM range" )
 		
-		fgSizer27.Add( self.use_defaultheight, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		fgSizer27.Add( self.derive_height, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.default_height = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.default_height.Enable( False )
+		self.height_info_text = wx.StaticText( self, wx.ID_ANY, u"Points used for calculation", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.height_info_text.Wrap( -1 )
 		
-		fgSizer27.Add( self.default_height, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer27.Add( self.height_info_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.use_radius = wx.CheckBox( self, wx.ID_ANY, u"Derive crown height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.use_radius.SetToolTip( u"use a search radius to speed things up. At least four DEM points must be within this radius." )
+		choice_height_pointsChoices = [ u"Top 5%", u"Top 10%" ]
+		self.choice_height_points = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_height_pointsChoices, 0 )
+		self.choice_height_points.SetSelection( 0 )
+		fgSizer27.Add( self.choice_height_points, 0, wx.ALL, 5 )
 		
-		fgSizer27.Add( self.use_radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.derive_crown = wx.CheckBox( self, wx.ID_ANY, u"Derive crown height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.derive_crown.SetToolTip( u"use a search radius to speed things up. At least four DEM points must be within this radius." )
 		
-		self.radius = wx.TextCtrl( self, wx.ID_ANY, u"5", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.radius.SetMaxLength( 4 ) 
-		self.radius.Enable( False )
+		fgSizer27.Add( self.derive_crown, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		fgSizer27.Add( self.radius, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.crown_info_text = wx.StaticText( self, wx.ID_ANY, u"Points used for calculation", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.crown_info_text.Wrap( -1 )
+		
+		fgSizer27.Add( self.crown_info_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		choice_crown_pointsChoices = [ u"Bottom 5%", u"Bottom 10%" ]
+		self.choice_crown_points = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_crown_pointsChoices, 0 )
+		self.choice_crown_points.SetSelection( 0 )
+		fgSizer27.Add( self.choice_crown_points, 0, wx.ALL, 5 )
 		
 		
 		fgSizer36.Add( fgSizer27, 1, 0, 5 )
@@ -2019,10 +2028,8 @@ class pointcloud_process ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.id.Bind( wx.EVT_CHOICE, self.validate )
-		self.geom.Bind( wx.EVT_CHOICE, self.validate )
-		self.use_defaultheight.Bind( wx.EVT_CHECKBOX, self.on_checkbox_defaultheight_hit )
-		self.use_radius.Bind( wx.EVT_CHECKBOX, self.on_checkbox_radius_hit )
+		self.derive_height.Bind( wx.EVT_CHECKBOX, self.on_checkbox_height_hit )
+		self.derive_crown.Bind( wx.EVT_CHECKBOX, self.on_checkbox_crown_hit )
 		self.derive.Bind( wx.EVT_BUTTON, self.on_derive )
 	
 	def __del__( self ):
@@ -2030,14 +2037,10 @@ class pointcloud_process ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def validate( self, event ):
+	def on_checkbox_height_hit( self, event ):
 		event.Skip()
 	
-	
-	def on_checkbox_defaultheight_hit( self, event ):
-		event.Skip()
-	
-	def on_checkbox_radius_hit( self, event ):
+	def on_checkbox_crown_hit( self, event ):
 		event.Skip()
 	
 	def on_derive( self, event ):
