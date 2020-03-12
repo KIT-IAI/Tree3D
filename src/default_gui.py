@@ -1497,7 +1497,7 @@ class import_dem ( wx.Dialog ):
 		
 		fgSizer21.Add( self.text_rowcount, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
-		self.importbutton = wx.Button( self, wx.ID_ANY, u"Import DEM", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.importbutton = wx.Button( self, wx.ID_ANY, u"Import", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.importbutton.Enable( False )
 		self.importbutton.SetToolTip( u"Push button to start DEM Import" )
 		
