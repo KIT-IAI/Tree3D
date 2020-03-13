@@ -164,6 +164,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.vegetation_code.Enable(True)
         self.add_height_dem.Enable(True)
         self.add_height_default.Enable(True)
+        self.add_pointcloud_parameters.Enable(True)
 
     # method to be called when File > Export as CityGML is pressed
     def on_menu_export_citygml(self, event):
@@ -185,6 +186,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.vegetation_code.Enable(False)
         self.add_height_dem.Enable(False)
         self.add_height_default.Enable(False)
+        self.add_pointcloud_parameters.Enable(False)
 
         # Disable Grid visibility
         self.table_view_panel.grid.Show(False)
