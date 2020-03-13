@@ -1629,13 +1629,6 @@ class geom_props ( wx.Dialog ):
 		fgSizer21.SetFlexibleDirection( wx.BOTH )
 		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.text_rowcount = wx.StaticText( self, wx.ID_ANY, u"0 elevation points imported          ", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.text_rowcount.Wrap( -1 )
-		
-		self.text_rowcount.Enable( False )
-		
-		fgSizer21.Add( self.text_rowcount, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-		
 		self.add = wx.Button( self, wx.ID_ANY, u"Add Geoms", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.add.Enable( False )
 		
@@ -1964,7 +1957,7 @@ class pointcloud_process ( wx.Dialog ):
 		
 		fgSizer36.Add( fgSizer33, 1, 0, 5 )
 		
-		fgSizer27 = wx.FlexGridSizer( 2, 3, 0, 0 )
+		fgSizer27 = wx.FlexGridSizer( 5, 3, 0, 0 )
 		fgSizer27.SetFlexibleDirection( wx.BOTH )
 		fgSizer27.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -2007,6 +2000,49 @@ class pointcloud_process ( wx.Dialog ):
 		fgSizer27.Add( self.choice_crown_points, 0, wx.ALL, 5 )
 		
 		
+		fgSizer27.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.text_threshold = wx.StaticText( self, wx.ID_ANY, u"Ground point detection threshold (m)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_threshold.Wrap( -1 )
+		
+		self.text_threshold.Enable( False )
+		
+		fgSizer27.Add( self.text_threshold, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.threshold = wx.TextCtrl( self, wx.ID_ANY, u"0.5", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.threshold.SetMaxLength( 4 ) 
+		self.threshold.Enable( False )
+		
+		fgSizer27.Add( self.threshold, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		fgSizer27.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.use_tree_height_from_col = wx.RadioButton( self, wx.ID_ANY, u"use tree height from column", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_tree_height_from_col.SetValue( True ) 
+		self.use_tree_height_from_col.Enable( False )
+		
+		fgSizer27.Add( self.use_tree_height_from_col, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		tree_heightChoices = []
+		self.tree_height = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, tree_heightChoices, 0 )
+		self.tree_height.SetSelection( 0 )
+		self.tree_height.Enable( False )
+		
+		fgSizer27.Add( self.tree_height, 0, wx.ALL, 5 )
+		
+		
+		fgSizer27.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.use_tree_height_from_pointcloud = wx.RadioButton( self, wx.ID_ANY, u"Use tree height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_tree_height_from_pointcloud.Enable( False )
+		
+		fgSizer27.Add( self.use_tree_height_from_pointcloud, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		fgSizer27.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
 		fgSizer36.Add( fgSizer27, 1, 0, 5 )
 		
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
@@ -2039,6 +2075,8 @@ class pointcloud_process ( wx.Dialog ):
 		# Connect Events
 		self.derive_height.Bind( wx.EVT_CHECKBOX, self.on_checkbox_height_hit )
 		self.derive_crown.Bind( wx.EVT_CHECKBOX, self.on_checkbox_crown_hit )
+		self.use_tree_height_from_col.Bind( wx.EVT_RADIOBUTTON, self.on_radiobutton )
+		self.use_tree_height_from_pointcloud.Bind( wx.EVT_RADIOBUTTON, self.on_radiobutton )
 		self.derive.Bind( wx.EVT_BUTTON, self.on_derive )
 	
 	def __del__( self ):
@@ -2051,6 +2089,10 @@ class pointcloud_process ( wx.Dialog ):
 	
 	def on_checkbox_crown_hit( self, event ):
 		event.Skip()
+	
+	def on_radiobutton( self, event ):
+		event.Skip()
+	
 	
 	def on_derive( self, event ):
 		event.Skip()
