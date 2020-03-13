@@ -94,6 +94,7 @@ class MainWindow ( wx.Frame ):
 		
 		self.add_pointcloud_parameters = wx.MenuItem( self.data, wx.ID_ANY, u"Derive tree parameters from point cloud", wx.EmptyString, wx.ITEM_NORMAL )
 		self.data.Append( self.add_pointcloud_parameters )
+		self.add_pointcloud_parameters.Enable( False )
 		
 		self.m_menubar7.Append( self.data, u"Data" ) 
 		
@@ -1975,11 +1976,15 @@ class pointcloud_process ( wx.Dialog ):
 		self.height_info_text = wx.StaticText( self, wx.ID_ANY, u"Points used for calculation", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.height_info_text.Wrap( -1 )
 		
+		self.height_info_text.Enable( False )
+		
 		fgSizer27.Add( self.height_info_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choice_height_pointsChoices = [ u"Top 5%", u"Top 10%" ]
 		self.choice_height_points = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_height_pointsChoices, 0 )
 		self.choice_height_points.SetSelection( 0 )
+		self.choice_height_points.Enable( False )
+		
 		fgSizer27.Add( self.choice_height_points, 0, wx.ALL, 5 )
 		
 		self.derive_crown = wx.CheckBox( self, wx.ID_ANY, u"Derive crown height from point cloud", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1990,11 +1995,15 @@ class pointcloud_process ( wx.Dialog ):
 		self.crown_info_text = wx.StaticText( self, wx.ID_ANY, u"Points used for calculation", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.crown_info_text.Wrap( -1 )
 		
+		self.crown_info_text.Enable( False )
+		
 		fgSizer27.Add( self.crown_info_text, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choice_crown_pointsChoices = [ u"Bottom 5%", u"Bottom 10%" ]
 		self.choice_crown_points = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_crown_pointsChoices, 0 )
 		self.choice_crown_points.SetSelection( 0 )
+		self.choice_crown_points.Enable( False )
+		
 		fgSizer27.Add( self.choice_crown_points, 0, wx.ALL, 5 )
 		
 		
