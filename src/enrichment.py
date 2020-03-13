@@ -669,6 +669,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.geom.SetItems(geom_names)
         self.ref_height.SetItems(numeric_names)
         self.crown_diam.SetItems(numeric_names)
+        self.tree_height.SetItems(numeric_names)
 
     def on_derive(self, event):
         valid, msg = self.validate_input()
@@ -692,6 +693,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         thread.start()
 
     def start_derive(self):
+        self.gauge.SetValue(0)
         processor = ProcessPointcloud(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
                                       self.geom.GetStringSelection(), self.ref_height.GetStringSelection(),
                                       self.crown_diam.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
@@ -712,20 +714,42 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         processor.set_crown_precision(crown_precision)
 
         if self.derive_height.GetValue():
-            processor.derive_tree_height()
-
-        processor.commit()
+            processor.set_derive_tree_height(True)
 
         if self.derive_crown.GetValue():
-            processor.derive_crown_height()
+            processor.set_derive_crown_height(True)
+            threshold = float(self.threshold.GetValue().replace(",", "."))
+            processor.set_ground_threshold(threshold)
+            if self.use_tree_height_from_col.GetValue():
+                processor.set_height_col(self.tree_height.GetStringSelection())
+                processor.set_use_height_from_pointcloud(False)
+            else:
+                processor.set_use_height_from_pointcloud(True)
 
         processor.commit()
 
-        self.EndModal(1)
+        processor.derive_tree_parameters()  # method to start deriving tree parameters
+
+        processor.commit()
+
+        #self.EndModal(1)
+        self.derive.Enable(True)
 
     def validate_input(self):
         valid = True
         msg = ""
+
+        if self.derive_crown.GetValue() and self.use_tree_height_from_col.GetValue() \
+                and self.tree_height.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            msg = "Tree height column not specified"
+
+        if self.derive_crown.GetValue():
+            try:
+                float(self.threshold.GetValue().replace(",", "."))
+            except ValueError:
+                valid = False
+                msg = "Threshold value must be a number"
 
         if self.crown_diam.GetSelection() == wx.NOT_FOUND:
             valid = False
@@ -754,6 +778,16 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         else:
             self.derive.Enable(False)
 
+        if self.derive_height.GetValue():
+            if self.derive_crown.GetValue():
+                self.use_tree_height_from_pointcloud.Enable(True)
+        else:
+            self.use_tree_height_from_pointcloud.Enable(False)
+            if self.use_tree_height_from_pointcloud.GetValue():
+                self.use_tree_height_from_pointcloud.SetValue(False)
+                self.use_tree_height_from_col.SetValue(True)
+                self.tree_height.Enable(True)
+
     def on_checkbox_crown_hit(self, event):
         self.crown_info_text.Enable(self.derive_crown.GetValue())
         self.choice_crown_points.Enable(self.derive_crown.GetValue())
@@ -762,6 +796,27 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
             self.derive.Enable(True)
         else:
             self.derive.Enable(False)
+
+        if self.derive_crown.GetValue():
+            self.use_tree_height_from_col.Enable(True)
+            self.text_threshold.Enable(True)
+            self.threshold.Enable(True)
+            if self.use_tree_height_from_col.GetValue():
+                self.tree_height.Enable(True)
+            if self.derive_height.GetValue():
+                self.use_tree_height_from_pointcloud.Enable(True)
+        else:
+            self.use_tree_height_from_col.Enable(False)
+            self.tree_height.Enable(False)
+            self.text_threshold.Enable(False)
+            self.threshold.Enable(False)
+            self.use_tree_height_from_pointcloud.Enable(False)
+
+    def on_radiobutton(self, event):
+        if self.use_tree_height_from_col.GetValue():
+            self.tree_height.Enable(True)
+        else:
+            self.tree_height.Enable(False)
 
 
 class ProcessPointcloud(BasicConnection):
@@ -778,17 +833,36 @@ class ProcessPointcloud(BasicConnection):
         self.__height_precision = 0.0
         self.__crown_precision = 0.0
 
-    def derive_tree_height(self):
+        self.__derive_tree_height = False
+        self.__derive_crown_height = False
+
+        self.__use_height_from_pointcloud = None
+        self.__HeightCol = None
+
+        self.__GroundThreshold = 0
+
+    def derive_tree_parameters(self):
         innercursor = self._con.cursor()
 
         # SELECT part of the statemnet
-        statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s"), %s."%s", %s."%s" FROM %s, convexhull_pointcloud' \
-                    % (self.__TreeTableName, self.__IdCol,
-                       self.__TreeTableName, self.__GeomCol,
-                       self.__TreeTableName, self.__GeomCol,
-                       self.__TreeTableName, self.__CrownDiamCol,
-                       self.__TreeTableName, self.__RefHeightCol,
-                       self.__TreeTableName)
+        if not self.__derive_crown_height or (self.__derive_crown_height and self.__use_height_from_pointcloud):
+            statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s"), %s."%s", %s."%s" FROM %s, convexhull_pointcloud' \
+                        % (self.__TreeTableName, self.__IdCol,
+                           self.__TreeTableName, self.__GeomCol,
+                           self.__TreeTableName, self.__GeomCol,
+                           self.__TreeTableName, self.__CrownDiamCol,
+                           self.__TreeTableName, self.__RefHeightCol,
+                           self.__TreeTableName)
+        else:
+            statement = 'SELECT %s."%s", X(%s."%s"), Y(%s."%s"), %s."%s", %s."%s", %s."%s" FROM %s, convexhull_pointcloud' \
+                        % (self.__TreeTableName, self.__IdCol,
+                           self.__TreeTableName, self.__GeomCol,
+                           self.__TreeTableName, self.__GeomCol,
+                           self.__TreeTableName, self.__CrownDiamCol,
+                           self.__TreeTableName, self.__RefHeightCol,
+                           self.__TreeTableName, self.__HeightCol,
+                           self.__TreeTableName)
+
         countstatement = 'SELECT count(%s.ROWID) FROM %s, convexhull_pointcloud'\
                          % (self.__TreeTableName, self.__TreeTableName)
 
@@ -818,40 +892,87 @@ class ProcessPointcloud(BasicConnection):
 
             statement += ''' AND pointcloud.ROWID IN'''
             statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'pointcloud' '''
-            statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s));''' % (x, y, diam)
+            statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s));''' % (x, y, diam/2.0)
 
             innercursor.execute(statement)
 
             height_values = []
             for innerrow in innercursor:
-                height_values.append(innerrow[0])
+                if innerrow[0] > ref_height + self.__GroundThreshold:
+                    height_values.append(innerrow[0])
 
-            height_values.sort(reverse=True)
-            num_height_values = len(height_values)
-            num_height_values_used = round(num_height_values * self.__height_precision)
-            height_values_used = height_values[0:num_height_values_used]
+            # derive tree height from point cloud
+            if self.__derive_tree_height:
+                tree_height_values = sorted(height_values, reverse=True)
+                num_height_values = len(tree_height_values)
+                num_height_values_used = round(num_height_values * self.__height_precision)
+                tree_height_values_used = tree_height_values[0:num_height_values_used]
 
-            average = 0
-            for num in height_values_used:
-                average += num
+                # calculate average of heighest points
+                average = 0
+                for num in tree_height_values_used:
+                    average += num
 
-            try:
-                average /= num_height_values_used
-                self.update_value(self.__TreeTableName, "tree_h_pointcloud", average-ref_height, self.__IdCol, row[0])
-            except ZeroDivisionError:
-                if num_height_values_used == 0:
-                    self.update_value(self.__TreeTableName, "tree_h_pointcloud", height_values_used[0] - ref_height,
-                                      self.__IdCol, row[0])
+                try:
+                    average /= num_height_values_used
+                    tree_height = average-ref_height
+                    self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
+                except ZeroDivisionError:
+                    if len(tree_height_values_used) > 0:
+                        tree_height = tree_height_values_used[0] - ref_height
+                        self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
+
+            # derive crown height from point cloud
+            if self.__derive_crown_height:
+                crown_height_values = sorted(height_values)
+                num_crown_height_values = len(crown_height_values)
+                num_crown_height_values_used = round(num_crown_height_values * self.__crown_precision)
+                crown_height_values_used = crown_height_values[0:num_crown_height_values_used]
+
+                # calculate average of lowest points
+                crown_average = 0
+                for num in crown_height_values_used:
+                    crown_average += num
+
+                try:
+                    crown_average /= num_crown_height_values_used
+                    if self.__use_height_from_pointcloud:
+                        crown_height = tree_height - (crown_average - ref_height)
+                    else:
+                        crown_height = row[5] - (crown_average - ref_height)
+                    self.update_value(self.__TreeTableName, "crown_height_pointcloud", crown_height, self.__IdCol,
+                                      row[0])
+                except ZeroDivisionError:
+                    if len(crown_height_values_used) > 0:
+                        if self.__use_height_from_pointcloud:
+                            crown_height = tree_height - (crown_height_values_used[0] - ref_height)
+                        else:
+                            crown_height = row[5] - (crown_height_values_used[0] - ref_height)
+                        self.update_value(self.__TreeTableName, "crown_height_pointcloud", crown_height, self.__IdCol,
+                                          row[0])
+
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
-
-    def derive_crown_height(self):
-        pass
 
     def set_height_precision(self, val):
         self.__height_precision = val
 
     def set_crown_precision(self, val):
         self.__crown_precision = val
+
+    def set_derive_tree_height(self, val):
+        self.__derive_tree_height = val
+
+    def set_derive_crown_height(self, val):
+        self.__derive_crown_height = val
+
+    def set_height_col(self, val):
+        self.__HeightCol = val
+
+    def set_use_height_from_pointcloud(self, val):
+        self.__use_height_from_pointcloud = val
+
+    def set_ground_threshold(self, val):
+        self.__GroundThreshold = val
 
 
 # Class to add Geom objects into the database
