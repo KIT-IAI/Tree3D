@@ -691,8 +691,6 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         thread = threading.Thread(target=self.start_derive)
         thread.start()
 
-        self.EndModal(1)
-
     def start_derive(self):
         processor = ProcessPointcloud(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
                                       self.geom.GetStringSelection(), self.ref_height.GetStringSelection(),
@@ -723,6 +721,8 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
 
         processor.commit()
 
+        self.EndModal(1)
+
     def validate_input(self):
         valid = True
         msg = ""
@@ -749,7 +749,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.height_info_text.Enable(self.derive_height.GetValue())
         self.choice_height_points.Enable(self.derive_height.GetValue())
 
-        if self.derive_height.GetValue() or self.derive_crown.GetValue:
+        if self.derive_height.GetValue() or self.derive_crown.GetValue():
             self.derive.Enable(True)
         else:
             self.derive.Enable(False)
@@ -758,7 +758,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.crown_info_text.Enable(self.derive_crown.GetValue())
         self.choice_crown_points.Enable(self.derive_crown.GetValue())
 
-        if self.derive_height.GetValue() or self.derive_crown.GetValue:
+        if self.derive_height.GetValue() or self.derive_crown.GetValue():
             self.derive.Enable(True)
         else:
             self.derive.Enable(False)
