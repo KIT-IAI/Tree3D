@@ -661,6 +661,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.DoLayoutAdaptation()
         self.Layout()
 
+    # method to populate gui dropdowns
     def populate_dropdown(self):
         col_names = self.GetParent().db.get_column_names()
         geom_names = self.GetParent().db.get_column_names_geom()
@@ -671,6 +672,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.crown_diam.SetItems(numeric_names)
         self.tree_height.SetItems(numeric_names)
 
+    # method called when "derive" button is pushed
     def on_derive(self, event):
         valid, msg = self.validate_input()
         if not valid:
@@ -681,14 +683,17 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.derive.Enable(False)
         self.__running = True
 
+        # add column for tree height if it should be derived
         if self.derive_height.GetValue():
             self.GetParent().db.add_col("tree_h_pointcloud", "REAL")  # Adds height column to Tree data table
             self.GetParent().db.commit()
 
+        # add column for crown height if it should be derived
         if self.derive_crown.GetValue():
             self.GetParent().db.add_col("crown_height_pointcloud", "REAL")  # Adds crown height column to Tree data table
             self.GetParent().db.commit()
 
+        # start thread that gets stuff done
         thread = threading.Thread(target=self.start_derive)
         thread.start()
 
@@ -699,6 +704,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
                                       self.crown_diam.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
                                       self.gauge)
 
+        # percentag of points which should be used for tree height
         height_precision = 0.0
         if self.choice_height_points.GetSelection() == 0:
             height_precision = 0.05
@@ -706,6 +712,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
             height_precision = 0.1
         processor.set_height_precision(height_precision)
 
+        # percentag of points which should be used for crown height
         crown_precision = 0.0
         if self.choice_crown_points.GetSelection() == 0:
             crown_precision = 0.05
@@ -728,13 +735,14 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
 
         processor.commit()
 
+        # start actual point cloud processing
         processor.derive_tree_parameters()  # method to start deriving tree parameters
 
         processor.commit()
 
-        #self.EndModal(1)
-        self.derive.Enable(True)
+        self.EndModal(1)
 
+    # validate GUI input
     def validate_input(self):
         valid = True
         msg = ""
@@ -769,6 +777,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
 
         return valid, msg
 
+    # method called when checkbox to tree derive height is hit
     def on_checkbox_height_hit(self, event):
         self.height_info_text.Enable(self.derive_height.GetValue())
         self.choice_height_points.Enable(self.derive_height.GetValue())
@@ -788,6 +797,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
                 self.use_tree_height_from_col.SetValue(True)
                 self.tree_height.Enable(True)
 
+    # method called when checkbox to derive crown height is hit
     def on_checkbox_crown_hit(self, event):
         self.crown_info_text.Enable(self.derive_crown.GetValue())
         self.choice_crown_points.Enable(self.derive_crown.GetValue())
@@ -812,6 +822,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
             self.threshold.Enable(False)
             self.use_tree_height_from_pointcloud.Enable(False)
 
+    # method is called when one of the two radiobuttons is pushed
     def on_radiobutton(self, event):
         if self.use_tree_height_from_col.GetValue():
             self.tree_height.Enable(True)
@@ -896,6 +907,7 @@ class ProcessPointcloud(BasicConnection):
 
             innercursor.execute(statement)
 
+            # create list of height values of all points in raidus
             height_values = []
             for innerrow in innercursor:
                 if innerrow[0] > ref_height + self.__GroundThreshold:
@@ -903,10 +915,10 @@ class ProcessPointcloud(BasicConnection):
 
             # derive tree height from point cloud
             if self.__derive_tree_height:
-                tree_height_values = sorted(height_values, reverse=True)
-                num_height_values = len(tree_height_values)
-                num_height_values_used = round(num_height_values * self.__height_precision)
-                tree_height_values_used = tree_height_values[0:num_height_values_used]
+                tree_height_values = sorted(height_values, reverse=True)  # sort list
+                num_height_values = len(tree_height_values)  # length of list
+                num_height_values_used = round(num_height_values * self.__height_precision)  # number of points to use
+                tree_height_values_used = tree_height_values[0:num_height_values_used]  # height values of points to use
 
                 # calculate average of heighest points
                 average = 0
@@ -914,20 +926,22 @@ class ProcessPointcloud(BasicConnection):
                     average += num
 
                 try:
+                    # use average height of points to use as tree height
                     average /= num_height_values_used
                     tree_height = average-ref_height
                     self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
                 except ZeroDivisionError:
                     if len(tree_height_values_used) > 0:
+                        # use heightest point as tree height
                         tree_height = tree_height_values_used[0] - ref_height
                         self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
 
             # derive crown height from point cloud
             if self.__derive_crown_height:
-                crown_height_values = sorted(height_values)
-                num_crown_height_values = len(crown_height_values)
-                num_crown_height_values_used = round(num_crown_height_values * self.__crown_precision)
-                crown_height_values_used = crown_height_values[0:num_crown_height_values_used]
+                crown_height_values = sorted(height_values)  # sort point list
+                num_crown_height_values = len(crown_height_values)  # number of points in list
+                num_crown_height_values_used = round(num_crown_height_values * self.__crown_precision)  # number of pts
+                crown_height_values_used = crown_height_values[0:num_crown_height_values_used]  # list of points to use
 
                 # calculate average of lowest points
                 crown_average = 0
@@ -935,22 +949,29 @@ class ProcessPointcloud(BasicConnection):
                     crown_average += num
 
                 try:
+                    # use average to calulate crown height
                     crown_average /= num_crown_height_values_used
                     if self.__use_height_from_pointcloud:
+                        # use height value from point cloud for calcuoation
                         crown_height = tree_height - (crown_average - ref_height)
                     else:
+                        # use height value from column for calcuoation
                         crown_height = row[5] - (crown_average - ref_height)
                     self.update_value(self.__TreeTableName, "crown_height_pointcloud", crown_height, self.__IdCol,
                                       row[0])
                 except ZeroDivisionError:
+                    # use lowest point to calculate crown height
                     if len(crown_height_values_used) > 0:
                         if self.__use_height_from_pointcloud:
+                            # use height value from point cloud for calcuoation
                             crown_height = tree_height - (crown_height_values_used[0] - ref_height)
                         else:
+                            # use height value from column for calcuoation
                             crown_height = row[5] - (crown_height_values_used[0] - ref_height)
                         self.update_value(self.__TreeTableName, "crown_height_pointcloud", crown_height, self.__IdCol,
                                           row[0])
 
+            # move gauge in gui to indicate progress
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
 
     def set_height_precision(self, val):
