@@ -1906,7 +1906,7 @@ class pointcloud_process ( wx.Dialog ):
 		fgSizer36.SetFlexibleDirection( wx.BOTH )
 		fgSizer36.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		fgSizer33 = wx.FlexGridSizer( 4, 4, 0, 0 )
+		fgSizer33 = wx.FlexGridSizer( 3, 4, 0, 0 )
 		fgSizer33.SetFlexibleDirection( wx.BOTH )
 		fgSizer33.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1953,6 +1953,21 @@ class pointcloud_process ( wx.Dialog ):
 		self.crown_diam = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_diamChoices, 0 )
 		self.crown_diam.SetSelection( 0 )
 		fgSizer33.Add( self.crown_diam, 0, wx.ALL, 5 )
+		
+		
+		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.m_staticText69 = wx.StaticText( self, wx.ID_ANY, u"Default crown diameter (m)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText69.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText69, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.default_diam = wx.TextCtrl( self, wx.ID_ANY, u"3", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.default_diam.SetMaxLength( 5 ) 
+		fgSizer33.Add( self.default_diam, 0, wx.ALL, 5 )
 		
 		
 		fgSizer36.Add( fgSizer33, 1, 0, 5 )
