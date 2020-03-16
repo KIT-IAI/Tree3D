@@ -1942,6 +1942,8 @@ class pointcloud_process ( wx.Dialog ):
 		ref_heightChoices = []
 		self.ref_height = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ref_heightChoices, 0 )
 		self.ref_height.SetSelection( 0 )
+		self.ref_height.SetToolTip( u"Select tree reference height column" )
+		
 		fgSizer33.Add( self.ref_height, 0, wx.ALL, 5 )
 		
 		self.m_staticText65 = wx.StaticText( self, wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -1952,6 +1954,8 @@ class pointcloud_process ( wx.Dialog ):
 		crown_diamChoices = []
 		self.crown_diam = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_diamChoices, 0 )
 		self.crown_diam.SetSelection( 0 )
+		self.crown_diam.SetToolTip( u"select crown diameter column" )
+		
 		fgSizer33.Add( self.crown_diam, 0, wx.ALL, 5 )
 		
 		
@@ -1967,6 +1971,8 @@ class pointcloud_process ( wx.Dialog ):
 		
 		self.default_diam = wx.TextCtrl( self, wx.ID_ANY, u"3", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.default_diam.SetMaxLength( 5 ) 
+		self.default_diam.SetToolTip( u"Enter default crown diameter. This value is used, if there is no crown diameter associated with a tree." )
+		
 		fgSizer33.Add( self.default_diam, 0, wx.ALL, 5 )
 		
 		
