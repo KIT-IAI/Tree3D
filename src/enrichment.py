@@ -720,6 +720,8 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
             crown_precision = 0.1
         processor.set_crown_precision(crown_precision)
 
+        processor.set_default_crown_diam(float(self.default_diam.GetValue().replace(",", ".")))
+
         if self.derive_height.GetValue():
             processor.set_derive_tree_height(True)
 
@@ -758,6 +760,12 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
             except ValueError:
                 valid = False
                 msg = "Threshold value must be a number"
+
+        try:
+            float(self.default_diam.GetValue().replace(",", "."))
+        except ValueError:
+            valid = False
+            msg = "Default crown diameter must be a number"
 
         if self.crown_diam.GetSelection() == wx.NOT_FOUND:
             valid = False
@@ -838,6 +846,7 @@ class ProcessPointcloud(BasicConnection):
         self.__GeomCol = geomcol
         self.__RefHeightCol = refcol
         self.__CrownDiamCol = crowncol
+        self.__DefaultCrownDiam = 0
         self.__TreeTableName = treetable
         self.__gauge = gauge
 
@@ -900,6 +909,9 @@ class ProcessPointcloud(BasicConnection):
             y = row[2]  # Y koordinate of tree
             diam = row[3]  # crown diameter of tree
             ref_height = row[4]
+
+            if diam is None:
+                diam = self.__DefaultCrownDiam
 
             statement += ''' AND pointcloud.ROWID IN'''
             statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'pointcloud' '''
@@ -994,6 +1006,9 @@ class ProcessPointcloud(BasicConnection):
 
     def set_ground_threshold(self, val):
         self.__GroundThreshold = val
+
+    def set_default_crown_diam(self, val):
+        self.__DefaultCrownDiam = val
 
 
 # Class to add Geom objects into the database
