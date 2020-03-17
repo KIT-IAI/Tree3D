@@ -171,10 +171,14 @@ class ExportDialog(default_gui.CityGmlExport):
                                 "1/2 the tree height": 1,
                                 "2/3 the tree height": 2,
                                 "3/4 the tree height": 3,
-                                "4/5 the tree height": 4
+                                "4/5 the tree height": 4,
+                                "from column": 5
                                 }
         crown_height_code = crown_height_to_code[self.crown_height_choice.GetStringSelection()]
         exporter.set_crown_height_code(crown_height_code)
+
+        if crown_height_code == 5:
+            exporter.set_crown_height_col_index(self.ChoiceCrownHeightCol.GetSelection())
 
         # start the export
         export_status = exporter.export(self.progress)
@@ -483,6 +487,8 @@ class CityGmlExport:
         self.__col_datatypes = None
         self.__col_names = None
 
+        self.__crown_height_col_index = None
+
         self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
         self.__geom_type = ""  # configures geom type: Only EXPLICIT or IMPLICIT are allowed values
@@ -559,6 +565,8 @@ class CityGmlExport:
                     crown_height = (3/4.0) * tree_height
                 elif self.__crown_height_code == 4:
                     crown_height = (4/5.0) * tree_height
+                elif self.__crown_height_code == 5:
+                    crown_height = row[self.__crown_height_col_index]
 
             # converting everything into its correct units
             # converting cm -> m and circumferences -> diameter
@@ -2201,6 +2209,9 @@ class CityGmlExport:
 
     def set_crown_height_code(self, code):
         self.__crown_height_code = code
+
+    def set_crown_height_col_index(self, val):
+        self.__crown_height_col_index = val
 
     # method to setup LOD1 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod1(self, value, geomtype, segments=None):
