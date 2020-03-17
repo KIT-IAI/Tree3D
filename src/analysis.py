@@ -379,10 +379,11 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 class AnalyzeTreeGeoms:
     # all parameters must be the same unit
     # trunk and crown must BOTH be diam
-    def __init__(self, height, trunk_diam, crown_diam):
+    def __init__(self, height, trunk_diam, crown_diam, crown_height = None):
         self.__Height = height
         self.__TrunkDiam = trunk_diam
         self.__CrownDiam = crown_diam
+        self.__CrownHeight = crown_height
 
     def analyze_height(self):
         valid = True
@@ -432,14 +433,40 @@ class AnalyzeTreeGeoms:
             if self.__TrunkDiam > self.__CrownDiam:
                 valid = False
                 msg = "Trunk diameter is greater than crown diameter"
-            if self.__CrownDiam > self.__Height:
-                valid = False
-                msg = "Crown diameter is greater than tree height"
             if self.__TrunkDiam > self.__Height:
                 valid = False
                 msg = "Trunk diameter is greater than tree height"
 
         return valid, msg
+
+    def analyze_height_crown_trunk_sphere(self):
+        valid, msg = self.analyze_height_crown_trunk()
+
+        if self.__Height is not None and self.__CrownDiam is not None and self.__CrownDiam > self.__Height:
+            valid = False
+            msg = "Crown diameter is greater than tree height"
+
+        return valid, msg
+
+    def analyze_height_crown_trunk_nosphere(self):
+        valid, msg = self.analyze_height_crown_trunk()
+
+        if self.__CrownHeight == 0:
+            valid = False
+            msg = "Crown height is 0"
+        elif self.__CrownHeight is None:
+            valid = False
+            msg = "No crown height specified"
+        elif self.__CrownHeight < 0:
+            valid = False
+            msg = "Crown height is smaller than 0"
+
+        if self.__Height is not None and self.__CrownHeight is not None and self.__CrownHeight > self.__Height:
+            valid = False
+            msg = "Crown height is greater than tree height."
+
+        return valid, msg
+
 
     # method to analyze parameters
     def analyze(self):
