@@ -1206,4 +1206,4 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             con.update_value(self.__DbTreeTableName, "CityGML_Species_Code", entry[1], veg_column, entry[0], True)
             con.update_value(self.__DbTreeTableName, "CityGML_Class_Code", entry[2], veg_column, entry[0], True)
         con.commit()
-        self.EndModal(12347)
+        self.EndModal(1)
