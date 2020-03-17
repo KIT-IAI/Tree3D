@@ -33,6 +33,7 @@ class ExportDialog(default_gui.CityGmlExport):
         self.choiceCrown.SetItems(colitemlist)
         self.choiceSpecies.SetItems(colitemlist)
         self.choiceClass.SetItems(colitemlist)
+        self.ChoiceCrownHeightCol.SetItems(colitemlist)
 
     # method to be called when "Browse" button is pushed
     def on_browse(self, event):
@@ -201,6 +202,15 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # reset gauge to 0
         self.progress.SetValue(0)
+
+    def on_crown_height_options( self, event ):
+        if self.crown_height_choice.GetSelection() == 5:
+            self.CrownHeightColText.Show()
+            self.ChoiceCrownHeightCol.Show()
+            self.Layout()
+        else:
+            self.CrownHeightColText.Show(False)
+            self.ChoiceCrownHeightCol.Show(False)
 
     # method to check what geometries can be generated
     # called whenever dropdowns to tree parameters (height, stem-diam, crown-diam) change
@@ -376,6 +386,10 @@ class ExportDialog(default_gui.CityGmlExport):
         valid = True
         warningmessage = ""
 
+        if self.crown_height_choice.GetSelection() == 5 and self.ChoiceCrownHeightCol.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Crown height columnn must be specified"
+
         if self.choiceHeight.GetSelection() == self.choiceRefheight.GetSelection()\
                 and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             valid = False
@@ -465,7 +479,7 @@ class CityGmlExport:
         self.__species_col_index = None  # index of CityGML species code column
         self.__class_col_index = None  # index of CityGML class code column
 
-        self.__generate_generic_attributes = None # variable to generate generic attributes (Trud/False)
+        self.__generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
         self.__col_datatypes = None
         self.__col_names = None
 
