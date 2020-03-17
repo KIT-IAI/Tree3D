@@ -554,19 +554,18 @@ class CityGmlExport:
 
             # calculate crown height
             crown_height = 0
-            if self.__crown_diam_col_index is not None:
-                if self.__crown_height_code == 0:
-                    crown_height = crown_diam
-                elif self.__crown_height_code == 1:
-                    crown_height = 0.5 * tree_height
-                elif self.__crown_height_code == 2:
-                    crown_height = (2/3.0) * tree_height
-                elif self.__crown_height_code == 3:
-                    crown_height = (3/4.0) * tree_height
-                elif self.__crown_height_code == 4:
-                    crown_height = (4/5.0) * tree_height
-                elif self.__crown_height_code == 5:
-                    crown_height = row[self.__crown_height_col_index]
+            if crown_diam is not None and self.__crown_height_code == 0:
+                crown_height = crown_diam
+            elif tree_height is not None and self.__crown_height_code == 1:
+                crown_height = 0.5 * tree_height
+            elif tree_height is not None and self.__crown_height_code == 2:
+                crown_height = (2/3.0) * tree_height
+            elif tree_height is not None and self.__crown_height_code == 3:
+                crown_height = (3/4.0) * tree_height
+            elif tree_height is not None and self.__crown_height_code == 4:
+                crown_height = (4/5.0) * tree_height
+            elif tree_height is not None and self.__crown_height_code == 5:
+                crown_height = row[self.__crown_height_col_index]
 
             # converting everything into its correct units
             # converting cm -> m and circumferences -> diameter
@@ -586,7 +585,7 @@ class CityGmlExport:
                     crown_diam = crown_diam / math.pi
 
             # validate tree parametrs
-            validator = analysis.AnalyzeTreeGeoms(tree_height, trunk_diam, crown_diam)
+            validator = analysis.AnalyzeTreeGeoms(tree_height, trunk_diam, crown_diam, crown_height)
             lod1_valid = False
             lod2_valid = False
             lod3_valid = False
@@ -598,7 +597,14 @@ class CityGmlExport:
             elif self.__lod1_geomtype == 1 or self.__lod1_geomtype == 2:
                 lod1_valid, _ = validator.analyze_height_crown()
             elif self.__lod1_geomtype == 3 or self.__lod1_geomtype == 4 or self.__lod1_geomtype == 5:
-                lod1_valid, _ = validator.analyze_height_crown_trunk()
+                if self.__crown_height_code == 0:
+                    lod1_valid, _ = validator.analyze_height_crown_trunk_sphere()
+                elif 0 < self.__crown_height_code < 5:
+                    lod1_valid, _ = validator.analyze_height_crown_trunk()
+                elif self.__crown_height_code == 5:
+                    lod1_valid, msg = validator.analyze_height_crown_trunk_nosphere()
+                    if msg != "":
+                        print(msg)
 
             # validate tree parameters for LOD2 geometry
             if self.__lod2_geomtype == 0:
@@ -606,7 +612,12 @@ class CityGmlExport:
             elif self.__lod2_geomtype == 1 or self.__lod2_geomtype == 2:
                 lod2_valid, _ = validator.analyze_height_crown()
             elif self.__lod2_geomtype == 3 or self.__lod2_geomtype == 4 or self.__lod2_geomtype == 5:
-                lod2_valid, _ = validator.analyze_height_crown_trunk()
+                if self.__crown_height_code == 0:
+                    lod2_valid, _ = validator.analyze_height_crown_trunk_sphere()
+                elif 0 < self.__crown_height_code < 5:
+                    lod2_valid, _ = validator.analyze_height_crown_trunk()
+                elif self.__crown_height_code == 5:
+                    lod2_valid, _ = validator.analyze_height_crown_trunk_nosphere()
 
             # validate tree parameters for LOD3 geometry
             if self.__lod3_geomtype == 0:
@@ -614,7 +625,12 @@ class CityGmlExport:
             elif self.__lod3_geomtype == 1 or self.__lod3_geomtype == 2:
                 lod3_valid, _ = validator.analyze_height_crown()
             elif self.__lod3_geomtype == 3 or self.__lod3_geomtype == 4 or self.__lod3_geomtype == 5:
-                lod3_valid, _ = validator.analyze_height_crown_trunk()
+                if self.__crown_height_code == 0:
+                    lod3_valid, _ = validator.analyze_height_crown_trunk_sphere()
+                elif 0 < self.__crown_height_code < 5:
+                    lod3_valid, _ = validator.analyze_height_crown_trunk()
+                elif self.__crown_height_code == 5:
+                    lod3_valid, _ = validator.analyze_height_crown_trunk_nosphere()
 
             # validate tree parameters for LOD4 geometry
             if self.__lod4_geomtype == 0:
@@ -622,7 +638,12 @@ class CityGmlExport:
             elif self.__lod4_geomtype == 1 or self.__lod4_geomtype == 2:
                 lod4_valid, _ = validator.analyze_height_crown()
             elif self.__lod4_geomtype == 3 or self.__lod4_geomtype == 4 or self.__lod4_geomtype == 5:
-                lod4_valid, _ = validator.analyze_height_crown_trunk()
+                if self.__crown_height_code == 0:
+                    lod4_valid, _ = validator.analyze_height_crown_trunk_sphere()
+                elif 0 < self.__crown_height_code < 5:
+                    lod4_valid, _ = validator.analyze_height_crown_trunk()
+                elif self.__crown_height_code == 5:
+                    lod4_valid, _ = validator.analyze_height_crown_trunk_nosphere()
 
             # create CityObjectMember in XML Tree
             city_object_member = ET.SubElement(self.__root, "cityObjectMember")
