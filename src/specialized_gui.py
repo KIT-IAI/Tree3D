@@ -440,8 +440,9 @@ class MainTableFrame(default_gui.MainWindow):
     def on_add_geom(self, event):
         if self.db.get_spatialite_status()[0]:
             dlg = enrichment.AddGeometry(self)
-            dlg.ShowModal()
-            self.show_data_in_grid(self.db.get_number_of_columns(),
+            code = dlg.ShowModal()
+            if code == 1:
+                self.show_data_in_grid(self.db.get_number_of_columns(),
                                    self.db.get_number_of_tablerecords(),
                                    self.db.get_data())
         else:
@@ -451,8 +452,9 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_add_citygml_vegetation_code(self, event):
         dlg = enrichment.AddCityGmlVegetationCodeGUI(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
-        dlg.ShowModal()
-        self.show_data_in_grid(self.db.get_number_of_columns(),
+        code = dlg.ShowModal()
+        if code == 1:
+            self.show_data_in_grid(self.db.get_number_of_columns(),
                                self.db.get_number_of_tablerecords(),
                                self.db.get_data())
 
@@ -479,11 +481,12 @@ class MainTableFrame(default_gui.MainWindow):
                                    self.db.get_data())
 
     def on_add_default_reference_height(self, event):
-        dlg = enrichment.DefaulgHeight(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
-        dlg.ShowModal()
-        self.show_data_in_grid(self.db.get_number_of_columns(),
-                               self.db.get_number_of_tablerecords(),
-                               self.db.get_data())
+        dlg = enrichment.DefaulHeight(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
+        code = dlg.ShowModal()
+        if code == 1234:
+            self.show_data_in_grid(self.db.get_number_of_columns(),
+                                   self.db.get_number_of_tablerecords(),
+                                   self.db.get_data())
 
     def on_derive_from_pointcloud(self, event):
         if not self.db.get_spatialite_status()[0]:
