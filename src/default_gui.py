@@ -1084,12 +1084,12 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer29.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		choiceCrownHeightCalculationChoices = [ u"same as crown diameter", u"1/2 the tree height", u"2/3 the tree height", u"3/4 the tree height", u"4/5 the tree height", u"from column" ]
-		self.choiceCrownHeightCalculation = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownHeightCalculationChoices, 0 )
-		self.choiceCrownHeightCalculation.SetSelection( 0 )
-		self.choiceCrownHeightCalculation.SetToolTip( u"select, how crown height should be calculated" )
+		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the tree height", u"2/3 the tree height", u"3/4 the tree height", u"4/5 the tree height", u"from column" ]
+		self.crown_height_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_choiceChoices, 0 )
+		self.crown_height_choice.SetSelection( 0 )
+		self.crown_height_choice.SetToolTip( u"select, how crown height should be calculated" )
 		
-		fgSizer29.Add( self.choiceCrownHeightCalculation, 0, wx.ALL, 5 )
+		fgSizer29.Add( self.crown_height_choice, 0, wx.ALL, 5 )
 		
 		self.CrownHeightColText = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Column", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.CrownHeightColText.Wrap( -1 )
@@ -1267,7 +1267,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceHeight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceTrunk.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceCrown.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
-		self.choiceCrownHeightCalculation.Bind( wx.EVT_CHOICE, self.on_crown_height_options )
+		self.crown_height_choice.Bind( wx.EVT_CHOICE, self.on_crown_height_options )
 		self.lod1.Bind( wx.EVT_CHECKBOX, self.on_lod1_checkbox )
 		self.lod1_geomtype.Bind( wx.EVT_CHOICE, self.on_lod1_choice )
 		self.lod2.Bind( wx.EVT_CHECKBOX, self.on_lod2_checkbox )
