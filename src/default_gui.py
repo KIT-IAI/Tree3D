@@ -1048,7 +1048,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML geometric modelling options" ), wx.VERTICAL )
 		
-		fgSizer29 = wx.FlexGridSizer( 3, 2, 0, 0 )
+		fgSizer29 = wx.FlexGridSizer( 3, 4, 0, 0 )
 		fgSizer29.SetFlexibleDirection( wx.BOTH )
 		fgSizer29.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -1073,17 +1073,37 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer29.Add( gSizer5, 1, wx.EXPAND, 5 )
 		
+		
+		fgSizer29.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer29.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
 		self.m_staticText63 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Crown height", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText63.Wrap( -1 )
 		
 		fgSizer29.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		crown_height_choiceChoices = [ u"same as crown diameter", u"1/2 the tree height", u"2/3 the tree height", u"3/4 the tree height", u"4/5 the tree height" ]
-		self.crown_height_choice = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_choiceChoices, 0 )
-		self.crown_height_choice.SetSelection( 0 )
-		self.crown_height_choice.SetToolTip( u"select, how crown height should be calculated" )
+		choiceCrownHeightCalculationChoices = [ u"same as crown diameter", u"1/2 the tree height", u"2/3 the tree height", u"3/4 the tree height", u"4/5 the tree height", u"from column" ]
+		self.choiceCrownHeightCalculation = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownHeightCalculationChoices, 0 )
+		self.choiceCrownHeightCalculation.SetSelection( 0 )
+		self.choiceCrownHeightCalculation.SetToolTip( u"select, how crown height should be calculated" )
 		
-		fgSizer29.Add( self.crown_height_choice, 0, wx.ALL, 5 )
+		fgSizer29.Add( self.choiceCrownHeightCalculation, 0, wx.ALL, 5 )
+		
+		self.CrownHeightColText = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Column", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.CrownHeightColText.Wrap( -1 )
+		
+		self.CrownHeightColText.Hide()
+		
+		fgSizer29.Add( self.CrownHeightColText, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		ChoiceCrownHeightColChoices = []
+		self.ChoiceCrownHeightCol = wx.Choice( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ChoiceCrownHeightColChoices, 0 )
+		self.ChoiceCrownHeightCol.SetSelection( 0 )
+		self.ChoiceCrownHeightCol.Hide()
+		
+		fgSizer29.Add( self.ChoiceCrownHeightCol, 0, wx.ALL, 5 )
 		
 		self.m_staticText54 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"default", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText54.Wrap( -1 )
@@ -1096,6 +1116,12 @@ class CityGmlExport ( wx.Dialog ):
 		self.default_choice.SetToolTip( u"select, what kind of tree should be generated if vegetation class is not set or vegetation class is unknown" )
 		
 		fgSizer29.Add( self.default_choice, 0, wx.ALL, 5 )
+		
+		
+		fgSizer29.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer29.Add( ( 0, 0), 1, wx.EXPAND, 5 )
 		
 		
 		sbSizer2.Add( fgSizer29, 1, wx.EXPAND, 5 )
@@ -1241,6 +1267,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.choiceHeight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceTrunk.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceCrown.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceCrownHeightCalculation.Bind( wx.EVT_CHOICE, self.on_crown_height_options )
 		self.lod1.Bind( wx.EVT_CHECKBOX, self.on_lod1_checkbox )
 		self.lod1_geomtype.Bind( wx.EVT_CHOICE, self.on_lod1_choice )
 		self.lod2.Bind( wx.EVT_CHECKBOX, self.on_lod2_checkbox )
@@ -1263,6 +1290,9 @@ class CityGmlExport ( wx.Dialog ):
 		event.Skip()
 	
 	
+	
+	def on_crown_height_options( self, event ):
+		event.Skip()
 	
 	def on_lod1_checkbox( self, event ):
 		event.Skip()
