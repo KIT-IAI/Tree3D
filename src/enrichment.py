@@ -53,9 +53,18 @@ class ImportHeight(default_gui.import_dem):
     # method to be called when "Browse" button is pushed in UI
     def on_browse(self, event):
         self.initialize()
-        dialog = wx.FileDialog(self, "Open DEM file", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+
+        dialog_name = ""
+        if self.__mode == "dem":
+            dialog_name = "Open DEM file"
+        elif self.__mode == "pointcloud":
+            dialog_name = "Open point cloud file"
+
+        dialog = wx.FileDialog(self, dialog_name, style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+
         if dialog.ShowModal() == wx.ID_CANCEL:
             return
+
         if dialog.GetPath() in self.__ImportedFiles:
             msg = wx.MessageDialog(self, "This file seems to have been imported into the database already.\n"
                                          "Do you like to import it anyway?",
@@ -925,6 +934,9 @@ class ProcessPointcloud(BasicConnection):
                 if innerrow[0] > ref_height + self.__GroundThreshold:
                     height_values.append(innerrow[0])
 
+            if not height_values:
+                continue
+
             # derive tree height from point cloud
             if self.__derive_tree_height:
                 tree_height_values = sorted(height_values, reverse=True)  # sort list
@@ -1008,7 +1020,7 @@ class ProcessPointcloud(BasicConnection):
         self.__GroundThreshold = val
 
     def set_default_crown_diam(self, val):
-        self.__DefaultCrownDiam = val
+        self.__DefaultCrownDiam = val * 2
 
 
 # Class to add Geom objects into the database
