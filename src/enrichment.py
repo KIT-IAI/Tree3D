@@ -624,7 +624,7 @@ class AssignHeight(BasicConnection):
                                                 "Height_DEM")
 
 
-class DefaulgHeight(default_gui.DefaultHeight):
+class DefaulHeight(default_gui.DefaultHeight):
     def __init__(self, parent, filepath, table):
         default_gui.DefaultHeight.__init__(self, parent)
         self.__dbpath = filepath
