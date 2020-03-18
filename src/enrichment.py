@@ -904,6 +904,10 @@ class ProcessPointcloud(BasicConnection):
         self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
 
+        failed = 0
+        excepted_good = 0
+        excepted_bad = 0
+
         for idx, row in enumerate(self._cursor):
             # SELECT part of the inner statement
             statement = 'SELECT pointcloud.height FROM pointcloud, %s' % self.__TreeTableName
@@ -923,6 +927,7 @@ class ProcessPointcloud(BasicConnection):
                 diam = self.__DefaultCrownDiam
 
             if ref_height is None:
+                failed += 1
                 continue
 
             statement += ''' AND pointcloud.ROWID IN'''
@@ -938,6 +943,7 @@ class ProcessPointcloud(BasicConnection):
                     height_values.append(innerrow[0])
 
             if not height_values:
+                failed += 1
                 continue
 
             # derive tree height from point cloud
@@ -959,9 +965,12 @@ class ProcessPointcloud(BasicConnection):
                     self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
                 except ZeroDivisionError:
                     if len(tree_height_values_used) > 0:
+                        excepted_good += 1
                         # use heightest point as tree height
                         tree_height = tree_height_values_used[0] - ref_height
                         self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
+                    else:
+                        excepted_bad += 1
 
             # derive crown height from point cloud
             if self.__derive_crown_height:
@@ -1000,6 +1009,7 @@ class ProcessPointcloud(BasicConnection):
 
             # move gauge in gui to indicate progress
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
+        print(failed, excepted_good, excepted_bad)
 
     def set_height_precision(self, val):
         self.__height_precision = val
