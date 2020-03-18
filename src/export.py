@@ -602,9 +602,7 @@ class CityGmlExport:
                 elif 0 < self.__crown_height_code < 5:
                     lod1_valid, _ = validator.analyze_height_crown_trunk()
                 elif self.__crown_height_code == 5:
-                    lod1_valid, msg = validator.analyze_height_crown_trunk_nosphere()
-                    if msg != "":
-                        print(msg)
+                    lod1_valid, _ = validator.analyze_height_crown_trunk_nosphere()
 
             # validate tree parameters for LOD2 geometry
             if self.__lod2_geomtype == 0:
