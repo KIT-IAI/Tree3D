@@ -922,6 +922,9 @@ class ProcessPointcloud(BasicConnection):
             if diam is None:
                 diam = self.__DefaultCrownDiam
 
+            if ref_height is None:
+                continue
+
             statement += ''' AND pointcloud.ROWID IN'''
             statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'pointcloud' '''
             statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s));''' % (x, y, diam/2.0)
