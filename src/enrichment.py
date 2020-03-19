@@ -904,19 +904,7 @@ class ProcessPointcloud(BasicConnection):
         self.__gauge.SetRange(self._cursor.fetchone()[0])
         self._cursor.execute(statement)
 
-        failed = 0
-        excepted_good = 0
-        excepted_bad = 0
-
         for idx, row in enumerate(self._cursor):
-            # SELECT part of the inner statement
-            statement = 'SELECT pointcloud.height FROM pointcloud, %s' % self.__TreeTableName
-
-            # WHERE part of the inner statement
-            if type(row[0]) == str:
-                statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
-            else:
-                statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
 
             x = row[1]  # X koordinate of tree
             y = row[2]  # Y koordinate of tree
@@ -927,12 +915,22 @@ class ProcessPointcloud(BasicConnection):
                 diam = self.__DefaultCrownDiam
 
             if ref_height is None:
-                failed += 1
                 continue
+
+            # SELECT part of the inner statement
+            statement = 'SELECT pointcloud.height FROM pointcloud, %s' % self.__TreeTableName
+
+            # WHERE part of the inner statement
+            if type(row[0]) == str:
+                statement += ' WHERE %s."%s" = "%s"' % (self.__TreeTableName, self.__IdCol, row[0])
+            else:
+                statement += ' WHERE %s."%s" = %s' % (self.__TreeTableName, self.__IdCol, row[0])
+
+            statement += ' AND DISTANCE(%s."%s", pointcloud.geom) < %s' % (self.__TreeTableName, self.__GeomCol, diam/2)
 
             statement += ''' AND pointcloud.ROWID IN'''
             statement += ''' (SELECT ROWID FROM SpatialIndex WHERE f_table_name = 'pointcloud' '''
-            statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s));''' % (x, y, diam/2.0)
+            statement += '''AND search_frame = BuildCircleMBR(%s, %s, %s));''' % (x, y, diam)
 
             innercursor.execute(statement)
 
@@ -943,7 +941,6 @@ class ProcessPointcloud(BasicConnection):
                     height_values.append(innerrow[0])
 
             if not height_values:
-                failed += 1
                 continue
 
             # derive tree height from point cloud
@@ -964,13 +961,10 @@ class ProcessPointcloud(BasicConnection):
                     tree_height = average-ref_height
                     self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
                 except ZeroDivisionError:
-                    if len(tree_height_values_used) > 0:
-                        excepted_good += 1
+                    if tree_height_values:
                         # use heightest point as tree height
-                        tree_height = tree_height_values_used[0] - ref_height
+                        tree_height = tree_height_values[0] - ref_height
                         self.update_value(self.__TreeTableName, "tree_h_pointcloud", tree_height, self.__IdCol, row[0])
-                    else:
-                        excepted_bad += 1
 
             # derive crown height from point cloud
             if self.__derive_crown_height:
@@ -997,19 +991,18 @@ class ProcessPointcloud(BasicConnection):
                                       row[0])
                 except ZeroDivisionError:
                     # use lowest point to calculate crown height
-                    if len(crown_height_values_used) > 0:
+                    if crown_height_values:
                         if self.__use_height_from_pointcloud:
                             # use height value from point cloud for calcuoation
-                            crown_height = tree_height - (crown_height_values_used[0] - ref_height)
+                            crown_height = tree_height - (crown_height_values[0] - ref_height)
                         else:
                             # use height value from column for calcuoation
-                            crown_height = row[5] - (crown_height_values_used[0] - ref_height)
+                            crown_height = row[5] - (crown_height_values[0] - ref_height)
                         self.update_value(self.__TreeTableName, "crown_height_pointcloud", crown_height, self.__IdCol,
                                           row[0])
 
             # move gauge in gui to indicate progress
             self.__gauge.SetValue(self.__gauge.GetValue() + 1)
-        print(failed, excepted_good, excepted_bad)
 
     def set_height_precision(self, val):
         self.__height_precision = val
