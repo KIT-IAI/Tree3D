@@ -510,6 +510,8 @@ class CityGmlExport:
         self.__lod4_geomtype = None
         self.__lod4_segments = None
 
+        self.__current_lod = ""
+
         self.__current_tree_gmlid = ""
         self.__stem_gmlids = []
         self.__crown_deciduous_gmlids = []
@@ -730,6 +732,7 @@ class CityGmlExport:
                 # Calls methods to generate geometries for LOD1 if it is valid, depending on user input
                 if self.__use_lod1 and lod1_valid:
                     lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
+                    self.__current_lod = "lod1"
                     if self.__lod1_geomtype == 0:
                         self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
 
@@ -798,6 +801,7 @@ class CityGmlExport:
                 # Calls methods to generate geometries for LOD2, depending on user input
                 if self.__use_lod2 and lod2_valid:
                     lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
+                    self.__current_lod = "lod2"
                     if self.__lod2_geomtype == 0:
                         self.generate_line_geometry(lod_2_geom, x_value, y_value, ref_height, tree_height)
                     elif self.__lod2_geomtype == 1:
@@ -865,6 +869,7 @@ class CityGmlExport:
                 # Calls methods to generate geometries for LOD3, depending on user input
                 if self.__use_lod3 and lod3_valid:
                     lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
+                    self.__current_lod = "lod3"
                     if self.__lod3_geomtype == 0:
                         self.generate_line_geometry(lod_3_geom, x_value, y_value, ref_height, tree_height)
                     elif self.__lod3_geomtype == 1:
@@ -932,6 +937,7 @@ class CityGmlExport:
                 # Calls methods to generate geometries for LOD4, depending on user input
                 if self.__use_lod4 and lod4_valid:
                     lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
+                    self.__current_lod = "lod4"
                     if self.__lod4_geomtype == 0:
                         self.generate_line_geometry(lod_4_geom, x_value, y_value, ref_height, tree_height)
                     elif self.__lod4_geomtype == 1:
@@ -1001,6 +1007,7 @@ class CityGmlExport:
                 if self.__use_lod1 and lod1_valid:
                     lod1_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod1ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod1_implicit_geometry, "ImplicitGeometry")
+                    self.__current_lod = "lod1"
 
                     # add transformation matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
@@ -1086,6 +1093,7 @@ class CityGmlExport:
                 if self.__use_lod2 and lod2_valid:
                     lod2_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod2ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod2_implicit_geometry, "ImplicitGeometry")
+                    self.__current_lod = "lod2"
 
                     # add transformation matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
@@ -1171,6 +1179,7 @@ class CityGmlExport:
                 if self.__use_lod3 and lod3_valid:
                     lod3_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod3ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod3_implicit_geometry, "ImplicitGeometry")
+                    self.__current_lod = "lod3"
 
                     # add transformation matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
@@ -1256,6 +1265,7 @@ class CityGmlExport:
                 if self.__use_lod4 and lod4_valid:
                     lod4_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod4ImplicitRepresentation")
                     implicit_geometry = ET.SubElement(lod4_implicit_geometry, "ImplicitGeometry")
+                    self.__current_lod = "lod4"
 
                     # add transformaiton matrix
                     matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
@@ -1513,7 +1523,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = self.__current_tree_gmlid + "_stempolygon" + str(segment)
+            gml_id = "%s_%s_stempolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__stem_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
@@ -1545,7 +1555,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = self.__current_tree_gmlid + "_crownpolygon" + str(segment)
+            gml_id = "%s_%s_crownpolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__crown_deciduous_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
@@ -1584,7 +1594,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = self.__current_tree_gmlid + "_stempolygon" + str(segment)
+            gml_id = "%s_%s_stempolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__stem_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
@@ -1605,7 +1615,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = self.__current_tree_gmlid + "_crownpolygon" + str(segment)
+            gml_id = "%s_%s_crownpolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__crown_coniferous_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
