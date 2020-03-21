@@ -1358,11 +1358,14 @@ class CityGmlExport:
         self.__root.set("xmlns:gml", "http://www.opengis.net/gml")
         self.__root.set("xmlns:veg", "http://www.opengis.net/citygml/vegetation/2.0")
         self.__root.set("xmlns:gen", "http://www.opengis.net/citygml/generics/2.0")
+        self.__root.set("xmlns:app", "http://www.opengis.net/citygml/appearance/2.0")
         self.__root.set("xsi:schemaLocation",
                         "http://www.opengis.net/citygml/2.0 "
                         "http://schemas.opengis.net/citygml/2.0/cityGMLBase.xsd "
                         "http://www.opengis.net/citygml/generics/2.0 "
                         "http://schemas.opengis.net/citygml/generics/2.0/generics.xsd "
+                        "http://www.opengis.net/citygml/appearance/2.0 "
+                        "http://schemas.opengis.net/citygml/appearance/2.0/appearance.xsd "
                         "http://www.opengis.net/citygml/vegetation/2.0 "
                         "http://schemas.opengis.net/citygml/vegetation/2.0/vegetation.xsd")
 
