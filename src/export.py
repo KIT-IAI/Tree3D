@@ -510,6 +510,11 @@ class CityGmlExport:
         self.__lod4_geomtype = None
         self.__lod4_segments = None
 
+        self.__current_tree_gmlid = ""
+        self.__stem_gmlids = []
+        self.__crown_deciduous_gmlids = []
+        self.__crown_coniferous_gmlids = []
+
     # method to initiate citygml export
     def export(self, progressbar):
         self.__root = ET.Element("CityModel")
@@ -533,6 +538,8 @@ class CityGmlExport:
 
         self.fill_data_cursor()
         for row in self.__DataCursor:
+
+            self.__current_tree_gmlid = "tree_%s" % exported_trees
 
             # assign geometric values to variables
             x_value = row[self.__x_value_col_index]
@@ -648,7 +655,7 @@ class CityGmlExport:
 
             # Create SolitaryVegetationObject in XML Tree
             solitary_vegetation_object = ET.SubElement(city_object_member, "veg:SolitaryVegetationObject")
-            solitary_vegetation_object.set("gml:id", "tree_%s" % exported_trees)
+            solitary_vegetation_object.set("gml:id", self.__current_tree_gmlid)
 
             # compare thiw row's x and y vlaues with values in bounding box object
             # boung box updates if new boundries are detected
@@ -1491,7 +1498,7 @@ class CityGmlExport:
         alpha = math.asin((stem_dm/2.0)/(crown_dm/2.0))
         delta = (tree_h-laubansatz)/2.0 - (crown_height/2.0)*math.cos(alpha)
 
-        for _ in range(0, segments):
+        for segment in range(0, segments):
             sinx = math.sin(angle)
             cosx = math.cos(angle)
 
@@ -1504,6 +1511,12 @@ class CityGmlExport:
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
+
+            # add gml id to polygon
+            gml_id = self.__current_tree_gmlid + "_stempolygon" + str(segment)
+            self.__stem_gmlids.append(gml_id)
+            polygon.set("gml:id", gml_id)
+
             exterior = ET.SubElement(polygon, "gml:exterior")
             linear_ring = ET.SubElement(exterior, "gml:LinearRing")
             pos_list = ET.SubElement(linear_ring, "gml:posList")
@@ -1530,6 +1543,12 @@ class CityGmlExport:
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
+
+            # add gml id to polygon
+            gml_id = self.__current_tree_gmlid + "_crownpolygon" + str(segment)
+            self.__crown_deciduous_gmlids.append(gml_id)
+            polygon.set("gml:id", gml_id)
+
             exterior = ET.SubElement(polygon, "gml:exterior")
             linear_ring = ET.SubElement(exterior, "gml:LinearRing")
             pos_list = ET.SubElement(linear_ring, "gml:posList")
@@ -1550,7 +1569,7 @@ class CityGmlExport:
 
         angle = 0.
         rotate = (2*math.pi) / segments
-        for _ in range(0, segments):
+        for segment in range(0, segments):
             sinx = math.sin(angle)
             cosx = math.cos(angle)
 
@@ -1563,6 +1582,12 @@ class CityGmlExport:
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
+
+            # add gml id to polygon
+            gml_id = self.__current_tree_gmlid + "_stempolygon" + str(segment)
+            self.__stem_gmlids.append(gml_id)
+            polygon.set("gml:id", gml_id)
+
             exterior = ET.SubElement(polygon, "gml:exterior")
             linear_ring = ET.SubElement(exterior, "gml:LinearRing")
             pos_list = ET.SubElement(linear_ring, "gml:posList")
@@ -1578,6 +1603,12 @@ class CityGmlExport:
             s_pos_list = self.poslist_list_to_string(l_pos_list)
             surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
             polygon = ET.SubElement(surface_member, "gml:Polygon")
+
+            # add gml id to polygon
+            gml_id = self.__current_tree_gmlid + "_crownpolygon" + str(segment)
+            self.__crown_coniferous_gmlids.append(gml_id)
+            polygon.set("gml:id", gml_id)
+
             exterior = ET.SubElement(polygon, "gml:exterior")
             linear_ring = ET.SubElement(exterior, "gml:LinearRing")
             pos_list = ET.SubElement(linear_ring, "gml:posList")
