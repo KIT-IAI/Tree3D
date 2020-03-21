@@ -541,7 +541,7 @@ class CityGmlExport:
         self.fill_data_cursor()
         for row in self.__DataCursor:
 
-            self.__current_tree_gmlid = "tree_%s" % exported_trees
+            self.__current_tree_gmlid = "tree%s" % exported_trees
 
             # assign geometric values to variables
             x_value = row[self.__x_value_col_index]
@@ -1527,7 +1527,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = "%s_%s_stempolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
+            gml_id = "%s_%s_stempolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__stem_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
@@ -1559,7 +1559,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = "%s_%s_crownpolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
+            gml_id = "%s_%s_crownpolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__crown_deciduous_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
@@ -1598,7 +1598,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = "%s_%s_stempolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
+            gml_id = "%s_%s_stempolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__stem_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
@@ -1619,7 +1619,7 @@ class CityGmlExport:
             polygon = ET.SubElement(surface_member, "gml:Polygon")
 
             # add gml id to polygon
-            gml_id = "%s_%s_crownpolygon_%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
+            gml_id = "%s_%s_crownpolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
             self.__crown_coniferous_gmlids.append(gml_id)
             polygon.set("gml:id", gml_id)
 
