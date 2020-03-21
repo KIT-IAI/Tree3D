@@ -648,6 +648,7 @@ class CityGmlExport:
 
             # Create SolitaryVegetationObject in XML Tree
             solitary_vegetation_object = ET.SubElement(city_object_member, "veg:SolitaryVegetationObject")
+            solitary_vegetation_object.set("gml:id", "tree_%s" % exported_trees)
 
             # compare thiw row's x and y vlaues with values in bounding box object
             # boung box updates if new boundries are detected
