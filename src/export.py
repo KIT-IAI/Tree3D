@@ -1339,6 +1339,9 @@ class CityGmlExport:
         # add bounding box information to root
         self.bounded_by()
 
+        # add appearence model
+        self.add_appearance()
+
         # reformat to prettyprint xml output
         if self.__prettyprint:
             CityGmlExport.indent(self.__root)
@@ -1386,6 +1389,28 @@ class CityGmlExport:
 
         # add bounded-by-element to the top root subelements
         self.__root.insert(0, boundedby)
+
+    def add_appearance(self):
+        self.add_appearance_color(r="1", g="0", b="0")
+        self.add_appearance_color(r="0", g="1", b="0")
+        self.add_appearance_color(r="0", g="0", b="1")
+
+    def add_appearance_color(self, r, g, b):
+        appearance_member = ET.Element("app:appearanceMember")
+        appearance = ET.SubElement(appearance_member, "app:Appearance")
+        theme = ET.SubElement(appearance, "app:theme")
+        theme.text = "Material"
+
+        surface_data_member = ET.SubElement(appearance, "app:surfaceDataMember")
+        x3dmaterial = ET.SubElement(surface_data_member, "app:X3DMaterial")
+
+        front = ET.SubElement(x3dmaterial, "app:isFront")
+        front.text = "true"
+
+        diffuse_color = ET.SubElement(x3dmaterial, "app:diffuseColor")
+        diffuse_color.text = "%s %s %s" % (r, g, b)
+
+        self.__root.insert(1, appearance_member)
 
     # Prints a tree with each node indented according to its depth.
     # This is done by first indenting the tree (see below), and then serializing it as usual.
