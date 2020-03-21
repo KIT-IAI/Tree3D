@@ -1408,11 +1408,11 @@ class CityGmlExport:
         self.__root.insert(0, boundedby)
 
     def add_appearance(self):
-        self.add_appearance_color(r="1", g="0", b="0")
-        self.add_appearance_color(r="0", g="1", b="0")
-        self.add_appearance_color(r="0", g="0", b="1")
+        self.add_appearance_color("0.47", "0.24", "0", self.__stem_gmlids)
+        self.add_appearance_color("0.26", "0.65", "0.15", self.__crown_deciduous_gmlids)
+        self.add_appearance_color("0.08", "0.37", "0", self.__crown_coniferous_gmlids)
 
-    def add_appearance_color(self, r, g, b):
+    def add_appearance_color(self, r, g, b, id_list):
         appearance_member = ET.Element("app:appearanceMember")
         appearance = ET.SubElement(appearance_member, "app:Appearance")
         theme = ET.SubElement(appearance, "app:theme")
@@ -1426,6 +1426,10 @@ class CityGmlExport:
 
         diffuse_color = ET.SubElement(x3dmaterial, "app:diffuseColor")
         diffuse_color.text = "%s %s %s" % (r, g, b)
+
+        for identifyer in id_list:
+            target = ET.SubElement(x3dmaterial, "app:target")
+            target.text = identifyer
 
         self.__root.insert(1, appearance_member)
 
