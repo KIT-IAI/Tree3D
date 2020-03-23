@@ -55,6 +55,8 @@ class ExportDialog(default_gui.CityGmlExport):
             return
 
         self.buttonExport.Enable(False)
+
+        # new thread in which the export takes place
         thread = threading.Thread(target=self.start_export)
         thread.start()
 
