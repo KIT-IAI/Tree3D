@@ -1,6 +1,7 @@
 import csv
 import sqlite3
 import threading
+import math
 
 import wx
 
@@ -710,7 +711,8 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.gauge.SetValue(0)
         processor = ProcessPointcloud(self.__DbFilePath, self.GetParent().db, self.id.GetStringSelection(),
                                       self.geom.GetStringSelection(), self.ref_height.GetStringSelection(),
-                                      self.crown_diam.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
+                                      self.crown_diam.GetStringSelection(), self.crown_unit.GetStringSelection(),
+                                      self.crown_type.GetStringSelection(), self.GetParent().db.get_tree_table_name(),
                                       self.gauge)
 
         # percentag of points which should be used for tree height
@@ -848,13 +850,15 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
 
 
 class ProcessPointcloud(BasicConnection):
-    def __init__(self, dbpath, db, idcol, geomcol, refcol, crowncol, treetable, gauge):
+    def __init__(self, dbpath, db, idcol, geomcol, refcol, crowncol, crownunit, crowntype, treetable, gauge):
         BasicConnection.__init__(self, dbpath, "pointcloud")
         self.__db = db
         self.__IdCol = idcol
         self.__GeomCol = geomcol
         self.__RefHeightCol = refcol
         self.__CrownDiamCol = crowncol
+        self.__crown_unit = crownunit
+        self.__crowntype = crowntype
         self.__DefaultCrownDiam = 0
         self.__TreeTableName = treetable
         self.__gauge = gauge
@@ -913,6 +917,11 @@ class ProcessPointcloud(BasicConnection):
 
             if diam is None:
                 diam = self.__DefaultCrownDiam
+            else:
+                if self.__crown_unit == "centimeter":
+                    diam /= 100
+                if self.__crowntype == "is circumference":
+                    diam /= math.pi
 
             if ref_height is None:
                 continue

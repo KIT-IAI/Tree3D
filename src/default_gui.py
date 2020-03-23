@@ -1262,7 +1262,7 @@ class CityGmlExport ( wx.Dialog ):
 		fgSizer13.Add( self.buttonExport, 0, wx.ALL, 5 )
 		
 		
-		fgSizer4.Add( fgSizer13, 1, wx.EXPAND, 5 )
+		fgSizer4.Add( fgSizer13, 1, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		
 		self.SetSizer( fgSizer4 )
@@ -1944,7 +1944,7 @@ class pointcloud_process ( wx.Dialog ):
 		fgSizer36.SetFlexibleDirection( wx.BOTH )
 		fgSizer36.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		fgSizer33 = wx.FlexGridSizer( 3, 4, 0, 0 )
+		fgSizer33 = wx.FlexGridSizer( 5, 4, 0, 0 )
 		fgSizer33.SetFlexibleDirection( wx.BOTH )
 		fgSizer33.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -2023,10 +2023,10 @@ class pointcloud_process ( wx.Dialog ):
 		
 		fgSizer33.Add( self.m_staticText691, 0, wx.ALL, 5 )
 		
-		m_choice59Choices = [ u"is diameter", u"is circumference" ]
-		self.m_choice59 = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice59Choices, 0 )
-		self.m_choice59.SetSelection( 0 )
-		fgSizer33.Add( self.m_choice59, 0, wx.ALL, 5 )
+		crown_typeChoices = [ u"is diameter", u"is circumference" ]
+		self.crown_type = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_typeChoices, 0 )
+		self.crown_type.SetSelection( 0 )
+		fgSizer33.Add( self.crown_type, 0, wx.ALL, 5 )
 		
 		
 		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
