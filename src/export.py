@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 import math
 from datetime import date
+import threading
+import sqlite3
 
 import default_gui
 import analysis
@@ -12,6 +14,8 @@ class ExportDialog(default_gui.CityGmlExport):
     def __init__(self, parent):
         default_gui.CityGmlExport.__init__(self, parent)
         self.__pathname = ""
+        self.__dbpath = self.GetParent().db.get_db_filepath()
+        self.__TreeTableName = self.GetParent().db.get_tree_table_name()
 
         self.populate_dropdown()
 
@@ -50,7 +54,13 @@ class ExportDialog(default_gui.CityGmlExport):
         if not self.validate_input():
             return
 
-        exporter = CityGmlExport(self.__pathname, self.GetParent().db)
+        self.buttonExport.Enable(False)
+        thread = threading.Thread(target=self.start_export)
+        thread.start()
+
+    def start_export(self):
+        exporter = CityGmlExport(self.__pathname, self.__dbpath)
+        exporter.set_tree_table_name(self.__TreeTableName)
 
         # configure if pretty print should be used in output file
         exporter.set_prettyprint(self.box_prettyprint.GetValue())
@@ -211,6 +221,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # reset gauge to 0
         self.progress.SetValue(0)
+        self.buttonExport.Enable(True)
 
     def on_crown_height_options( self, event ):
         if self.crown_height_choice.GetSelection() == 5:
@@ -457,13 +468,13 @@ class ExportDialog(default_gui.CityGmlExport):
 
 
 class CityGmlExport:
-    def __init__(self, savepath, dataobj):
-        self.__db = dataobj  # db object from specialized_gui.MainTableFrame
+    def __init__(self, savepath, dbfilepath):
+        self.__con = sqlite3.connect(dbfilepath)
+        self.__DataCursor = self.__con.cursor()  # Data cursor table from database (list of lists)
+        self.__TreeTableName = ""
 
         self.__filepath = savepath  # output file path (where citygml will be saved)
         self.__root = None  # ElementTree Root Node
-
-        self.__DataCursor = None  # Data cursor table from database (list of lists)
 
         self.__bbox = analysis.BoundingBox()  # Bounding box object
 
@@ -1375,6 +1386,8 @@ class CityGmlExport:
         tree = ET.ElementTree(self.__root)
         tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
 
+        self.__con.close()
+
         # return number of exported valid trees and number of trees that were not exported
         return exported_trees, invalid_lod1, invalid_lod2, invalid_lod3, invalid_lod4
 
@@ -1462,7 +1475,7 @@ class CityGmlExport:
 
     # method adds data to cursor again, so it can be iterated
     def fill_data_cursor(self):
-        self.__DataCursor = self.__db.get_data()
+        self.__DataCursor.execute("SELECT * FROM %s" % self.__TreeTableName)
 
     # method to generate a vertiecal line geometry
     def generate_line_geometry(self, parent, x, y, ref_h, tree_h):
@@ -2277,6 +2290,9 @@ class CityGmlExport:
         pos_list.set("srsDimension", "3")
         s_pos_list = self.poslist_list_to_string(l_pos_list)
         pos_list.text = s_pos_list
+
+    def set_tree_table_name(self, name):
+        self.__TreeTableName = name
 
     def set_x_col_idx(self, idx):
         self.__x_value_col_index = idx
