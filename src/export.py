@@ -500,8 +500,8 @@ class CityGmlExport:
         self.__class_col_index = None  # index of CityGML class code column
 
         self.__generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
-        self.__col_datatypes = None
-        self.__col_names = None
+        self.__col_datatypes = None  # list of data types of columns
+        self.__col_names = None  # list of names all columns
 
         self.__crown_height_col_index = None
 
@@ -526,14 +526,14 @@ class CityGmlExport:
         self.__lod4_geomtype = None
         self.__lod4_segments = None
 
-        self.__current_lod = ""
+        self.__current_lod = ""  # variable to save the current LOD which is being generated
 
-        self.__current_tree_gmlid = ""
-        self.__stem_gmlids = []
-        self.__crown_deciduous_gmlids = []
-        self.__crown_coniferous_gmlids = []
+        self.__current_tree_gmlid = ""  # variable to save gml:id of tree that is currently generated
+        self.__stem_gmlids = []  # stores gml:ids of all trunk geometries
+        self.__crown_deciduous_gmlids = []  # stores gml:ids of all deciduous crown geometries
+        self.__crown_coniferous_gmlids = []  # stores gml:ids of all coniferous crown geometries
 
-        self.__use_appearance = False
+        self.__use_appearance = False  # variable to determine if appearance model should be used
 
     # method to initiate citygml export
     def export(self, progressbar):
