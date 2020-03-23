@@ -845,7 +845,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 class CityGmlExport ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,720 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Export as CityGML", pos = wx.DefaultPosition, size = wx.Size( 447,771 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -866,7 +866,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer4.Add( fgSizer71, 1, wx.EXPAND, 5 )
 		
-		self.box_prettyprint = wx.CheckBox( self, wx.ID_ANY, u"Create pretty-printed xml output (may be slow for large datasets)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.box_prettyprint = wx.CheckBox( self, wx.ID_ANY, u"Create pretty-printed XML output (may be slow for large datasets)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.box_prettyprint.SetValue(True) 
 		fgSizer4.Add( self.box_prettyprint, 0, wx.ALL, 5 )
 		
@@ -1105,7 +1105,7 @@ class CityGmlExport ( wx.Dialog ):
 		
 		fgSizer29.Add( self.ChoiceCrownHeightCol, 0, wx.ALL, 5 )
 		
-		self.m_staticText54 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"default", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText54 = wx.StaticText( sbSizer2.GetStaticBox(), wx.ID_ANY, u"Default tree class", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText54.Wrap( -1 )
 		
 		fgSizer29.Add( self.m_staticText54, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -1236,6 +1236,14 @@ class CityGmlExport ( wx.Dialog ):
 		
 		
 		fgSizer4.Add( sbSizer11, 1, wx.EXPAND, 5 )
+		
+		sbSizer13 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Appearance model" ), wx.VERTICAL )
+		
+		self.use_appearance = wx.CheckBox( sbSizer13.GetStaticBox(), wx.ID_ANY, u"Assign X3D-Materials for visualization (Use CityGML Appearance model)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		sbSizer13.Add( self.use_appearance, 0, wx.ALL, 5 )
+		
+		
+		fgSizer4.Add( sbSizer13, 1, wx.EXPAND, 5 )
 		
 		self.m_staticline10 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		fgSizer4.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
