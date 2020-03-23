@@ -180,6 +180,11 @@ class ExportDialog(default_gui.CityGmlExport):
         if crown_height_code == 5:
             exporter.set_crown_height_col_index(self.ChoiceCrownHeightCol.GetSelection())
 
+        # use appearance model and assign materials to polygons
+        # value is only set to true, if a supported geometry is exported
+        if self.use_appearance.GetValue():
+            exporter.set_use_appearance(True)
+
         # start the export
         export_status = exporter.export(self.progress)
 
@@ -516,6 +521,8 @@ class CityGmlExport:
         self.__stem_gmlids = []
         self.__crown_deciduous_gmlids = []
         self.__crown_coniferous_gmlids = []
+
+        self.__use_appearance = False
 
     # method to initiate citygml export
     def export(self, progressbar):
@@ -1357,7 +1364,8 @@ class CityGmlExport:
         self.bounded_by()
 
         # add appearence model
-        self.add_appearance()
+        if self.__use_appearance:
+            self.add_appearance()
 
         # reformat to prettyprint xml output
         if self.__prettyprint:
@@ -2363,6 +2371,11 @@ class CityGmlExport:
         self.__lod4_geomtype = geomtype
         if segments is not None:
             self.__lod4_segments = segments
+
+    def set_use_appearance(self, val):
+        supported_geoms = [3, 4, 5]
+        if self.__lod1_geomtype in supported_geoms or self.__lod2_geomtype in supported_geoms or self.__lod3_geomtype in supported_geoms or self.__lod4_geomtype in supported_geoms:
+            self.__use_appearance = val
 
     # a list of coordinates to a string to be used in posList
     # [x1, y1, z1, x2, y, z2, ...] --> "x1 y1 z1 x2 y2 z2 ..."
