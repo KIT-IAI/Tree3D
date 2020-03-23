@@ -2002,6 +2002,38 @@ class pointcloud_process ( wx.Dialog ):
 		
 		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
 		
+		self.m_staticText68 = wx.StaticText( self, wx.ID_ANY, u"Crown diameter unit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText68.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText68, 0, wx.ALL, 5 )
+		
+		crown_unitChoices = [ u"meter", u"centimeter" ]
+		self.crown_unit = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_unitChoices, 0 )
+		self.crown_unit.SetSelection( 0 )
+		fgSizer33.Add( self.crown_unit, 0, wx.ALL, 5 )
+		
+		
+		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.m_staticText691 = wx.StaticText( self, wx.ID_ANY, u"crown diameter column", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText691.Wrap( -1 )
+		
+		fgSizer33.Add( self.m_staticText691, 0, wx.ALL, 5 )
+		
+		m_choice59Choices = [ u"is diameter", u"is circumference" ]
+		self.m_choice59 = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice59Choices, 0 )
+		self.m_choice59.SetSelection( 0 )
+		fgSizer33.Add( self.m_choice59, 0, wx.ALL, 5 )
+		
+		
+		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer33.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
 		self.m_staticText69 = wx.StaticText( self, wx.ID_ANY, u"Default crown diameter (m)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText69.Wrap( -1 )
 		
