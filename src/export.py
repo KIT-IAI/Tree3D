@@ -2034,6 +2034,11 @@ class CityGmlExport:
         stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
         comp_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
 
+        # add gml id to composite surface
+        gml_id = "%s_%s_stem_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
+        self.__stem_gmlids.append(gml_id)
+        comp_surface.set("gml:id", gml_id)
+
         angle = 0
         rotate = 2 * math.pi / segments
 
@@ -2110,6 +2115,11 @@ class CityGmlExport:
         crown_exterior = ET.SubElement(solid, "gml:exterior")
         comp_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
 
+        # add gml id to composite surface
+        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
+        self.__crown_coniferous_gmlids.append(gml_id)
+        comp_surface.set("gml:id", gml_id)
+
         # generate walls of cone
         angle = 0
         rotate = 2 * math.pi / segments
@@ -2170,6 +2180,11 @@ class CityGmlExport:
         solid = ET.SubElement(solid_member_stem, "gml:Solid")
         crown_exterior = ET.SubElement(solid, "gml:exterior")
         comp_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
+
+        # add gml id to composite surface
+        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
+        self.__crown_deciduous_gmlids.append(gml_id)
+        comp_surface.set("gml:id", gml_id)
 
         # generate ellipsoid points: first row
         coordinates = []
