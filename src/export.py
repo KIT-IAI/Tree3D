@@ -1705,6 +1705,11 @@ class CityGmlExport:
         stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
         stem_exterior_composite_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
 
+        # add gml id to composite surface
+        gml_id = "%s_%s_stem_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
+        self.__stem_gmlids.append(gml_id)
+        stem_exterior_composite_surface.set("gml:id", gml_id)
+
         # generate bottom polygon of stem
         surfacemember_stem_bottom = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
         polygon_stem_bottom = ET.SubElement(surfacemember_stem_bottom, "gml:Polygon")
@@ -1820,6 +1825,11 @@ class CityGmlExport:
         crown_exterior = ET.SubElement(crown_solid, "gml:exterior")
         crown_exterior_composite_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
 
+        # add gml id to composite surface
+        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
+        self.__crown_deciduous_gmlids.append(gml_id)
+        crown_exterior_composite_surface.set("gml:id", gml_id)
+
         # generate bottom polygon of crown
         surfacemember_crown_bottom = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
         polygon_crown_bottom = ET.SubElement(surfacemember_crown_bottom, "gml:Polygon")
@@ -1934,6 +1944,11 @@ class CityGmlExport:
         crown_solid = ET.SubElement(crown_solidmember, "gml:Solid")
         crown_exterior = ET.SubElement(crown_solid, "gml:exterior")
         crown_exterior_composite_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
+
+        # add gml id to composite surface
+        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
+        self.__crown_coniferous_gmlids.append(gml_id)
+        crown_exterior_composite_surface.set("gml:id", gml_id)
 
         # generate bottom polygon of crown
         surfacemember_crown_bottom = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
