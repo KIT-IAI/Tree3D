@@ -232,6 +232,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         self.populate_columns()
         self.DoLayoutAdaptation()
 
+    # adds column names to dropdown windows
     def populate_columns(self):
         collist = self.GetParent().db.get_column_names()
 
@@ -241,6 +242,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         self.choiceCrown.SetItems(collist)
         self.crown_height_col.SetItems(collist)
 
+    # checks columns for validity: ID and height
     def validate_height(self, identify, height):
         valid = True
         message = ""
@@ -259,6 +261,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
         return valid, message
 
+    # checks columns for validity: ID, height and crown
     def validate_height_crown(self, identify, height, crown):
         valid, message = self.validate_height(identify, height)
 
@@ -276,6 +279,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
         return valid, message
 
+    # checks columns for validity: ID height, crown and trunk
     def validate_height_crown_trunk(self, identify, height, crown, trunk):
         valid, message = self.validate_height_crown(identify, height, crown)
 
@@ -297,6 +301,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
         return valid, message
 
+    # checks columns for validity: ID, height, crown, trunk and crown height
     def validate_height_crown_trunk_crownheight(self, identify, height, crown, trunk, crownheight):
         valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
 
@@ -322,6 +327,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
         return valid, message
 
+    # validates user input to GUI
     def validate(self):
         valid = True
         message = ""
@@ -334,6 +340,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         crown = self.choiceCrown.GetSelection()
         crown_height = self.crown_height_col.GetSelection()
 
+        # choose method for input validation, depening on input of geometry type
         if geom_type == "Line":
             valid, message = self.validate_height(identify, height)
         if geom_type == "Cylinder":
@@ -347,12 +354,15 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
                 valid, message = self.validate_height_crown_trunk_crownheight(identify, height, crown, trunk,
                                                                               crown_height)
 
+        # show error message if input is not valid
         if not valid:
             msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
 
         return valid
 
+    # method is executed if value in tree_geom dropdown changes
+    # Enables/disables certaín GUI elements
     def on_tree_geom(self, event):
         if self.geom_type.GetSelection() in [0, 1, 2]:
             self.crown_height_text.Enable(False)
@@ -366,6 +376,8 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             self.crown_height.Enable(True)
             self.on_crown_height(None)
 
+    # method is executed if value in crown height calcuoation dropdown chagnes
+    # Enables/disables certain GUI elemnts
     def on_crown_height(self, event):
         if self.crown_height.GetSelection() != 2:
             self.crown_height_col_text.Enable(False)
@@ -375,12 +387,14 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             self.crown_height_col_text.Enable(True)
             self.crown_height_col.Enable(True)
 
+    # method is executed if "Analyze" button is pushed
     def on_analyze(self, event):
         if not self.validate():
             return
 
         geom_type = self.geom_type.GetStringSelection()
 
+        # disable GUI elements
         self.analysis_invalid.Show(False)
         self.analysis_valid.Show(False)
         self.result_grid.Show(False)
@@ -390,11 +404,13 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
                    self.choiceTrunk.GetStringSelection(),
                    self.choiceCrown.GetStringSelection()]
 
+        # add crown height column to collist, if it is used
         if self.crown_height.GetSelection() == 2:
             collist.append(self.crown_height_col.GetStringSelection())
 
         invalid_trees = []
 
+        # loop over all trees in data base table
         for cursor in self.GetParent().db.get_data_by_collist(collist):
             identifier = cursor[0]
             height = cursor[1]
@@ -438,6 +454,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             valid = True
             message = ""
 
+            # choose, what geometry check should be performed, depending on user input for geometry type
             if geom_type == "Line":
                 valid, message = analyzer.analyze_height()
             if geom_type == "Cylinder":
@@ -445,6 +462,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             if geom_type == "Rectangles":
                 valid, message = analyzer.analyze_height_crown()
             if geom_type in ["Outline polygons", "Cuboid", "Detailled"]:
+                # geometry check depends on what kind of tree height calculation should be used
                 if self.crown_height.GetSelection() == 0:
                     valid, message = analyzer.analyze_height_crown_trunk_sphere()
                 if self.crown_height.GetSelection() == 1:
@@ -490,6 +508,7 @@ class AnalyzeTreeGeoms:
         self.__CrownDiam = crown_diam
         self.__CrownHeight = crown_height
 
+    # analyze values: height
     def analyze_height(self):
         valid = True
         msg = ""
@@ -506,6 +525,7 @@ class AnalyzeTreeGeoms:
 
         return valid, msg
 
+    # analyze values: height, crown
     def analyze_height_crown(self):
         valid, msg = self.analyze_height()
 
@@ -521,6 +541,7 @@ class AnalyzeTreeGeoms:
 
         return valid, msg
 
+    # analyze values: height, crown, trunk, crown shape ellipsoid height depends on tree height
     def analyze_height_crown_trunk(self):
         valid, msg = self.analyze_height_crown()
 
@@ -544,6 +565,7 @@ class AnalyzeTreeGeoms:
 
         return valid, msg
 
+    # analyze values: height, crown, trunk for spheric crown shape
     def analyze_height_crown_trunk_sphere(self):
         valid, msg = self.analyze_height_crown_trunk()
 
@@ -553,6 +575,7 @@ class AnalyzeTreeGeoms:
 
         return valid, msg
 
+    # analyze values: height, crown, trunk for crown from crown height value
     def analyze_height_crown_trunk_nosphere(self):
         valid, msg = self.analyze_height_crown_trunk()
 
@@ -572,7 +595,7 @@ class AnalyzeTreeGeoms:
 
         return valid, msg
 
-    # method to analyze parameters, Deprecated and not used
+    # method to analyze parameters, Deprecated and not used in Program
     def analyze_old(self):
         valid = True
         msg = ""
