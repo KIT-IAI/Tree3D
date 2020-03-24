@@ -659,7 +659,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Analyze geometry attributes", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
-		self.SetSizeHints( wx.Size( 453,-1 ), wx.DefaultSize )
+		self.SetSizeHints( wx.Size( -1,-1 ), wx.DefaultSize )
 		
 		fgSizer10 = wx.FlexGridSizer( 9, 1, 0, 0 )
 		fgSizer10.SetFlexibleDirection( wx.BOTH )
@@ -672,7 +672,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
 		
-		fgSizer13 = wx.FlexGridSizer( 1, 4, 0, 0 )
+		fgSizer13 = wx.FlexGridSizer( 3, 4, 0, 0 )
 		fgSizer13.SetFlexibleDirection( wx.BOTH )
 		fgSizer13.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -691,10 +691,50 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer13.Add( self.m_staticText70, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		geom_typeChoices = [ u"Line", u"Cylinder", u"Rectangles", u"Outline polygons", u"Cuboid", u"Detailled", wx.EmptyString ]
+		geom_typeChoices = [ u"Line", u"Cylinder", u"Rectangles", u"Outline polygons", u"Cuboid", u"Detailled" ]
 		self.geom_type = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geom_typeChoices, 0 )
 		self.geom_type.SetSelection( 0 )
 		fgSizer13.Add( self.geom_type, 0, wx.ALL, 5 )
+		
+		
+		fgSizer13.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer13.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.crown_height_text = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Crown height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.crown_height_text.Wrap( -1 )
+		
+		self.crown_height_text.Enable( False )
+		
+		fgSizer13.Add( self.crown_height_text, 0, wx.ALL, 5 )
+		
+		crown_heightChoices = [ u"Same as crown diameter", u"Proportion of height", u"From column" ]
+		self.crown_height = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_heightChoices, 0 )
+		self.crown_height.SetSelection( 0 )
+		self.crown_height.Enable( False )
+		
+		fgSizer13.Add( self.crown_height, 0, wx.ALL, 5 )
+		
+		
+		fgSizer13.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer13.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.crown_height_col_text = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Crown height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.crown_height_col_text.Wrap( -1 )
+		
+		self.crown_height_col_text.Enable( False )
+		
+		fgSizer13.Add( self.crown_height_col_text, 0, wx.ALL, 5 )
+		
+		crown_height_colChoices = []
+		self.crown_height_col = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_height_colChoices, 0 )
+		self.crown_height_col.SetSelection( 0 )
+		self.crown_height_col.Enable( False )
+		
+		fgSizer13.Add( self.crown_height_col, 0, wx.ALL, 5 )
 		
 		
 		sbSizer7.Add( fgSizer13, 1, wx.EXPAND, 5 )
@@ -837,6 +877,8 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.geom_type.Bind( wx.EVT_CHOICE, self.on_tree_geom )
+		self.crown_height.Bind( wx.EVT_CHOICE, self.on_crown_height )
 		self.m_button9.Bind( wx.EVT_BUTTON, self.on_analyze )
 	
 	def __del__( self ):
@@ -844,6 +886,12 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def on_tree_geom( self, event ):
+		event.Skip()
+	
+	def on_crown_height( self, event ):
+		event.Skip()
+	
 	def on_analyze( self, event ):
 		event.Skip()
 	
