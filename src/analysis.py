@@ -341,7 +341,6 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         if geom_type == "Rectangles":
             valid, message = self.validate_height_crown(identify, height, crown)
         if geom_type in ["Outline polygons", "Cuboid", "Detailled"]:
-            valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
             if self.crown_height.GetSelection() != 2:
                 valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
             else:
@@ -485,7 +484,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 class AnalyzeTreeGeoms:
     # all parameters must be the same unit
     # trunk and crown must BOTH be diam
-    def __init__(self, height, trunk_diam, crown_diam, crown_height = None):
+    def __init__(self, height, trunk_diam, crown_diam, crown_height=None):
         self.__Height = height
         self.__TrunkDiam = trunk_diam
         self.__CrownDiam = crown_diam
