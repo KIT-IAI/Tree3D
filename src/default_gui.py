@@ -766,26 +766,6 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer6.Add( ( 0, 0), 1, wx.EXPAND, 5 )
 		
-		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText17.Wrap( -1 )
-		
-		fgSizer6.Add( self.m_staticText17, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		choiceTrunkChoices = []
-		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
-		self.choiceTrunk.SetSelection( 0 )
-		fgSizer6.Add( self.choiceTrunk, 0, wx.ALL, 5 )
-		
-		choiceTrunkUnitChoices = [ u"m", u"cm" ]
-		self.choiceTrunkUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkUnitChoices, 0 )
-		self.choiceTrunkUnit.SetSelection( 0 )
-		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
-		
-		trunk_circChoices = [ u"is diameter", u"is circumference" ]
-		self.trunk_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, trunk_circChoices, 0 )
-		self.trunk_circ.SetSelection( 0 )
-		fgSizer6.Add( self.trunk_circ, 0, wx.ALL, 5 )
-		
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 		
@@ -805,6 +785,26 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.crown_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_circChoices, 0 )
 		self.crown_circ.SetSelection( 0 )
 		fgSizer6.Add( self.crown_circ, 0, wx.ALL, 5 )
+		
+		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText17.Wrap( -1 )
+		
+		fgSizer6.Add( self.m_staticText17, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		choiceTrunkChoices = []
+		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
+		self.choiceTrunk.SetSelection( 0 )
+		fgSizer6.Add( self.choiceTrunk, 0, wx.ALL, 5 )
+		
+		choiceTrunkUnitChoices = [ u"m", u"cm" ]
+		self.choiceTrunkUnit = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkUnitChoices, 0 )
+		self.choiceTrunkUnit.SetSelection( 0 )
+		fgSizer6.Add( self.choiceTrunkUnit, 0, wx.ALL, 5 )
+		
+		trunk_circChoices = [ u"is diameter", u"is circumference" ]
+		self.trunk_circ = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, trunk_circChoices, 0 )
+		self.trunk_circ.SetSelection( 0 )
+		fgSizer6.Add( self.trunk_circ, 0, wx.ALL, 5 )
 		
 		
 		sbSizer3.Add( fgSizer6, 1, wx.EXPAND, 5 )
