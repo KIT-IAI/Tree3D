@@ -672,19 +672,29 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		sbSizer7 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinate Columns" ), wx.VERTICAL )
 		
-		fgSizer13 = wx.FlexGridSizer( 1, 2, 0, 0 )
+		fgSizer13 = wx.FlexGridSizer( 1, 4, 0, 0 )
 		fgSizer13.SetFlexibleDirection( wx.BOTH )
 		fgSizer13.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_staticText33 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"ID Column", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText33.Wrap( -1 )
 		
-		fgSizer13.Add( self.m_staticText33, 0, wx.ALL, 5 )
+		fgSizer13.Add( self.m_staticText33, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceIDChoices = []
 		self.choiceID = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceIDChoices, 0 )
 		self.choiceID.SetSelection( 0 )
 		fgSizer13.Add( self.choiceID, 0, wx.ALL, 5 )
+		
+		self.m_staticText70 = wx.StaticText( sbSizer7.GetStaticBox(), wx.ID_ANY, u"Tree geometry to analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText70.Wrap( -1 )
+		
+		fgSizer13.Add( self.m_staticText70, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		geom_typeChoices = [ u"Line", u"Cylinder", u"Rectangles", u"Outline polygons", u"Cuboid", u"Detailled", wx.EmptyString ]
+		self.geom_type = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geom_typeChoices, 0 )
+		self.geom_type.SetSelection( 0 )
+		fgSizer13.Add( self.geom_type, 0, wx.ALL, 5 )
 		
 		
 		sbSizer7.Add( fgSizer13, 1, wx.EXPAND, 5 )
@@ -701,7 +711,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.m_staticText15 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Tree height", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText15.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText15, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText15, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceHeightChoices = []
 		self.choiceHeight = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceHeightChoices, 0 )
@@ -719,7 +729,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.m_staticText17 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Trunk diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText17.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText17, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText17, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceTrunkChoices = []
 		self.choiceTrunk = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceTrunkChoices, 0 )
@@ -739,7 +749,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.m_staticText16 = wx.StaticText( sbSizer3.GetStaticBox(), wx.ID_ANY, u"Crown diameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText16.Wrap( -1 )
 		
-		fgSizer6.Add( self.m_staticText16, 0, wx.ALL, 5 )
+		fgSizer6.Add( self.m_staticText16, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		choiceCrownChoices = []
 		self.choiceCrown = wx.Choice( sbSizer3.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceCrownChoices, 0 )
@@ -766,7 +776,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		fgSizer10.Add( self.m_staticline10, 0, wx.EXPAND |wx.ALL, 5 )
 		
 		self.m_button9 = wx.Button( self, wx.ID_ANY, u"Analyze", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer10.Add( self.m_button9, 0, wx.ALL, 5 )
+		fgSizer10.Add( self.m_button9, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 		
 		self.m_staticline13 = wx.StaticLine( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
 		self.m_staticline13.Hide()
