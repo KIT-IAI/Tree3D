@@ -230,6 +230,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         default_gui.OnCheckGeometryDialog.__init__(self, parent)
 
         self.populate_columns()
+        self.DoLayoutAdaptation()
 
     def populate_columns(self):
         collist = self.GetParent().db.get_column_names()
@@ -238,47 +239,15 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         self.choiceHeight.SetItems(collist)
         self.choiceTrunk.SetItems(collist)
         self.choiceCrown.SetItems(collist)
+        self.crown_height_col.SetItems(collist)
 
-    def validate(self):
+    def validate_height(self, identify, height):
         valid = True
         message = ""
-
-        identify = self.choiceID.GetSelection()
-        height = self.choiceHeight.GetSelection()
-        trunk = self.choiceTrunk.GetSelection()
-        crown = self.choiceCrown.GetSelection()
-
-        if trunk == crown and trunk != wx.NOT_FOUND:
-            valid = False
-            message = "Trunk column must not be the same as crown column"
-
-        if height == crown and height != wx.NOT_FOUND:
-            valid = False
-            message = "Height column must not be the same as crown column"
-
-        if height == trunk and height != wx.NOT_FOUND:
-            valid = False
-            message = "Height column must not be the same as trunk column"
-
-        if identify == crown and identify != wx.NOT_FOUND:
-            valid = False
-            message = "ID column must not be the same as crown column"
-
-        if identify == trunk and identify != wx.NOT_FOUND:
-            valid = False
-            message = "ID column must not be the same as trunk column"
 
         if identify == height and identify != wx.NOT_FOUND:
             valid = False
             message = "ID column must not be the same as height column"
-
-        if crown == wx.NOT_FOUND:
-            valid = False
-            message = "Crown diameter column must not be empty."
-
-        if trunk == wx.NOT_FOUND:
-            valid = False
-            message = "Trunk diameter column must not be empty"
 
         if height == wx.NOT_FOUND:
             valid = False
@@ -288,15 +257,130 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             valid = False
             message = "ID Column must not be empty."
 
+        return valid, message
+
+    def validate_height_crown(self, identify, height, crown):
+        valid, message = self.validate_height(identify, height)
+
+        if height == crown and height != wx.NOT_FOUND:
+            valid = False
+            message = "Height column must not be the same as crown column"
+
+        if identify == crown and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as crown column"
+
+        if crown == wx.NOT_FOUND:
+            valid = False
+            message = "Crown diameter column must not be empty."
+
+        return valid, message
+
+    def validate_height_crown_trunk(self, identify, height, crown, trunk):
+        valid, message = self.validate_height_crown(identify, height, crown)
+
+        if trunk == crown and trunk != wx.NOT_FOUND:
+            valid = False
+            message = "Trunk column must not be the same as crown column"
+
+        if height == trunk and height != wx.NOT_FOUND:
+            valid = False
+            message = "Height column must not be the same as trunk column"
+
+        if identify == trunk and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as trunk column"
+
+        if trunk == wx.NOT_FOUND:
+            valid = False
+            message = "Trunk diameter column must not be empty"
+
+        return valid, message
+
+    def validate_height_crown_trunk_crownheight(self, identify, height, crown, trunk, crownheight):
+        valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
+
+        if crownheight == identify and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as ID column"
+
+        if crownheight == height and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as height column"
+
+        if crownheight == crown and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as crown column"
+
+        if crownheight == trunk and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as trunk column"
+
+        if crownheight == wx.NOT_FOUND:
+            valid = False
+            message = "Cronw height column must not be empty"
+
+        return valid, message
+
+    def validate(self):
+        valid = True
+        message = ""
+
+        geom_type = self.geom_type.GetStringSelection()
+
+        identify = self.choiceID.GetSelection()
+        height = self.choiceHeight.GetSelection()
+        trunk = self.choiceTrunk.GetSelection()
+        crown = self.choiceCrown.GetSelection()
+        crown_height = self.crown_height_col.GetSelection()
+
+        if geom_type == "Line":
+            valid, message = self.validate_height(identify, height)
+        if geom_type == "Cylinder":
+            valid, message = self.validate_height_crown(identify, height, crown)
+        if geom_type == "Rectangles":
+            valid, message = self.validate_height_crown(identify, height, crown)
+        if geom_type in ["Outline polygons", "Cuboid", "Detailled"]:
+            valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
+            if self.crown_height.GetSelection() != 2:
+                valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
+            else:
+                valid, message = self.validate_height_crown_trunk_crownheight(identify, height, crown, trunk,
+                                                                              crown_height)
+
         if not valid:
             msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
 
         return valid
 
+    def on_tree_geom(self, event):
+        if self.geom_type.GetSelection() in [0, 1, 2]:
+            self.crown_height_text.Enable(False)
+            self.crown_height.Enable(False)
+            self.crown_height_col_text.Enable(False)
+            self.crown_height_col.Enable(False)
+            self.crown_height.SetSelection(0)
+            self.crown_height_col.SetSelection(n=wx.NOT_FOUND)
+        else:
+            self.crown_height_text.Enable(True)
+            self.crown_height.Enable(True)
+            self.on_crown_height(None)
+
+    def on_crown_height(self, event):
+        if self.crown_height.GetSelection() != 2:
+            self.crown_height_col_text.Enable(False)
+            self.crown_height_col.Enable(False)
+            self.crown_height_col.SetSelection(n=wx.NOT_FOUND)
+        else:
+            self.crown_height_col_text.Enable(True)
+            self.crown_height_col.Enable(True)
+
     def on_analyze(self, event):
         if not self.validate():
             return
+
+        geom_type = self.geom_type.GetStringSelection()
 
         self.analysis_invalid.Show(False)
         self.analysis_valid.Show(False)
@@ -307,6 +391,9 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
                    self.choiceTrunk.GetStringSelection(),
                    self.choiceCrown.GetStringSelection()]
 
+        if self.crown_height.GetSelection() == 2:
+            collist.append(self.crown_height_col.GetStringSelection())
+
         invalid_trees = []
 
         for cursor in self.GetParent().db.get_data_by_collist(collist):
@@ -314,6 +401,10 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             height = cursor[1]
             trunk = cursor[2]
             crown = cursor[3]
+            try:
+                crown_height = cursor[4]
+            except IndexError:
+                crown_height = None
 
             # convert everything into meters
             if self.choiceHeightUnit.GetSelection() == 1:
@@ -344,8 +435,23 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
                 except:
                     pass
 
-            geom = AnalyzeTreeGeoms(height, trunk, crown)
-            valid, message = geom.analyze()
+            analyzer = AnalyzeTreeGeoms(height, trunk, crown, crown_height)
+            valid = True
+            message = ""
+
+            if geom_type == "Line":
+                valid, message = analyzer.analyze_height()
+            if geom_type == "Cylinder":
+                valid, message = analyzer.analyze_height_crown()
+            if geom_type == "Rectangles":
+                valid, message = analyzer.analyze_height_crown()
+            if geom_type in ["Outline polygons", "Cuboid", "Detailled"]:
+                if self.crown_height.GetSelection() == 0:
+                    valid, message = analyzer.analyze_height_crown_trunk_sphere()
+                if self.crown_height.GetSelection() == 1:
+                    valid, message = analyzer.analyze_height_crown_trunk()
+                if self.crown_height.GetSelection() == 2:
+                    valid, message = analyzer.analyze_height_crown_trunk_nosphere()
 
             if not valid:
                 invalid_trees.append((identifier, message))
@@ -467,9 +573,8 @@ class AnalyzeTreeGeoms:
 
         return valid, msg
 
-
-    # method to analyze parameters
-    def analyze(self):
+    # method to analyze parameters, Deprecated and not used
+    def analyze_old(self):
         valid = True
         msg = ""
 
