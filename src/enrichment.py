@@ -31,6 +31,8 @@ class ImportHeight(default_gui.import_dem):
         elif self.__mode == "pointcloud":
             self.SetTitle("Import point cloud")
 
+        # check if points have been imported already
+        # if yes, ask user, if they should be kept in database to use now
         msg = ""
         con = BasicDemConnection(self.__DbFilePath, 0, self.__mode)
         try:
@@ -49,6 +51,7 @@ class ImportHeight(default_gui.import_dem):
                 else:
                     con.delete_points()
         except sqlite3.OperationalError:
+            # do nothing if query fails: this means that no table has been created yet to import points into
             pass
         con.commit()
         con.close_connection()
