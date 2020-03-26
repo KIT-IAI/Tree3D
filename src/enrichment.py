@@ -45,6 +45,7 @@ class ImportHeight(default_gui.import_dem):
                 result = dlg.ShowModal()
                 if result == wx.ID_YES:
                     self.text_rowcount.SetLabel("%s points imported" % points)
+                    self.next.Enable(True)
                 else:
                     con.delete_points()
         except sqlite3.OperationalError:
