@@ -137,7 +137,6 @@ class ImportHeight(default_gui.import_dem):
             msg = wx.MessageDialog(self, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             self.text_rowcount.SetLabel("%s points imported" % self.__PointsImported)
-            return
 
         importer.commit()
 
@@ -154,6 +153,8 @@ class ImportHeight(default_gui.import_dem):
         self.buttonBrowse.Enable(True)
         self.importbutton.Enable(True)
         self.next.Enable(True)
+
+        self.Layout()
 
     # method to be called when file settings change
     # method triggers refresh of grid preview
