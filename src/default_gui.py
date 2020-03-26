@@ -1597,8 +1597,6 @@ class import_dem ( wx.Dialog ):
 		self.text_rowcount = wx.StaticText( self, wx.ID_ANY, u"0 points imported          ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.text_rowcount.Wrap( -1 )
 		
-		self.text_rowcount.Enable( False )
-		
 		fgSizer21.Add( self.text_rowcount, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
 		self.importbutton = wx.Button( self, wx.ID_ANY, u"Import", wx.DefaultPosition, wx.DefaultSize, 0 )
