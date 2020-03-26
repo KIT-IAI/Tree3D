@@ -136,7 +136,7 @@ class ImportHeight(default_gui.import_dem):
             importer.rollback()
             msg = wx.MessageDialog(self, imp[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
-            self.text_rowcount.SetLabel("%s elevation points imported" % self.__PointsImported)
+            self.text_rowcount.SetLabel("%s points imported" % self.__PointsImported)
             return
 
         importer.commit()
