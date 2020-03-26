@@ -31,6 +31,27 @@ class ImportHeight(default_gui.import_dem):
         elif self.__mode == "pointcloud":
             self.SetTitle("Import point cloud")
 
+        msg = ""
+        con = BasicDemConnection(self.__DbFilePath, 0, self.__mode)
+        try:
+            points = con.get_rowcount()
+            if points > 0:
+                if self.__mode == "dem":
+                    msg = "A DEM containing %s points was already imported into the database." % points
+                elif self.__mode == "pointcloud":
+                    msg = "A point cloud containging %s points was already imported." % points
+                msg += "\nDo you want to keep these points to use now?"
+                dlg = wx.MessageDialog(self, msg, "Points found in Database", style=wx.CENTRE | wx.YES_NO)
+                result = dlg.ShowModal()
+                if result == wx.ID_YES:
+                    self.text_rowcount.SetLabel("%s points imported" % points)
+                else:
+                    con.delete_points()
+        except sqlite3.OperationalError:
+            pass
+        con.commit()
+        con.close_connection()
+
         self.DoLayoutAdaptation()
         self.Layout()
 
@@ -355,6 +376,9 @@ class BasicDemConnection(BasicConnection):
     def __init__(self, dbpath, ref, mode):
         BasicConnection.__init__(self, dbpath, mode)
         self._ReferenceSystemCode = ref
+
+    def delete_points(self):
+        self._cursor.execute("DROP TABLE IF EXISTS %s" % self._height_table_name)
 
     # ceate a new table and store a convexhull-polygon in it
     def generate_convexhull(self):
