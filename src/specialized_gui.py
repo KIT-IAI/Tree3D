@@ -476,7 +476,6 @@ class MainTableFrame(default_gui.MainWindow):
         if importgui.ShowModal() == 1234:
             derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
             if derivegui.ShowModal() == 1:
-                print("reload")
                 self.show_data_in_grid(self.db.get_number_of_columns(),
                                        self.db.get_number_of_tablerecords(),
                                        self.db.get_data())
@@ -507,7 +506,6 @@ class MainTableFrame(default_gui.MainWindow):
         if importgui.ShowModal() == 1234:
             derivegui = enrichment.DerivePointcloudGUI(self, self.db.get_db_filepath())
             if derivegui.ShowModal() == 1:
-                print("reload")
                 self.show_data_in_grid(self.db.get_number_of_columns(),
                                        self.db.get_number_of_tablerecords(),
                                        self.db.get_data())
