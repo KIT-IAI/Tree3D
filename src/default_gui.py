@@ -1594,7 +1594,7 @@ class import_dem ( wx.Dialog ):
 		fgSizer21.SetFlexibleDirection( wx.BOTH )
 		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.text_rowcount = wx.StaticText( self, wx.ID_ANY, u"0 elevation points imported          ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_rowcount = wx.StaticText( self, wx.ID_ANY, u"0 points imported          ", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.text_rowcount.Wrap( -1 )
 		
 		self.text_rowcount.Enable( False )
