@@ -571,6 +571,7 @@ class GrabHeight(default_gui.GrabHeight):
                                 self.use_radius.GetValue(), radius)
         assigner.assign()
         assigner.commit()
+        assigner.close_connection()
         self.EndModal(1)
 
 

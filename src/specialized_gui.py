@@ -475,10 +475,11 @@ class MainTableFrame(default_gui.MainWindow):
         importgui = enrichment.ImportHeight(self, self.db.get_db_filepath(), "dem")
         if importgui.ShowModal() == 1234:
             derivegui = enrichment.GrabHeight(self, self.db.get_db_filepath())
-            derivegui.ShowModal()
-            self.show_data_in_grid(self.db.get_number_of_columns(),
-                                   self.db.get_number_of_tablerecords(),
-                                   self.db.get_data())
+            if derivegui.ShowModal() == 1:
+                print("reload")
+                self.show_data_in_grid(self.db.get_number_of_columns(),
+                                       self.db.get_number_of_tablerecords(),
+                                       self.db.get_data())
 
     def on_add_default_reference_height(self, event):
         dlg = enrichment.DefaulHeight(self, self.db.get_db_filepath(), self.db.get_tree_table_name())
@@ -505,10 +506,11 @@ class MainTableFrame(default_gui.MainWindow):
         importgui = enrichment.ImportHeight(self, self.db.get_db_filepath(), "pointcloud")
         if importgui.ShowModal() == 1234:
             derivegui = enrichment.DerivePointcloudGUI(self, self.db.get_db_filepath())
-            derivegui.ShowModal()
-            self.show_data_in_grid(self.db.get_number_of_columns(),
-                                   self.db.get_number_of_tablerecords(),
-                                   self.db.get_data())
+            if derivegui.ShowModal() == 1:
+                print("reload")
+                self.show_data_in_grid(self.db.get_number_of_columns(),
+                                       self.db.get_number_of_tablerecords(),
+                                       self.db.get_data())
 
     # method to be called when clicking File > Test
     # overrides method in parent class
