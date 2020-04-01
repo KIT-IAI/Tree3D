@@ -843,8 +843,3 @@ class MyApp(wx.App):
         self.SetTopWindow(frame)
         frame.Show(True)
         return True
-
-
-if __name__ == "__main__":
-    app = MyApp(redirect=False)  # do not redirect stdout to the gui
-    app.MainLoop()  # render gui continuously
