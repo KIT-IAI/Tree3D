@@ -1477,7 +1477,11 @@ class CityGmlExport:
 
     # method adds data to cursor again, so it can be iterated
     def fill_data_cursor(self):
-        self.__DataCursor.execute("SELECT * FROM %s" % self.__TreeTableName)
+        if self.__col_names[0] != "ROWID":
+            self.__DataCursor.execute("SELECT * FROM %s" % self.__TreeTableName)
+        else:
+            self.__DataCursor.execute("SELECT ROWID, * FROM %s" % self.__TreeTableName)
+
 
     # method to generate a vertiecal line geometry
     def generate_line_geometry(self, parent, x, y, ref_h, tree_h):
