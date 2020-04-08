@@ -12,7 +12,7 @@ class Database:
 
         self._DbFolderPath = ""  # Path to the folder where the database is stored
         self.create_default_database_path()
-        self._DbFilePath = self._DbFolderPath + '\\ArbokaTransformerDB.sqlite'  # Path to database file
+        self._DbFilePath = self._DbFolderPath + '\\tree3d_db.sqlite'  # Path to database file
 
         if os.path.exists(self._DbFilePath):
             self.delete_db_file()
@@ -48,7 +48,7 @@ class Database:
             path = os.environ['TEMP']
         else:
             path = '.'
-        path = path + '\\ArbokaTransformer'
+        path = path + '\\tree3d_data'
         self._DbFolderPath = path
 
     def get_db_filepath(self):
