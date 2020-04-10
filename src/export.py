@@ -150,10 +150,10 @@ class ExportDialog(default_gui.CityGmlExport):
         # Dictionary to find the geometry code to each geometry type
         geomtype_to_geomcode = {"line": 0,
                                 "cylinder": 1,
-                                "rectangle": 2,
-                                "polygon outlines": 3,
-                                "cuboid": 4,
-                                "detailled": 5}
+                                "rectangles": 2,
+                                "tree contour polygons": 3,
+                                "highly simplified tree": 4,
+                                "simplified tree": 5}
 
         # Setup of LOD1-Geometry
         if self.lod1.GetValue():
@@ -238,7 +238,7 @@ class ExportDialog(default_gui.CityGmlExport):
         self.progress.SetValue(0)
         self.buttonExport.Enable(True)
 
-    def on_crown_height_options( self, event ):
+    def on_crown_height_options(self, event):
         if self.crown_height_choice.GetSelection() == 5:
             self.CrownHeightColText.Show()
             self.ChoiceCrownHeightCol.Show()
@@ -261,12 +261,12 @@ class ExportDialog(default_gui.CityGmlExport):
 
         if height != wx.NOT_FOUND and crown != wx.NOT_FOUND:
             geom_types.append("cylinder")
-            geom_types.append("rectangle")
+            geom_types.append("rectangles")
 
         if height != wx.NOT_FOUND and crown != wx.NOT_FOUND and stem != wx.NOT_FOUND:
-            geom_types.append("polygon outlines")
-            geom_types.append("cuboid")
-            geom_types.append("detailled")
+            geom_types.append("tree contour polygons")
+            geom_types.append("highly simplified tree")
+            geom_types.append("simplified tree")
 
         # set dropdown lists
         self.lod1_geomtype.SetItems(geom_types)
@@ -291,6 +291,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         val = self.lod1.GetValue()
         self.lod1_geomtype.Enable(val)
+
+        # code is executed when checkbox is disabled
         if not val:
             self.lod1_geomtype.SetSelection(0)
             self.lod1_segments_text.Show(val)
@@ -307,6 +309,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         val = self.lod2.GetValue()
         self.lod2_geomtype.Enable(val)
+
+        # code is executed when checkbox is disabled
         if not val:
             self.lod2_geomtype.SetSelection(0)
             self.lod2_segments_text.Show(val)
@@ -323,6 +327,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         val = self.lod3.GetValue()
         self.lod3_geomtype.Enable(val)
+
+        # code is executed when checkbox is disabled
         if not val:
             self.lod3_geomtype.SetSelection(0)
             self.lod3_segments_text.Show(val)
@@ -339,6 +345,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         val = self.lod4.GetValue()
         self.lod4_geomtype.Enable(val)
+
+        # code is executed when checkbox is disabled
         if not val:
             self.lod4_geomtype.SetSelection(0)
             self.lod4_segments_text.Show(val)
