@@ -12,7 +12,7 @@ class Database:
 
         self._DbFolderPath = ""  # Path to the folder where the database is stored
         self.create_default_database_path()
-        self._DbFilePath = self._DbFolderPath + '\\tree3d_db.sqlite'  # Path to database file
+        self._DbFilePath = self.generate_filepath('\\tree3d_db.sqlite')
 
         if os.path.exists(self._DbFilePath):
             self.delete_db_file()
@@ -63,6 +63,10 @@ class Database:
             else:
                 self._DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self._DbTreeTableName, col[0], col[1]))
         self._DbConnection.commit()
+
+    def generate_filepath(self, filename):
+        path = self._DbFolderPath + filename
+        return path
 
     def get_tree_table_name(self):
         return self._DbTreeTableName
@@ -126,13 +130,21 @@ class Database:
 
     # deletes database folder
     def delete_db_folder(self):
-        if os.path.exists(self._DbFolderPath):
-            os.rmdir(self._DbFolderPath)
+        try:
+            if os.path.exists(self._DbFolderPath):
+                os.rmdir(self._DbFolderPath)
+        except OSError:
+            pass
 
     # deletes database file
     def delete_db_file(self):
-        if os.path.exists(self._DbFilePath):
-            os.remove(self._DbFilePath)
+        i = 1
+        while os.path.exists(self._DbFilePath):
+            try:
+                os.remove(self._DbFilePath)
+            except PermissionError:
+                self._DbFilePath = self.generate_filepath('\\tree3d_db%s.sqlite' % i)
+                i += 1
 
     # Deletes created database file and folder
     def delete_db(self):
