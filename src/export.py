@@ -50,8 +50,7 @@ class ExportDialog(default_gui.CityGmlExport):
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return
                 if os.path.exists(fileDialog.GetPath()):
-                    msg = "This file already exists.\n" \
-                          "Do you want to replace it?"
+                    msg = "This file already exists. Do you want to replace it?"
                     dlg = wx.MessageDialog(self, msg, "Fiel already exists", style=wx.CENTRE | wx.YES_NO)
                     result = dlg.ShowModal()
                     if result == wx.ID_YES:
