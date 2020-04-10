@@ -464,32 +464,38 @@ class ExportDialog(default_gui.CityGmlExport):
             valid = False
             warningmessage = "Crown height columnn must be specified"
 
+        # check, if tree height and reference height are the same column
         if self.choiceHeight.GetSelection() == self.choiceRefheight.GetSelection()\
                 and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Tree height cannot be the same column as reference height"
 
+        # check, if crown diam and trunk diam are the same column
         if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection()\
                 and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Crown diameter cannot be the same column as Trunk diameter"
 
+        # check, if tree height and crown diam are the same column
         if self.choiceHeight.GetSelection() == self.choiceCrown.GetSelection()\
                 and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Height cannot be the same column as Crown diameter"
 
+        # check, if choice height and trunk diam are the same column
         if self.choiceHeight.GetSelection() == self.choiceTrunk.GetSelection()\
                 and self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
             valid = False
             warningmessage = "Height cannot be the same column as Trunk diameter"
 
+        # check, if epsg is integer
         try:
             int(self.epsg.GetValue())
         except:
             valid = False
             warningmessage = "EPSG Code must be an integer number."
 
+        # check, if required columns are specified
         if self.epsg.GetValue() == "":
             valid = False
             warningmessage = "EPSG Code must not be empty."
