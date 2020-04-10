@@ -3,6 +3,7 @@ import math
 from datetime import date
 import threading
 import sqlite3
+import os
 
 import default_gui
 import analysis
@@ -41,11 +42,24 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method to be called when "Browse" button is pushed
     def on_browse(self, event):
-        with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
-                           style=wx.FD_SAVE) as fileDialog:
-            if fileDialog.ShowModal() == wx.ID_CANCEL:
-                return
-            self.__pathname = fileDialog.GetPath()
+        name_found = False
+
+        while not name_found:
+            with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
+                               style=wx.FD_SAVE) as fileDialog:
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return
+                if os.path.exists(fileDialog.GetPath()):
+                    msg = "This file already exists.\n" \
+                          "Do you want to replace it?"
+                    dlg = wx.MessageDialog(self, msg, "Fiel already exists", style=wx.CENTRE | wx.YES_NO)
+                    result = dlg.ShowModal()
+                    if result == wx.ID_YES:
+                        name_found = True
+                else:
+                    name_found = True
+
+                self.__pathname = fileDialog.GetPath()
 
         self.filepat_textbox.SetValue(self.__pathname)
 
