@@ -598,9 +598,3 @@ class DatabaseFromXml(Database):
         else:
             return False
 
-
-if __name__ == "__main__":
-    db = DatabaseFromCsv()
-    db.import_csv_file(filepath=".\..\data\ArbokatBaumdaten_komplett.csv")
-    db.close_db_connection()
-    # db.delete_db()
