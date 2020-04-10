@@ -52,6 +52,7 @@ class MainTableFrame(default_gui.MainWindow):
 
     # defines actions to be taken when exiting the program
     def on_exit_app(self):
+        self.aui_manager.UnInit()
         if self.db is not None:
             self.db.close_db_connection()
             self.db.delete_db()
@@ -513,8 +514,8 @@ class MainTableFrame(default_gui.MainWindow):
     # method to be called when clicking File > Test
     # overrides method in parent class
     # LOESCHEN VOR ABGABE
-    def on_menu_test(self, event):
-        print("Test")
+    def on_menu_exit(self, event):
+        self.OnClose(event)
 
 
 # DialogBox with options to open file
