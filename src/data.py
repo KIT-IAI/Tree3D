@@ -597,4 +597,3 @@ class DatabaseFromXml(Database):
             return True
         else:
             return False
-
