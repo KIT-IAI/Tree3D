@@ -889,7 +889,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		self.result_grid.Hide()
 		self.result_grid.SetMaxSize( wx.Size( 440,200 ) )
 		
-		fgSizer10.Add( self.result_grid, 0, wx.ALL, 5 )
+		fgSizer10.Add( self.result_grid, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		self.SetSizer( fgSizer10 )
