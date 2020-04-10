@@ -40,7 +40,7 @@ class MainTableFrame(default_gui.MainWindow):
     # method to be called when close button (x) is pushed
     # overrides method in parent class
     def OnClose(self, event):
-        dialog = wx.MessageDialog(self, message="Are you sure you would like to close ArbokaTransformer?",
+        dialog = wx.MessageDialog(self, message="Are you sure you would like to close tree3d?",
                                   caption="Close Application", style=wx.YES_NO | wx.ICON_QUESTION,
                                   pos=wx.DefaultPosition)
 
