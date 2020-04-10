@@ -459,34 +459,25 @@ class ExportDialog(default_gui.CityGmlExport):
             warningmessage = "LOD1 differentiates between deciduous trees and coniferous trees\n" \
                              "Please select tree class column or define a default tree class"
 
-        # check, if crown height is specified, if it is used
-        if self.crown_height_choice.GetSelection() == 5 and self.ChoiceCrownHeightCol.GetSelection() == wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Crown height columnn must be specified"
+        test_list = [self.choiceXvalue, self.choiceYvalue, self.choiceRefheight, self.choiceHeight, self.choiceTrunk,
+                     self.choiceCrown, self.choiceSpecies, self.choiceClass, self.ChoiceCrownHeightCol]
+        test_dict = {self.choiceXvalue: "Easting",
+                     self.choiceYvalue: "Northing",
+                     self.choiceRefheight: "Reference Height",
+                     self.choiceHeight: "Tree height",
+                     self.choiceTrunk: "Trunk diameter",
+                     self.choiceCrown: "Crown diameter",
+                     self.choiceSpecies: "Species code",
+                     self.choiceClass: "Class code",
+                     self.ChoiceCrownHeightCol: "Crown height"}
 
-        # check, if tree height and reference height are the same column
-        if self.choiceHeight.GetSelection() == self.choiceRefheight.GetSelection()\
-                and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Tree height cannot be the same column as reference height"
-
-        # check, if crown diam and trunk diam are the same column
-        if self.choiceCrown.GetSelection() == self.choiceTrunk.GetSelection()\
-                and self.choiceCrown.GetSelection() != wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Crown diameter cannot be the same column as Trunk diameter"
-
-        # check, if tree height and crown diam are the same column
-        if self.choiceHeight.GetSelection() == self.choiceCrown.GetSelection()\
-                and self.choiceHeight.GetSelection() != wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Height cannot be the same column as Crown diameter"
-
-        # check, if choice height and trunk diam are the same column
-        if self.choiceHeight.GetSelection() == self.choiceTrunk.GetSelection()\
-                and self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
-            valid = False
-            warningmessage = "Height cannot be the same column as Trunk diameter"
+        for i in range(0, len(test_list)):
+            for j in range(i+1, len(test_list)):
+                if test_list[i].GetSelection() != wx.NOT_FOUND \
+                        and test_list[i].GetStringSelection() == test_list[j].GetStringSelection():
+                    valid = False
+                    warningmessage = "%s and %s must not be the same column"\
+                                     % (test_dict[test_list[i]], test_dict[test_list[j]])
 
         # check, if epsg is integer
         try:
@@ -495,14 +486,15 @@ class ExportDialog(default_gui.CityGmlExport):
             valid = False
             warningmessage = "EPSG Code must be an integer number."
 
-        # check, if required columns are specified
+        # check epsg code isnt empty
         if self.epsg.GetValue() == "":
             valid = False
             warningmessage = "EPSG Code must not be empty."
 
-        if self.choiceXvalue.GetSelection() == self.choiceYvalue.GetSelection():
+        # check, if required columns are specified
+        if self.crown_height_choice.GetSelection() == 5 and self.ChoiceCrownHeightCol.GetSelection() == wx.NOT_FOUND:
             valid = False
-            warningmessage = "X Value and Y Value must not be the same column"
+            warningmessage = "Crown height columnn must be specified"
 
         if self.choiceRefheight.GetSelection() == wx.NOT_FOUND:
             valid = False
