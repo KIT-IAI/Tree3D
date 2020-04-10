@@ -459,6 +459,7 @@ class ExportDialog(default_gui.CityGmlExport):
             warningmessage = "LOD1 differentiates between deciduous trees and coniferous trees\n" \
                              "Please select tree class column or define a default tree class"
 
+        # check for duplicate selected columns
         test_list = [self.choiceXvalue, self.choiceYvalue, self.choiceRefheight, self.choiceHeight, self.choiceTrunk,
                      self.choiceCrown, self.choiceSpecies, self.choiceClass, self.ChoiceCrownHeightCol]
         test_dict = {self.choiceXvalue: "Easting",
