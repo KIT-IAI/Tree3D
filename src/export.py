@@ -429,6 +429,37 @@ class ExportDialog(default_gui.CityGmlExport):
         valid = True
         warningmessage = ""
 
+        # check, if geom output differenciates between tree classes, and if a class column or default class is set
+        distinct_geoms = ["tree contour polygons", "highly simplified tree", "simplified tree"]
+        if self.lod4.GetValue() and self.lod4_geomtype.GetStringSelection() in distinct_geoms \
+                and self.choiceClass.GetSelection() == wx.NOT_FOUND \
+                and self.default_choice.GetStringSelection() == "none":
+            valid = False
+            warningmessage = "LOD4 differentiates between deciduous trees and coniferous trees\n" \
+                             "Please select tree class column or define a default tree class"
+
+        if self.lod3.GetValue() and self.lod3_geomtype.GetStringSelection() in distinct_geoms \
+                and self.choiceClass.GetSelection() == wx.NOT_FOUND \
+                and self.default_choice.GetStringSelection() == "none":
+            valid = False
+            warningmessage = "LOD3 differentiates between deciduous trees and coniferous trees\n" \
+                             "Please select tree class column or define a default tree class"
+
+        if self.lod2.GetValue() and self.lod2_geomtype.GetStringSelection() in distinct_geoms \
+                and self.choiceClass.GetSelection() == wx.NOT_FOUND \
+                and self.default_choice.GetStringSelection() == "none":
+            valid = False
+            warningmessage = "LOD2 differentiates between deciduous trees and coniferous trees\n" \
+                             "Please select tree class column or define a default tree class"
+
+        if self.lod1.GetValue() and self.lod1_geomtype.GetStringSelection() in distinct_geoms \
+                and self.choiceClass.GetSelection() == wx.NOT_FOUND \
+                and self.default_choice.GetStringSelection() == "none":
+            valid = False
+            warningmessage = "LOD1 differentiates between deciduous trees and coniferous trees\n" \
+                             "Please select tree class column or define a default tree class"
+
+        # check, if crown height is specified, if it is used
         if self.crown_height_choice.GetSelection() == 5 and self.ChoiceCrownHeightCol.GetSelection() == wx.NOT_FOUND:
             valid = False
             warningmessage = "Crown height columnn must be specified"
