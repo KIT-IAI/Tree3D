@@ -1443,7 +1443,7 @@ class data_panel ( wx.Panel ):
 		
 		# Cell Defaults
 		self.grid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
-		bSizer2.Add( self.grid, 0, wx.ALL, 5 )
+		bSizer2.Add( self.grid, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		self.SetSizer( bSizer2 )
