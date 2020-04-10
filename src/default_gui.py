@@ -39,10 +39,6 @@ class MainWindow ( wx.Frame ):
 		self.m_menubar7.Append( self.file, u"File" ) 
 		
 		self.view = wx.Menu()
-		self.col_properties = wx.MenuItem( self.view, wx.ID_ANY, u"Column Properties", wx.EmptyString, wx.ITEM_NORMAL )
-		self.view.Append( self.col_properties )
-		self.col_properties.Enable( False )
-		
 		self.reset_col_position = wx.MenuItem( self.view, wx.ID_ANY, u"Reset Column Position", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.reset_col_position )
 		self.reset_col_position.Enable( False )
@@ -50,10 +46,6 @@ class MainWindow ( wx.Frame ):
 		self.reset_col_visiblity = wx.MenuItem( self.view, wx.ID_ANY, u"Show All Columns", wx.EmptyString, wx.ITEM_NORMAL )
 		self.view.Append( self.reset_col_visiblity )
 		self.reset_col_visiblity.Enable( False )
-		
-		self.stats = wx.MenuItem( self.view, wx.ID_ANY, u"Statistics", wx.EmptyString, wx.ITEM_NORMAL )
-		self.view.Append( self.stats )
-		self.stats.Enable( False )
 		
 		self.m_menubar7.Append( self.view, u"View" ) 
 		

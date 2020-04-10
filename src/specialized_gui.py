@@ -154,10 +154,8 @@ class MainTableFrame(default_gui.MainWindow):
 
         # Enable menu items
         self.export_citygml.Enable(True)
-        self.col_properties.Enable(True)
         self.reset_col_position.Enable(True)
         self.reset_col_visiblity.Enable(True)
-        self.stats.Enable(True)
         self.dublicates.Enable(True)
         self.duplicateGeom.Enable(True)
         self.validateGeom.Enable(True)
@@ -176,10 +174,8 @@ class MainTableFrame(default_gui.MainWindow):
     def reset_program(self):
         # Disable menu items
         self.export_citygml.Enable(False)
-        self.col_properties.Enable(False)
         self.reset_col_position.Enable(False)
         self.reset_col_visiblity.Enable(False)
-        self.stats.Enable(False)
         self.dublicates.Enable(False)
         self.duplicateGeom.Enable(False)
         self.validateGeom.Enable(False)
