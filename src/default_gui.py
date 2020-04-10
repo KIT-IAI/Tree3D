@@ -92,6 +92,20 @@ class MainWindow ( wx.Frame ):
 		
 		self.m_menubar7.Append( self.data, u"Data" ) 
 		
+		self.frage = wx.Menu()
+		self.license_engl = wx.MenuItem( self.frage, wx.ID_ANY, u"License Information (English)", wx.EmptyString, wx.ITEM_NORMAL )
+		self.frage.Append( self.license_engl )
+		
+		self.license_germ = wx.MenuItem( self.frage, wx.ID_ANY, u"Nutzungsbedingungen (German)", wx.EmptyString, wx.ITEM_NORMAL )
+		self.frage.Append( self.license_germ )
+		
+		self.frage.AppendSeparator()
+		
+		self.about = wx.MenuItem( self.frage, wx.ID_ANY, u"About", wx.EmptyString, wx.ITEM_NORMAL )
+		self.frage.Append( self.about )
+		
+		self.m_menubar7.Append( self.frage, u"?" ) 
+		
 		self.SetMenuBar( self.m_menubar7 )
 		
 		self.m_statusBar3 = self.CreateStatusBar( 1, wx.STB_SIZEGRIP, wx.ID_ANY )
@@ -113,6 +127,9 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.add_height_dem.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.add_height_default.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_derive_from_pointcloud, id = self.add_pointcloud_parameters.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_license_english, id = self.license_engl.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_license_german, id = self.license_germ.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_about, id = self.about.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -159,6 +176,15 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_derive_from_pointcloud( self, event ):
+		event.Skip()
+	
+	def on_license_english( self, event ):
+		event.Skip()
+	
+	def on_license_german( self, event ):
+		event.Skip()
+	
+	def on_menu_about( self, event ):
 		event.Skip()
 	
 
@@ -2237,5 +2263,33 @@ class pointcloud_process ( wx.Dialog ):
 	
 	def on_derive( self, event ):
 		event.Skip()
+	
+
+###########################################################################
+## Class LicenseDialog
+###########################################################################
+
+class LicenseDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 429,333 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer2 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.license_text = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE|wx.TE_READONLY|wx.BORDER_SUNKEN )
+		self.license_text.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_BTNFACE ) )
+		
+		bSizer2.Add( self.license_text, 1, wx.ALL|wx.EXPAND, 10 )
+		
+		
+		self.SetSizer( bSizer2 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+	
+	def __del__( self ):
+		pass
 	
 

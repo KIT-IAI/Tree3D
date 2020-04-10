@@ -507,9 +507,21 @@ class MainTableFrame(default_gui.MainWindow):
                                        self.db.get_number_of_tablerecords(),
                                        self.db.get_data())
 
-    # method to be called when clicking File > Test
-    # overrides method in parent class
-    # LOESCHEN VOR ABGABE
+    # method to called when "? > License information (english)"
+    def on_license_english(self, event):
+        dialog = License(self)
+        License.open_license(dialog, "english")
+
+    # method to called when "? > License information (english)"
+    def on_license_german(self, event):
+        dialog = License(self)
+        License.open_license(dialog, "german")
+
+    def on_menu_about(self, event):
+        dialog = License(self)
+        License.open_license(dialog, "about")
+
+    # method to be called when File > Exit
     def on_menu_exit(self, event):
         self.OnClose(event)
 
@@ -829,6 +841,69 @@ class OpenDialogXML(OpenDialog):
         if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
             valid = True
         return valid
+
+
+class License(default_gui.LicenseDialog):
+
+    def __init__(self, parent):
+        default_gui.LicenseDialog.__init__(self, parent)
+
+    # Öffnet den Lizenzdialog und füllt den TextCtrl mit dem englischen oder deutschen Text
+    def open_license(self, mode):
+
+        if mode == "english":
+            self.SetTitle("License Information")
+            t_text = "0. PRELIMINARY NOTE\nThis is merely an informal translation of the German text " \
+                     "\"Nutzungsbedingungen\" where the license conditions for this software have actually been " \
+                     "established.\n\n1. EXCLUSION OF GUARANTEE\nKarlsruhe Institute of Technology does not " \
+                     "guarantee the software, the data, or the documentation. It does not guarantee the correctness " \
+                     "and usability of the contents or that they are not covered by any third party's rights, nor " \
+                     "that access will be possible in a reliable way, free of viruses or errors.\n\n2. EXCLUSION " \
+                     "OF LIABILITY\nKarlsruhe Institute of Technology is not liable for any damages, except those " \
+                     "caused by a willful or grossly negligent violation of duties by either Karlsruhe Institute of " \
+                     "Technology, its legal representatives, or its assistants in fulfillment. This holds also for " \
+                     "damages caused by any violation of duties in contract negotiation or by carrying out " \
+                     "unauthorised actions.\n\nIn the case of damages caused by a reckless violation of contractual " \
+                     "or pre-contractual duties by Karlsruhe Institute of Technology, its legal representatives, or " \
+                     "its assistants in fulfillment, liability for indirect damages and follow-up damages is " \
+                     "excluded.\n\nThe cogent liability according to the Product Liability Act is not touched by the " \
+                     "regulations stated above.\n\n3. CONFIDENTIALITY\nThe software, the data, and the documentation " \
+                     "are confidential. Their commercial or scientific usage by the receiver or a third party, as " \
+                     "well as the provision of access for third parties is only permitted after an agreement in " \
+                     "writing by Karlsruhe Institute of Technology.\n\n4. PATENT AND TRADE-MARK RIGHTS\nKarlsruhe " \
+                     "Institute of Technology reserves all rights on the software, the data, and the documentation " \
+                     "in full extent, particuliarly the ownership, the copyrights as well as the procurement of " \
+                     "domestic or foreign patent or trade-mark rights.\n"
+
+        elif mode == "german":
+            self.SetTitle("Nutzungsbedingungen")
+            t_text = "1. GEWÄHRLEISTUNGSAUSSCHLUSS\nDas Karlsruhe Institute für Technologie übernimmt keine " \
+                     "Gewährleistung für die Software, Daten und Dokumentationen, insbesondere nicht für Richtigkeit " \
+                     "und Einsetzbarkeit des Inhalts oder die Freiheit von Rechten Dritter, sowie dafür, dass der " \
+                     "Zugriff darauf verlässlich, virus- und fehlerfrei möglich ist.\n\n2. HAFTUNGSAUSSCHLUSS\n" \
+                     "Das Karlsruhe Institute für Technologie haftet nur für Schäden, die auf einer vorsätzlichen " \
+                     "oder grobfahrlässigen Pflichtverletzung durch das Karlsruhe Institute für Technologie, seine " \
+                     "gesetzlichen Vertreter oder Erfüllungsgehilfen beruhen. Dies gilt auch für Schäden aus der " \
+                     "Verletzung von Pflichten bei Vertragsverhandlungen sowie aus der Vornahme von unerlaubten " \
+                     "Handlungen.\n\nFür Schäden, die auf einer fahrlässigen Verletzung von vertraglichen oder " \
+                     "vorvertraglichen Pflichten durch das Karlsruhe Institute für Technologie, seine gesetzlichen " \
+                     "Vertreter oder Erfüllungsgehilfen beruhen, ist die Haftung für mittelbare Schäden und " \
+                     "Folgeschäden ausgeschlossen.\n\nDie zwingende Haftung nach dem Produkthaftungsgesetz bleibt " \
+                     "von den vorstehenden Regelungen unberührt.\n\n3. VERTRAULICHKEIT\nDie Software, Daten und " \
+                     "Dokumentationen sind vertraulich zu behandeln und dürfen nur mit vorheriger schriftlicher " \
+                     "Zustimmung des Karlsruhe Institute für Technologie für eigene oder fremde gewerbliche oder " \
+                     "wissenschaftliche Zwecke benutzt oder Dritten zugänglich gemacht werden.\n\n4. SCHUTZRECHTE\n" \
+                     "Für die Software, Daten und Dokumentationen behält sich das Karlsruhe Institute für " \
+                     "Technologie alle Rechte in vollem Umfange vor, insbesondere Eigentum, Urheberrecht sowie " \
+                     "Erwirkung in- und ausländischer Schutzrechte.\n"
+
+        elif mode == "about":
+            self.SetTitle("About")
+            t_text = "tree3d version: 1.0 (April 15, 2020)\n\n" \
+                     "Bachelor thesis project by Jonas Hurst"
+
+        self.license_text.write(t_text)
+        self.ShowModal()
 
 
 # create wxPython App
