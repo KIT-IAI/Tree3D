@@ -1429,7 +1429,7 @@ class CityGmlExport:
 
         # add appearence model
         if self.__use_appearance:
-            self.add_appearance()
+            self.add_appearance(progressbar)
 
         # reformat to prettyprint xml output
         if self.__prettyprint:
@@ -1481,12 +1481,15 @@ class CityGmlExport:
         # add bounded-by-element to the top root subelements
         self.__root.insert(0, boundedby)
 
-    def add_appearance(self):
-        self.add_appearance_color("0.47", "0.24", "0", self.__stem_gmlids)
-        self.add_appearance_color("0.26", "0.65", "0.15", self.__crown_deciduous_gmlids)
-        self.add_appearance_color("0.08", "0.37", "0", self.__crown_coniferous_gmlids)
+    def add_appearance(self, progressbar):
+        progressbar.SetValue(0)
+        self.add_appearance_color("0.47", "0.24", "0", self.__stem_gmlids, progressbar)
+        progressbar.SetValue(0)
+        self.add_appearance_color("0.26", "0.65", "0.15", self.__crown_deciduous_gmlids, progressbar)
+        progressbar.SetValue(0)
+        self.add_appearance_color("0.08", "0.37", "0", self.__crown_coniferous_gmlids, progressbar)
 
-    def add_appearance_color(self, r, g, b, id_list):
+    def add_appearance_color(self, r, g, b, id_list, progressbar):
         appearance_member = ET.Element("app:appearanceMember")
         appearance = ET.SubElement(appearance_member, "app:Appearance")
         theme = ET.SubElement(appearance, "app:theme")
@@ -1501,9 +1504,12 @@ class CityGmlExport:
         diffuse_color = ET.SubElement(x3dmaterial, "app:diffuseColor")
         diffuse_color.text = "%s %s %s" % (r, g, b)
 
-        for identifyer in id_list:
+        progressbar.SetRange(len(id_list))
+        for idx, identifyer in enumerate(id_list):
             target = ET.SubElement(x3dmaterial, "app:target")
             target.text = identifyer
+            if idx % 100 == 0:
+                progressbar.SetValue(progressbar.GetValue()+100)
 
         self.__root.insert(1, appearance_member)
 
