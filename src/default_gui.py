@@ -67,13 +67,15 @@ class MainWindow ( wx.Frame ):
 		self.m_menubar7.Append( self.analyze, u"Analyze" ) 
 		
 		self.data = wx.Menu()
-		self.add_geom_col = wx.MenuItem( self.data, wx.ID_ANY, u"Add Geometry Column", wx.EmptyString, wx.ITEM_NORMAL )
-		self.data.Append( self.add_geom_col )
-		self.add_geom_col.Enable( False )
-		
 		self.vegetation_code = wx.MenuItem( self.data, wx.ID_ANY, u"Add CityGML vegetation code", wx.EmptyString, wx.ITEM_NORMAL )
 		self.data.Append( self.vegetation_code )
 		self.vegetation_code.Enable( False )
+		
+		self.data.AppendSeparator()
+		
+		self.add_geom_col = wx.MenuItem( self.data, wx.ID_ANY, u"Add Geometry Column", wx.EmptyString, wx.ITEM_NORMAL )
+		self.data.Append( self.add_geom_col )
+		self.add_geom_col.Enable( False )
 		
 		self.m_menu2 = wx.Menu()
 		self.add_height_dem = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Add reference height from DEM", wx.EmptyString, wx.ITEM_NORMAL )
@@ -122,8 +124,8 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_geom, id = self.duplicateGeom.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_geometry_validation, id = self.validateGeom.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_add_geom, id = self.add_geom_col.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_citygml_vegetation_code, id = self.vegetation_code.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_add_geom, id = self.add_geom_col.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_reference_height_dem, id = self.add_height_dem.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_add_default_reference_height, id = self.add_height_default.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_derive_from_pointcloud, id = self.add_pointcloud_parameters.GetId() )
@@ -163,10 +165,10 @@ class MainWindow ( wx.Frame ):
 	def on_geometry_validation( self, event ):
 		event.Skip()
 	
-	def on_add_geom( self, event ):
+	def on_add_citygml_vegetation_code( self, event ):
 		event.Skip()
 	
-	def on_add_citygml_vegetation_code( self, event ):
+	def on_add_geom( self, event ):
 		event.Skip()
 	
 	def on_add_reference_height_dem( self, event ):
