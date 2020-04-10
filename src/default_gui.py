@@ -31,8 +31,10 @@ class MainWindow ( wx.Frame ):
 		self.file.Append( self.export_citygml )
 		self.export_citygml.Enable( False )
 		
-		self.test = wx.MenuItem( self.file, wx.ID_ANY, u"Test", wx.EmptyString, wx.ITEM_NORMAL )
-		self.file.Append( self.test )
+		self.file.AppendSeparator()
+		
+		self.exit = wx.MenuItem( self.file, wx.ID_ANY, u"Exit", wx.EmptyString, wx.ITEM_NORMAL )
+		self.file.Append( self.exit )
 		
 		self.m_menubar7.Append( self.file, u"File" ) 
 		
@@ -108,7 +110,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_CLOSE, self.OnClose )
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_menu_test, id = self.test.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_exit, id = self.exit.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_check_for_duplicates_ID, id = self.dublicates.GetId() )
@@ -134,7 +136,7 @@ class MainWindow ( wx.Frame ):
 	def on_menu_export_citygml( self, event ):
 		event.Skip()
 	
-	def on_menu_test( self, event ):
+	def on_menu_exit( self, event ):
 		event.Skip()
 	
 	def on_reset_column_position( self, event ):
