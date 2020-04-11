@@ -85,11 +85,16 @@ class MainTableFrame(default_gui.MainWindow):
                     import_success = False
                     text = "CSV file import failed.\n" \
                            "File encoding not correct"
+                except data.NotEnoughItemsException as e:
+                    import_success = False
+                    text = "Not enough items in %s" % (str(e))
+                except data.TooManyItemsException as e:
+                    import_success = False
+                    text = "too many items in %s" % str(e)
                 except:
                     import_success = False
-                    if __name__ == '__main__':
-                        text = "CSV file import failed for unknown reason\n" \
-                               "Is the seperator set correctly?"
+                    text = "CSV file import failed for unknown reason\n" \
+                           "Is the seperator set correctly?"
                 finally:
                     icon = wx.OK
                     if not import_success:

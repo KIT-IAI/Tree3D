@@ -7,6 +7,14 @@ import xml.etree.ElementTree as ET
 import wx
 
 
+class TooManyItemsException(Exception):
+    pass
+
+
+class NotEnoughItemsException(Exception):
+    pass
+
+
 class Database:
     def __init__(self):
 
@@ -340,26 +348,44 @@ class DatabaseFromCsv(Database):
 
     # method to create database table from csv file
     def import_csv_file(self, filepath):
+        headers_found = False
         with open(filepath, newline='', encoding=self.__FileEncoding) as csvfile:
             filereader = csv.reader(csvfile, delimiter=self.__seperator)
             for idx, row in enumerate(filereader):
-                if not row:
+                if not row and not headers_found:
                     self.__StartLine += 1
                     continue
+
+                if not row and headers_found:
+                    continue
+
                 if idx == self.__StartLine:
+                    headers_found = True
                     # add column for unique tree ID to data model
                     if self._CreateTwoColID:
                         self._lTableColmnNames.append(["'IAI_TreeID'", "TEXT", True])
 
                     # Extract table column names from first row of csv file, create database table with it
                     tableheaders = row
+                    col_num = len(tableheaders)
                     for idx2, col in enumerate(tableheaders):
-                        coldata = ["'%s'" % col, self.get_csv_datatypes(filereader, csvfile, idx2), True]
-                        self._lTableColmnNames.append(coldata)
+                        try:
+                            coldata = ["'%s'" % col, self.get_csv_datatypes(filereader, csvfile, idx2, col_num), True]
+                            self._lTableColmnNames.append(coldata)
+                        except NotEnoughItemsException as e:
+                            raise NotEnoughItemsException("Line %s" % (idx + int(str(e))+2))
+                        except TooManyItemsException as e:
+                            raise TooManyItemsException("Line %s" % (idx + int(str(e))+2))
+
                     self.create_db_table()
                 else:
-                    # Insert data rows from csv file into database
-                    self.populate_db_table(row)
+                    # Insert data rows from csv file into database, raise exceptions if row is under- or overpopulated
+                    try:
+                        self.populate_db_table(row)
+                    except NotEnoughItemsException:
+                        raise NotEnoughItemsException(idx+1)
+                    except TooManyItemsException:
+                        raise TooManyItemsException(idx+1)
         if self._CreateTwoColID:
             self._DbCursor.execute("CREATE INDEX iaitreeidindex on trees(IAI_TreeID);")
         self._DbConnection.commit()
@@ -370,6 +396,11 @@ class DatabaseFromCsv(Database):
 
     # method to insert a row into the database
     def populate_db_table(self, row):
+        if len(row) < self.get_number_of_columns():
+            raise NotEnoughItemsException
+
+        if len(row) > self.get_number_of_columns():
+            raise TooManyItemsException
         insert_row = []
         if self._CreateTwoColID:
             row.insert(0, "%s_%s" % (row[self._CreateTwoColIDColumns[0]], row[self._CreateTwoColIDColumns[1]]))
@@ -393,7 +424,7 @@ class DatabaseFromCsv(Database):
     # number of rows to be consider when det4000*12
     # ermining data type can be configured using inspection_limit variable
     # returns string "INTEGER", "REAL" or "TEXT", (data types used in sqlite databases)
-    def get_csv_datatypes(self, filereader, csvfile, col_index):
+    def get_csv_datatypes(self, filereader, csvfile, col_index, number_of_cols):
         inspection_limit = self._DataInspectionLimit
 
         int_type_in_list = False
@@ -407,9 +438,19 @@ class DatabaseFromCsv(Database):
             if index2 > inspection_limit:
                 break
 
+            if not row:
+                continue
+
             # if there is no value for an attribute in a row: ignore this row to prevent false data type predictions
             if row[col_index] == "":
                 continue
+
+            if len(row) < number_of_cols:
+                raise NotEnoughItemsException(index2)
+
+            if len(row) > number_of_cols:
+                raise TooManyItemsException(index2)
+
             try:
                 dat = literal_eval(row[col_index].replace(",", "."))
                 if isinstance(dat, int):
