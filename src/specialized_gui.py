@@ -87,10 +87,10 @@ class MainTableFrame(default_gui.MainWindow):
                            "File encoding not correct"
                 except data.NotEnoughItemsException as e:
                     import_success = False
-                    text = "Not enough items in %s" % (str(e))
+                    text = "Error in %s: Less items in line than table headers" % (str(e))
                 except data.TooManyItemsException as e:
                     import_success = False
-                    text = "too many items in %s" % str(e)
+                    text = "Error in %s: More items in Line than table headers" % str(e)
                 except:
                     import_success = False
                     text = "CSV file import failed for unknown reason\n" \
