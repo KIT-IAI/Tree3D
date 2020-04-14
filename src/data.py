@@ -4,8 +4,6 @@ import sqlite3
 from ast import literal_eval
 import xml.etree.ElementTree as ET
 
-import wx
-
 
 # custom exception: Too many items in a line:More than in table headers (used in CSV only)
 class TooManyItemsException(Exception):
@@ -262,7 +260,8 @@ class Database:
     # counts number of rows with the same value in row
     def count_unique_values_in_col(self, colname):
         # generates sql statement
-        statement = 'SELECT "%s", count("%s") FROM %s GROUP BY "%s";' % (colname, colname, self._DbTreeTableName, colname)
+        statement = 'SELECT "%s", count("%s") FROM %s GROUP BY "%s";'\
+                    % (colname, colname, self._DbTreeTableName, colname)
         self._DbCursor.execute(statement)
         return self._DbCursor
 
