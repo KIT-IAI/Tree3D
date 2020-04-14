@@ -562,7 +562,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		self.IdColumns.SetSelection( 0 )
 		gSizer3.Add( self.IdColumns, 0, wx.ALL, 5 )
 		
-		self.m_staticText81 = wx.StaticText( self, wx.ID_ANY, u"X-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText81 = wx.StaticText( self, wx.ID_ANY, u"Easting", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText81.Wrap( -1 )
 		
 		gSizer3.Add( self.m_staticText81, 0, wx.ALL, 5 )
@@ -572,7 +572,7 @@ class OnCheckDuplicateGeomDialog ( wx.Dialog ):
 		self.xvalue.SetSelection( 0 )
 		gSizer3.Add( self.xvalue, 0, wx.ALL, 5 )
 		
-		self.yvalue1 = wx.StaticText( self, wx.ID_ANY, u"Y-Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.yvalue1 = wx.StaticText( self, wx.ID_ANY, u"Northing", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.yvalue1.Wrap( -1 )
 		
 		gSizer3.Add( self.yvalue1, 0, wx.ALL, 5 )
