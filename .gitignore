@@ -20,3 +20,26 @@ data/treemap_kit_nord.qgz
 # ignored output file
 data/export.citygml
 data/export_kunz_david.citygml
+
+# exportierte daten
+data/export_beispiele/
+
+# SpatiaLite
+src/libfreexl-1.dll
+src/libgcc_s_seh-1.dll
+src/libgeos_c-1.dll
+src/libgeos-3-6-2.dll
+src/libiconv-2.dll
+src/libiconv-2.dll
+src/liblzma-5.dll
+src/libproj-13.dll
+src/librttopo-1.dll
+src/libsqlite3-0.dll
+src/libstdc++-6.dll
+src/libwinpthread-1.dll
+src/libxml2-2.dll
+src/mod_spatialite.dll
+src/zlib1.dll
+
+# build
+build/
