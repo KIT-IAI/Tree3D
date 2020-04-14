@@ -7,10 +7,12 @@ import xml.etree.ElementTree as ET
 import wx
 
 
+# custom exception: Too many items in a line:More than in table headers (used in CSV only)
 class TooManyItemsException(Exception):
     pass
 
 
+# custom exception: Less many items in a line:More than in table headers (used in CSV only)
 class NotEnoughItemsException(Exception):
     pass
 
@@ -22,15 +24,16 @@ class Database:
         self.create_default_database_path()
         self._DbFilePath = self.generate_filepath('\\tree3d_db.sqlite')
 
+        # Delete database file and folder
         if os.path.exists(self._DbFilePath):
             self.delete_db_file()
         if not os.path.exists(self._DbFolderPath):
             os.makedirs(self._DbFolderPath)
 
-        self._SpatiaLiteLoaded = [False, ""]  # String gives error message if False
+        self._SpatiaLiteLoaded = [False, ""]  # String gives error message if False, indicates if spatialite was loaded
         self._DbConnection = None
         self._DbCursor = None
-        self.establish_db_connection()
+        self.establish_db_connection()  # connect to database
 
         self._DbTreeTableName = "trees"  # name of table in database, into which the csv file is imported
         self._lTableColmnNames = []  # list of all table column names
@@ -43,22 +46,25 @@ class Database:
 
         self._CreateRowid = False  # variable to determine weather sqlite rowid should be used
 
-        self._ContainsGeom = False
+        self._ContainsGeom = False  # variable to indicate, if geom object has been generated
 
     # Creates Database Path
     # Database is stored in temporary folder by default
     # Path to temporary folder is read from environment variables TMP or TEMP
     # if these environment variables dont exists, database is stored in working directory
     def create_default_database_path(self):
+        # find temporary folder from system variables
         if 'TEMP' in os.environ:
             path = os.environ['TMP']
         elif 'TMP' in os.environ:
             path = os.environ['TEMP']
         else:
+            # use current directory, if variable was not found
             path = '.'
         path = path + '\\tree3d_data'
         self._DbFolderPath = path
 
+    # returns path of database file
     def get_db_filepath(self):
         return self._DbFilePath
 
@@ -72,10 +78,12 @@ class Database:
                 self._DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self._DbTreeTableName, col[0], col[1]))
         self._DbConnection.commit()
 
+    # combines db folder path with db file name
     def generate_filepath(self, filename):
         path = self._DbFolderPath + filename
         return path
 
+    # returns name of tree table in database
     def get_tree_table_name(self):
         return self._DbTreeTableName
 
@@ -91,6 +99,7 @@ class Database:
                 column_list.append(row[0][1:-1])
         return column_list
 
+    # return all column names that have numeric data type (INT, REAL)
     def get_column_names_numeric(self):
         column_list = []
         for row in self._lTableColmnNames:
@@ -98,6 +107,7 @@ class Database:
                 column_list.append(row[0][1:-1])
         return column_list
 
+    # returns all column names that have GEOM data type
     def get_column_names_geom(self):
         column_list = []
         for row in self._lTableColmnNames:
@@ -105,6 +115,7 @@ class Database:
                 column_list.append(row[0][1:-1])
         return column_list
 
+    # returns data types of all columns
     def get_column_datatypes(self):
         type_list = []
         for row in self._lTableColmnNames:
@@ -136,7 +147,7 @@ class Database:
         if self._DbConnection is not None:
             self._DbConnection.close()
 
-    # deletes database folder
+    # deletes database folder. If folder isnt empty: catch exception and do nothing
     def delete_db_folder(self):
         try:
             if os.path.exists(self._DbFolderPath):
@@ -159,6 +170,7 @@ class Database:
         self.delete_db_file()
         self.delete_db_folder()
 
+    # returns status of spatialite: False, if it could not be loaded
     def get_spatialite_status(self):
         return self._SpatiaLiteLoaded
 
@@ -338,6 +350,14 @@ class Database:
     def set_data_inspection_limit(self, value):
         self._DataInspectionLimit = value
 
+    # set geom status
+    def set_contains_geom(self, value):
+        self._ContainsGeom = value
+
+    # returns, if geom data type column is present
+    def get_contains_geom(self):
+        return self._ContainsGeom
+
 
 class DatabaseFromCsv(Database):
     def __init__(self):
@@ -487,12 +507,6 @@ class DatabaseFromCsv(Database):
     # sets file encoding for csv file
     def set_file_encoding(self, codec):
         self.__FileEncoding = codec
-
-    def set_contains_geom(self, value):
-        self._ContainsGeom = value
-
-    def get_contains_geom(self):
-        return self._ContainsGeom
 
 
 class DatabaseFromXml(Database):
