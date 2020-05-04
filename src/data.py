@@ -415,7 +415,10 @@ class DatabaseFromCsv(Database):
 
     # method to insert a row into the database
     def populate_db_table(self, row):
-        if len(row) < self.get_number_of_columns():
+        if not self._CreateTwoColID and len(row) < self.get_number_of_columns():
+            raise NotEnoughItemsException
+
+        if self._CreateTwoColID and len(row) < self.get_number_of_columns()-1:
             raise NotEnoughItemsException
 
         if len(row) > self.get_number_of_columns():
@@ -464,7 +467,10 @@ class DatabaseFromCsv(Database):
             if row[col_index] == "":
                 continue
 
-            if len(row) < number_of_cols:
+            if not self._CreateTwoColID and len(row) < number_of_cols:
+                raise NotEnoughItemsException(index2)
+
+            if self._CreateTwoColID and len(row) < number_of_cols-1:
                 raise NotEnoughItemsException(index2)
 
             if len(row) > number_of_cols:
