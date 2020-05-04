@@ -18,6 +18,8 @@ class ExportDialog(default_gui.CityGmlExport):
         self.__dbpath = self.GetParent().db.get_db_filepath()
         self.__TreeTableName = self.GetParent().db.get_tree_table_name()
 
+        self.__col_settings = self.GetParent().get_column_config()
+
         self.populate_dropdown()
 
         self.DoLayoutAdaptation()
@@ -39,6 +41,47 @@ class ExportDialog(default_gui.CityGmlExport):
         self.choiceSpecies.SetItems(colitemlist)
         self.choiceClass.SetItems(colitemlist)
         self.ChoiceCrownHeightCol.SetItems(colitemlist)
+
+        self.load_column_selection()
+
+    def load_column_selection(self):
+        coords = self.__col_settings.get_coordinates()
+        if coords != (None, None):
+            self.choiceXvalue.SetStringSelection(coords[0])
+            self.choiceYvalue.SetStringSelection(coords[1])
+
+        refheight = self.__col_settings.get_ref_height()
+        if refheight is not None:
+            self.choiceRefheight.SetStringSelection(refheight)
+
+        treeheight = self.__col_settings.get_tree_height()
+        if treeheight != (None, None):
+            self.choiceHeight.SetStringSelection(treeheight[0])
+            self.choiceHeightUnit.SetStringSelection(treeheight[1])
+
+        trunk = self.__col_settings.get_trunk_diam()
+        if trunk != (None, None, None):
+            self.choiceTrunk.SetStringSelection(trunk[0])
+            self.trunk_circ.SetStringSelection(trunk[1])
+            self.choiceTrunkUnit.SetStringSelection(trunk[2])
+
+        crown = self.__col_settings.get_crown_diam()
+        if crown != (None, None, None):
+            self.choiceCrown.SetStringSelection(crown[0])
+            self.crown_circ.SetStringSelection(crown[1])
+            self.choiceCrownUnit.SetStringSelection(crown[2])
+
+        classe = self.__col_settings.get_class()
+        if classe is not None:
+            self.choiceClass.SetStringSelection(classe)
+
+        species = self.__col_settings.get_species()
+        if species is not None:
+            self.choiceSpecies.SetStringSelection(species)
+
+        crown_height = self.__col_settings.get_crown_height()
+        if crown_height is not None:
+            self.ChoiceCrownHeightCol.SetStringSelection(crown_height)
 
     # method to be called when "Browse" button is pushed
     def on_browse(self, event):
@@ -68,6 +111,8 @@ class ExportDialog(default_gui.CityGmlExport):
             return
 
         self.buttonExport.Enable(False)
+
+        self.save_column_selection()
 
         # new thread in which the export takes place
         thread = threading.Thread(target=self.start_export)
@@ -518,6 +563,40 @@ class ExportDialog(default_gui.CityGmlExport):
             msg.ShowModal()
 
         return valid
+
+    # save selected column entries for further use
+    def save_column_selection(self):
+        xcol = self.choiceXvalue.GetStringSelection()
+        ycol = self.choiceYvalue.GetStringSelection()
+        self.__col_settings.set_coordinates(xcol, ycol)
+
+        self.__col_settings.set_ref_height(self.choiceRefheight.GetStringSelection())
+
+        if self.choiceHeight.GetSelection() != wx.NOT_FOUND:
+            col = self.choiceHeight.GetStringSelection()
+            unit = self.choiceHeightUnit.GetStringSelection()
+            self.__col_settings.set_tree_height(col, unit)
+
+        if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
+            col = self.choiceTrunk.GetStringSelection()
+            mode = self.trunk_circ.GetStringSelection()
+            unit = self.choiceTrunkUnit.GetStringSelection()
+            self.__col_settings.set_trunk_diam(col, mode, unit)
+
+        if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
+            col = self.choiceCrown.GetStringSelection()
+            mode = self.crown_circ.GetStringSelection()
+            unit = self.choiceCrownUnit.GetStringSelection()
+            self.__col_settings.set_crown_diam(col, mode, unit)
+
+        if self.choiceClass.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_class(self.choiceClass.GetStringSelection())
+
+        if self.choiceSpecies.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_species(self.choiceSpecies.GetStringSelection())
+
+        if self.ChoiceCrownHeightCol.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_crown_height(self.ChoiceCrownHeightCol.GetStringSelection())
 
 
 class CityGmlExport:
