@@ -231,7 +231,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         if export_status[1] > 0 or export_status[2] > 0 or export_status[3] > 0 or export_status[4] > 0:
             message += '\nSee "Analyze > Geometry validation" for details.'
-        msg = wx.MessageDialog(self, message, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
+        msg = wx.MessageDialog(self, message, caption="Export finnished", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
         msg.ShowModal()
 
         # reset gauge to 0
