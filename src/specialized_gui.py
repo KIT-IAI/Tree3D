@@ -15,6 +15,7 @@ import data
 import analysis
 import export
 import enrichment
+import config
 
 
 class MainTableFrame(default_gui.MainWindow):
@@ -27,6 +28,9 @@ class MainTableFrame(default_gui.MainWindow):
 
         # initialize database
         self.db = None
+
+        # initiate gloabl settings
+        self.__column_settings = config.ColumnNames()
 
         # Adding table view panel to Main Window
         self.table_view_panel = default_gui.data_panel(self)
@@ -207,6 +211,9 @@ class MainTableFrame(default_gui.MainWindow):
 
         # resets row count in status bar
         self.m_statusBar3.SetStatusText("", 0)
+
+        # reset column config
+        self.__column_settings.__init__()
 
     # adjusts numbers of rows and columns to match data
     # populates grid with data afterwards
