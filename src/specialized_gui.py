@@ -215,6 +215,10 @@ class MainTableFrame(default_gui.MainWindow):
         # reset column config
         self.__column_settings.__init__()
 
+    # returns column settings options
+    def get_column_config(self):
+        return self.__column_settings
+
     # adjusts numbers of rows and columns to match data
     # populates grid with data afterwards
     def show_data_in_grid(self, col_number, row_number, data_table):
