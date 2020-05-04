@@ -22,6 +22,18 @@ class ColumnNames:
         self.__Species = None
         self.__CrownHeight = None
 
+    def print(self):
+        print("X:", self.__x)
+        print("Y:", self.__y)
+        print("RefHeight:", self.__RefHeight)
+        print("Tree Height:", self.__TreeHeight, "unit:", self.__TreeHeightUnit)
+        print("Trunk:", self.__TrunkDiam, "mode:", self.__TrunkDiamMode, "unit:", self.__TrunkDiamUnit)
+        print("crown:", self.__CrownDiam, "mode:", self.__CrownDiamMode, "unit:", self.__CrownDiamUnit)
+        print("class:", self.__Class)
+        print("species:", self.__Species)
+        print("crown height:", self.__CrownHeight)
+        print("- - - - - - - - - - -")
+
     def set_coordinates(self, x, y):
         self.__x = x
         self.__y = y
@@ -40,7 +52,7 @@ class ColumnNames:
         self.__TreeHeightUnit = unit
 
     def get_tree_height(self):
-        return self.__TreeHeight
+        return self.__TreeHeight, self.__TreeHeightUnit
 
     def set_trunk_diam(self, colname, mode, unit):
         self.__TrunkDiam = colname
