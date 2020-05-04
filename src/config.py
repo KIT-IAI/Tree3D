@@ -3,6 +3,8 @@
 
 class ColumnNames:
     def __init__(self):
+        self.__id = None
+
         self.__x = None
         self.__y = None
         self.__RefHeight = None
@@ -33,6 +35,12 @@ class ColumnNames:
         print("species:", self.__Species)
         print("crown height:", self.__CrownHeight)
         print("- - - - - - - - - - -")
+
+    def set_id(self, col):
+        self.__id = col
+
+    def get_id(self):
+        return self.__id
 
     def set_coordinates(self, x, y):
         self.__x = x

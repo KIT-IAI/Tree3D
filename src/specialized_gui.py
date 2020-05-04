@@ -547,6 +547,7 @@ class OpenDialog(default_gui.OnOpenDialog):
     def __init__(self, parent, path):
         default_gui.OnOpenDialog.__init__(self, parent)
         self._filepath = path
+        self.__col_settings = self.GetParent().get_column_config()
 
     # method to be called when clicking OK in dialog
     # overrides method in parent dialog
