@@ -560,9 +560,11 @@ class OpenDialog(default_gui.OnOpenDialog):
             if self.generate_ID_box.GetValue():
                 self.GetParent().db.set_create_id(True)
                 self.GetParent().db.set_id_columns([self.id_col1.GetSelection(), self.id_col2.GetSelection()])
+                self.__col_settings.set_id("IAI_TreeID")
 
             if self.generate_rowid_checkbox.GetValue():
                 self.GetParent().db.set_use_rowid(True)
+                self.__col_settings.set_id("ROWID")
             # set check rows number
             t_checknumber = self.inspect_rows.GetValue()
             self.GetParent().db.set_data_inspection_limit(int(t_checknumber))
