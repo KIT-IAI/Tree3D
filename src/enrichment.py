@@ -1186,7 +1186,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
                     # Error if there are more than two Doppelpunkt in a line
                     if len(line) < 3:
                         text = "Cannot import Species vegetation codes\n" \
-                              "Error in file citygml_vegetation_codes.code in line %s:\n" \
+                               "Error in file citygml_vegetation_codes.code in line %s:\n" \
                                "Less than 3 colons in line detected." % str(idx+1)
                         self.__CodeList.clear()
                         success = False
