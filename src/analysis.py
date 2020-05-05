@@ -10,12 +10,18 @@ import wx
 class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
     def __init__(self, parent):
         default_gui.OnCheckDuplicateIdDialog.__init__(self, parent)
+        self.__col_settings = self.GetParent().get_column_config()
         self.populate_dropdown()
 
     # populate dropdown with grid columns in dialogbox
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
         self.IdColumns.SetItems(colitemlist)
+
+        # pre-select ID column
+        idcol = self.__col_settings.get_id()
+        if idcol is not None:
+            self.IdColumns.SetStringSelection(idcol)
 
     # method to be executed when hitting Analyze Button in DialogBox
     # Checks if data contains duplicate IDs, validates UUIDs
@@ -27,6 +33,9 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
             msg = wx.MessageDialog(self, warningtext, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
             msg.ShowModal()
             return
+
+        # update ID pre-selection setting
+        self.__col_settings.set_id(self.IdColumns.GetStringSelection())
 
         # hide result text and result grid
         self.InfoTextUUID.Hide()
@@ -102,14 +111,25 @@ class CheckDuplicateId(default_gui.OnCheckDuplicateIdDialog):
 class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
     def __init__(self, parent):
         default_gui.OnCheckDuplicateGeomDialog.__init__(self, parent)
+        self.__col_settings = self.GetParent().get_column_config()
         self.populate_dropdown()
 
     # populate dropdown with grid columns in dialogbox
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
-        self.IdColumns.Set(colitemlist)
+        self.IdColumns.SetItems(colitemlist)
         self.xvalue.SetItems(colitemlist)
         self.yvalue.SetItems(colitemlist)
+
+        # make column pre-selection
+        idcol = self.__col_settings.get_id()
+        if idcol is not None:
+            self.IdColumns.SetStringSelection(idcol)
+
+        coords = self.__col_settings.get_coordinates()
+        if coords != (None, None):
+            self.xvalue.SetStringSelection(coords[0])
+            self.yvalue.SetStringSelection(coords[1])
 
     # method to be executed when hitting Analyze Button in DialogBox
     # Checks if data contains duplicate geometries
@@ -117,6 +137,10 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
     def on_analyze(self, event):
         if not self.validate_entries():
             return
+
+        # update column pre-selection
+        self.__col_settings.set_id(self.IdColumns.GetStringSelection())
+        self.__col_settings.set_coordinates(self.xvalue.GetStringSelection(), self.yvalue.GetStringSelection())
 
         # reset gui in case operation is performed twice
         self.InfoTextDuplicate.Hide()
@@ -228,6 +252,7 @@ class CheckDuplicateGeom(default_gui.OnCheckDuplicateGeomDialog):
 class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
     def __init__(self, parent):
         default_gui.OnCheckGeometryDialog.__init__(self, parent)
+        self.__col_settings = self.GetParent().get_column_config()
 
         self.populate_columns()
         self.DoLayoutAdaptation()
@@ -241,6 +266,36 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         self.choiceTrunk.SetItems(collist)
         self.choiceCrown.SetItems(collist)
         self.crown_height_col.SetItems(collist)
+
+        # make column pre-selection
+        self.load_column_preselection()
+
+    # method to pre-select dropdown menus
+    def load_column_preselection(self):
+        idcol = self.__col_settings.get_id()
+        if idcol is not None:
+            self.choiceID.SetStringSelection(idcol)
+
+        height = self.__col_settings.get_tree_height()
+        if height != (None, None):
+            self.choiceHeight.SetStringSelection(height[0])
+            self.choiceHeightUnit.SetStringSelection(height[1])
+
+        trunk = self.__col_settings.get_trunk_diam()
+        if trunk != (None, None, None):
+            self.choiceTrunk.SetStringSelection(trunk[0])
+            self.trunk_circ.SetStringSelection(trunk[1])
+            self.choiceTrunkUnit.SetStringSelection(trunk[2])
+
+        crown = self.__col_settings.get_crown_diam()
+        if crown != (None, None, None):
+            self.choiceCrown.SetStringSelection(crown[0])
+            self.crown_circ.SetStringSelection(crown[1])
+            self.choiceCrownUnit.SetStringSelection(crown[2])
+
+        crownheight = self.__col_settings.get_crown_height()
+        if crownheight is not None:
+            self.crown_height_col.SetStringSelection(crownheight)
 
     # checks columns for validity: ID and height
     def validate_height(self, identify, height):
@@ -392,6 +447,8 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         if not self.validate():
             return
 
+        self.save_column_preselection()
+
         geom_type = self.geom_type.GetStringSelection()
 
         # disable GUI elements
@@ -497,6 +554,31 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             self.result_grid.Show(True)
         self.DoLayoutAdaptation()
         self.Layout()
+
+    # method to save column selections
+    def save_column_preselection(self):
+        if self.choiceID.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_id(self.choiceID.GetStringSelection())
+
+        if self.choiceHeight != wx.NOT_FOUND:
+            height = self.choiceHeight.GetStringSelection()
+            unit = self.choiceHeightUnit.GetStringSelection()
+            self.__col_settings.set_tree_height(height, unit)
+
+        if self.choiceTrunk.GetSelection() != wx.NOT_FOUND:
+            trunk = self.choiceTrunk.GetStringSelection()
+            mode = self.trunk_circ.GetStringSelection()
+            unit = self.choiceTrunkUnit.GetStringSelection()
+            self.__col_settings.set_trunk_diam(trunk, mode, unit)
+
+        if self.choiceCrown.GetSelection() != wx.NOT_FOUND:
+            crown = self.choiceCrown.GetStringSelection()
+            mode = self.crown_circ.GetStringSelection()
+            unit = self.choiceCrownUnit.GetStringSelection()
+            self.__col_settings.set_crown_diam(crown, mode, unit)
+
+        if self.crown_height_col.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_crown_height(self.crown_height_col.GetStringSelection())
 
 
 class AnalyzeTreeGeoms:
