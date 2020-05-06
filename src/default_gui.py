@@ -2085,7 +2085,7 @@ class pointcloud_process ( wx.Dialog ):
 		
 		fgSizer33.Add( self.m_staticText68, 0, wx.ALL, 5 )
 		
-		crown_unitChoices = [ u"meter", u"centimeter" ]
+		crown_unitChoices = [ u"m", u"cm" ]
 		self.crown_unit = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, crown_unitChoices, 0 )
 		self.crown_unit.SetSelection( 0 )
 		fgSizer33.Add( self.crown_unit, 0, wx.ALL, 5 )
