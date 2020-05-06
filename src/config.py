@@ -24,6 +24,8 @@ class ColumnNames:
         self.__Species = None
         self.__CrownHeight = None
 
+        self.__geom = None
+
     def print(self):
         print("X:", self.__x)
         print("Y:", self.__y)
@@ -95,3 +97,9 @@ class ColumnNames:
 
     def get_crown_height(self):
         return self.__CrownHeight
+
+    def set_geom(self, colname):
+        self.__geom = colname
+
+    def get_geom(self):
+        return self.__geom
