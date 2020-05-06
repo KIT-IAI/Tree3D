@@ -482,6 +482,7 @@ class GrabHeight(default_gui.GrabHeight):
         default_gui.GrabHeight.__init__(self, parent)
         self.__DbFilePath = dbpath
         self.__running = False
+        self.__col_settings = self.GetParent().get_column_config()
         self.populate_dropdown()
         self.DoLayoutAdaptation()
         self.Layout()
@@ -492,6 +493,28 @@ class GrabHeight(default_gui.GrabHeight):
         geom_names = self.GetParent().db.get_column_names_geom()
         self.id.SetItems(col_names)
         self.geom.SetItems(geom_names)
+
+        self.make_column_preselection()
+
+    # pre-select columns
+    def make_column_preselection(self):
+        identifyer = self.__col_settings.get_id()
+        if identifyer is not None:
+            self.id.SetStringSelection(identifyer)
+
+        geom = self.__col_settings.get_geom()
+        if geom is not None:
+            self.geom.SetStringSelection(geom)
+
+        self.validate(None)
+
+    # save column selections
+    def save_column_preselection(self):
+        if self.id.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_id(self.id.GetStringSelection())
+
+        if self.geom.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_geom(self.geom.GetStringSelection())
 
     # method called when checkbox to use search radius is hit:
     # activates TextBox to enter Search radius
@@ -531,6 +554,9 @@ class GrabHeight(default_gui.GrabHeight):
             return
         self.assign.Enable(False)
         self.__running = True
+
+        self.save_column_preselection()
+
         self.GetParent().db.add_col("Height_DEM", "REAL")  # Adds Hight_DEM column to Tree data table
 
         # Create and start new thread
@@ -660,6 +686,9 @@ class DefaulHeight(default_gui.DefaultHeight):
         default_gui.DefaultHeight.__init__(self, parent)
         self.__dbpath = filepath
         self.__TreeTableName = table
+        self.__col_settings = self.GetParent().get_column_config()
+
+        self.__default_height_col_name = "Height_Default"
 
     def on_assign(self, event):
         valid, msg = self.validate_input()
@@ -668,13 +697,15 @@ class DefaulHeight(default_gui.DefaultHeight):
             dlg.ShowModal()
             return
 
-        self.GetParent().db.add_col("Height_Default", "REAL")  # Adds Hight_DEM column to Tree data table
+        self.__col_settings.set_ref_height(self.__default_height_col_name)
+
+        self.GetParent().db.add_col(self.__default_height_col_name, "REAL")  # Adds Hight_DEM column to Tree data table
         self.GetParent().db.commit()
 
         height = float(self.height_input.GetValue().replace(",", "."))
 
         db = BasicConnection(self.__dbpath, "dgm")
-        db.update_value(self.__TreeTableName, "Height_Default", height)
+        db.update_value(self.__TreeTableName, self.__default_height_col_name, height)
         db.commit()
 
         self.EndModal(1234)
@@ -697,6 +728,7 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         default_gui.pointcloud_process.__init__(self, parent)
         self.__DbFilePath = dbpath
         self.__running = False
+        self.__col_settings = self.GetParent().get_column_config()
         self.populate_dropdown()
         self.DoLayoutAdaptation()
         self.Layout()
@@ -712,6 +744,56 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.crown_diam.SetItems(numeric_names)
         self.tree_height.SetItems(numeric_names)
 
+        # pre-select columns
+        self.make_column_preselection()
+
+    # make column pre-selection
+    def make_column_preselection(self):
+        identifyer = self.__col_settings.get_id()
+        if identifyer is not None:
+            self.id.SetStringSelection(identifyer)
+
+        refheight = self.__col_settings.get_ref_height()
+        if refheight is not None:
+            self.ref_height.SetStringSelection(refheight)
+
+        crowndiam = self.__col_settings.get_crown_diam()
+        if crowndiam != (None, None, None):
+            self.crown_diam.SetStringSelection(crowndiam[0])
+            self.crown_type.SetStringSelection(crowndiam[1])
+            self.crown_unit.SetStringSelection(crowndiam[2])
+
+        treeheight = self.__col_settings.get_tree_height()
+        if treeheight != (None, None):
+            self.tree_height.SetStringSelection(treeheight[0])
+
+        geom = self.__col_settings.get_geom()
+        if geom is not None:
+            self.geom.SetStringSelection(geom)
+
+    def save_column_preselection(self):
+        if self.id.GetSelection() != wx.NOT_FOUND:
+            idcol = self.id.GetStringSelection()
+            self.__col_settings.set_id(idcol)
+
+        if self.ref_height.GetSelection() != wx.NOT_FOUND:
+            refcol = self.ref_height.GetStringSelection()
+            self.__col_settings.set_ref_height(refcol)
+
+        if self.crown_diam.GetSelection() != wx.NOT_FOUND:
+            crowncol = self.crown_diam.GetStringSelection()
+            crownmode = self.crown_type.GetStringSelection()
+            crownunit = self.crown_unit.GetStringSelection()
+            self.__col_settings.set_crown_diam(crowncol, crownmode, crownunit)
+
+        if self.tree_height.GetSelection() != wx.NOT_FOUND:
+            treeheight = self.tree_height.GetStringSelection()
+            self.__col_settings.set_tree_height(treeheight, "m")
+
+        if self.geom.GetSelection() != wx.NOT_FOUND:
+            geom = self.geom.GetStringSelection()
+            self.__col_settings.set_geom(geom)
+
     # method called when "derive" button is pushed
     def on_derive(self, event):
         valid, msg = self.validate_input()
@@ -723,15 +805,19 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
         self.derive.Enable(False)
         self.__running = True
 
+        self.save_column_preselection()
+
         # add column for tree height if it should be derived
         if self.derive_height.GetValue():
             self.GetParent().db.add_col("tree_h_pointcloud", "REAL")  # Adds height column to Tree data table
             self.GetParent().db.commit()
+            self.__col_settings.set_tree_height("tree_h_pointcloud", "m")
 
         # add column for crown height if it should be derived
         if self.derive_crown.GetValue():
             self.GetParent().db.add_col("crown_height_pointcloud", "REAL")  # Adds crown height column to Tree data table
             self.GetParent().db.commit()
+            self.__col_settings.set_crown_height("crown_height_pointcloud")
 
         # start thread that gets stuff done
         thread = threading.Thread(target=self.start_derive)
@@ -761,11 +847,14 @@ class DerivePointcloudGUI(default_gui.pointcloud_process):
             crown_precision = 0.1
         processor.set_crown_precision(crown_precision)
 
+        # set the default crown diameter, in case a tree has an invalid crown diameter
         processor.set_default_crown_diam(float(self.default_diam.GetValue().replace(",", ".")))
 
+        # set variable to derive tree height
         if self.derive_height.GetValue():
             processor.set_derive_tree_height(True)
 
+        # set variable and config to derive crown height
         if self.derive_crown.GetValue():
             processor.set_derive_crown_height(True)
             threshold = float(self.threshold.GetValue().replace(",", "."))
@@ -1072,6 +1161,7 @@ class ProcessPointcloud(BasicConnection):
 class AddGeometry(default_gui.geom_props):
     def __init__(self, parent):
         default_gui.geom_props.__init__(self, parent)
+        self.__col_settings = self.GetParent().get_column_config()
         self.populate_dropdown()
         self.DoLayoutAdaptation()
         self.Layout()
@@ -1083,7 +1173,27 @@ class AddGeometry(default_gui.geom_props):
         self.xvalue.SetItems(num_col_list)
         self.yvalue.SetItems(num_col_list)
         self.id.SetItems(col_list)
-        self.Layout()
+
+        self.make_column_preselection()
+
+    def make_column_preselection(self):
+        identifyer = self.__col_settings.get_id()
+        if identifyer is not None:
+            self.id.SetStringSelection(identifyer)
+
+        coords = self.__col_settings.get_coordinates()
+        if coords != (None, None):
+            self.xvalue.SetStringSelection(coords[0])
+            self.yvalue.SetStringSelection(coords[1])
+
+    def save_column_preselection(self):
+        if self.id.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_id(self.id.GetStringSelection())
+
+        if self.xvalue.GetSelection() != wx.NOT_FOUND and self.yvalue.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_coordinates(self.xvalue.GetStringSelection(), self.yvalue.GetStringSelection())
+
+        self.__col_settings.set_geom("geom")
 
     # activate button if all dropdowns are used
     def validate(self, event):
@@ -1109,6 +1219,8 @@ class AddGeometry(default_gui.geom_props):
             msg = wx.MessageDialog(self, self.validate_input()[1], style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
             return
+
+        self.save_column_preselection()
 
         self.GetParent().db.add_geom_col(self.epsg.GetValue())
 
@@ -1157,6 +1269,10 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
         self.__DbPath = dbpath
         self.__DbTreeTableName = tablename
         self.__CodeList = []
+        self.__col_settings = self.GetParent().get_column_config()
+
+        self.__species_col_name = "CityGML_Species_Code"
+        self.__class_col_name = "CityGML_Class_Code"
 
         self.populate_dropdowns()
         self.DoLayoutAdaptation()
@@ -1241,13 +1357,16 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             self.EndModal(1234)
             return
 
+        self.__col_settings.set_species(self.__species_col_name)
+        self.__col_settings.set_class(self.__species_col_name)
+
         veg_column = self.choice_vegetation_col.GetStringSelection()  # get column with botanical name
-        self.GetParent().db.add_col("CityGML_Species_Code", "INT")  # add species code column to database table
-        self.GetParent().db.add_col("CityGML_Class_Code", "INT")  # add species code column to database table
+        self.GetParent().db.add_col(self.__species_col_name, "INT")  # add species code column to database table
+        self.GetParent().db.add_col(self.__class_col_name, "INT")  # add species code column to database table
         self.GetParent().db.commit()
         con = BasicConnection(self.__DbPath, None)
         for entry in self.__CodeList:
-            con.update_value(self.__DbTreeTableName, "CityGML_Species_Code", entry[1], veg_column, entry[0], True)
-            con.update_value(self.__DbTreeTableName, "CityGML_Class_Code", entry[2], veg_column, entry[0], True)
+            con.update_value(self.__DbTreeTableName, self.__species_col_name, entry[1], veg_column, entry[0], True)
+            con.update_value(self.__DbTreeTableName, self.__class_col_name, entry[2], veg_column, entry[0], True)
         con.commit()
         self.EndModal(1)
