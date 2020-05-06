@@ -24,6 +24,9 @@ data/export_kunz_david.citygml
 # exportierte daten
 data/export_beispiele/
 
+# ignore python test file
+src/test.py
+
 # SpatiaLite
 src/libfreexl-1.dll
 src/libgcc_s_seh-1.dll
