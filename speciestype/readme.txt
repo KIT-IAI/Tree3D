@@ -1,0 +1,1 @@
+Script to transform citygml-codelist for SolitaryVegetationObject-species to tree3d species list
