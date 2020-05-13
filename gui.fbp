@@ -19161,7 +19161,7 @@
                 </object>
             </object>
         </object>
-        <object class="Dialog" expanded="0">
+        <object class="Dialog" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -19236,7 +19236,7 @@
             <event name="OnShow"></event>
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
-            <object class="wxFlexGridSizer" expanded="0">
+            <object class="wxFlexGridSizer" expanded="1">
                 <property name="cols">1</property>
                 <property name="flexible_direction">wxBOTH</property>
                 <property name="growablecols"></property>
@@ -20631,11 +20631,11 @@
                         </object>
                     </object>
                 </object>
-                <object class="sizeritem" expanded="0">
+                <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
                     <property name="flag"></property>
                     <property name="proportion">1</property>
-                    <object class="wxFlexGridSizer" expanded="0">
+                    <object class="wxFlexGridSizer" expanded="1">
                         <property name="cols">3</property>
                         <property name="flexible_direction">wxBOTH</property>
                         <property name="growablecols"></property>
