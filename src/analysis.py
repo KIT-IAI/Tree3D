@@ -756,7 +756,7 @@ class BoundingBox:
         if y_val < self.__yMin:
             self.set_ymin(y_val)
 
-        if y_val > self.__xMax:
+        if y_val > self.__yMax:
             self.set_ymax(y_val)
 
     # returns bounding box coordinates
