@@ -193,7 +193,7 @@ class LineString(Geometry):
             postext = "%s %s " % (self.__start.get_x(), self.__start.get_y())
             postext += "%s %s" % (self.__end.get_x(), self.__end.get_y())
         elif self._dimension == 3:
-            postext = "%s %s %s" % (self.__start.get_x(), self.__start.get_y(), self.__start.get_z())
+            postext = "%s %s %s " % (self.__start.get_x(), self.__start.get_y(), self.__start.get_z())
             postext += "%s %s %s" % (self.__end.get_x(), self.__end.get_y(), self.__end.get_z())
         poslist.text = postext
         return linestring
@@ -396,7 +396,7 @@ class Solid(Geometry):
         """
         solid = self.get_citygml_geometric_representation_nometadata()
         solid.set("srsDimension", str(self._dimension))
-        solid.set("srsName", "EPSG:" % self._epsg)
+        solid.set("srsName", "EPSG:%s" % self._epsg)
         return solid
 
 
@@ -453,7 +453,7 @@ class CompositeSolid(Geometry):
         """
         compsolid = ET.Element("gml:CompositeSolid")
         for solid in self.__Solids:
-            solidmember = ET.SubElement(compsolid)
+            solidmember = ET.SubElement(compsolid, "gml:solidMember")
             solidxml = solid.get_citygml_geometric_representation_nometadata()
             solidmember.append(solidxml)
         return compsolid
