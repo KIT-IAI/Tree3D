@@ -10,15 +10,17 @@ class Geometry:
     Superclass to all other geometric representations in thie module.
     """
 
-    def __init__(self, epsg, dimension):
+    def __init__(self, epsg, dimension, geom_id=None):
         """
         Initialize
         :param epsg: EPSG Code of Geometry (int)
         :param dimension: Dimension of Geometry (int)
+        :param geom_id: ID of geom object
         """
 
         self._epsg = epsg
         self._dimension = dimension
+        self._id = geom_id
 
     def get_epsg(self):
         """
@@ -125,6 +127,8 @@ class Point(Geometry):
         point = ET.Element("gml:Point")
         point.set("srsDimension", str(self._dimension))
         point.set("srsName", "EPSG:%s" % self._epsg)
+        if self._id is not None:
+            point.set("gml:id", self._id)
 
         pos = ET.SubElement(point, "gml:pos")
         pos.set("srsDimension", str(self._dimension))
@@ -140,15 +144,16 @@ class LineString(Geometry):
     """
     Class to represent a Line String
     """
-    def __init__(self, epsg, dimension, startpoint, endpoint):
+    def __init__(self, epsg, dimension, startpoint, endpoint, geom_id=None):
         """
         Initialize
         :param epsg: EPSG code of Geometry (int)
         :param dimension: Dimension of Geometry (int)
         :param startpoint: Starting point of line string (Point object)
         :param endpoint: Endign point of line string (Point object)
+        :param geom_id: ID of geometry
         """
-        Geometry.__init__(self, epsg, dimension)
+        Geometry.__init__(self, epsg, dimension, geom_id)
         self.__start = startpoint
         self.__end = endpoint
 
@@ -185,6 +190,8 @@ class LineString(Geometry):
         linestring = ET.Element("gml:LineString")
         linestring.set("srsDimension", str(self._dimension))
         linestring.set("srsName", "EPSG:%s" % self._epsg)
+        if self._id is not None:
+            linestring.set("gml:id", self._id)
 
         poslist = ET.SubElement(linestring, "gml:posList")
         poslist.set("srsDimension", str(self._dimension))
@@ -204,14 +211,15 @@ class Polygon(Geometry):
     Class to represent a polygon.
     Inner rings not supported (yet?)
     """
-    def __init__(self, epsg, dimension, l_ext_pnts=None):
+    def __init__(self, epsg, dimension, l_ext_pnts=None, geom_id=None):
         """
         Initialize
         :param epsg: EPSG code of Geometry (int)
         :param dimension: Dimension of Geometry (int)
         :param l_ext_pnts: List of Point objects for outer polygon ring, Default: None -> []
+        geom_id: ID of geometry
         """
-        Geometry.__init__(self, epsg, dimension)
+        Geometry.__init__(self, epsg, dimension, geom_id)
 
         if l_ext_pnts is None:
             l_ext_pnts = []
@@ -253,6 +261,9 @@ class Polygon(Geometry):
         :return: GML Polygon geometry (ET.Element() object)
         """
         polygon = ET.Element("gml:Polygon")
+        if self._id is not None:
+            polygon.set("gml:id", self._id)
+
         exterior = ET.SubElement(polygon, "gml:exterior")
         linearring = ET.SubElement(exterior, "gml:LinearRing")
         poslist = ET.SubElement(linearring, "gml:posList")
@@ -280,14 +291,15 @@ class CompositePolygon(Geometry):
     """
     Class to represent a composite polygon
     """
-    def __init__(self, epsg, dimension, l_polygons=None):
+    def __init__(self, epsg, dimension, l_polygons=None, geom_id=None):
         """
         Initialize
         :param epsg: EPSG code of Geometry (int)
         :param dimension: Dimension of Geometry (int)
         :param l_polygons: List of Polygon objects, Default: None -> []
+        :param geom_id: Geometry ID
         """
-        Geometry.__init__(self, epsg, dimension)
+        Geometry.__init__(self, epsg, dimension, geom_id)
 
         if l_polygons is None:
             l_polygons = []
@@ -328,6 +340,8 @@ class CompositePolygon(Geometry):
         :return: GML CompositeSurface geometry (ET.Element() object)
         """
         compsurface = ET.Element("gml:CompositeSurface")
+        if self._id is not None:
+            compsurface.set("gml:id", self._id)
         for polygon in self.__polygons:
             surfacemember = ET.SubElement(compsurface, "gml:surfaceMember")
             polygonxml = polygon.get_citygml_geometric_representation_nometadata()
@@ -350,14 +364,15 @@ class Solid(Geometry):
     Class to represent a solid object
     Interior not supported (yet?)
     """
-    def __init__(self, epsg, dimension, ext_comp_polygon=None):
+    def __init__(self, epsg, dimension, ext_comp_polygon=None, geom_id=None):
         """
         Initialize
         :param epsg: EPSG code of geometry
         :param dimension: dimension of geometry
         :param ext_comp_polygon: CompositePolygon object for exterior, Default: None
+        :param geom_id: Geometry ID
         """
-        Geometry.__init__(self, epsg, dimension)
+        Geometry.__init__(self, epsg, dimension, geom_id)
 
         self.__ExteriorCompositePolygon = ext_comp_polygon
 
@@ -384,6 +399,9 @@ class Solid(Geometry):
         :return: GML Solid geometry (ET.Element() object)
         """
         solid = ET.Element("gml:Solid")
+        if self._id is not None:
+            solid.set("gml:id", self._id)
+
         exterior = ET.SubElement(solid, "gml:exterior")
         compsurface = self.__ExteriorCompositePolygon.get_citygml_geometric_representation_nometadata()
         exterior.append(compsurface)
@@ -404,14 +422,15 @@ class CompositeSolid(Geometry):
     """
     Method to represent CompositeSolid object
     """
-    def __init__(self, epsg, dimension, l_solids=None):
+    def __init__(self, epsg, dimension, l_solids=None, geom_id=None):
         """
         Initialize
         :param epsg: EPSG code of geometry
         :param dimension: dimension of geometry
         :param l_solids: List of Solid objects, Default: None -> []
+        :param geom_id Geometry ID
         """
-        Geometry.__init__(self, epsg, dimension)
+        Geometry.__init__(self, epsg, dimension, geom_id)
 
         if l_solids is None:
             l_solids = []
@@ -452,6 +471,8 @@ class CompositeSolid(Geometry):
         :return: GML CompositeSolid geometry (ET.Element() object)
         """
         compsolid = ET.Element("gml:CompositeSolid")
+        if self._id is not None:
+            compsolid.set("gml:id", self._id)
         for solid in self.__Solids:
             solidmember = ET.SubElement(compsolid, "gml:solidMember")
             solidxml = solid.get_citygml_geometric_representation_nometadata()
