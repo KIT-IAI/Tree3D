@@ -7,6 +7,7 @@ import os
 
 import default_gui
 import analysis
+import geometry
 
 import wx
 
@@ -257,6 +258,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # start the export
         export_status = exporter.export(self.progress)
+        # save file
+        exporter.save_file()
 
         # show dialog after export with short report
         message = "Export to CityGML finished.\n" \
@@ -599,22 +602,23 @@ class ExportDialog(default_gui.CityGmlExport):
             self.__col_settings.set_crown_height(self.ChoiceCrownHeightCol.GetStringSelection())
 
 
-class CityGmlExport:
+class Export:
     def __init__(self, savepath, dbfilepath):
-        self.__con = sqlite3.connect(dbfilepath)
-        self.__DataCursor = self.__con.cursor()  # Data cursor table from database (list of lists)
-        self.__TreeTableName = ""
+        self._con = sqlite3.connect(dbfilepath)
+        self._DataCursor = self._con.cursor()  # Data cursor table from database (list of lists)
+        self._TreeTableName = ""
 
-        self.__filepath = savepath  # output file path (where citygml will be saved)
-        self.__root = None  # ElementTree Root Node
+        self._filepath = savepath  # output file path (where citygml will be saved)
 
-        self.__bbox = analysis.BoundingBox()  # Bounding box object
+        self._bbox = analysis.BoundingBox()  # Bounding box object
 
-        self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
+        self._col_datatypes = None  # list of data types of columns
+        self._col_names = None  # list of names all columns
+
         self.__x_value_col_index = None  # index of column in which x value is stored
         self.__y_value_col_index = None  # index of column in which y value is stored
         self.__ref_height_col_index = None  # index of column in which reference height is stored
-        self.__EPSG = None  # EPSG-Code of coordinates
+        self._EPSG = None  # EPSG-Code of coordinates
         self.__EPSG_output = None  # EPSG-Code of coordinates in output
 
         self.__height_col_index = None  # index of height column
@@ -631,46 +635,105 @@ class CityGmlExport:
         self.__species_col_index = None  # index of CityGML species code column
         self.__class_col_index = None  # index of CityGML class code column
 
-        self.__generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
-        self.__col_datatypes = None  # list of data types of columns
-        self.__col_names = None  # list of names all columns
-
+        self.__crown_height_code = None  # configures how crown hight should be calulated (only values between 0-4)
         self.__crown_height_col_index = None
 
-        self.__default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
+        self._default_export_type = None  # decides what tree type should be used if it is not clear (1060 or 1070)
 
-        self.__geom_type = ""  # configures geom type: Only EXPLICIT or IMPLICIT are allowed values
-        self.__crown_height_code = None  # configures how crown hight should be calulated (only values between 0-4)
+        self._geom_type = ""  # configures geom type: Only EXPLICIT or IMPLICIT are allowed values
 
-        self.__use_lod1 = False  # variable determines if LOD1 is generated
-        self.__lod1_geomtype = None  # variable determines type of geometry that should be generated for LOD1 (0-5)
-        self.__lod1_segments = None  # variable determines number of segments to be used in geometry (not always used)
+        self._use_lod1 = False  # variable determines if LOD1 is generated
+        self._lod1_geomtype = None  # variable determines type of geometry that should be generated for LOD1 (0-5)
+        self._lod1_segments = None  # variable determines number of segments to be used in geometry (not always used)
 
-        self.__use_lod2 = False
-        self.__lod2_geomtype = None
-        self.__lod2_segments = None
+        self._use_appearance = False  # variable to determine if appearance model should be used
+        self._stem_ids = []  # stores ids of all trunk geometries
+        self._crown_deciduous_ids = []  # stores ids of all deciduous crown geometries
+        self._crown_coniferous_ids = []  # stores ids of all coniferous crown geometries
 
-        self.__use_lod3 = False
-        self.__lod3_geomtype = None
-        self.__lod3_segments = None
+    def set_tree_table_name(self, name):
+        self._TreeTableName = name
 
-        self.__use_lod4 = False
-        self.__lod4_geomtype = None
-        self.__lod4_segments = None
+    def set_col_names(self, names):
+        self._col_names = names
 
-        self.__current_lod = ""  # variable to save the current LOD which is being generated
+    def set_col_datatypes(self, types):
+        self._col_datatypes = types
 
-        self.__current_tree_gmlid = ""  # variable to save gml:id of tree that is currently generated
-        self.__stem_gmlids = []  # stores gml:ids of all trunk geometries
-        self.__crown_deciduous_gmlids = []  # stores gml:ids of all deciduous crown geometries
-        self.__crown_coniferous_gmlids = []  # stores gml:ids of all coniferous crown geometries
+    def set_x_col_idx(self, idx):
+        self.__x_value_col_index = idx
 
-        self.__use_appearance = False  # variable to determine if appearance model should be used
+    def set_y_col_idx(self, idx):
+        self.__y_value_col_index = idx
 
-    # method to initiate citygml export
+    def set_ref_height_col_idx(self, idx):
+        self.__ref_height_col_index = idx
+
+    def set_epsg(self, epsg_code):
+        self._EPSG = epsg_code
+
+    def set_height_col_index(self, idx):
+        self.__height_col_index = idx
+
+    def set_height_unit(self, unit):
+        self.__height_unit = unit
+
+    def set_trunk_diam_col_index(self, idx):
+        self.__trunk_diam_col_index = idx
+
+    def set_trunk_diam_unit(self, unit):
+        self.__trunk_diam_unit = unit
+
+    def set_trunk_is_circ(self, val):
+        self.__trunk_is_circ = val
+
+    def set_crown_diam_col_index(self, idx):
+        self.__crown_diam_col_index = idx
+
+    def set_crown_diam_unit(self, unit):
+        self.__crown_diam_unit = unit
+
+    def set_crown_is_circ(self, val):
+        self.__crown_is_circ = val
+
+    def set_species_col_index(self, index):
+        self.__species_col_index = index
+
+    def set_class_col_index(self, index):
+        self.__class_col_index = index
+
+    def set_crown_height_code(self, code):
+        self.__crown_height_code = code
+
+    def set_crown_height_col_index(self, val):
+        self.__crown_height_col_index = val
+
+    def set_default_export_type(self, typ):
+        self._default_export_type = typ
+
+    def set_geomtype(self, geomtype):
+        self._geom_type = geomtype
+
+    # method to setup LOD1 geometry creation: if it and which geomtype should be created and hw many segments to use
+    def setup_lod1(self, value, geomtype, segments=None):
+        self._use_lod1 = value
+        self._lod1_geomtype = geomtype
+        if segments is not None:
+            self._lod1_segments = segments
+
+    def set_use_appearance(self, val):
+        supported_geoms = [3, 4, 5]
+        if self._lod1_geomtype in supported_geoms:
+            self._use_appearance = val
+
+    # method adds data to cursor again, so it can be iterated
+    def fill_data_cursor(self):
+        if self._col_names[0] != "ROWID":
+            self._DataCursor.execute("SELECT * FROM %s" % self._TreeTableName)
+        else:
+            self._DataCursor.execute("SELECT ROWID, * FROM %s" % self._TreeTableName)
+
     def export(self, progressbar):
-        self.__root = ET.Element("CityModel")
-        self.add_namespaces()
 
         exported_trees = 0
         invalid_lod1 = 0
@@ -689,14 +752,29 @@ class CityGmlExport:
                      self.__species_col_index]
 
         self.fill_data_cursor()
-        for row in self.__DataCursor:
 
-            self.__current_tree_gmlid = "tree%s" % exported_trees
+        for row in self._DataCursor:
+            tree_model = TreeModel()
+
+            tree_model.set_id("tree%s" % exported_trees)
 
             # assign geometric values to variables
             x_value = row[self.__x_value_col_index]
             y_value = row[self.__y_value_col_index]
             ref_height = row[self.__ref_height_col_index]
+            tree_model.set_position(self._EPSG, x_value, y_value, ref_height)
+
+            # compare thiw row's x and y vlaues with values in bounding box object
+            # boung box updates if new boundries are detected
+            self._bbox.compare(x_value, y_value)
+
+            # Add class attribute to parameterized tree model
+            if self.__class_col_index is not None and row[self.__class_col_index] is not None:
+                tree_model.set_class(row[self.__class_col_index])
+
+            # Add species attribute to parameterized tree model
+            if self.__species_col_index is not None and row[self.__species_col_index] is not None:
+                tree_model.set_species(row[self.__species_col_index])
 
             if self.__height_col_index is not None:
                 tree_height = row[self.__height_col_index]
@@ -718,11 +796,11 @@ class CityGmlExport:
             elif tree_height is not None and self.__crown_height_code == 1:
                 crown_height = 0.5 * tree_height
             elif tree_height is not None and self.__crown_height_code == 2:
-                crown_height = (2/3.0) * tree_height
+                crown_height = (2 / 3.0) * tree_height
             elif tree_height is not None and self.__crown_height_code == 3:
-                crown_height = (3/4.0) * tree_height
+                crown_height = (3 / 4.0) * tree_height
             elif tree_height is not None and self.__crown_height_code == 4:
-                crown_height = (4/5.0) * tree_height
+                crown_height = (4 / 5.0) * tree_height
             elif tree_height is not None and self.__crown_height_code == 5:
                 crown_height = row[self.__crown_height_col_index]
 
@@ -733,769 +811,52 @@ class CityGmlExport:
 
             if self.__trunk_diam_col_index is not None and trunk_diam is not None:
                 if self.__trunk_diam_unit == "cm":
-                    trunk_diam = trunk_diam/100.0
+                    trunk_diam = trunk_diam / 100.0
                 if self.__trunk_is_circ:
                     trunk_diam = trunk_diam / math.pi
 
             if self.__crown_diam_col_index is not None and crown_diam is not None:
                 if self.__crown_diam_unit == "cm":
-                    crown_diam = crown_diam/100.0
+                    crown_diam = crown_diam / 100.0
                 if self.__crown_is_circ:
                     crown_diam = crown_diam / math.pi
 
-            # validate tree parametrs
+            tree_model.set_height(tree_height)
+            tree_model.set_trunkdiam(trunk_diam)
+            tree_model.set_crowndiam(crown_diam)
+            tree_model.set_crownheight(crown_height)
+
+            for index, value in enumerate(row):
+                if index in used_cols:
+                    continue
+                if value is None:
+                    continue
+
+                typ = self._col_datatypes[index]
+                col_name = self._col_names[index]
+
+                if typ == "GEOM":
+                    continue
+                elif typ == "INTEGER":
+                    tree_model.add_generic("int", col_name, value)
+                elif typ == "REAL":
+                    tree_model.add_generic("float", col_name, value)
+                elif typ == "TEXT":
+                    tree_model.add_generic("string", col_name, value)
+
             validator = analysis.AnalyzeTreeGeoms(tree_height, trunk_diam, crown_diam, crown_height)
-            lod1_valid = False
-            lod2_valid = False
-            lod3_valid = False
-            lod4_valid = False
+            lod1, lod2, lod3, lod4 = self.generate_geometries(tree_model, validator)
 
-            # validate tree parameters for LOD1 geometry
-            if self.__lod1_geomtype == 0:
-                lod1_valid, _ = validator.analyze_height()
-            elif self.__lod1_geomtype == 1 or self.__lod1_geomtype == 2:
-                lod1_valid, _ = validator.analyze_height_crown()
-            elif self.__lod1_geomtype == 3 or self.__lod1_geomtype == 4 or self.__lod1_geomtype == 5:
-                if self.__crown_height_code == 0:
-                    lod1_valid, _ = validator.analyze_height_crown_trunk_sphere()
-                elif 0 < self.__crown_height_code < 5:
-                    lod1_valid, _ = validator.analyze_height_crown_trunk()
-                elif self.__crown_height_code == 5:
-                    lod1_valid, _ = validator.analyze_height_crown_trunk_nosphere()
+            if lod1 is False:
+                invalid_lod1 += 1
+            if lod2 is False:
+                invalid_lod2 += 1
+            if lod3 is False:
+                invalid_lod3 += 1
+            if lod4 is False:
+                invalid_lod4 += 1
 
-            # validate tree parameters for LOD2 geometry
-            if self.__lod2_geomtype == 0:
-                lod2_valid, _ = validator.analyze_height()
-            elif self.__lod2_geomtype == 1 or self.__lod2_geomtype == 2:
-                lod2_valid, _ = validator.analyze_height_crown()
-            elif self.__lod2_geomtype == 3 or self.__lod2_geomtype == 4 or self.__lod2_geomtype == 5:
-                if self.__crown_height_code == 0:
-                    lod2_valid, _ = validator.analyze_height_crown_trunk_sphere()
-                elif 0 < self.__crown_height_code < 5:
-                    lod2_valid, _ = validator.analyze_height_crown_trunk()
-                elif self.__crown_height_code == 5:
-                    lod2_valid, _ = validator.analyze_height_crown_trunk_nosphere()
-
-            # validate tree parameters for LOD3 geometry
-            if self.__lod3_geomtype == 0:
-                lod3_valid, _ = validator.analyze_height()
-            elif self.__lod3_geomtype == 1 or self.__lod3_geomtype == 2:
-                lod3_valid, _ = validator.analyze_height_crown()
-            elif self.__lod3_geomtype == 3 or self.__lod3_geomtype == 4 or self.__lod3_geomtype == 5:
-                if self.__crown_height_code == 0:
-                    lod3_valid, _ = validator.analyze_height_crown_trunk_sphere()
-                elif 0 < self.__crown_height_code < 5:
-                    lod3_valid, _ = validator.analyze_height_crown_trunk()
-                elif self.__crown_height_code == 5:
-                    lod3_valid, _ = validator.analyze_height_crown_trunk_nosphere()
-
-            # validate tree parameters for LOD4 geometry
-            if self.__lod4_geomtype == 0:
-                lod4_valid, _ = validator.analyze_height()
-            elif self.__lod4_geomtype == 1 or self.__lod4_geomtype == 2:
-                lod4_valid, _ = validator.analyze_height_crown()
-            elif self.__lod4_geomtype == 3 or self.__lod4_geomtype == 4 or self.__lod4_geomtype == 5:
-                if self.__crown_height_code == 0:
-                    lod4_valid, _ = validator.analyze_height_crown_trunk_sphere()
-                elif 0 < self.__crown_height_code < 5:
-                    lod4_valid, _ = validator.analyze_height_crown_trunk()
-                elif self.__crown_height_code == 5:
-                    lod4_valid, _ = validator.analyze_height_crown_trunk_nosphere()
-
-            # create CityObjectMember in XML Tree
-            city_object_member = ET.SubElement(self.__root, "cityObjectMember")
-
-            # Create SolitaryVegetationObject in XML Tree
-            solitary_vegetation_object = ET.SubElement(city_object_member, "veg:SolitaryVegetationObject")
-            solitary_vegetation_object.set("gml:id", self.__current_tree_gmlid)
-
-            # compare thiw row's x and y vlaues with values in bounding box object
-            # boung box updates if new boundries are detected
-            self.__bbox.compare(row[self.__x_value_col_index], row[self.__y_value_col_index])
-
-            # add creationDate into the model: Today's date is always used for CreationDate
-            creationdate = ET.SubElement(solitary_vegetation_object, "creationDate")
-            creationdate.text = str(date.today())
-
-            # generate generic attributes if requested
-            if self.__generate_generic_attributes:
-                for index, value in enumerate(row):
-                    if index in used_cols:
-                        continue
-                    if value is None:
-                        continue
-
-                    typ = self.__col_datatypes[index]
-                    col_name = self.__col_names[index]
-
-                    if typ == "GEOM":
-                        continue
-                    elif typ == "INTEGER":
-                        int_attribute = ET.SubElement(solitary_vegetation_object, "gen:intAttribute")
-                        int_attribute.set("name", col_name)
-                        val = ET.SubElement(int_attribute, "gen:value")
-                        val.text = str(value)
-                    elif typ == "REAL":
-                        double_attribute = ET.SubElement(solitary_vegetation_object, "gen:doubleAttribute")
-                        double_attribute.set("name", col_name)
-                        val = ET.SubElement(double_attribute, "gen:value")
-                        val.text = str(value)
-                    elif typ == "TEXT":
-                        string_attribute = ET.SubElement(solitary_vegetation_object, "gen:stringAttribute")
-                        string_attribute.set("name", col_name)
-                        val = ET.SubElement(string_attribute, "gen:value")
-                        val.text = str(value)
-
-            # Add class attribute to parameterized tree model
-            if self.__class_col_index is not None and row[self.__class_col_index] is not None:
-                klasse = ET.SubElement(solitary_vegetation_object, "veg:class")
-                klasse.text = str(row[self.__class_col_index])
-
-            # Add species attribute to parameterized tree model
-            if self.__species_col_index is not None and row[self.__species_col_index] is not None:
-                species = ET.SubElement(solitary_vegetation_object, "veg:species")
-                species.text = str(row[self.__species_col_index])
-
-            # Add hight attribute to parameterized tree model
-            if self.__height_col_index is not None and row[self.__height_col_index] is not None:
-                height = ET.SubElement(solitary_vegetation_object, "veg:height")
-                height.text = str(tree_height)
-                height.set("uom", "m")
-
-            # Add trunk (stem) diameter attribute to parameterized tree model
-            if self.__trunk_diam_col_index is not None and row[self.__trunk_diam_col_index] is not None:
-                trunk = ET.SubElement(solitary_vegetation_object, "veg:trunkDiameter")
-                trunk.text = str(trunk_diam)
-                trunk.set("uom", "m")
-
-            # Add crown diameter attribute to parameterized tree model
-            if self.__crown_diam_col_index is not None and row[self.__crown_diam_col_index] is not None:
-                crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
-                crown.text = str(crown_diam)
-                crown.set("uom", "m")
-
-            # Create explicit geometries
-            # geomtype 0 -> linie, geomtype 1 -> cylinder, geomtype 2 -> rectangles,
-            # geomtype 3 -> polygons, geomtype 4 -> cuboid, geomtype 5 -> detailled
-            # vegetation class 1060 -> coniferous, vegetation class 1070 -> deciduous, anything else -> default
-            if self.__geom_type == "EXPLICIT":
-                # Calls methods to generate geometries for LOD1 if it is valid, depending on user input
-                if self.__use_lod1 and lod1_valid:
-                    lod_1_geom = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
-                    self.__current_lod = "lod1"
-                    if self.__lod1_geomtype == 0:
-                        self.generate_line_geometry(lod_1_geom, x_value, y_value, ref_height, tree_height)
-
-                    elif self.__lod1_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_1_geom, x_value, y_value, ref_height,
-                                                        tree_height, crown_diam, self.__lod1_segments)
-                    elif self.__lod1_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_1_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, self.__lod1_segments)
-                    elif self.__lod1_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod1_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod1_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod1_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod1_segments, crown_height)
-                    elif self.__lod1_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod1_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod1_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod1_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_1_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod1_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_1_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod1_segments, crown_height)
-                else:
-                    if self.__use_lod1:
-                        invalid_lod1 += 1
-
-                # Calls methods to generate geometries for LOD2, depending on user input
-                if self.__use_lod2 and lod2_valid:
-                    lod_2_geom = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
-                    self.__current_lod = "lod2"
-                    if self.__lod2_geomtype == 0:
-                        self.generate_line_geometry(lod_2_geom, x_value, y_value, ref_height, tree_height)
-                    elif self.__lod2_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_2_geom, x_value, y_value, ref_height,
-                                                        tree_height, crown_diam, self.__lod2_segments)
-                    elif self.__lod2_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_2_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, self.__lod2_segments)
-                    elif self.__lod2_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod2_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod2_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod2_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod2_segments, crown_height)
-                    elif self.__lod2_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod2_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod2_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod2_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_2_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod2_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_2_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod2_segments, crown_height)
-                else:
-                    if self.__use_lod2:
-                        invalid_lod2 += 1
-
-                # Calls methods to generate geometries for LOD3, depending on user input
-                if self.__use_lod3 and lod3_valid:
-                    lod_3_geom = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
-                    self.__current_lod = "lod3"
-                    if self.__lod3_geomtype == 0:
-                        self.generate_line_geometry(lod_3_geom, x_value, y_value, ref_height, tree_height)
-                    elif self.__lod3_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_3_geom, x_value, y_value, ref_height,
-                                                        tree_height, crown_diam, self.__lod3_segments)
-                    elif self.__lod3_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_3_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, self.__lod3_segments)
-                    elif self.__lod3_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod3_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod3_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod3_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod3_segments, crown_height)
-                    elif self.__lod3_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod3_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod3_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod3_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_3_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod3_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_3_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod3_segments, crown_height)
-                else:
-                    if self.__use_lod3:
-                        invalid_lod3 += 1
-
-                # Calls methods to generate geometries for LOD4, depending on user input
-                if self.__use_lod4 and lod4_valid:
-                    lod_4_geom = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
-                    self.__current_lod = "lod4"
-                    if self.__lod4_geomtype == 0:
-                        self.generate_line_geometry(lod_4_geom, x_value, y_value, ref_height, tree_height)
-                    elif self.__lod4_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_4_geom, x_value, y_value, ref_height,
-                                                        tree_height, crown_diam, self.__lod4_segments)
-                    elif self.__lod4_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_4_geom, x_value, y_value, ref_height,
-                                                                   tree_height, crown_diam, self.__lod4_segments)
-                    elif self.__lod4_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod4_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod4_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod4_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod4_segments, crown_height)
-                    elif self.__lod4_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod4_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod4_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod4_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_4_geom, x_value, y_value, ref_height,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod4_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_4_geom, x_value, y_value, ref_height,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod4_segments, crown_height)
-                else:
-                    if self.__use_lod4:
-                        invalid_lod4 += 1
-
-            # Create implicit geometries
-            elif self.__geom_type == "IMPLICIT":
-                if self.__use_lod1 and lod1_valid:
-                    lod1_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod1ImplicitRepresentation")
-                    implicit_geometry = ET.SubElement(lod1_implicit_geometry, "ImplicitGeometry")
-                    self.__current_lod = "lod1"
-
-                    # add transformation matrix
-                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
-                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
-
-                    lod_1_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
-                    if self.__lod1_geomtype == 0:
-                        self.generate_line_geometry(lod_1_geom, 0, 0, 0, tree_height)
-                    elif self.__lod1_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_1_geom, 0, 0, 0,
-                                                        tree_height, crown_diam, self.__lod1_segments)
-                    elif self.__lod1_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_1_geom, 0, 0, 0,
-                                                                   tree_height, crown_diam, self.__lod1_segments)
-                    elif self.__lod1_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_1_geom, 0, 0, 0,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod1_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_1_geom, 0, 0, 0,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod1_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_1_geom, 0, 0, 0,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod1_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_1_geom, 0, 0, 0,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod1_segments, crown_height)
-                    elif self.__lod1_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_1_geom, 0, 0, 0,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_1_geom, 0, 0, 0,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_1_geom, 0, 0, 0,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_1_geom, 0, 0, 0,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod1_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_1_geom, 0, 0, 0,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod1_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_1_geom, 0, 0, 0,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod1_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_1_geom, 0, 0, 0,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod1_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_1_geom, 0, 0, 0,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod1_segments, crown_height)
-
-                    # add reference point
-                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
-                    gml_point = ET.SubElement(ref_point, "gml:Point")
-                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
-                    gml_point.set("srsDimension", "3")
-                    gml_pos = ET.SubElement(gml_point, "gml:pos")
-                    gml_pos.set("srsDimension", "3")
-                    pos_list = [x_value, y_value, ref_height]
-                    gml_pos.text = self.poslist_list_to_string(pos_list)
-
-                else:
-                    if self.__use_lod1:
-                        invalid_lod1 += 1
-
-                # Calls methods to generate geometries for LOD2, depending on user input
-                if self.__use_lod2 and lod2_valid:
-                    lod2_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod2ImplicitRepresentation")
-                    implicit_geometry = ET.SubElement(lod2_implicit_geometry, "ImplicitGeometry")
-                    self.__current_lod = "lod2"
-
-                    # add transformation matrix
-                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
-                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
-
-                    lod_2_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
-                    if self.__lod2_geomtype == 0:
-                        self.generate_line_geometry(lod_2_geom, 0, 0, 0, tree_height)
-                    elif self.__lod2_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_2_geom, 0, 0, 0,
-                                                        tree_height, crown_diam, self.__lod2_segments)
-                    elif self.__lod2_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_2_geom, 0, 0, 0,
-                                                                   tree_height, crown_diam, self.__lod2_segments)
-                    elif self.__lod2_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_2_geom, 0, 0, 0,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod2_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_2_geom, 0, 0, 0,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod2_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_2_geom, 0, 0, 0,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod2_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_2_geom, 0, 0, 0,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod2_segments, crown_height)
-                    elif self.__lod2_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_2_geom, 0, 0, 0,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_2_geom, 0, 0, 0,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_2_geom, 0, 0, 0,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_2_geom, 0, 0, 0,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod2_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_2_geom, 0, 0, 0,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod2_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_2_geom, 0, 0, 0,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod2_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_2_geom, 0, 0, 0,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod2_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_2_geom, 0, 0, 0,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod2_segments, crown_height)
-
-                    # add reference point
-                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
-                    gml_point = ET.SubElement(ref_point, "gml:Point")
-                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
-                    gml_point.set("srsDimension", "3")
-                    gml_pos = ET.SubElement(gml_point, "gml:pos")
-                    gml_pos.set("srsDimension", "3")
-                    pos_list = [x_value, y_value, ref_height]
-                    gml_pos.text = self.poslist_list_to_string(pos_list)
-
-                else:
-                    if self.__use_lod2:
-                        invalid_lod2 += 1
-
-                # Calls methods to generate geometries for LOD3, depending on user input
-                if self.__use_lod3 and lod3_valid:
-                    lod3_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod3ImplicitRepresentation")
-                    implicit_geometry = ET.SubElement(lod3_implicit_geometry, "ImplicitGeometry")
-                    self.__current_lod = "lod3"
-
-                    # add transformation matrix
-                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
-                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
-
-                    lod_3_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
-                    if self.__lod3_geomtype == 0:
-                        self.generate_line_geometry(lod_3_geom, 0, 0, 0, tree_height)
-                    elif self.__lod3_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_3_geom, 0, 0, 0,
-                                                        tree_height, crown_diam, self.__lod3_segments)
-                    elif self.__lod3_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_3_geom, 0, 0, 0,
-                                                                   tree_height, crown_diam, self.__lod3_segments)
-                    elif self.__lod3_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_3_geom, 0, 0, 0,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod3_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_3_geom, 0, 0, 0,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod3_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_3_geom, 0, 0, 0,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod3_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_3_geom, 0, 0, 0,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod3_segments, crown_height)
-                    elif self.__lod3_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_3_geom, 0, 0, 0,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_3_geom, 0, 0, 0,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_3_geom, 0, 0, 0,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_3_geom, 0, 0, 0,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod3_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_3_geom, 0, 0, 0,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod3_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_3_geom, 0, 0, 0,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod3_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_3_geom, 0, 0, 0,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod3_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_3_geom, 0, 0, 0,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod3_segments, crown_height)
-
-                    # add reference point
-                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
-                    gml_point = ET.SubElement(ref_point, "gml:Point")
-                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
-                    gml_point.set("srsDimension", "3")
-                    gml_pos = ET.SubElement(gml_point, "gml:pos")
-                    gml_pos.set("srsDimension", "3")
-                    pos_list = [x_value, y_value, ref_height]
-                    gml_pos.text = self.poslist_list_to_string(pos_list)
-
-                else:
-                    if self.__use_lod3:
-                        invalid_lod3 += 1
-
-                # Calls methods to generate geometries for LOD4, depending on user input
-                if self.__use_lod4 and lod4_valid:
-                    lod4_implicit_geometry = ET.SubElement(solitary_vegetation_object, "veg:lod4ImplicitRepresentation")
-                    implicit_geometry = ET.SubElement(lod4_implicit_geometry, "ImplicitGeometry")
-                    self.__current_lod = "lod4"
-
-                    # add transformaiton matrix
-                    matrix = ET.SubElement(implicit_geometry, "transformationMatrix")
-                    matrix.text = "1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"
-
-                    lod_4_geom = ET.SubElement(implicit_geometry, "relativeGMLGeometry")
-                    if self.__lod4_geomtype == 0:
-                        self.generate_line_geometry(lod_4_geom, 0, 0, 0, tree_height)
-                    elif self.__lod4_geomtype == 1:
-                        self.generate_cylinder_geometry(lod_4_geom, 0, 0, 0,
-                                                        tree_height, crown_diam, self.__lod4_segments)
-                    elif self.__lod4_geomtype == 2:
-                        self.generate_billboard_rectangle_geometry(lod_4_geom, 0, 0, 0,
-                                                                   tree_height, crown_diam, self.__lod4_segments)
-                    elif self.__lod4_geomtype == 3:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_billboard_polygon_coniferous(lod_4_geom, 0, 0, 0,
-                                                                       tree_height, crown_diam, trunk_diam,
-                                                                       self.__lod4_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_billboard_polygon_deciduous(lod_4_geom, 0, 0, 0,
-                                                                      tree_height, crown_diam, trunk_diam,
-                                                                      self.__lod4_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_billboard_polygon_coniferous(lod_4_geom, 0, 0, 0,
-                                                                           tree_height, crown_diam, trunk_diam,
-                                                                           self.__lod4_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_billboard_polygon_deciduous(lod_4_geom, 0, 0, 0,
-                                                                          tree_height, crown_diam, trunk_diam,
-                                                                          self.__lod4_segments, crown_height)
-                    elif self.__lod4_geomtype == 4:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_cuboid_geometry_coniferous(lod_4_geom, 0, 0, 0,
-                                                                     tree_height, crown_diam, trunk_diam, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index] == 1070:
-                            self.generate_cuboid_geometry_deciduous(lod_4_geom, 0, 0, 0,
-                                                                    tree_height, crown_diam, trunk_diam, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_cuboid_geometry_coniferous(lod_4_geom, 0, 0, 0,
-                                                                         tree_height, crown_diam, trunk_diam,
-                                                                         crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_cuboid_geometry_deciduous(lod_4_geom, 0, 0, 0,
-                                                                        tree_height, crown_diam, trunk_diam,
-                                                                        crown_height)
-                    elif self.__lod4_geomtype == 5:
-                        if self.__class_col_index is not None and row[self.__class_col_index] == 1060:
-                            self.generate_geometry_coniferous(lod_4_geom, 0, 0, 0,
-                                                              tree_height, crown_diam, trunk_diam,
-                                                              self.__lod4_segments, crown_height)
-                        elif self.__class_col_index is not None and row[self.__class_col_index == 1070]:
-                            self.generate_geometry_deciduous(lod_4_geom, 0, 0, 0,
-                                                             tree_height, crown_diam, trunk_diam,
-                                                             self.__lod4_segments, crown_height)
-                        else:
-                            if self.__default_export_type == 1060:
-                                self.generate_geometry_coniferous(lod_4_geom, 0, 0, 0,
-                                                                  tree_height, crown_diam, trunk_diam,
-                                                                  self.__lod4_segments, crown_height)
-                            elif self.__default_export_type == 1070:
-                                self.generate_geometry_deciduous(lod_4_geom, 0, 0, 0,
-                                                                 tree_height, crown_diam, trunk_diam,
-                                                                 self.__lod4_segments, crown_height)
-
-                    # add reference point
-                    ref_point = ET.SubElement(implicit_geometry, "referencePoint")
-                    gml_point = ET.SubElement(ref_point, "gml:Point")
-                    gml_point.set("srsName", "EPSG:%s" % self.__EPSG)
-                    gml_point.set("srsDimension", "3")
-                    gml_pos = ET.SubElement(gml_point, "gml:pos")
-                    gml_pos.set("srsDimension", "3")
-                    pos_list = [x_value, y_value, ref_height]
-                    gml_pos.text = self.poslist_list_to_string(pos_list)
-
-                else:
-                    if self.__use_lod4:
-                        invalid_lod4 += 1
+            self.add_tree_to_model(tree_model)
 
             # update couter for valid trees
             exported_trees += 1
@@ -1503,25 +864,364 @@ class CityGmlExport:
             # update gauge in GUI
             progressbar.SetValue(progressbar.GetValue() + 1)
 
-        # add bounding box information to root
         self.bounded_by()
-
-        # add appearence model
-        if self.__use_appearance:
+        if self._use_appearance:
             self.add_appearance(progressbar)
+        self._con.close()
 
+        # return number of exported valid trees and number of trees that were not exported
+        return exported_trees, invalid_lod1, invalid_lod2, invalid_lod3, invalid_lod4
+
+    # method is overwritten in subclasses
+    def add_tree_to_model(self, tree_model):
+        pass
+
+    # method to generate geometric models for LOD1
+    def generate_geometries(self, treemodel, validator):
+        # validate tree parameters for LOD1 geometry
+        lod1_valid = True
+
+        # generate LOD1 geometry
+        if self._use_lod1:
+            lod1_valid = self.validate_geometry(validator, self._lod1_geomtype)
+            if lod1_valid:
+                lod1_geom_obj = self.get_geometry(treemodel, self._lod1_geomtype, self._lod1_segments, "lod1")
+                treemodel.set_lod1model(lod1_geom_obj)
+
+        return lod1_valid, True, True, True
+
+    # method to validate geometric parameters before geometry creation
+    def validate_geometry(self, validator, geomtype):
+        valid = False
+
+        if geomtype == 0:
+            valid, _ = validator.analyze_height()
+        elif geomtype == 1 or geomtype == 2:
+            valid, _ = validator.analyze_height_crown()
+        elif geomtype == 3 or geomtype == 4 or geomtype == 5:
+            if self.__crown_height_code == 0:
+                valid, _ = validator.analyze_height_crown_trunk_sphere()
+            elif 0 < self.__crown_height_code < 5:
+                valid, _ = validator.analyze_height_crown_trunk()
+            elif self.__crown_height_code == 5:
+                valid, _ = validator.analyze_height_crown_trunk_nosphere()
+
+        return valid
+
+    # Method to initiate creation of geometric tree models
+    def get_geometry(self, treemodel, geomtype, segments, lod):
+        geom_obj = None
+        tree_class = treemodel.get_class()
+
+        stem_ids = []
+        crown_ids_coni = []
+        crown_ids_deci = []
+
+        if geomtype == 0:
+            geom_obj = generate_line_geometry(treemodel, self._geom_type)
+        elif geomtype == 1:
+            geom_obj = generate_cylinder_geometry(treemodel, segments, self._geom_type)
+        elif geomtype == 2:
+            geom_obj = generate_billboard_rectangle_geometry(treemodel, segments, self._geom_type)
+        elif geomtype == 3:
+            if self.__class_col_index is not None and tree_class == 1060:
+                geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod)
+            elif self.__class_col_index is not None and tree_class == 1070:
+                geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod)
+            else:
+                if self._default_export_type == 1060:
+                    geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod)
+                elif self._default_export_type == 1070:
+                    geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod)
+        elif geomtype == 4:
+            if self.__class_col_index is not None and tree_class == 1060:
+                geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod)
+            elif self.__class_col_index is not None and tree_class == 1070:
+                geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod)
+            else:
+                if self._default_export_type == 1060:
+                    geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod)
+                elif self._default_export_type == 1070:
+                    geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod)
+        elif geomtype == 5:
+            if self.__class_col_index is not None and tree_class == 1060:
+                geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
+            elif self.__class_col_index is not None and tree_class == 1070:
+                geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+            else:
+                if self._default_export_type == 1060:
+                    geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
+                elif self._default_export_type == 1070:
+                    geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+
+        self._stem_ids.extend(stem_ids)
+        self._crown_coniferous_ids.extend(crown_ids_coni)
+        self._crown_deciduous_ids.extend(crown_ids_deci)
+        return geom_obj
+
+    def bounded_by(self):
+        pass
+
+    def add_appearance(self, progressbar):
+        pass
+
+
+class CityModelExport(Export):
+    def __init__(self, savepath, dbfilepath):
+        Export.__init__(self, savepath, dbfilepath)
+
+        self._generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
+
+        self._use_lod2 = False
+        self._lod2_geomtype = None
+        self._lod2_segments = None
+
+        self._use_lod3 = False
+        self._lod3_geomtype = None
+        self._lod3_segments = None
+
+    # method to set option if generic attributes should be used
+    def set_generate_generic_attributes(self, val):
+        self._generate_generic_attributes = val
+
+    # method to set option if appearance should be used
+    def set_use_appearance(self, val):
+        supported_geoms = [3, 4, 5]
+        if self._lod1_geomtype in supported_geoms or self._lod2_geomtype in supported_geoms or self._lod3_geomtype in supported_geoms:
+            self._use_appearance = val
+
+    # method to setup LOD2 geometry creation: if it and which geomtype should be created and hw many segments to use
+    def setup_lod2(self, value, geomtype, segments=None):
+        self._use_lod2 = value
+        self._lod2_geomtype = geomtype
+        if segments is not None:
+            self._lod2_segments = segments
+
+    # method to setup LOD3 geometry creation: if it and which geomtype should be created and hw many segments to use
+    def setup_lod3(self, value, geomtype, segments=None):
+        self._use_lod3 = value
+        self._lod3_geomtype = geomtype
+        if segments is not None:
+            self._lod3_segments = segments
+
+    # method to generate geometric tree models for LOD2 and LOD3
+    def generate_geometries(self, treemodel, validator):
+        lod1_valid, lod2_valid, lod3_valid, _ = super().generate_geometries(treemodel, validator)
+
+        # generate LOD2 geometry
+        if self._use_lod2:
+            lod2_valid = self.validate_geometry(validator, self._lod2_geomtype)
+            if lod2_valid:
+                lod2_geom_obj = self.get_geometry(treemodel, self._lod2_geomtype, self._lod2_segments, "lod2")
+                treemodel.set_lod2model(lod2_geom_obj)
+
+        # generate LOD3 geometry
+        if self._use_lod3:
+            lod3_valid = self.validate_geometry(validator, self._lod3_geomtype)
+            if lod3_valid:
+                lod3_geom_obj = self.get_geometry(treemodel, self._lod3_geomtype, self._lod3_segments, "lod3")
+                treemodel.set_lod3model(lod3_geom_obj)
+
+        return lod1_valid, lod2_valid, lod3_valid, True
+
+
+class CityGmlExport(CityModelExport):
+    def __init__(self, savepath, dbfilepath):
+        CityModelExport.__init__(self, savepath, dbfilepath)
+        self.__root = ET.Element("CityModel")
+        self.add_namespaces()
+
+        self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
+
+        self.__use_lod4 = False
+        self.__lod4_geomtype = None
+        self.__lod4_segments = None
+
+        self.__current_tree_gmlid = ""  # variable to save gml:id of tree that is currently generated
+
+    # method to save Element Tree to XML file
+    def save_file(self):
         # reformat to prettyprint xml output
         if self.__prettyprint:
             CityGmlExport.indent(self.__root)
 
         # write tree to output file
         tree = ET.ElementTree(self.__root)
-        tree.write(self.__filepath, encoding="UTF-8", xml_declaration=True, method="xml")
+        tree.write(self._filepath, encoding="UTF-8", xml_declaration=True, method="xml")
 
-        self.__con.close()
+    # method to add a tree to the Element Tree
+    def add_tree_to_model(self, tree_model):
 
-        # return number of exported valid trees and number of trees that were not exported
-        return exported_trees, invalid_lod1, invalid_lod2, invalid_lod3, invalid_lod4
+        # create CityObjectMember in XML Tree
+        city_object_member = ET.SubElement(self.__root, "cityObjectMember")
+
+        # Create SolitaryVegetationObject in XML Tree
+        solitary_vegetation_object = ET.SubElement(city_object_member, "veg:SolitaryVegetationObject")
+        solitary_vegetation_object.set("gml:id", tree_model.get_id())
+
+        # add creationDate into the model: Today's date is always used for CreationDate
+        creationdate = ET.SubElement(solitary_vegetation_object, "creationDate")
+        creationdate.text = str(date.today())
+
+        # add generic attributes
+        if self._generate_generic_attributes:
+            for attribute in tree_model.get_generics():
+                typ = attribute[0]
+                name = attribute[1]
+                val = attribute[2]
+
+                if typ == "int":
+                    gen_int = ET.SubElement(solitary_vegetation_object, "gen:intAttribute")
+                    gen_int.set("name", str(name))
+                    value = ET.SubElement(gen_int, "gen:value")
+                    value.text = str(val)
+                if typ == "float":
+                    gen_double = ET.SubElement(solitary_vegetation_object, "gen:doubleAttribute")
+                    gen_double.set("name", str(name))
+                    value = ET.SubElement(gen_double, "gen:value")
+                    value.text = str(val)
+                if typ == "string":
+                    gen_string = ET.SubElement(solitary_vegetation_object, "gen:stringAttribute")
+                    gen_string.set("name", str(name))
+                    value = ET.SubElement(gen_string, "gen:value")
+                    value.text = str(val)
+
+        # Add class to parametrized tree model
+        classe = tree_model.get_class()
+        if classe is not None:
+            classnode = ET.SubElement(solitary_vegetation_object, "veg:class")
+            classnode.text = str(classe)
+
+        # Add species to parametrized tree model
+        species = tree_model.get_species()
+        if species is not None:
+            speciesnode = ET.SubElement(solitary_vegetation_object, "veg:species")
+            speciesnode.text = str(species)
+
+        # Add hight attribute to parameterized tree model
+        height = tree_model.get_height()
+        if height is not None:
+            heightnode = ET.SubElement(solitary_vegetation_object, "veg:height")
+            heightnode.text = str(height)
+            heightnode.set("uom", "m")
+
+        # Add trunk (stem) diameter attribute to parameterized tree model
+        trunkdiam = tree_model.get_trunkdiam()
+        if trunkdiam is not None:
+            trunk = ET.SubElement(solitary_vegetation_object, "veg:trunkDiameter")
+            trunk.text = str(trunkdiam)
+            trunk.set("uom", "m")
+
+        # Add crown diameter attribute to parameterized tree model
+        crowndiam = tree_model.get_crowndiam()
+        if crowndiam is not None:
+            crown = ET.SubElement(solitary_vegetation_object, "veg:crownDiameter")
+            crown.text = str(crowndiam)
+            crown.set("uom", "m")
+
+        # add explicit geometries
+        if self._geom_type == "EXPLICIT":
+            if self._use_lod1:
+                geom = tree_model.get_lod1model()
+                if geom is not None:
+                    lod1_node = ET.SubElement(solitary_vegetation_object, "veg:lod1Geometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    lod1_node.append(geom_node)
+
+            if self._use_lod2:
+                geom = tree_model.get_lod2model()
+                if geom is not None:
+                    lod2_node = ET.SubElement(solitary_vegetation_object, "veg:lod2Geometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    lod2_node.append(geom_node)
+
+            if self._use_lod3:
+                geom = tree_model.get_lod3model()
+                if geom is not None:
+                    lod3_node = ET.SubElement(solitary_vegetation_object, "veg:lod3Geometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    lod3_node.append(geom_node)
+
+            if self.__use_lod4:
+                geom = tree_model.get_lod4model()
+                if geom is not None:
+                    lod4_node = ET.SubElement(solitary_vegetation_object, "veg:lod4Geometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    lod4_node.append(geom_node)
+
+        # Add implicit geometries
+        elif self._geom_type == "IMPLICIT":
+            if self._use_lod1:
+                geom = tree_model.get_lod1model()
+                if geom is not None:
+                    implicit_node = ET.SubElement(solitary_vegetation_object, "veg:lod1ImplicitRepresentation")
+                    implicit_geom = ET.SubElement(implicit_node, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geom, "transformationMatrix")
+                    matrix.text = "1 0 0 0 " \
+                                  "0 1 0 0 " \
+                                  "0 0 1 0 " \
+                                  "0 0 0 1"
+
+                    relative_geom = ET.SubElement(implicit_geom, "relativeGMLGeometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    relative_geom.append(geom_node)
+                    ref_point = ET.SubElement(implicit_geom, "referencePoint")
+                    point = tree_model.get_position().get_citygml_geometric_representation()
+                    ref_point.append(point)
+
+            if self._use_lod2:
+                geom = tree_model.get_lod2model()
+                if geom is not None:
+                    implicit_node = ET.SubElement(solitary_vegetation_object, "veg:lod2ImplicitRepresentation")
+                    implicit_geom = ET.SubElement(implicit_node, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geom, "transformationMatrix")
+                    matrix.text = "1 0 0 0 " \
+                                  "0 1 0 0 " \
+                                  "0 0 1 0 " \
+                                  "0 0 0 1"
+
+                    relative_geom = ET.SubElement(implicit_geom, "relativeGMLGeometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    relative_geom.append(geom_node)
+                    ref_point = ET.SubElement(implicit_geom, "referencePoint")
+                    point = tree_model.get_position().get_citygml_geometric_representation()
+                    ref_point.append(point)
+
+            if self._use_lod3:
+                geom = tree_model.get_lod3model()
+                if geom is not None:
+                    implicit_node = ET.SubElement(solitary_vegetation_object, "veg:lod3ImplicitRepresentation")
+                    implicit_geom = ET.SubElement(implicit_node, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geom, "transformationMatrix")
+                    matrix.text = "1 0 0 0 " \
+                                  "0 1 0 0 " \
+                                  "0 0 1 0 " \
+                                  "0 0 0 1"
+
+                    relative_geom = ET.SubElement(implicit_geom, "relativeGMLGeometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    relative_geom.append(geom_node)
+                    ref_point = ET.SubElement(implicit_geom, "referencePoint")
+                    point = tree_model.get_position().get_citygml_geometric_representation()
+                    ref_point.append(point)
+
+            if self.__use_lod4:
+                geom = tree_model.get_lod4model()
+                if geom is not None:
+                    implicit_node = ET.SubElement(solitary_vegetation_object, "veg:lod4ImplicitRepresentation")
+                    implicit_geom = ET.SubElement(implicit_node, "ImplicitGeometry")
+                    matrix = ET.SubElement(implicit_geom, "transformationMatrix")
+                    matrix.text = "1 0 0 0 " \
+                                  "0 1 0 0 " \
+                                  "0 0 1 0 " \
+                                  "0 0 0 1"
+
+                    relative_geom = ET.SubElement(implicit_geom, "relativeGMLGeometry")
+                    geom_node = geom.get_citygml_geometric_representation()
+                    relative_geom.append(geom_node)
+                    ref_point = ET.SubElement(implicit_geom, "referencePoint")
+                    point = tree_model.get_position().get_citygml_geometric_representation()
+                    ref_point.append(point)
 
     # method to add namespaces and schema location to xml file
     def add_namespaces(self):
@@ -1545,11 +1245,11 @@ class CityGmlExport:
 
     # method to add bound-by-element to xml file with bounding box
     def bounded_by(self):
-        bbox = self.__bbox.get_bbox()
+        bbox = self._bbox.get_bbox()
         boundedby = ET.Element("gml:boundedBy")
         envelope = ET.SubElement(boundedby, "gml:Envelope")
         envelope.set("srsDimension", "2")
-        envelope.set("srsName", "EPSG:%s" % self.__EPSG)
+        envelope.set("srsName", "EPSG:%s" % self._EPSG)
 
         lower_corner = ET.SubElement(envelope, "gml:lowerCorner")
         upper_corner = ET.SubElement(envelope, "gml:upperCorner")
@@ -1560,14 +1260,16 @@ class CityGmlExport:
         # add bounded-by-element to the top root subelements
         self.__root.insert(0, boundedby)
 
+    # method to add different materials to data model
     def add_appearance(self, progressbar):
         progressbar.SetValue(0)
-        self.add_appearance_color("0.47", "0.24", "0", self.__stem_gmlids, progressbar)
+        self.add_appearance_color("0.47", "0.24", "0", self._stem_ids, progressbar)
         progressbar.SetValue(0)
-        self.add_appearance_color("0.26", "0.65", "0.15", self.__crown_deciduous_gmlids, progressbar)
+        self.add_appearance_color("0.26", "0.65", "0.15", self._crown_deciduous_ids, progressbar)
         progressbar.SetValue(0)
-        self.add_appearance_color("0.08", "0.37", "0", self.__crown_coniferous_gmlids, progressbar)
+        self.add_appearance_color("0.08", "0.37", "0", self._crown_coniferous_ids, progressbar)
 
+    # Method to add a material to appearance model
     def add_appearance_color(self, r, g, b, id_list, progressbar):
         appearance_member = ET.Element("app:appearanceMember")
         appearance = ET.SubElement(appearance_member, "app:Appearance")
@@ -1611,917 +1313,15 @@ class CityGmlExport:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
 
-    # method adds data to cursor again, so it can be iterated
-    def fill_data_cursor(self):
-        if self.__col_names[0] != "ROWID":
-            self.__DataCursor.execute("SELECT * FROM %s" % self.__TreeTableName)
-        else:
-            self.__DataCursor.execute("SELECT ROWID, * FROM %s" % self.__TreeTableName)
-
-
-    # method to generate a vertiecal line geometry
-    def generate_line_geometry(self, parent, x, y, ref_h, tree_h):
-        l_pos_list = [x, y, ref_h, x, y, ref_h+tree_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-
-        line_string = ET.SubElement(parent, "gml:LineString")
-        line_string.set("srsName", "EPSG:%s" % self.__EPSG)
-        line_string.set("srsDimension", str(3))
-
-        element_pos_list = ET.SubElement(line_string, "gml:posList")
-        element_pos_list.set("srsDimension", str(3))
-        element_pos_list.text = s_pos_list
-
-    # method to generate rectangle billboard geometries
-    def generate_billboard_rectangle_geometry(self, parent, tree_x, tree_y, ref_h,
-                                              tree_h, crown_dm, segments):
-        composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
-        composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_surface.set("srsDimension", "3")
-
-        angle = 0
-        rotate = 360./segments
-        for _ in range(0, segments):
-            x = math.cos(math.radians(angle)) * (crown_dm/2.0)
-            y = math.sin(math.radians(angle)) * (crown_dm/2.0)
-            l_pos_list = [tree_x, tree_y, ref_h,
-                          tree_x, tree_y, ref_h + tree_h,
-                          tree_x + x, tree_y + y, ref_h + tree_h,
-                          tree_x + x, tree_y + y, ref_h,
-                          tree_x, tree_y, ref_h]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            pos_list.text = s_pos_list
-            angle += rotate
-
-    # generate billboard from polygon outlines for deciduous trees
-    def generate_billboard_polygon_deciduous(self, parent, tree_x, tree_y, ref_h,
-                                             tree_h, crown_dm, stem_dm, segments, crown_height):
-        laubansatz = ref_h + tree_h - crown_height
-        tree_h = tree_h + ref_h
-
-        composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
-        composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_surface.set("srsDimension", "3")
-
-        angle = 0.
-        rotate = (2*math.pi) / segments
-
-        alpha = math.asin((stem_dm/2.0)/(crown_dm/2.0))
-        delta = (tree_h-laubansatz)/2.0 - (crown_height/2.0)*math.cos(alpha)
-
-        for segment in range(0, segments):
-            sinx = math.sin(angle)
-            cosx = math.cos(angle)
-
-            # creating stem polygon
-            l_pos_list = [tree_x, tree_y, ref_h,
-                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h,
-                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz+delta,
-                          tree_x, tree_y, laubansatz+delta,
-                          tree_x, tree_y, ref_h]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-
-            # add gml id to polygon
-            gml_id = "%s_%s_stempolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
-            self.__stem_gmlids.append(gml_id)
-            polygon.set("gml:id", gml_id)
-
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            pos_list.text = s_pos_list
-
-            # create crown polygon
-            l_pos_list = [tree_x, tree_y, laubansatz+delta,
-                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz + delta]
-
-            # generate circle points for crown
-            for v_angle in range(0, 180, 10):
-                if math.radians(v_angle) < alpha:
-                    continue
-                l_pos_list.append(tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * cosx)
-                l_pos_list.append(tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * sinx)
-                l_pos_list.append(laubansatz + crown_height/2.0 +
-                                  (crown_height/2.0) * math.cos(math.radians(180-v_angle)))
-
-            # finish crown geometry
-            l_pos_list.extend([tree_x, tree_y, tree_h])
-            l_pos_list.extend([tree_x, tree_y, laubansatz+delta])
-
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-
-            # add gml id to polygon
-            gml_id = "%s_%s_crownpolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
-            self.__crown_deciduous_gmlids.append(gml_id)
-            polygon.set("gml:id", gml_id)
-
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            pos_list.text = s_pos_list
-
-            angle += rotate
-
-    # generate billboard from polygon outlines for coniferous trees
-    def generate_billboard_polygon_coniferous(self, parent, tree_x, tree_y, ref_h,
-                                              tree_h, crown_dm, stem_dm, segments, crown_height):
-        laubansatz = ref_h + tree_h - crown_height
-        tree_h = tree_h + ref_h
-
-        composite_surface = ET.SubElement(parent, "gml:CompositeSurface")
-        composite_surface.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_surface.set("srsDimension", "3")
-
-        angle = 0.
-        rotate = (2*math.pi) / segments
-        for segment in range(0, segments):
-            sinx = math.sin(angle)
-            cosx = math.cos(angle)
-
-            # creating stem polygon
-            l_pos_list = [tree_x, tree_y, ref_h,
-                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h,
-                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz,
-                          tree_x, tree_y, laubansatz,
-                          tree_x, tree_y, ref_h]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-
-            # add gml id to polygon
-            gml_id = "%s_%s_stempolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
-            self.__stem_gmlids.append(gml_id)
-            polygon.set("gml:id", gml_id)
-
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            pos_list.text = s_pos_list
-
-            # creatin crown polygon
-            l_pos_list = [tree_x, tree_y, laubansatz,
-                          tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz,
-                          tree_x + cosx * (crown_dm / 2.0), tree_y + sinx * (crown_dm / 2.0), laubansatz,
-                          tree_x, tree_y, tree_h,
-                          tree_x, tree_y, laubansatz]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            surface_member = ET.SubElement(composite_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-
-            # add gml id to polygon
-            gml_id = "%s_%s_crownpolygon%s" % (self.__current_tree_gmlid, self.__current_lod, str(segment))
-            self.__crown_coniferous_gmlids.append(gml_id)
-            polygon.set("gml:id", gml_id)
-
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            pos_list.text = s_pos_list
-            angle += rotate
-
-    # method to generate cylinder geometry
-    def generate_cylinder_geometry(self, parent, tree_x, tree_y, ref_h,
-                                   tree_h, crown_dm, segments):
-        tree_h = tree_h + ref_h
-
-        solid = ET.SubElement(parent, "gml:Solid")
-        solid.set("srsName", "EPSG:%s" % self.__EPSG)
-        solid.set("srsDimension", "3")
-        exterior = ET.SubElement(solid, "gml:exterior")
-        comp_surface = ET.SubElement(exterior, "gml:CompositeSurface")
-
-        angle = 0
-        rotate = 2*math.pi / segments
-
-        coordinates = []
-        for _ in range(0, segments):
-            pnt = [tree_x + (crown_dm/2) * math.cos(angle), tree_y + (crown_dm/2) * math.sin(angle)]
-            coordinates.append(pnt)
-            angle += rotate
-
-        # generate walls of cylinder
-        for index in range(0, len(coordinates)):
-            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-
-            l_pos_list = [coordinates[index][0], coordinates[index][1], ref_h,
-                          coordinates[index][0], coordinates[index][1], tree_h,
-                          coordinates[index-1][0], coordinates[index-1][1], tree_h,
-                          coordinates[index-1][0], coordinates[index-1][1], ref_h,
-                          coordinates[index][0], coordinates[index][1], ref_h]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            pos_list.text = s_pos_list
-
-        # generate top of cylinder
-        top_poslsit = []
-        for point in coordinates:
-            top_poslsit.extend([point[0], point[1], tree_h])
-        top_poslsit.extend([coordinates[0][0], coordinates[0][1], tree_h])
-
-        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-        polygon = ET.SubElement(surface_member, "gml:Polygon")
-        exterior = ET.SubElement(polygon, "gml:exterior")
-        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-        pos_list = ET.SubElement(linear_ring, "gml:posList")
-        pos_list.set("srsDimension", "3")
-        s_pos_list = self.poslist_list_to_string(top_poslsit)
-        pos_list.text = s_pos_list
-
-        # generate bottom of cylinder
-        bototm_poslist = []
-        for point in reversed(coordinates):
-            bototm_poslist.extend([point[0], point[1], ref_h])
-        bototm_poslist.extend([coordinates[-1][0], coordinates[-1][1], ref_h])
-
-        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-        polygon = ET.SubElement(surface_member, "gml:Polygon")
-        exterior = ET.SubElement(polygon, "gml:exterior")
-        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-        pos_list = ET.SubElement(linear_ring, "gml:posList")
-        pos_list.set("srsDimension", "3")
-        s_pos_list = self.poslist_list_to_string(bototm_poslist)
-        pos_list.text = s_pos_list
-
-    # method to generate the stem for cuboid geometries
-    def generate_cuboid_geometry_stem(self, parent, tree_x, tree_y, ref_h,
-                                      stem_dm, laubansatz):
-        stem_solidmember = ET.SubElement(parent, "gml:solidMember")
-        stem_solid = ET.SubElement(stem_solidmember, "gml:Solid")
-        stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
-        stem_exterior_composite_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
-
-        # add gml id to composite surface
-        gml_id = "%s_%s_stem_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
-        self.__stem_gmlids.append(gml_id)
-        stem_exterior_composite_surface.set("gml:id", gml_id)
-
-        # generate bottom polygon of stem
-        surfacemember_stem_bottom = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
-        polygon_stem_bottom = ET.SubElement(surfacemember_stem_bottom, "gml:Polygon")
-        polygon_stem_bottom_exterior = ET.SubElement(polygon_stem_bottom, "gml:exterior")
-        polygon_stem_bottom_exterior_linearring = ET.SubElement(polygon_stem_bottom_exterior, "gml:LinearRing")
-        polygon_stem_bottom_exterior_linearring_poslist = ET.SubElement(polygon_stem_bottom_exterior_linearring,
-                                                                        "gml:posList")
-        polygon_stem_bottom_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h,
-                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h,
-                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h,
-                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h,
-                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_stem_bottom_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate left side polygon for stem
-        surfacemember_stem_left = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
-        polygon_stem_left = ET.SubElement(surfacemember_stem_left, "gml:Polygon")
-        polygon_stem_left_exterior = ET.SubElement(polygon_stem_left, "gml:exterior")
-        polygon_stem_left_exterior_linearring = ET.SubElement(polygon_stem_left_exterior, "gml:LinearRing")
-        polygon_stem_left_exterior_linearring_poslist = ET.SubElement(polygon_stem_left_exterior_linearring,
-                                                                      "gml:posList")
-        polygon_stem_left_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h,
-                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
-                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
-                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h,
-                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_stem_left_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate back side polygon for stem
-        surfacemember_stem_back = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
-        polygon_stem_back = ET.SubElement(surfacemember_stem_back, "gml:Polygon")
-        polygon_stem_back_exterior = ET.SubElement(polygon_stem_back, "gml:exterior")
-        polygon_stem_back_exterior_linearring = ET.SubElement(polygon_stem_back_exterior, "gml:LinearRing")
-        polygon_stem_back_exterior_linearring_poslist = ET.SubElement(polygon_stem_back_exterior_linearring,
-                                                                      "gml:posList")
-        polygon_stem_back_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h,
-                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
-                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
-                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h,
-                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_stem_back_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate right side polygon for stem
-        surfacemember_stem_right = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
-        polygon_stem_right = ET.SubElement(surfacemember_stem_right, "gml:Polygon")
-        polygon_stem_right_exterior = ET.SubElement(polygon_stem_right, "gml:exterior")
-        polygon_stem_right_exterior_linearring = ET.SubElement(polygon_stem_right_exterior, "gml:LinearRing")
-        polygon_stem_right_exterior_linearring_poslist = ET.SubElement(polygon_stem_right_exterior_linearring,
-                                                                       "gml:posList")
-        polygon_stem_right_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h,
-                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
-                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
-                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h,
-                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_stem_right_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate front side polygon for stem
-        surfacemember_stem_front = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
-        polygon_stem_front = ET.SubElement(surfacemember_stem_front, "gml:Polygon")
-        polygon_stem_front_exterior = ET.SubElement(polygon_stem_front, "gml:exterior")
-        polygon_stem_front_exterior_linearring = ET.SubElement(polygon_stem_front_exterior, "gml:LinearRing")
-        polygon_stem_front_exterior_linearring_poslist = ET.SubElement(polygon_stem_front_exterior_linearring,
-                                                                       "gml:posList")
-        polygon_stem_front_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h,
-                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
-                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
-                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h,
-                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_stem_front_exterior_linearring_poslist.text = s_pos_list
-
-        # generate top polygon of stem
-        surfacemember_stem_top = ET.SubElement(stem_exterior_composite_surface, "gml:surfaceMember")
-        polygon_stem_top = ET.SubElement(surfacemember_stem_top, "gml:Polygon")
-        polygon_stem_top_exterior = ET.SubElement(polygon_stem_top, "gml:exterior")
-        polygon_stem_top_exterior_linearring = ET.SubElement(polygon_stem_top_exterior, "gml:LinearRing")
-        polygon_stem_top_exterior_linearring_poslist = ET.SubElement(polygon_stem_top_exterior_linearring,
-                                                                     "gml:posList")
-        polygon_stem_top_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
-                      tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz,
-                      tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
-                      tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz,
-                      tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_stem_top_exterior_linearring_poslist.text = s_pos_list
-
-    # method to generate a cuboid geometry for deciduous trees
-    def generate_cuboid_geometry_deciduous(self, parent, tree_x, tree_y, ref_h,
-                                           tree_h, crown_dm, stem_dm, crown_height):
-        laubansatz = ref_h + tree_h - crown_height
-        tree_h = tree_h + ref_h
-
-        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
-        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_solid.set("srsDimension", "3")
-
-        # --- generate stem geometry ---
-        self.generate_cuboid_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz)
-
-        # --- generate crown geometry ---
-        crown_solidmember = ET.SubElement(composite_solid, "gml:solidMember")
-        crown_solid = ET.SubElement(crown_solidmember, "gml:Solid")
-        crown_exterior = ET.SubElement(crown_solid, "gml:exterior")
-        crown_exterior_composite_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
-
-        # add gml id to composite surface
-        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
-        self.__crown_deciduous_gmlids.append(gml_id)
-        crown_exterior_composite_surface.set("gml:id", gml_id)
-
-        # generate bottom polygon of crown
-        surfacemember_crown_bottom = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_bottom = ET.SubElement(surfacemember_crown_bottom, "gml:Polygon")
-        polygon_crown_bottom_exterior = ET.SubElement(polygon_crown_bottom, "gml:exterior")
-        polygon_crown_bottom_exterior_linearring = ET.SubElement(polygon_crown_bottom_exterior, "gml:LinearRing")
-        polygon_crown_bottom_exterior_linearring_poslist = ET.SubElement(polygon_crown_bottom_exterior_linearring,
-                                                                         "gml:posList")
-        polygon_crown_bottom_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_bottom_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate left side polygon for crown
-        surfacemember_crown_left = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_left = ET.SubElement(surfacemember_crown_left, "gml:Polygon")
-        polygon_crown_left_exterior = ET.SubElement(polygon_crown_left, "gml:exterior")
-        polygon_crown_left_exterior_linearring = ET.SubElement(polygon_crown_left_exterior, "gml:LinearRing")
-        polygon_crown_left_exterior_linearring_poslist = ET.SubElement(polygon_crown_left_exterior_linearring,
-                                                                       "gml:posList")
-        polygon_crown_left_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_left_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate back side polygon for crown
-        surfacemember_crown_back = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_back = ET.SubElement(surfacemember_crown_back, "gml:Polygon")
-        polygon_crown_back_exterior = ET.SubElement(polygon_crown_back, "gml:exterior")
-        polygon_crown_back_exterior_linearring = ET.SubElement(polygon_crown_back_exterior, "gml:LinearRing")
-        polygon_crown_back_exterior_linearring_poslist = ET.SubElement(polygon_crown_back_exterior_linearring,
-                                                                       "gml:posList")
-        polygon_crown_back_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_back_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate right side polygon for crown
-        surfacemember_crown_right = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_right = ET.SubElement(surfacemember_crown_right, "gml:Polygon")
-        polygon_crown_right_exterior = ET.SubElement(polygon_crown_right, "gml:exterior")
-        polygon_crown_right_exterior_linearring = ET.SubElement(polygon_crown_right_exterior, "gml:LinearRing")
-        polygon_crown_right_exterior_linearring_poslist = ET.SubElement(polygon_crown_right_exterior_linearring,
-                                                                        "gml:posList")
-        polygon_crown_right_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_right_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate front side polygon for crown
-        surfacemember_crown_front = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_front = ET.SubElement(surfacemember_crown_front, "gml:Polygon")
-        polygon_crown_front_exterior = ET.SubElement(polygon_crown_front, "gml:exterior")
-        polygon_crown_front_exterior_linearring = ET.SubElement(polygon_crown_front_exterior, "gml:LinearRing")
-        polygon_crown_front_exterior_linearring_poslist = ET.SubElement(polygon_crown_front_exterior_linearring,
-                                                                        "gml:posList")
-        polygon_crown_front_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_front_exterior_linearring_poslist.text = s_pos_list
-
-        # generate top polygon of crown
-        surfacemember_crown_top = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_top = ET.SubElement(surfacemember_crown_top, "gml:Polygon")
-        polygon_crown_top_exterior = ET.SubElement(polygon_crown_top, "gml:exterior")
-        polygon_crown_top_exterior_linearring = ET.SubElement(polygon_crown_top_exterior, "gml:LinearRing")
-        polygon_crown_top_exterior_linearring_poslist = ET.SubElement(polygon_crown_top_exterior_linearring,
-                                                                      "gml:posList")
-        polygon_crown_top_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_top_exterior_linearring_poslist.text = s_pos_list
-
-    # method to generate a cuboid geometry for deciduous trees
-    def generate_cuboid_geometry_coniferous(self, parent, tree_x, tree_y, ref_h, tree_h,
-                                            crown_dm, stem_dm, crown_height):
-        laubansatz = ref_h + tree_h - crown_height
-        tree_h = tree_h + ref_h
-
-        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
-        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_solid.set("srsDimension", "3")
-
-        # --- generate stem geometry ---
-        self.generate_cuboid_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz)
-
-        # --- generate crown geometry ---
-        crown_solidmember = ET.SubElement(composite_solid, "gml:solidMember")
-        crown_solid = ET.SubElement(crown_solidmember, "gml:Solid")
-        crown_exterior = ET.SubElement(crown_solid, "gml:exterior")
-        crown_exterior_composite_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
-
-        # add gml id to composite surface
-        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
-        self.__crown_coniferous_gmlids.append(gml_id)
-        crown_exterior_composite_surface.set("gml:id", gml_id)
-
-        # generate bottom polygon of crown
-        surfacemember_crown_bottom = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_bottom = ET.SubElement(surfacemember_crown_bottom, "gml:Polygon")
-        polygon_crown_bottom_exterior = ET.SubElement(polygon_crown_bottom, "gml:exterior")
-        polygon_crown_bottom_exterior_linearring = ET.SubElement(polygon_crown_bottom_exterior, "gml:LinearRing")
-        polygon_crown_bottom_exterior_linearring_poslist = ET.SubElement(polygon_crown_bottom_exterior_linearring,
-                                                                         "gml:posList")
-        polygon_crown_bottom_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_bottom_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate left side polygon for crown
-        surfacemember_crown_left = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_left = ET.SubElement(surfacemember_crown_left, "gml:Polygon")
-        polygon_crown_left_exterior = ET.SubElement(polygon_crown_left, "gml:exterior")
-        polygon_crown_left_exterior_linearring = ET.SubElement(polygon_crown_left_exterior, "gml:LinearRing")
-        polygon_crown_left_exterior_linearring_poslist = ET.SubElement(polygon_crown_left_exterior_linearring,
-                                                                       "gml:posList")
-        polygon_crown_left_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x, tree_y, tree_h,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_left_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate back side polygon for crown
-        surfacemember_crown_back = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_back = ET.SubElement(surfacemember_crown_back, "gml:Polygon")
-        polygon_crown_back_exterior = ET.SubElement(polygon_crown_back, "gml:exterior")
-        polygon_crown_back_exterior_linearring = ET.SubElement(polygon_crown_back_exterior, "gml:LinearRing")
-        polygon_crown_back_exterior_linearring_poslist = ET.SubElement(polygon_crown_back_exterior_linearring,
-                                                                       "gml:posList")
-        polygon_crown_back_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x, tree_y, tree_h,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_back_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate right side polygon for crown
-        surfacemember_crown_right = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_right = ET.SubElement(surfacemember_crown_right, "gml:Polygon")
-        polygon_crown_right_exterior = ET.SubElement(polygon_crown_right, "gml:exterior")
-        polygon_crown_right_exterior_linearring = ET.SubElement(polygon_crown_right_exterior, "gml:LinearRing")
-        polygon_crown_right_exterior_linearring_poslist = ET.SubElement(polygon_crown_right_exterior_linearring,
-                                                                        "gml:posList")
-        polygon_crown_right_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz,
-                      tree_x, tree_y, tree_h,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_right_exterior_linearring_poslist.text = s_pos_list
-
-        # gemerate front side polygon for crown
-        surfacemember_crown_front = ET.SubElement(crown_exterior_composite_surface, "gml:surfaceMember")
-        polygon_crown_front = ET.SubElement(surfacemember_crown_front, "gml:Polygon")
-        polygon_crown_front_exterior = ET.SubElement(polygon_crown_front, "gml:exterior")
-        polygon_crown_front_exterior_linearring = ET.SubElement(polygon_crown_front_exterior, "gml:LinearRing")
-        polygon_crown_front_exterior_linearring_poslist = ET.SubElement(polygon_crown_front_exterior_linearring,
-                                                                        "gml:posList")
-        polygon_crown_front_exterior_linearring_poslist.set("srsDimension", "3")
-        l_pos_list = [tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x, tree_y, tree_h,
-                      tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz,
-                      tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz]
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        polygon_crown_front_exterior_linearring_poslist.text = s_pos_list
-
-    # generate stem for geometries: cylinder
-    def generate_geometry_stem(self, parent, tree_x, tree_y, ref_h,
-                               stem_dm, laubansatz, segments):
-        stem_solidmember = ET.SubElement(parent, "gml:solidMember")
-        stem_solid = ET.SubElement(stem_solidmember, "gml:Solid")
-        stem_exterior = ET.SubElement(stem_solid, "gml:exterior")
-        comp_surface = ET.SubElement(stem_exterior, "gml:CompositeSurface")
-
-        # add gml id to composite surface
-        gml_id = "%s_%s_stem_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
-        self.__stem_gmlids.append(gml_id)
-        comp_surface.set("gml:id", gml_id)
-
-        angle = 0
-        rotate = 2 * math.pi / segments
-
-        coordinates = []
-        for _ in range(0, segments):
-            pnt = [tree_x + (stem_dm / 2) * math.cos(angle), tree_y + (stem_dm / 2) * math.sin(angle)]
-            coordinates.append(pnt)
-            angle += rotate
-
-        # generate walls of cylinder
-        for index in range(0, len(coordinates)):
-            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-
-            l_pos_list = [coordinates[index][0], coordinates[index][1], ref_h,
-                          coordinates[index][0], coordinates[index][1], laubansatz,
-                          coordinates[index - 1][0], coordinates[index - 1][1], laubansatz,
-                          coordinates[index - 1][0], coordinates[index - 1][1], ref_h,
-                          coordinates[index][0], coordinates[index][1], ref_h]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            pos_list.text = s_pos_list
-
-        # generate top of cylinder
-        top_poslsit = []
-        for point in coordinates:
-            top_poslsit.extend([point[0], point[1], laubansatz])
-        top_poslsit.extend([coordinates[0][0], coordinates[0][1], laubansatz])
-
-        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-        polygon = ET.SubElement(surface_member, "gml:Polygon")
-        exterior = ET.SubElement(polygon, "gml:exterior")
-        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-        pos_list = ET.SubElement(linear_ring, "gml:posList")
-        pos_list.set("srsDimension", "3")
-        s_pos_list = self.poslist_list_to_string(top_poslsit)
-        pos_list.text = s_pos_list
-
-        # generate bottom of cylinder
-        bototm_poslist = []
-        for point in reversed(coordinates):
-            bototm_poslist.extend([point[0], point[1], ref_h])
-        bototm_poslist.extend([coordinates[-1][0], coordinates[-1][1], ref_h])
-
-        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-        polygon = ET.SubElement(surface_member, "gml:Polygon")
-        exterior = ET.SubElement(polygon, "gml:exterior")
-        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-        pos_list = ET.SubElement(linear_ring, "gml:posList")
-        pos_list.set("srsDimension", "3")
-        s_pos_list = self.poslist_list_to_string(bototm_poslist)
-        pos_list.text = s_pos_list
-
-    # generate most detailed geometry for coniferous trees
-    # cylinder for stem, cone for crown
-    def generate_geometry_coniferous(self, parent, tree_x, tree_y, ref_h,
-                                     tree_h, crown_dm, stem_dm, segments, crown_height):
-        laubansatz = ref_h + tree_h - crown_height
-        tree_h = tree_h + ref_h
-
-        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
-        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_solid.set("srsDimension", "3")
-
-        # generate stem geometry
-        self.generate_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments)
-
-        # generate crown geometry (cone)
-        solid_member_stem = ET.SubElement(composite_solid, "gml:solidMember")
-        solid = ET.SubElement(solid_member_stem, "gml:Solid")
-        crown_exterior = ET.SubElement(solid, "gml:exterior")
-        comp_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
-
-        # add gml id to composite surface
-        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
-        self.__crown_coniferous_gmlids.append(gml_id)
-        comp_surface.set("gml:id", gml_id)
-
-        # generate walls of cone
-        angle = 0
-        rotate = 2 * math.pi / segments
-
-        coordinates = []
-        for _ in range(0, segments):
-            pnt = [tree_x + (crown_dm / 2) * math.cos(angle), tree_y + (crown_dm / 2) * math.sin(angle)]
-            coordinates.append(pnt)
-            angle += rotate
-
-        for index in range(0, len(coordinates)):
-            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            l_pos_list = [coordinates[index][0], coordinates[index][1], laubansatz,
-                          tree_x, tree_y, tree_h,
-                          coordinates[index-1][0], coordinates[index-1][1], laubansatz,
-                          coordinates[index][0], coordinates[index][1], laubansatz]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            pos_list.text = s_pos_list
-
-        # generate bottom of cone
-        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-        polygon = ET.SubElement(surface_member, "gml:Polygon")
-        exterior = ET.SubElement(polygon, "gml:exterior")
-        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-        pos_list = ET.SubElement(linear_ring, "gml:posList")
-        pos_list.set("srsDimension", "3")
-        l_pos_list = []
-        for point in reversed(coordinates):
-            l_pos_list.extend([point[0], point[1], laubansatz])
-        l_pos_list.extend([coordinates[-1][0], coordinates[-1][1], laubansatz])
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        pos_list.text = s_pos_list
-
-    # generate most detailed geometry for deciduous trees:
-    # cylinder for stem, ellipsoid for crown
-    def generate_geometry_deciduous(self, parent, tree_x, tree_y, ref_h,
-                                    tree_h, crown_dm, stem_dm, segments, crown_height):
-        laubansatz = ref_h + tree_h - crown_height
-        tree_h = tree_h + ref_h
-
-        alpha = math.asin((stem_dm / 2.0) / (crown_dm / 2.0))
-        delta = (tree_h - laubansatz) / 2.0 - (crown_height / 2.0) * math.cos(alpha)
-
-        composite_solid = ET.SubElement(parent, "gml:CompositeSolid")
-        composite_solid.set("srsName", "EPSG:%s" % self.__EPSG)
-        composite_solid.set("srsDimension", "3")
-
-        # generate stem geometry
-        self.generate_geometry_stem(composite_solid, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments)
-
-        # generate crown geometry (ellipsoid)
-        solid_member_stem = ET.SubElement(composite_solid, "gml:solidMember")
-        solid = ET.SubElement(solid_member_stem, "gml:Solid")
-        crown_exterior = ET.SubElement(solid, "gml:exterior")
-        comp_surface = ET.SubElement(crown_exterior, "gml:CompositeSurface")
-
-        # add gml id to composite surface
-        gml_id = "%s_%s_crown_compositesurface" % (self.__current_tree_gmlid, self.__current_lod)
-        self.__crown_deciduous_gmlids.append(gml_id)
-        comp_surface.set("gml:id", gml_id)
-
-        # generate ellipsoid points: first row
-        coordinates = []
-        row = []
-        for h_angle in range(0, 360, int(360/segments)):
-            pnt = [tree_x - (crown_dm/2.0) * math.sin(2*math.pi-alpha) * math.cos(math.radians(h_angle)),
-                   tree_y - (crown_dm/2.0) * math.sin(2*math.pi-alpha) * math.sin(math.radians(h_angle)),
-                   laubansatz + delta]
-            row.append(pnt)
-        coordinates.append(row)
-
-        # generate ellipsoid points: all other rows
-        for v_angle in range(0, 180, int(180/(segments/2))):
-            if math.radians(v_angle) < alpha:
-                continue
-            row = []
-            for h_angle in range(0, 360, int(360/segments)):
-                pnt = [tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * math.cos(math.radians(h_angle)),
-                       tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * math.sin(math.radians(h_angle)),
-                       laubansatz + (tree_h-laubansatz)/2 + ((tree_h-laubansatz)/2) * math.cos(math.radians(180-v_angle))]
-                row.append(pnt)
-            coordinates.append(row)
-
-        # generate side segments for ellipsoid
-        for row_index in range(1, len(coordinates)):
-            for pnt_index in range(0, len(coordinates[row_index])):
-                surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-                polygon = ET.SubElement(surface_member, "gml:Polygon")
-                exterior = ET.SubElement(polygon, "gml:exterior")
-                linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-                pos_list = ET.SubElement(linear_ring, "gml:posList")
-                pos_list.set("srsDimension", "3")
-                l_pos_list = []
-
-                pnt1 = [coordinates[row_index][pnt_index][0],
-                        coordinates[row_index][pnt_index][1],
-                        coordinates[row_index][pnt_index][2]]
-                pnt2 = [coordinates[row_index][pnt_index-1][0],
-                        coordinates[row_index][pnt_index-1][1],
-                        coordinates[row_index][pnt_index-1][2]]
-                pnt3 = [coordinates[row_index-1][pnt_index - 1][0],
-                        coordinates[row_index-1][pnt_index - 1][1],
-                        coordinates[row_index-1][pnt_index - 1][2]]
-                pnt4 = [coordinates[row_index - 1][pnt_index][0],
-                        coordinates[row_index - 1][pnt_index][1],
-                        coordinates[row_index - 1][pnt_index][2]]
-
-                l_pos_list.extend(pnt1)
-                l_pos_list.extend(pnt2)
-                l_pos_list.extend(pnt3)
-                l_pos_list.extend(pnt4)
-                l_pos_list.extend(pnt1)
-                s_pos_list = self.poslist_list_to_string(l_pos_list)
-                pos_list.text = s_pos_list
-
-        # generate top triangle segments
-        top_row = coordinates[-1]
-        for index in range(0, len(top_row)):
-            surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-            polygon = ET.SubElement(surface_member, "gml:Polygon")
-            exterior = ET.SubElement(polygon, "gml:exterior")
-            linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-            pos_list = ET.SubElement(linear_ring, "gml:posList")
-            pos_list.set("srsDimension", "3")
-            l_pos_list = [top_row[index][0], top_row[index][1], top_row[index][2],
-                          tree_x, tree_y, tree_h,
-                          top_row[index-1][0], top_row[index-1][1], top_row[index-1][2],
-                          top_row[index][0], top_row[index][1], top_row[index][2]]
-            s_pos_list = self.poslist_list_to_string(l_pos_list)
-            pos_list.text = s_pos_list
-
-        # generate bottom polygon
-        bottom_row = coordinates[0]
-        l_pos_list = []
-        for point in reversed(bottom_row):
-            l_pos_list.extend([point[0], point[1], point[2]])
-        surface_member = ET.SubElement(comp_surface, "gml:surfaceMember")
-        polygon = ET.SubElement(surface_member, "gml:Polygon")
-        exterior = ET.SubElement(polygon, "gml:exterior")
-        linear_ring = ET.SubElement(exterior, "gml:LinearRing")
-        pos_list = ET.SubElement(linear_ring, "gml:posList")
-        pos_list.set("srsDimension", "3")
-        s_pos_list = self.poslist_list_to_string(l_pos_list)
-        pos_list.text = s_pos_list
-
-    def set_tree_table_name(self, name):
-        self.__TreeTableName = name
-
-    def set_x_col_idx(self, idx):
-        self.__x_value_col_index = idx
-
-    def set_y_col_idx(self, idx):
-        self.__y_value_col_index = idx
-
-    def set_ref_height_col_idx(self, idx):
-        self.__ref_height_col_index = idx
-
-    def set_epsg(self, epsg_code):
-        self.__EPSG = epsg_code
-
-    def set_height_col_index(self, idx):
-        self.__height_col_index = idx
-
-    def set_trunk_diam_col_index(self, idx):
-        self.__trunk_diam_col_index = idx
-
-    def set_crown_diam_col_index(self, idx):
-        self.__crown_diam_col_index = idx
-
-    def set_species_col_index(self, index):
-        self.__species_col_index = index
-
-    def set_class_col_index(self, index):
-        self.__class_col_index = index
-
-    def set_default_export_type(self, typ):
-        self.__default_export_type = typ
-
-    def set_height_unit(self, unit):
-        self.__height_unit = unit
-
-    def set_trunk_diam_unit(self, unit):
-        self.__trunk_diam_unit = unit
-
-    def set_crown_diam_unit(self, unit):
-        self.__crown_diam_unit = unit
-
-    def set_trunk_is_circ(self, val):
-        self.__trunk_is_circ = val
-
-    def set_crown_is_circ(self, val):
-        self.__crown_is_circ = val
-
-    def set_generate_generic_attributes(self, val):
-        self.__generate_generic_attributes = val
-
-    def set_col_names(self, names):
-        self.__col_names = names
-
-    def set_col_datatypes(self, types):
-        self.__col_datatypes = types
-
+    # method to set option if pretty print should be used
     def set_prettyprint(self, value):
         self.__prettyprint = value
 
-    def set_geomtype(self, geomtype):
-        self.__geom_type = geomtype
-
-    def set_crown_height_code(self, code):
-        self.__crown_height_code = code
-
-    def set_crown_height_col_index(self, val):
-        self.__crown_height_col_index = val
-
-    # method to setup LOD1 geometry creation: if it and which geomtype should be created and hw many segments to use
-    def setup_lod1(self, value, geomtype, segments=None):
-        self.__use_lod1 = value
-        self.__lod1_geomtype = geomtype
-        if segments is not None:
-            self.__lod1_segments = segments
-
-    # method to setup LOD2 geometry creation: if it and which geomtype should be created and hw many segments to use
-    def setup_lod2(self, value, geomtype, segments=None):
-        self.__use_lod2 = value
-        self.__lod2_geomtype = geomtype
-        if segments is not None:
-            self.__lod2_segments = segments
-
-    # method to setup LOD3 geometry creation: if it and which geomtype should be created and hw many segments to use
-    def setup_lod3(self, value, geomtype, segments=None):
-        self.__use_lod3 = value
-        self.__lod3_geomtype = geomtype
-        if segments is not None:
-            self.__lod3_segments = segments
+    # method to set option if appearance should be used
+    def set_use_appearance(self, val):
+        supported_geoms = [3, 4, 5]
+        if self._lod1_geomtype in supported_geoms or self._lod2_geomtype in supported_geoms or self._lod3_geomtype in supported_geoms or self.__lod4_geomtype in supported_geoms:
+            self._use_appearance = val
 
     # method to setup LOD4 geometry creation: if it and which geomtype should be created and hw many segments to use
     def setup_lod4(self, value, geomtype, segments=None):
@@ -2530,16 +1330,835 @@ class CityGmlExport:
         if segments is not None:
             self.__lod4_segments = segments
 
-    def set_use_appearance(self, val):
-        supported_geoms = [3, 4, 5]
-        if self.__lod1_geomtype in supported_geoms or self.__lod2_geomtype in supported_geoms or self.__lod3_geomtype in supported_geoms or self.__lod4_geomtype in supported_geoms:
-            self.__use_appearance = val
+    # method to generate LOD4 geometric model
+    def generate_geometries(self, treemodel, validator):
+        lod1_valid, lod2_valid, lod3_valid, lod4_valid = super().generate_geometries(treemodel, validator)
 
-    # a list of coordinates to a string to be used in posList
-    # [x1, y1, z1, x2, y, z2, ...] --> "x1 y1 z1 x2 y2 z2 ..."
-    def poslist_list_to_string(self, poslist):
-        s_poslist = ""
-        for element in poslist:
-            s_poslist += "%.3f " % element
-        s_poslist = s_poslist[:-1]
-        return s_poslist
+        # generate LOD4 geometry
+        if self.__use_lod4 and lod4_valid:
+            lod4_valid = self.validate_geometry(validator, self.__lod4_geomtype)
+            if lod1_valid:
+                lod4_geom_obj = self.get_geometry(treemodel, self.__lod4_geomtype, self.__lod4_segments, "lod4")
+                treemodel.set_lod4model(lod4_geom_obj)
+
+        return lod1_valid, lod2_valid, lod3_valid, lod4_valid
+
+
+# Class to create internal tree models
+# Tree models will later be converted into whatever export format is needed
+class TreeModel:
+    def __init__(self):
+        self.__id = None  # tree ID, for example for gml:id
+        self.__class = None  # tree class (CityGML Species Code)
+        self.__species = None  # tree species (CityGML Species Code)
+        self.__height = None  # Tree height (in meters)
+        self.__trunkdiam = None  # trunk diameter (in meters)
+        self.__crowndiam = None  # crown diameter (in meters)
+        self.__crownheight = None  # crown height (in meters)
+        self.__generics = []  # list of generic attributes
+        self.__position = None  # position of trees, geometry.Point() object
+
+        self.__lod1model = None  # geometric tree representation for LOD1 (object from geometry module)
+        self.__lod2model = None  # geometric tree representation for LOD2 (object from geometry module)
+        self.__lod3model = None  # geometric tree representation for LOD3 (object from geometry module)
+        self.__lod4model = None  # geometric tree representation for LOD4 (object from geometry module)
+
+    def set_id(self, val):
+        self.__id = val
+
+    def get_id(self):
+        return self.__id
+
+    def set_class(self, val):
+        self.__class = val
+
+    def get_class(self):
+        return self.__class
+
+    def set_species(self, val):
+        self.__species = val
+
+    def get_species(self):
+        return self.__species
+
+    def set_height(self, val):
+        self.__height = val
+
+    def get_height(self):
+        return self.__height
+
+    def set_trunkdiam(self, val):
+        self.__trunkdiam = val
+
+    def get_trunkdiam(self):
+        return self.__trunkdiam
+
+    def set_crowndiam(self, val):
+        self.__crowndiam = val
+
+    def get_crowndiam(self):
+        return self.__crowndiam
+
+    def set_crownheight(self, val):
+        self.__crownheight = val
+
+    def get_crownheight(self):
+        return self.__crownheight
+
+    def add_generic(self, typ, name, val):
+        self.__generics.append([typ, name, val])
+
+    def get_generics(self):
+        return self.__generics
+
+    # method to set tree position: will creage geometry.Point() object
+    def set_position(self, epsg, x, y, z):
+        self.__position = geometry.Point(epsg, 3, x, y, z)
+
+    # returns tree position as geometry.Point() object
+    def get_position(self):
+        return self.__position
+
+    def set_lod1model(self, geom):
+        self.__lod1model = geom
+
+    def get_lod1model(self):
+        return self.__lod1model
+
+    def set_lod2model(self, geom):
+        self.__lod2model = geom
+
+    def get_lod2model(self):
+        return self.__lod2model
+
+    def set_lod3model(self, geom):
+        self.__lod3model = geom
+
+    def get_lod3model(self):
+        return self.__lod3model
+
+    def set_lod4model(self, geom):
+        self.__lod4model = geom
+
+    def get_lod4model(self):
+        return self.__lod4model
+
+
+# method to generate a vertiecal line geometry
+def generate_line_geometry(treemodel, geomtype):
+    epsg_code = treemodel.get_position().get_epsg()
+    if geomtype == "EXPLICIT":
+        coords = treemodel.get_position().get_coordinates()
+    else:
+        coords = (0, 0, 0)
+
+    p1 = geometry.Point(epsg_code, 3, coords[0], coords[1], coords[2])
+    p2 = geometry.Point(epsg_code, 3, coords[0], coords[1], coords[2]+treemodel.get_height())
+
+    line = geometry.LineString(epsg_code, 3, p1, p2)
+    return line
+
+
+# method to generate cylinder geometry
+def generate_cylinder_geometry(treemodel, segments, geomtype):
+    epsg = treemodel.get_position().get_epsg()
+
+    if geomtype == "EXPLICIT":
+        coords = treemodel.get_position().get_coordinates()
+    else:
+        coords = (0, 0, 0)
+
+    ref_h = coords[2]
+    tree_h = treemodel.get_height() + ref_h
+    crown_dm = treemodel.get_crowndiam()
+
+    solid = geometry.Solid(epsg, 3)
+    comp_poly = geometry.CompositePolygon(epsg, 3)
+
+    angle = 0
+    rotate = 2*math.pi / segments
+
+    coordinates = []
+    for _ in range(0, segments):
+        pnt = [coords[0] + (crown_dm/2) * math.cos(angle), coords[1] + (crown_dm/2) * math.sin(angle)]
+        coordinates.append(pnt)
+        angle += rotate
+
+    # generate walls of cylinder
+    for index in range(0, len(coordinates)):
+        poly = geometry.Polygon(epsg, 3)
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], ref_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], tree_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index-1][0], coordinates[index-1][1], tree_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index-1][0], coordinates[index-1][1], ref_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], ref_h))
+
+        comp_poly.add_polygon(poly)
+
+    # generate top of cylinder
+    poly = geometry.Polygon(epsg, 3)
+    for point in coordinates:
+        poly.exterior_add_point(geometry.Point(epsg, 3, point[0], point[1], tree_h))
+    comp_poly.add_polygon(poly)
+
+    # generate bottom of cylinder
+    poly = geometry.Polygon(epsg, 3)
+    for point in reversed(coordinates):
+        poly.exterior_add_point(geometry.Point(epsg, 3, point[0], point[1], ref_h))
+    comp_poly.add_polygon(poly)
+
+    solid.set_exterior_comp_polygon(comp_poly)
+    return solid
+
+
+# method to generate rectangle billboard geometries
+def generate_billboard_rectangle_geometry(treemodel, segments, geomtype):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+    tree_h = treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+
+    comp_poly = geometry.CompositePolygon(epsg, 3)
+
+    angle = 0
+    rotate = 360./segments
+    for _ in range(0, segments):
+        poly = geometry.Polygon(epsg, 3)
+        x = math.cos(math.radians(angle)) * (crown_dm/2.0)
+        y = math.sin(math.radians(angle)) * (crown_dm/2.0)
+
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h + tree_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + x, tree_y + y, ref_h + tree_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + x, tree_y + y, ref_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
+
+        comp_poly.add_polygon(poly)
+        angle += rotate
+
+    return comp_poly
+
+
+# generate billboard from polygon outlines for deciduous trees
+def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+
+    stem_ids = []
+    crown_ids = []
+
+    tree_h = ref_h + treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+    stem_dm = treemodel.get_trunkdiam()
+    crown_height = treemodel.get_crownheight()
+    laubansatz = tree_h - crown_height
+
+    comp_poly = geometry.CompositePolygon(epsg, 3)
+
+    angle = 0.
+    rotate = (2*math.pi) / segments
+
+    alpha = math.asin((stem_dm/2.0)/(crown_dm/2.0))
+    delta = (tree_h-laubansatz)/2.0 - (crown_height/2.0)*math.cos(alpha)
+
+    for segment in range(0, segments):
+        sinx = math.sin(angle)
+        cosx = math.cos(angle)
+
+        # creating stem polygon
+        poly_id = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
+        stem_ids.append(poly_id)
+        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz+delta))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz+delta))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
+        comp_poly.add_polygon(poly1)
+
+        # create crown polygon
+        poly_id = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
+        crown_ids.append(poly_id)
+        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz+delta))
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz + delta))
+
+        # generate circle points for crown
+        for v_angle in range(0, 180, 10):
+            if math.radians(v_angle) < alpha:
+                continue
+            x = tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * cosx
+            y = tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * sinx
+            z = laubansatz + crown_height/2.0 + (crown_height/2.0) * math.cos(math.radians(180-v_angle))
+            poly2.exterior_add_point(geometry.Point(epsg, 3, x, y, z))
+
+        # finish crown geometry
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz+delta))
+
+        comp_poly.add_polygon(poly2)
+
+        angle += rotate
+
+    return comp_poly, stem_ids, crown_ids
+
+
+# generate billboard from polygon outlines for coniferous trees
+def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+
+    stem_ids = []
+    crown_ids = []
+
+    tree_h = ref_h + treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+    stem_dm = treemodel.get_trunkdiam()
+    crown_height = treemodel.get_crownheight()
+    laubansatz = tree_h - crown_height
+
+    comp_poly = geometry.CompositePolygon(epsg, 3)
+
+    angle = 0.
+    rotate = (2*math.pi) / segments
+    for segment in range(0, segments):
+        sinx = math.sin(angle)
+        cosx = math.cos(angle)
+
+        # creating stem polygon
+        poly_id = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
+        stem_ids.append(poly_id)
+        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz))
+        poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
+        comp_poly.add_polygon(poly1)
+
+        # creatin crown polygon
+        poly_id = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
+        crown_ids.append(poly_id)
+        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz))
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz))
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (crown_dm / 2.0), tree_y + sinx * (crown_dm / 2.0), laubansatz))
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+        poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz))
+        comp_poly.add_polygon(poly2)
+
+        angle += rotate
+    return comp_poly, stem_ids, crown_ids
+
+
+# method to generate the stem for cuboid geometries
+def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+
+    stem_ids = []
+
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+
+    stem_dm = treemodel.get_trunkdiam()
+    laubansatz = ref_h + treemodel.get_height() - treemodel.get_crownheight()
+
+    solid = geometry.Solid(epsg, 3)
+
+    geom_id = "%s_%s_stem" % (tree_id, lod)
+    stem_ids.append(geom_id)
+    comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
+
+    # generate bottom polygon of stem
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    comp_poly.add_polygon(poly)
+
+    # gemerate left side polygon for stem
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    comp_poly.add_polygon(poly)
+
+    # gemerate back side polygon for stem
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    comp_poly.add_polygon(poly)
+
+    # gemerate right side polygon for stem
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, ref_h))
+    comp_poly.add_polygon(poly)
+
+    # gemerate front side polygon for stem
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+
+    # generate top polygon of stem
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y + stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y + stem_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    solid.set_exterior_comp_polygon(comp_poly)
+    return solid, stem_ids
+
+
+# method to generate a cuboid geometry for deciduous trees
+def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
+
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+
+    crown_ids = []
+
+    tree_h = ref_h + treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+    laubansatz = tree_h - treemodel.get_crownheight()
+
+    comp_solid = geometry.CompositeSolid(epsg, 3)
+
+    # --- generate stem geometry ---
+    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod)
+    comp_solid.add_solid(solid1)
+
+    # --- generate crown geometry ---
+    solid2 = geometry.Solid(epsg, 3)
+
+    geom_id = "%s_%s_crown" % (tree_id, lod)
+    crown_ids.append(geom_id)
+    comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
+
+    # generate bottom polygon of crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate left side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate back side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate right side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate front side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # generate top polygon of crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, tree_h))
+    comp_poly.add_polygon(poly)
+
+    solid2.set_exterior_comp_polygon(comp_poly)
+
+    comp_solid.add_solid(solid2)
+    return comp_solid, stem_ids, crown_ids
+
+
+# method to generate a cuboid geometry for deciduous trees
+def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+
+    crown_ids = []
+
+    tree_h = ref_h + treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+    laubansatz = tree_h - treemodel.get_crownheight()
+
+    comp_solid = geometry.CompositeSolid(epsg, 3)
+
+    # --- generate stem geometry ---
+    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod)
+    comp_solid.add_solid(solid1)
+
+    # --- generate crown geometry ---
+    solid2 = geometry.Solid(epsg, 3)
+
+    geom_id = "%s_%s_crown" % (tree_id, lod)
+    crown_ids.append(geom_id)
+    comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
+
+    # generate bottom polygon of crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate left side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate back side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate right side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y + crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # gemerate front side polygon for crown
+    poly = geometry.Polygon(epsg, 3)
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + crown_dm / 2, tree_y - crown_dm / 2, laubansatz))
+    comp_poly.add_polygon(poly)
+
+    solid2.set_exterior_comp_polygon(comp_poly)
+    comp_solid.add_solid(solid2)
+    return comp_solid, stem_ids, crown_ids
+
+
+# generate stem for geometries: cylinder
+def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod):
+    stem_ids = []
+
+    solid = geometry.Solid(epsg, 3)
+
+    geom_id = "%s_%s_stem" % (tree_id, lod)
+    stem_ids.append(geom_id)
+    comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
+
+    angle = 0
+    rotate = 2 * math.pi / segments
+
+    coordinates = []
+    for _ in range(0, segments):
+        pnt = [tree_x + (stem_dm / 2) * math.cos(angle), tree_y + (stem_dm / 2) * math.sin(angle)]
+        coordinates.append(pnt)
+        angle += rotate
+
+    # generate walls of cylinder
+    for index in range(0, len(coordinates)):
+        poly = geometry.Polygon(epsg, 3)
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], ref_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], laubansatz))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index - 1][0], coordinates[index - 1][1], laubansatz))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index - 1][0], coordinates[index - 1][1], ref_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], ref_h))
+        comp_poly.add_polygon(poly)
+
+    # generate top of cylinder
+    poly = geometry.Polygon(epsg, 3)
+    for point in coordinates:
+        poly.exterior_add_point(geometry.Point(epsg, 3, point[0], point[1], laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[0][0], coordinates[0][1], laubansatz))
+    comp_poly.add_polygon(poly)
+
+    # generate bottom of cylinder
+    poly = geometry.Polygon(epsg, 3)
+    for point in reversed(coordinates):
+        poly.exterior_add_point(geometry.Point(epsg, 3, point[0], point[1], ref_h))
+    poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[-1][0], coordinates[-1][1], ref_h))
+    comp_poly.add_polygon(poly)
+
+    solid.set_exterior_comp_polygon(comp_poly)
+
+    return solid, stem_ids
+
+
+# generate most detailed geometry for coniferous trees
+# cylinder for stem, cone for crown
+def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+
+    tree_h = ref_h + treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+    stem_dm = treemodel.get_trunkdiam()
+    crown_height = treemodel.get_crownheight()
+    laubansatz = tree_h - crown_height
+
+    crown_ids = []
+
+    comp_solid = geometry.CompositeSolid(epsg, 3)
+
+    # generate stem geometry
+    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod)
+    comp_solid.add_solid(solid1)
+
+    # generate crown geometry (cone)
+    solid2 = geometry.Solid(epsg, 3)
+
+    geom_id = "%s_%s_crown" % (tree_id, lod)
+    crown_ids.append(geom_id)
+    comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
+
+    # generate walls of cone
+    angle = 0
+    rotate = 2 * math.pi / segments
+
+    coordinates = []
+    for _ in range(0, segments):
+        pnt = [tree_x + (crown_dm / 2) * math.cos(angle), tree_y + (crown_dm / 2) * math.sin(angle)]
+        coordinates.append(pnt)
+        angle += rotate
+
+    for index in range(0, len(coordinates)):
+        poly = geometry.Polygon(epsg, 3)
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], laubansatz))
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index-1][0], coordinates[index-1][1], laubansatz))
+        poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[index][0], coordinates[index][1], laubansatz))
+        comp_poly.add_polygon(poly)
+
+    # generate bottom of cone
+    poly = geometry.Polygon(epsg, 3)
+    for point in reversed(coordinates):
+        poly.exterior_add_point(geometry.Point(epsg, 3, point[0], point[1], laubansatz))
+    poly.exterior_add_point(geometry.Point(epsg, 3, coordinates[-1][0], coordinates[-1][1], laubansatz))
+    comp_poly.add_polygon(poly)
+
+    solid2.set_exterior_comp_polygon(comp_poly)
+    comp_solid.add_solid(solid2)
+
+    return comp_solid, stem_ids, crown_ids
+
+
+# generate most detailed geometry for deciduous trees:
+# cylinder for stem, ellipsoid for crown
+def generate_geometry_deciduous(treemodel, segments, geomtype, lod):
+    pos = treemodel.get_position()
+    epsg = pos.get_epsg()
+    tree_id = treemodel.get_id()
+
+    if geomtype == "EXPLICIT":
+        tree_x = pos.get_x()
+        tree_y = pos.get_y()
+        ref_h = pos.get_z()
+    else:
+        tree_x = 0.0
+        tree_y = 0.0
+        ref_h = 0.0
+    tree_h = ref_h + treemodel.get_height()
+    crown_dm = treemodel.get_crowndiam()
+    stem_dm = treemodel.get_trunkdiam()
+    crown_height = treemodel.get_crownheight()
+    laubansatz = tree_h - crown_height
+
+    crown_ids = []
+
+    comp_solid = geometry.CompositeSolid(epsg, 3)
+
+    alpha = math.asin((stem_dm / 2.0) / (crown_dm / 2.0))
+    delta = (tree_h - laubansatz) / 2.0 - (crown_height / 2.0) * math.cos(alpha)
+
+    # generate stem geometry
+    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments, lod)
+    comp_solid.add_solid(solid1)
+
+    # generate crown geometry (ellipsoid)
+    solid2 = geometry.Solid(epsg, 3)
+
+    geom_id = "%s_%s_crown" % (tree_id, lod)
+    crown_ids.append(geom_id)
+    comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
+
+    # generate ellipsoid points: first row
+    coordinates = []
+    row = []
+    for h_angle in range(0, 360, int(360/segments)):
+        pnt = [tree_x - (crown_dm/2.0) * math.sin(2*math.pi-alpha) * math.cos(math.radians(h_angle)),
+               tree_y - (crown_dm/2.0) * math.sin(2*math.pi-alpha) * math.sin(math.radians(h_angle)),
+               laubansatz + delta]
+        row.append(pnt)
+    coordinates.append(row)
+
+    # generate ellipsoid points: all other rows
+    for v_angle in range(0, 180, int(180/(segments/2))):
+        if math.radians(v_angle) < alpha:
+            continue
+        row = []
+        for h_angle in range(0, 360, int(360/segments)):
+            pnt = [tree_x + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * math.cos(math.radians(h_angle)),
+                   tree_y + (crown_dm/2.0) * math.sin(math.radians(180-v_angle)) * math.sin(math.radians(h_angle)),
+                   laubansatz + (tree_h-laubansatz)/2 + ((tree_h-laubansatz)/2) * math.cos(math.radians(180-v_angle))]
+            row.append(pnt)
+        coordinates.append(row)
+
+    # generate side segments for ellipsoid
+    for row_index in range(1, len(coordinates)):
+        for pnt_index in range(0, len(coordinates[row_index])):
+            poly = geometry.Polygon(epsg, 3)
+
+            pnt1 = geometry.Point(epsg, 3,
+                                  coordinates[row_index][pnt_index][0],
+                                  coordinates[row_index][pnt_index][1],
+                                  coordinates[row_index][pnt_index][2])
+            pnt2 = geometry.Point(epsg, 3,
+                                  coordinates[row_index][pnt_index-1][0],
+                                  coordinates[row_index][pnt_index-1][1],
+                                  coordinates[row_index][pnt_index-1][2])
+            pnt3 = geometry.Point(epsg, 3,
+                                  coordinates[row_index-1][pnt_index - 1][0],
+                                  coordinates[row_index-1][pnt_index - 1][1],
+                                  coordinates[row_index-1][pnt_index - 1][2])
+            pnt4 = geometry.Point(epsg, 3,
+                                  coordinates[row_index - 1][pnt_index][0],
+                                  coordinates[row_index - 1][pnt_index][1],
+                                  coordinates[row_index - 1][pnt_index][2])
+
+            poly.exterior_add_point(pnt1)
+            poly.exterior_add_point(pnt2)
+            poly.exterior_add_point(pnt3)
+            poly.exterior_add_point(pnt4)
+            poly.exterior_add_point(pnt1)
+            comp_poly.add_polygon(poly)
+
+    # generate top triangle segments
+    top_row = coordinates[-1]
+    for index in range(0, len(top_row)):
+        poly = geometry.Polygon(epsg, 3)
+        poly.exterior_add_point(geometry.Point(epsg, 3, top_row[index][0], top_row[index][1], top_row[index][2]))
+        poly.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, tree_h))
+        poly.exterior_add_point(geometry.Point(epsg, 3, top_row[index-1][0], top_row[index-1][1], top_row[index-1][2]))
+        poly.exterior_add_point(geometry.Point(epsg, 3, top_row[index][0], top_row[index][1], top_row[index][2]))
+        comp_poly.add_polygon(poly)
+
+    # generate bottom polygon
+    poly = geometry.Polygon(epsg, 3)
+    bottom_row = coordinates[0]
+    for point in reversed(bottom_row):
+        poly.exterior_add_point(geometry.Point(epsg, 3, point[0], point[1], point[2]))
+    comp_poly.add_polygon(poly)
+
+    solid2.set_exterior_comp_polygon(comp_poly)
+    comp_solid.add_solid(solid2)
+
+    return comp_solid, stem_ids, crown_ids
