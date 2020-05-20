@@ -90,7 +90,7 @@ class ColumnNames:
         self.__Species = colname
 
     def get_species(self):
-        return self.__Class
+        return self.__Species
 
     def set_crown_height(self, colname):
         self.__CrownHeight = colname
