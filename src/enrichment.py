@@ -1358,7 +1358,7 @@ class AddCityGmlVegetationCodeGUI(default_gui.add_vegetation_code):
             return
 
         self.__col_settings.set_species(self.__species_col_name)
-        self.__col_settings.set_class(self.__species_col_name)
+        self.__col_settings.set_class(self.__class_col_name)
 
         veg_column = self.choice_vegetation_col.GetStringSelection()  # get column with botanical name
         self.GetParent().db.add_col(self.__species_col_name, "INT")  # add species code column to database table
