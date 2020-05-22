@@ -27,9 +27,22 @@ class MainWindow ( wx.Frame ):
 		self.open = wx.MenuItem( self.file, wx.ID_ANY, u"Open", wx.EmptyString, wx.ITEM_NORMAL )
 		self.file.Append( self.open )
 		
-		self.export_citygml = wx.MenuItem( self.file, wx.ID_ANY, u"Export as CityGML", wx.EmptyString, wx.ITEM_NORMAL )
-		self.file.Append( self.export_citygml )
+		self.m_menu21 = wx.Menu()
+		self.export_citygml = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"CityGML", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu21.Append( self.export_citygml )
 		self.export_citygml.Enable( False )
+		
+		self.export_cityjson = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"CityJSON", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu21.Append( self.export_cityjson )
+		self.export_cityjson.Enable( False )
+		
+		self.m_menu21.AppendSeparator()
+		
+		self.export_geojson = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"GeoJSON", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu21.Append( self.export_geojson )
+		self.export_geojson.Enable( False )
+		
+		self.file.AppendSubMenu( self.m_menu21, u"Export" )
 		
 		self.file.AppendSeparator()
 		
@@ -118,6 +131,8 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_CLOSE, self.OnClose )
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_export_cityjson, id = self.export_cityjson.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_export_geojson, id = self.export_geojson.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_exit, id = self.exit.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_show_all_columns, id = self.reset_col_visiblity.GetId() )
@@ -145,6 +160,12 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_menu_export_citygml( self, event ):
+		event.Skip()
+	
+	def on_menu_export_cityjson( self, event ):
+		event.Skip()
+	
+	def on_menu_export_geojson( self, event ):
 		event.Skip()
 	
 	def on_menu_exit( self, event ):

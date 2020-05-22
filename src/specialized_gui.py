@@ -163,6 +163,8 @@ class MainTableFrame(default_gui.MainWindow):
 
         # Enable menu items
         self.export_citygml.Enable(True)
+        self.export_cityjson.Enable(True)
+        self.export_geojson.Enable(True)
         self.reset_col_position.Enable(True)
         self.reset_col_visiblity.Enable(True)
         self.dublicates.Enable(True)
@@ -174,15 +176,13 @@ class MainTableFrame(default_gui.MainWindow):
         self.add_height_default.Enable(True)
         self.add_pointcloud_parameters.Enable(True)
 
-    # method to be called when File > Export as CityGML is pressed
-    def on_menu_export_citygml(self, event):
-        export.ExportDialog(self)
-
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
     def reset_program(self):
         # Disable menu items
         self.export_citygml.Enable(False)
+        self.export_cityjson.Enable(False)
+        self.export_geojson.Enable(False)
         self.reset_col_position.Enable(False)
         self.reset_col_visiblity.Enable(False)
         self.dublicates.Enable(False)
@@ -540,6 +540,16 @@ class MainTableFrame(default_gui.MainWindow):
     # method to be called when File > Exit
     def on_menu_exit(self, event):
         self.OnClose(event)
+
+    # method to be called when File > Export as CityGML is pressed
+    def on_menu_export_citygml(self, event):
+        export.ExportDialog(self)
+
+    def on_menu_export_cityjson(self, event):
+        print("cityjson")
+
+    def on_menu_export_geojson( self, event ):
+        print("not supported yet")
 
 
 # DialogBox with options to open file
