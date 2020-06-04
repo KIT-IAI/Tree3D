@@ -4,6 +4,7 @@ from datetime import date
 import threading
 import sqlite3
 import os
+import json
 
 import default_gui
 import analysis
@@ -12,6 +13,9 @@ import geometry
 import wx
 
 
+# parent GUI class for export dialog
+# provides export functionality, needed by all export formats
+# derived classes then make format-specific alterations to class
 class ExportDialog(default_gui.CityGmlExport):
     def __init__(self, parent):
         default_gui.CityGmlExport.__init__(self, parent)
@@ -28,8 +32,6 @@ class ExportDialog(default_gui.CityGmlExport):
 
         self.progress.SetRange(self.GetParent().db.get_number_of_tablerecords())
 
-        self.ShowModal()
-
     # method to populate dropdown menus in export window
     def populate_dropdown(self):
         colitemlist = self.GetParent().db.get_column_names()
@@ -45,6 +47,7 @@ class ExportDialog(default_gui.CityGmlExport):
 
         self.load_column_selection()
 
+    # method to load saved column selections
     def load_column_selection(self):
         coords = self.__col_settings.get_coordinates()
         if coords != (None, None):
@@ -89,8 +92,7 @@ class ExportDialog(default_gui.CityGmlExport):
         name_found = False
 
         while not name_found:
-            with wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml",
-                               style=wx.FD_SAVE) as fileDialog:
+            with self.load_browse_dialog() as fileDialog:
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return
                 if os.path.exists(fileDialog.GetPath()):
@@ -106,7 +108,11 @@ class ExportDialog(default_gui.CityGmlExport):
 
         self.filepat_textbox.SetValue(self.__pathname)
 
-    # method to be called when "export" button is pressed in export-window
+    # method to load correct browse dialog (overwritten in subclass)
+    def load_browse_dialog(self):
+        pass
+
+    # method to be called when "export" button is pressed in export GUI
     def on_export(self, event):
         if not self.validate_input():
             return
@@ -119,8 +125,16 @@ class ExportDialog(default_gui.CityGmlExport):
         thread = threading.Thread(target=self.start_export)
         thread.start()
 
+    # method to start export (in a new thread)
     def start_export(self):
-        exporter = CityGmlExport(self.__pathname, self.__dbpath)
+        classname = type(self).__name__
+        if classname == "ExportDialogCityGML":
+            exporter = CityGmlExport(self.__pathname, self.__dbpath)
+        elif classname == "ExportDialogCityJson":
+            exporter = CityJSONExport(self.__pathname, self.__dbpath)
+        else:
+            exporter = None
+
         exporter.set_tree_table_name(self.__TreeTableName)
 
         # configure if pretty print should be used in output file
@@ -286,6 +300,7 @@ class ExportDialog(default_gui.CityGmlExport):
         self.progress.SetValue(0)
         self.buttonExport.Enable(True)
 
+    # method is called when dropdown on how to calculated crown height is changed
     def on_crown_height_options(self, event):
         if self.crown_height_choice.GetSelection() == 5:
             self.CrownHeightColText.Show()
@@ -602,6 +617,41 @@ class ExportDialog(default_gui.CityGmlExport):
             self.__col_settings.set_crown_height(self.ChoiceCrownHeightCol.GetStringSelection())
 
 
+# Export GUI for CityGML export
+class ExportDialogCityGML(ExportDialog):
+    def __init__(self, parent):
+        ExportDialog.__init__(self, parent)
+
+    # method to generate browse dialog in export gui
+    def load_browse_dialog(self):
+        dlg = wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml", style=wx.FD_SAVE)
+        return dlg
+
+
+# Export GUI for CityJSON export
+class ExportDialogCityJson(ExportDialog):
+    def __init__(self, parent):
+        ExportDialog.__init__(self, parent)
+
+        # renaming some GUI elements
+        self.SetTitle("Export as CityJSON")
+        self.box_prettyprint.SetLabel("Create pretty-printed JSON output (may be slow for large datasets)")
+
+        self.lod4.Hide()
+        self.lod4_geomtype.Hide()
+        self.lod4_segments.Hide()
+        self.lod4_segments_text.Hide()
+
+        self.DoLayoutAdaptation()
+        self.Layout()
+
+    # method to generate browse dialog in export gui
+    def load_browse_dialog(self):
+        dlg = wx.FileDialog(self, "Export as CityJSON", wildcard="CityJSON (*.json)|*.json", style=wx.FD_SAVE)
+        return dlg
+
+
+# Class to perform the export itself
 class Export:
     def __init__(self, savepath, dbfilepath):
         self._con = sqlite3.connect(dbfilepath)
@@ -733,8 +783,10 @@ class Export:
         else:
             self._DataCursor.execute("SELECT ROWID, * FROM %s" % self._TreeTableName)
 
+    # method to perform export
+    # generates an internal tree model for each tree
+    # internal tree model is later converted to format-specific tree model
     def export(self, progressbar):
-
         exported_trees = 0
         invalid_lod1 = 0
         invalid_lod2 = 0
@@ -971,6 +1023,7 @@ class CityModelExport(Export):
         Export.__init__(self, savepath, dbfilepath)
 
         self._generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
+        self._prettyprint = None  # boolean variable to determine if xml output should be formatted
 
         self._use_lod2 = False
         self._lod2_geomtype = None
@@ -979,6 +1032,10 @@ class CityModelExport(Export):
         self._use_lod3 = False
         self._lod3_geomtype = None
         self._lod3_segments = None
+
+    # method to set option if pretty print should be used
+    def set_prettyprint(self, value):
+        self._prettyprint = value
 
     # method to set option if generic attributes should be used
     def set_generate_generic_attributes(self, val):
@@ -1025,13 +1082,12 @@ class CityModelExport(Export):
         return lod1_valid, lod2_valid, lod3_valid, True
 
 
+# Class containing CityGML-specific export methods and options
 class CityGmlExport(CityModelExport):
     def __init__(self, savepath, dbfilepath):
         CityModelExport.__init__(self, savepath, dbfilepath)
         self.__root = ET.Element("CityModel")
         self.add_namespaces()
-
-        self.__prettyprint = None  # boolean variable to determine if xml output should be formatted
 
         self.__use_lod4 = False
         self.__lod4_geomtype = None
@@ -1042,14 +1098,15 @@ class CityGmlExport(CityModelExport):
     # method to save Element Tree to XML file
     def save_file(self):
         # reformat to prettyprint xml output
-        if self.__prettyprint:
+        if self._prettyprint:
             CityGmlExport.indent(self.__root)
 
         # write tree to output file
         tree = ET.ElementTree(self.__root)
         tree.write(self._filepath, encoding="UTF-8", xml_declaration=True, method="xml")
 
-    # method to add a tree to the Element Tree
+    # method to add a tree to CityGML-model
+    # converts internal tree model into CityGML SolitaryVegetationObject tree model
     def add_tree_to_model(self, tree_model):
 
         # create CityObjectMember in XML Tree
@@ -1313,10 +1370,6 @@ class CityGmlExport(CityModelExport):
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
 
-    # method to set option if pretty print should be used
-    def set_prettyprint(self, value):
-        self.__prettyprint = value
-
     # method to set option if appearance should be used
     def set_use_appearance(self, val):
         supported_geoms = [3, 4, 5]
@@ -1342,6 +1395,128 @@ class CityGmlExport(CityModelExport):
                 treemodel.set_lod4model(lod4_geom_obj)
 
         return lod1_valid, lod2_valid, lod3_valid, lod4_valid
+
+
+# Class containing CityJSON-specific export methods and options
+class CityJSONExport(CityModelExport):
+    def __init__(self, savepath, dbfilepath):
+        CityModelExport.__init__(self, savepath, dbfilepath)
+
+        self.__metadata = {}
+        self.__cityobjects = {}
+        self._vertices = []
+
+        self.__root = {
+            "type": "CityJSON",
+            "version": "1.0",
+            "metadata": self.__metadata,
+            "CityObjects": self.__cityobjects,
+            "vertices": self._vertices
+        }
+
+    # convert city model to strings and write it to file
+    def save_file(self):
+        if self._prettyprint:
+            export_string = json.dumps(self.__root, indent=4)
+        else:
+            export_string = json.dumps(self.__root)
+
+        with open(self._filepath, mode="w", encoding="utf-8") as outfile:
+            outfile.write(export_string)
+
+    # method to add a tree to CityJSON-model
+    # converts internal tree model into CityJSON SolitaryVegetationObject tree model
+    def add_tree_to_model(self, tree_model):
+        tree_id = tree_model.get_id()
+        attributes = {"creationDate": str(date.today())}
+
+        # Add class to parametrized tree model
+        classe = tree_model.get_class()
+        if classe is not None:
+            attributes["class"] = str(classe)
+
+        # Add species to parametrized tree model
+        species = tree_model.get_species()
+        if species is not None:
+            attributes["species"] = str(species)
+
+        # Add hight attribute to parameterized tree model
+        height = tree_model.get_height()
+        if height is not None:
+            attributes["height"] = height
+
+        # Add trunk (stem) diameter attribute to parameterized tree model
+        trunkdiam = tree_model.get_trunkdiam()
+        if trunkdiam is not None:
+            attributes["trunkDiameter"] = trunkdiam
+
+        # Add crown diameter attribute to parameterized tree model
+        crowndiam = tree_model.get_crowndiam()
+        if crowndiam is not None:
+            attributes["crownDiameter"] = crowndiam
+
+        if self._generate_generic_attributes:
+            for gen_att in tree_model.get_generics():
+                attributes[gen_att[1]] = gen_att[2]
+
+        geom = []
+        if self._geom_type == "EXPLICIT":
+            if self._use_lod1:
+                geom_model = tree_model.get_lod1model()
+                if geom_model is not None:
+                    geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
+                    self.total_vertex_correction(boundaries)
+                    geom_obj = {"lod": 1,
+                                "type": geom_type,
+                                "boundaries": boundaries}
+                    self._vertices.extend(vertex_list)
+                    geom.append(geom_obj)
+            if self._use_lod2:
+                geom_model = tree_model.get_lod2model()
+                if geom_model is not None:
+                    geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
+                    self.total_vertex_correction(boundaries)
+                    geom_obj = {"lod": 2,
+                                "type": geom_type,
+                                "boundaries": boundaries}
+                    self._vertices.extend(vertex_list)
+                    geom.append(geom_obj)
+            if self._use_lod3:
+                geom_model = tree_model.get_lod3model()
+                if geom_model is not None:
+                    geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
+                    self.total_vertex_correction(boundaries)
+                    geom_obj = {"lod": 3,
+                                "type": geom_type,
+                                "boundaries": boundaries}
+                    self._vertices.extend(vertex_list)
+                    geom.append(geom_obj)
+
+        elif self._geom_type == "IMPLICIT":
+            print("not supported yet")
+
+        self.__cityobjects[tree_id] = {
+            "type": "SolitaryVegetationObject",
+            "attributes": attributes,
+            "geometry": geom
+        }
+
+    # method to convert vertex values from local values (values in geom object starting from 0)
+    # to global values to prevent dupliates
+    def total_vertex_correction(self, boundary_list):
+        for index, element in enumerate(boundary_list):
+            if type(element) == list or type(element) == tuple:
+                self.total_vertex_correction(element)
+            else:
+                boundary_list[index] += len(self._vertices)
+
+    # method to calculate geometric model bounding box
+    def bounded_by(self):
+        bbox = self._bbox.get_bbox()
+        self.__metadata["referenceSystem"] = "urn:ogc:def:crs:EPSG::%s" % self._EPSG
+
+        extent = [bbox[0][0], bbox[0][1], 110.0, bbox[1][0], bbox[1][1], 130.0]
+        self.__metadata["geographicalExtent"] = extent
 
 
 # Class to create internal tree models
@@ -1748,6 +1923,7 @@ def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
     poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, laubansatz))
     poly.exterior_add_point(geometry.Point(epsg, 3, tree_x - stem_dm / 2, tree_y - stem_dm / 2, ref_h))
     poly.exterior_add_point(geometry.Point(epsg, 3, tree_x + stem_dm / 2, tree_y - stem_dm / 2, ref_h))
+    comp_poly.add_polygon(poly)
 
     # generate top polygon of stem
     poly = geometry.Polygon(epsg, 3)
