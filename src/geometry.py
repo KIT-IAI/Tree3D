@@ -205,6 +205,29 @@ class LineString(Geometry):
         poslist.text = postext
         return linestring
 
+    def get_cityjson_vertices(self):
+        """
+        Method to generate CityJSON vertex list
+        :return: List of vertices
+        """
+        vertice_list = [self.__start.get_coordinates(), self.__end.get_coordinates()]
+        return vertice_list
+
+    @staticmethod
+    def get_cityjson_boundaries():
+        """
+        Method to generate CityJSON boundary list
+        :return: List of boundaries
+        """
+        return [[0, 1]]
+
+    def get_cityjson_geometric_representation(self):
+        """
+        Method to generate everything needed for CityJSON geom object construction
+        :return: Type, Vertice list, boundary list
+        """
+        return "MultiLineString", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
+
 
 class Polygon(Geometry):
     """
@@ -286,6 +309,30 @@ class Polygon(Geometry):
         polygon.set("srsName", "EPSG:%s" % self._epsg)
         return polygon
 
+    def get_cityjson_vertices(self):
+        """
+        Method to generate CityJSON vertex list
+        :return: List of vertices
+        """
+        vertice_list = []
+        for point in self.__exterior:
+            vertice_list.append(point.get_coordinates())
+        return vertice_list
+
+    def get_cityjson_boundaries(self):
+        """
+        Method to generate CityJSON boundary list
+        :return: List of boundaries
+        """
+        return list(range(0, len(self.__exterior)))
+
+    def get_cityjson_geometric_representation(self):
+        """
+        Method to generate everything needed for CityJSON geom object construction
+        :return: Type, Vertice list, boundary list
+        """
+        return "Surface", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
+
 
 class CompositePolygon(Geometry):
     """
@@ -358,6 +405,41 @@ class CompositePolygon(Geometry):
         compsurface.set("srsName", "EPSG:%s" % self._epsg)
         return compsurface
 
+    def get_cityjson_vertices(self):
+        """
+        Method to generate CityJSON vertex list
+        :return: List of vertices
+        """
+        vertice_list = []
+        for polygon in self.__polygons:
+            vertice_list.extend(polygon.get_cityjson_vertices())
+        return vertice_list
+
+    def get_cityjson_boundaries(self):
+        """
+        Method to generate CityJSON boundary list
+        :return: List of boundaries
+        """
+        boundary_list = []
+        for polygon in self.__polygons:
+            polygon_boundary_list = polygon.get_cityjson_boundaries()
+            add_number = get_cityjson_vertex_number(boundary_list)
+            polygon_boundary_list = [x+add_number for x in polygon_boundary_list]
+            boundary_list.append([polygon_boundary_list])
+        return boundary_list
+
+    def get_cityjson_geometric_representation(self):
+        """
+        Method to generate everything needed for CityJSON geom object construction
+        :return: Type, Vertice list, boundary list
+        """
+        vertices = self.get_cityjson_vertices()
+        boundaries = self.get_cityjson_boundaries()
+
+        cleanup_cityjson_geometry(boundaries, vertices)
+
+        return "MultiSurface", vertices, boundaries
+
 
 class Solid(Geometry):
     """
@@ -416,6 +498,15 @@ class Solid(Geometry):
         solid.set("srsDimension", str(self._dimension))
         solid.set("srsName", "EPSG:%s" % self._epsg)
         return solid
+
+    def get_cityjson_geometric_representation(self):
+        """
+        Method to generate everything needed for CityJSON geom object construction
+        :return: Type, Vertice list, boundary list
+        """
+        _, vertices, ext_boundaries = self.__ExteriorCompositePolygon.get_cityjson_geometric_representation()
+        boundaries = [ext_boundaries]
+        return "Solid", vertices, boundaries
 
 
 class CompositeSolid(Geometry):
@@ -488,3 +579,105 @@ class CompositeSolid(Geometry):
         compsolid.set("srsDimension", str(self._dimension))
         compsolid.set("srsName", "EPSG:%s" % self._epsg)
         return compsolid
+
+    def get_cityjson_geometric_representation(self):
+        """
+        Method to generate everything needed for CityJSON geom object construction
+        :return: Type, Vertice list, boundary list
+        """
+        vertices = []
+        boundaris = []
+        for solid in self.__Solids:
+            _, solid_vertices, solid_boundaries = solid.get_cityjson_geometric_representation()
+            add_number = len(vertices)
+            vertices.extend(solid_vertices)
+
+            add_cityjson_number(solid_boundaries, add_number)
+            boundaris.append(solid_boundaries)
+
+        cleanup_cityjson_geometry(boundaris, vertices)
+
+        return "CompositeSolid", vertices, boundaris
+
+
+def get_cityjson_vertex_number(vertex_list):
+    """
+    Recursive function to count number of vertices in a CityJSON geometry
+    :param vertex_list: CityJSON boundary list
+    :return: number of vertices
+    """
+    count = 0
+    for element in vertex_list:
+        if type(element) == list:
+            count += get_cityjson_vertex_number(element)
+        else:
+            count += 1
+    return count
+
+
+def cleanup_cityjson_geometry(boundaries, vertices):
+    """
+    Recursive function to clean up CityJSON geometries
+    Removes duplicate vertices from vertice list and updates number in boundary list
+    :param boundaries: CityJSON boundary list of a geometry
+    :param vertices: CityJSON List of vertices
+    :return: None
+    """
+    delete_verteces = []
+    for i in range(0, len(vertices)):
+        for j in range(i + 1, len(vertices)):
+            if vertices[i] == vertices[j]:
+                if j not in delete_verteces:
+                    delete_verteces.append(j)
+                    replace_cityjson_vertex_number(boundaries, j, i)
+
+    for i in sorted(delete_verteces, reverse=True):
+        del (vertices[i])
+        reduce_cityjson_vertex_number(boundaries, i)
+
+
+def replace_cityjson_vertex_number(boundaries_list, replace_from, replace_to):
+    """
+    Recursive function to replace a vertex number with a different number
+    Function is used when updateing vertex list in Cleanup
+    :param boundaries_list: CityJSON boundary list of a geometry
+    :param replace_from: Number that will be replaced (int)
+    :param replace_to: Number it is replaced by (int)
+    :return: None
+    """
+    for i in range(0, len(boundaries_list)):
+        if type(boundaries_list[i]) == list:
+            replace_cityjson_vertex_number(boundaries_list[i], replace_from, replace_to)
+        else:
+            if boundaries_list[i] == replace_from:
+                boundaries_list[i] = replace_to
+
+
+def reduce_cityjson_vertex_number(boundaries_list, threshold):
+    """
+    Recursive function to reduce all vertex numbers by 1, if number is greater than a certain threshold
+    Function is used when duplicate vertice is removed from vertice list
+    :param boundaries_list: CityJSON boundary list of a geometry
+    :param threshold: int
+    :return: None
+    """
+    for i in range(0, len(boundaries_list)):
+        if type(boundaries_list[i]) == list:
+            reduce_cityjson_vertex_number(boundaries_list[i], threshold)
+        else:
+            if boundaries_list[i] > threshold:
+                boundaries_list[i] -= 1
+
+
+def add_cityjson_number(boundaries_list, number):
+    """
+    Recursive function to Add a number to any vertex in CityJSON boundary list
+    :param boundaries_list: CityJSON boundary list of a geometry
+    :param number: Number to add to each vertex
+    :return: None
+    """
+    for i in range(0, len(boundaries_list)):
+        if type(boundaries_list[i]) == list:
+            add_cityjson_number(boundaries_list[i], number)
+        else:
+            boundaries_list[i] += number
