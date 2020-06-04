@@ -543,10 +543,13 @@ class MainTableFrame(default_gui.MainWindow):
 
     # method to be called when File > Export as CityGML is pressed
     def on_menu_export_citygml(self, event):
-        export.ExportDialog(self)
+        dlg = export.ExportDialogCityGML(self)
+        dlg.ShowModal()
+
 
     def on_menu_export_cityjson(self, event):
-        print("cityjson")
+        dlg = export.ExportDialogCityJson(self)
+        dlg.ShowModal()
 
     def on_menu_export_geojson( self, event ):
         print("not supported yet")
