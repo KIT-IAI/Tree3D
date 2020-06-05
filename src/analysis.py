@@ -732,6 +732,8 @@ class BoundingBox:
         self.__xMax = 0
         self.__yMin = float("inf")
         self.__yMax = 0
+        self.__zMin = float("inf")
+        self.__zMax = 0
 
     def set_xmin(self, val):
         self.__xMin = val
@@ -739,14 +741,20 @@ class BoundingBox:
     def set_ymin(self, val):
         self.__yMin = val
 
+    def set_zmin(self, val):
+        self.__zMin = val
+
     def set_xmax(self, val):
         self.__xMax = val
 
     def set_ymax(self, val):
         self.__yMax = val
 
+    def set_zmax(self, val):
+        self.__zMax = val
+
     # compares coordinates to bbox, extends bbox if necessary
-    def compare(self, x_val, y_val):
+    def compare(self, x_val, y_val, z_val=1):
         if x_val < self.__xMin:
             self.set_xmin(x_val)
 
@@ -759,8 +767,15 @@ class BoundingBox:
         if y_val > self.__yMax:
             self.set_ymax(y_val)
 
+        if z_val < self.__zMin:
+            self.set_zmin(z_val)
+
+        if z_val > self.__zMax:
+            self.set_zmax(z_val)
+
+
     # returns bounding box coordinates
     def get_bbox(self):
-        min_vals = [self.__xMin, self.__yMin]
-        max_vals = [self.__xMax, self.__yMax]
+        min_vals = [self.__xMin, self.__yMin, self.__zMin]
+        max_vals = [self.__xMax, self.__yMax, self.__zMax]
         return [min_vals, max_vals]
