@@ -1512,10 +1512,14 @@ class CityJSONExport(CityModelExport):
 
     # method to calculate geometric model bounding box
     def bounded_by(self):
-        bbox = self._bbox.get_bbox()
-        self.__metadata["referenceSystem"] = "urn:ogc:def:crs:EPSG::%s" % self._EPSG
+        bbox = analysis.BoundingBox()
+        for point in self._vertices:
+            bbox.compare(point[0], point[1], point[2])
+        bbox_coords = bbox.get_bbox()
 
-        extent = [bbox[0][0], bbox[0][1], 110.0, bbox[1][0], bbox[1][1], 130.0]
+        self.__metadata["referenceSystem"] = "urn:ogc:def:crs:EPSG::%s" % self._EPSG
+        extent = [bbox_coords[0][0], bbox_coords[0][1], bbox_coords[0][2],
+                  bbox_coords[1][0], bbox_coords[1][1], bbox_coords[1][2]]
         self.__metadata["geographicalExtent"] = extent
 
 
