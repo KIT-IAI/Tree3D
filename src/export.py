@@ -1468,7 +1468,7 @@ class CityJSONExport(CityModelExport):
                 geom_model = tree_model.get_lod1model()
                 if geom_model is not None:
                     geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
-                    self.total_vertex_correction(boundaries)
+                    self.total_vertex_correction_explicit(boundaries)
                     geom_obj = {"lod": 1,
                                 "type": geom_type,
                                 "boundaries": boundaries}
@@ -1478,7 +1478,7 @@ class CityJSONExport(CityModelExport):
                 geom_model = tree_model.get_lod2model()
                 if geom_model is not None:
                     geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
-                    self.total_vertex_correction(boundaries)
+                    self.total_vertex_correction_explicit(boundaries)
                     geom_obj = {"lod": 2,
                                 "type": geom_type,
                                 "boundaries": boundaries}
@@ -1488,7 +1488,7 @@ class CityJSONExport(CityModelExport):
                 geom_model = tree_model.get_lod3model()
                 if geom_model is not None:
                     geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
-                    self.total_vertex_correction(boundaries)
+                    self.total_vertex_correction_explicit(boundaries)
                     geom_obj = {"lod": 3,
                                 "type": geom_type,
                                 "boundaries": boundaries}
@@ -1573,10 +1573,10 @@ class CityJSONExport(CityModelExport):
 
     # method to convert vertex values from local values (values in geom object starting from 0)
     # to global values to prevent dupliates
-    def total_vertex_correction(self, boundary_list):
+    def total_vertex_correction_explicit(self, boundary_list):
         for index, element in enumerate(boundary_list):
             if type(element) == list or type(element) == tuple:
-                self.total_vertex_correction(element)
+                self.total_vertex_correction_explicit(element)
             else:
                 boundary_list[index] += len(self._vertices)
 
