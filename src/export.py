@@ -1404,7 +1404,7 @@ class CityJSONExport(CityModelExport):
 
         self.__metadata = {}
         self.__cityobjects = {}
-        self._vertices = []
+        self.__vertices = []
 
         self.__implicit_templates = []
         self.__implicit_vertice_templates = []
@@ -1414,7 +1414,7 @@ class CityJSONExport(CityModelExport):
             "version": "1.0",
             "metadata": self.__metadata,
             "CityObjects": self.__cityobjects,
-            "vertices": self._vertices
+            "vertices": self.__vertices
         }
 
     # convert city model to strings and write it to file
@@ -1472,7 +1472,7 @@ class CityJSONExport(CityModelExport):
                     geom_obj = {"lod": 1,
                                 "type": geom_type,
                                 "boundaries": boundaries}
-                    self._vertices.extend(vertex_list)
+                    self.__vertices.extend(vertex_list)
                     geom.append(geom_obj)
             if self._use_lod2:
                 geom_model = tree_model.get_lod2model()
@@ -1482,7 +1482,7 @@ class CityJSONExport(CityModelExport):
                     geom_obj = {"lod": 2,
                                 "type": geom_type,
                                 "boundaries": boundaries}
-                    self._vertices.extend(vertex_list)
+                    self.__vertices.extend(vertex_list)
                     geom.append(geom_obj)
             if self._use_lod3:
                 geom_model = tree_model.get_lod3model()
@@ -1492,7 +1492,7 @@ class CityJSONExport(CityModelExport):
                     geom_obj = {"lod": 3,
                                 "type": geom_type,
                                 "boundaries": boundaries}
-                    self._vertices.extend(vertex_list)
+                    self.__vertices.extend(vertex_list)
                     geom.append(geom_obj)
 
         elif self._geom_type == "IMPLICIT":
@@ -1507,14 +1507,14 @@ class CityJSONExport(CityModelExport):
                                 "boundaries": boundaries}
                     geom_obj = {"type": "GeometryInstance",
                                 "template": len(self.__implicit_templates),
-                                "boundaries": [len(self._vertices)],
+                                "boundaries": [len(self.__vertices)],
                                 "transformationMatrix": [
                                     1, 0, 0, 0,
                                     0, 1, 0, 0,
                                     0, 0, 1, 0,
                                     0, 0, 0, 1]
                                 }
-                    self._vertices.append(position)
+                    self.__vertices.append(position)
                     self.__implicit_templates.append(template)
                     self.__implicit_vertice_templates.extend(vertex_list)
                     geom.append(geom_obj)
@@ -1530,14 +1530,14 @@ class CityJSONExport(CityModelExport):
                                 "boundaries": boundaries}
                     geom_obj = {"type": "GeometryInstance",
                                 "template": len(self.__implicit_templates),
-                                "boundaries": [len(self._vertices)],
+                                "boundaries": [len(self.__vertices)],
                                 "transformationMatrix": [
                                     1, 0, 0, 0,
                                     0, 1, 0, 0,
                                     0, 0, 1, 0,
                                     0, 0, 0, 1]
                                 }
-                    self._vertices.append(position)
+                    self.__vertices.append(position)
                     self.__implicit_templates.append(template)
                     self.__implicit_vertice_templates.extend(vertex_list)
                     geom.append(geom_obj)
@@ -1553,14 +1553,14 @@ class CityJSONExport(CityModelExport):
                                 "boundaries": boundaries}
                     geom_obj = {"type": "GeometryInstance",
                                 "template": len(self.__implicit_templates),
-                                "boundaries": [len(self._vertices)],
+                                "boundaries": [len(self.__vertices)],
                                 "transformationMatrix": [
                                     1, 0, 0, 0,
                                     0, 1, 0, 0,
                                     0, 0, 1, 0,
                                     0, 0, 0, 1]
                                 }
-                    self._vertices.append(position)
+                    self.__vertices.append(position)
                     self.__implicit_templates.append(template)
                     self.__implicit_vertice_templates.extend(vertex_list)
                     geom.append(geom_obj)
@@ -1578,7 +1578,7 @@ class CityJSONExport(CityModelExport):
             if type(element) == list or type(element) == tuple:
                 self.total_vertex_correction_explicit(element)
             else:
-                boundary_list[index] += len(self._vertices)
+                boundary_list[index] += len(self.__vertices)
 
     # method to convert vertex values from local values (values in geom objects starting from 0)
     # to global values to prevent dupliates for implicit geometries
@@ -1592,7 +1592,7 @@ class CityJSONExport(CityModelExport):
     # method to calculate geometric model bounding box
     def bounded_by(self):
         bbox = analysis.BoundingBox()
-        for point in self._vertices:
+        for point in self.__vertices:
             bbox.compare(point[0], point[1], point[2])
         bbox_coords = bbox.get_bbox()
 
