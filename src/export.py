@@ -1406,6 +1406,9 @@ class CityJSONExport(CityModelExport):
         self.__cityobjects = {}
         self._vertices = []
 
+        self.__implicit_templates = []
+        self.__implicit_vertice_templates = []
+
         self.__root = {
             "type": "CityJSON",
             "version": "1.0",
@@ -1493,7 +1496,74 @@ class CityJSONExport(CityModelExport):
                     geom.append(geom_obj)
 
         elif self._geom_type == "IMPLICIT":
-            print("not supported yet")
+            if self._use_lod1:
+                geom_model = tree_model.get_lod1model()
+                if geom_model is not None:
+                    geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
+                    position = tree_model.get_position().get_coordinates()
+                    self.total_vertex_correction_implicit(boundaries)
+                    template = {"type": geom_type,
+                                "lod": 1,
+                                "boundaries": boundaries}
+                    geom_obj = {"type": "GeometryInstance",
+                                "template": len(self.__implicit_templates),
+                                "boundaries": [len(self._vertices)],
+                                "transformationMatrix": [
+                                    1, 0, 0, 0,
+                                    0, 1, 0, 0,
+                                    0, 0, 1, 0,
+                                    0, 0, 0, 1]
+                                }
+                    self._vertices.append(position)
+                    self.__implicit_templates.append(template)
+                    self.__implicit_vertice_templates.extend(vertex_list)
+                    geom.append(geom_obj)
+
+            if self._use_lod2:
+                geom_model = tree_model.get_lod2model()
+                if geom_model is not None:
+                    geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
+                    position = tree_model.get_position().get_coordinates()
+                    self.total_vertex_correction_implicit(boundaries)
+                    template = {"type": geom_type,
+                                "lod": 2,
+                                "boundaries": boundaries}
+                    geom_obj = {"type": "GeometryInstance",
+                                "template": len(self.__implicit_templates),
+                                "boundaries": [len(self._vertices)],
+                                "transformationMatrix": [
+                                    1, 0, 0, 0,
+                                    0, 1, 0, 0,
+                                    0, 0, 1, 0,
+                                    0, 0, 0, 1]
+                                }
+                    self._vertices.append(position)
+                    self.__implicit_templates.append(template)
+                    self.__implicit_vertice_templates.extend(vertex_list)
+                    geom.append(geom_obj)
+
+            if self._use_lod3:
+                geom_model = tree_model.get_lod3model()
+                if geom_model is not None:
+                    geom_type, vertex_list, boundaries = geom_model.get_cityjson_geometric_representation()
+                    position = tree_model.get_position().get_coordinates()
+                    self.total_vertex_correction_implicit(boundaries)
+                    template = {"type": geom_type,
+                                "lod": 3,
+                                "boundaries": boundaries}
+                    geom_obj = {"type": "GeometryInstance",
+                                "template": len(self.__implicit_templates),
+                                "boundaries": [len(self._vertices)],
+                                "transformationMatrix": [
+                                    1, 0, 0, 0,
+                                    0, 1, 0, 0,
+                                    0, 0, 1, 0,
+                                    0, 0, 0, 1]
+                                }
+                    self._vertices.append(position)
+                    self.__implicit_templates.append(template)
+                    self.__implicit_vertice_templates.extend(vertex_list)
+                    geom.append(geom_obj)
 
         self.__cityobjects[tree_id] = {
             "type": "SolitaryVegetationObject",
@@ -1510,6 +1580,15 @@ class CityJSONExport(CityModelExport):
             else:
                 boundary_list[index] += len(self._vertices)
 
+    # method to convert vertex values from local values (values in geom objects starting from 0)
+    # to global values to prevent dupliates for implicit geometries
+    def total_vertex_correction_implicit(self, boundary_list):
+        for index, element in enumerate(boundary_list):
+            if type(element) == list or type(element) == tuple:
+                self.total_vertex_correction_implicit(element)
+            else:
+                boundary_list[index] += len(self.__implicit_vertice_templates)
+
     # method to calculate geometric model bounding box
     def bounded_by(self):
         bbox = analysis.BoundingBox()
@@ -1521,6 +1600,13 @@ class CityJSONExport(CityModelExport):
         extent = [bbox_coords[0][0], bbox_coords[0][1], bbox_coords[0][2],
                   bbox_coords[1][0], bbox_coords[1][1], bbox_coords[1][2]]
         self.__metadata["geographicalExtent"] = extent
+
+    def set_geomtype(self, geomtype):
+        Export.set_geomtype(self, geomtype)
+        if geomtype == "IMPLICIT":
+            geom_templates = {"templates": self.__implicit_templates,
+                              "vertices-templates": self.__implicit_vertice_templates}
+            self.__root["geometry-templates"] = geom_templates
 
 
 # Class to create internal tree models
