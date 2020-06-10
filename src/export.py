@@ -1473,7 +1473,49 @@ class CityJSONExport(CityModelExport):
                                 "type": geom_type,
                                 "boundaries": boundaries}
                     self.__vertices.extend(vertex_list)
+
+                    # add material codes
+                    if self._use_appearance:
+                        visual_values = []
+                        material = {"visual": {"values": visual_values}}
+                        geom_obj["material"] = material
+                        if self._lod1_geomtype == 3:
+                            for i in range(0, self._lod1_segments):
+                                visual_values.append(0)
+                                if classe == 1060:
+                                    visual_values.append(1)
+                                elif classe == 1070:
+                                    visual_values.append(2)
+
+                        elif self._lod1_geomtype == 4:
+                            # stem
+                            visual_values.append([[0, 0, 0, 0, 0, 0]])
+                            if classe == 1060:
+                                # crown coniferous
+                                visual_values.append([[1, 1, 1, 1, 1]])
+                            elif classe == 1070:
+                                visual_values.append([[2, 2, 2, 2, 2, 2]])
+
+                        elif self._lod1_geomtype == 5:
+                            stem_visuals = []
+                            for _ in range(0, self._lod1_segments):
+                                stem_visuals.append(0)
+                            stem_visuals.extend([0, 0])
+                            visual_values.append([stem_visuals])
+
+                            crown_visuals = []
+                            if classe == 1060:
+                                for _ in range(0, self._lod1_segments):
+                                    crown_visuals.append(1)
+                                crown_visuals.append(1)
+                                visual_values.append([crown_visuals])
+                            elif classe == 1070:
+                                for _ in boundaries[1][0]:
+                                    crown_visuals.append(2)
+                                visual_values.append([crown_visuals])
+
                     geom.append(geom_obj)
+
             if self._use_lod2:
                 geom_model = tree_model.get_lod2model()
                 if geom_model is not None:
@@ -1483,7 +1525,49 @@ class CityJSONExport(CityModelExport):
                                 "type": geom_type,
                                 "boundaries": boundaries}
                     self.__vertices.extend(vertex_list)
+
+                    # add material codes
+                    if self._use_appearance:
+                        visual_values = []
+                        material = {"visual": {"values": visual_values}}
+                        geom_obj["material"] = material
+                        if self._lod2_geomtype == 3:
+                            for i in range(0, self._lod2_segments):
+                                visual_values.append(0)
+                                if classe == 1060:
+                                    visual_values.append(1)
+                                elif classe == 1070:
+                                    visual_values.append(2)
+
+                        elif self._lod2_geomtype == 4:
+                            # stem
+                            visual_values.append([[0, 0, 0, 0, 0, 0]])
+                            if classe == 1060:
+                                # crown coniferous
+                                visual_values.append([[1, 1, 1, 1, 1]])
+                            elif classe == 1070:
+                                visual_values.append([[2, 2, 2, 2, 2, 2]])
+
+                        elif self._lod2_geomtype == 5:
+                            stem_visuals = []
+                            for _ in range(0, self._lod2_segments):
+                                stem_visuals.append(0)
+                            stem_visuals.extend([0, 0])
+                            visual_values.append([stem_visuals])
+
+                            crown_visuals = []
+                            if classe == 1060:
+                                for _ in range(0, self._lod2_segments):
+                                    crown_visuals.append(1)
+                                crown_visuals.append(1)
+                                visual_values.append([crown_visuals])
+                            elif classe == 1070:
+                                for _ in boundaries[1][0]:
+                                    crown_visuals.append(2)
+                                visual_values.append([crown_visuals])
+
                     geom.append(geom_obj)
+
             if self._use_lod3:
                 geom_model = tree_model.get_lod3model()
                 if geom_model is not None:
@@ -1493,6 +1577,47 @@ class CityJSONExport(CityModelExport):
                                 "type": geom_type,
                                 "boundaries": boundaries}
                     self.__vertices.extend(vertex_list)
+
+                    # add material codes
+                    if self._use_appearance:
+                        visual_values = []
+                        material = {"visual": {"values": visual_values}}
+                        geom_obj["material"] = material
+                        if self._lod3_geomtype == 3:
+                            for i in range(0, self._lod3_segments):
+                                visual_values.append(0)
+                                if classe == 1060:
+                                    visual_values.append(1)
+                                elif classe == 1070:
+                                    visual_values.append(2)
+
+                        elif self._lod3_geomtype == 4:
+                            # stem
+                            visual_values.append([[0, 0, 0, 0, 0, 0]])
+                            if classe == 1060:
+                                # crown coniferous
+                                visual_values.append([[1, 1, 1, 1, 1]])
+                            elif classe == 1070:
+                                visual_values.append([[2, 2, 2, 2, 2, 2]])
+
+                        elif self._lod3_geomtype == 5:
+                            stem_visuals = []
+                            for _ in range(0, self._lod3_segments):
+                                stem_visuals.append(0)
+                            stem_visuals.extend([0, 0])
+                            visual_values.append([stem_visuals])
+
+                            crown_visuals = []
+                            if classe == 1060:
+                                for _ in range(0, self._lod3_segments):
+                                    crown_visuals.append(1)
+                                crown_visuals.append(1)
+                                visual_values.append([crown_visuals])
+                            elif classe == 1070:
+                                for _ in boundaries[1][0]:
+                                    crown_visuals.append(2)
+                                visual_values.append([crown_visuals])
+
                     geom.append(geom_obj)
 
         elif self._geom_type == "IMPLICIT":
@@ -1517,6 +1642,47 @@ class CityJSONExport(CityModelExport):
                     self.__vertices.append(position)
                     self.__implicit_templates.append(template)
                     self.__implicit_vertice_templates.extend(vertex_list)
+
+                    # add material codes
+                    if self._use_appearance:
+                        visual_values = []
+                        material = {"visual": {"values": visual_values}}
+                        template["material"] = material
+                        if self._lod1_geomtype == 3:
+                            for i in range(0, self._lod1_segments):
+                                visual_values.append(0)
+                                if classe == 1060:
+                                    visual_values.append(1)
+                                elif classe == 1070:
+                                    visual_values.append(2)
+
+                        elif self._lod1_geomtype == 4:
+                            # stem
+                            visual_values.append([[0, 0, 0, 0, 0, 0]])
+                            if classe == 1060:
+                                # crown coniferous
+                                visual_values.append([[1, 1, 1, 1, 1]])
+                            elif classe == 1070:
+                                visual_values.append([[2, 2, 2, 2, 2, 2]])
+
+                        elif self._lod1_geomtype == 5:
+                            stem_visuals = []
+                            for _ in range(0, self._lod1_segments):
+                                stem_visuals.append(0)
+                            stem_visuals.extend([0, 0])
+                            visual_values.append([stem_visuals])
+
+                            crown_visuals = []
+                            if classe == 1060:
+                                for _ in range(0, self._lod1_segments):
+                                    crown_visuals.append(1)
+                                crown_visuals.append(1)
+                                visual_values.append([crown_visuals])
+                            elif classe == 1070:
+                                for _ in boundaries[1][0]:
+                                    crown_visuals.append(2)
+                                visual_values.append([crown_visuals])
+
                     geom.append(geom_obj)
 
             if self._use_lod2:
@@ -1540,6 +1706,47 @@ class CityJSONExport(CityModelExport):
                     self.__vertices.append(position)
                     self.__implicit_templates.append(template)
                     self.__implicit_vertice_templates.extend(vertex_list)
+
+                    # add material codes
+                    if self._use_appearance:
+                        visual_values = []
+                        material = {"visual": {"values": visual_values}}
+                        template["material"] = material
+                        if self._lod2_geomtype == 3:
+                            for i in range(0, self._lod2_segments):
+                                visual_values.append(0)
+                                if classe == 1060:
+                                    visual_values.append(1)
+                                elif classe == 1070:
+                                    visual_values.append(2)
+
+                        elif self._lod2_geomtype == 4:
+                            # stem
+                            visual_values.append([[0, 0, 0, 0, 0, 0]])
+                            if classe == 1060:
+                                # crown coniferous
+                                visual_values.append([[1, 1, 1, 1, 1]])
+                            elif classe == 1070:
+                                visual_values.append([[2, 2, 2, 2, 2, 2]])
+
+                        elif self._lod2_geomtype == 5:
+                            stem_visuals = []
+                            for _ in range(0, self._lod2_segments):
+                                stem_visuals.append(0)
+                            stem_visuals.extend([0, 0])
+                            visual_values.append([stem_visuals])
+
+                            crown_visuals = []
+                            if classe == 1060:
+                                for _ in range(0, self._lod2_segments):
+                                    crown_visuals.append(1)
+                                crown_visuals.append(1)
+                                visual_values.append([crown_visuals])
+                            elif classe == 1070:
+                                for _ in boundaries[1][0]:
+                                    crown_visuals.append(2)
+                                visual_values.append([crown_visuals])
+
                     geom.append(geom_obj)
 
             if self._use_lod3:
@@ -1563,6 +1770,47 @@ class CityJSONExport(CityModelExport):
                     self.__vertices.append(position)
                     self.__implicit_templates.append(template)
                     self.__implicit_vertice_templates.extend(vertex_list)
+
+                    # add material codes
+                    if self._use_appearance:
+                        visual_values = []
+                        material = {"visual": {"values": visual_values}}
+                        template["material"] = material
+                        if self._lod3_geomtype == 3:
+                            for i in range(0, self._lod3_segments):
+                                visual_values.append(0)
+                                if classe == 1060:
+                                    visual_values.append(1)
+                                elif classe == 1070:
+                                    visual_values.append(2)
+
+                        elif self._lod3_geomtype == 4:
+                            # stem
+                            visual_values.append([[0, 0, 0, 0, 0, 0]])
+                            if classe == 1060:
+                                # crown coniferous
+                                visual_values.append([[1, 1, 1, 1, 1]])
+                            elif classe == 1070:
+                                visual_values.append([[2, 2, 2, 2, 2, 2]])
+
+                        elif self._lod3_geomtype == 5:
+                            stem_visuals = []
+                            for _ in range(0, self._lod3_segments):
+                                stem_visuals.append(0)
+                            stem_visuals.extend([0, 0])
+                            visual_values.append([stem_visuals])
+
+                            crown_visuals = []
+                            if classe == 1060:
+                                for _ in range(0, self._lod3_segments):
+                                    crown_visuals.append(1)
+                                crown_visuals.append(1)
+                                visual_values.append([crown_visuals])
+                            elif classe == 1070:
+                                for _ in boundaries[1][0]:
+                                    crown_visuals.append(2)
+                                visual_values.append([crown_visuals])
+
                     geom.append(geom_obj)
 
         self.__cityobjects[tree_id] = {
@@ -1570,6 +1818,17 @@ class CityJSONExport(CityModelExport):
             "attributes": attributes,
             "geometry": geom
         }
+
+    # method to add appearance node with different materials to export file
+    def add_appearance(self, progressbar):
+        stem_material = {"name": "Stem",
+                         "diffuseColor": [0.47, 0.24, 0]}
+        crown_material_coniferous = {"name": "Crown coniferous",
+                                     "diffuseColor": [0.08, 0.37, 0]}
+        crown_material_deciduous = {"name": "Crown deciduous",
+                                    "diffuseColor": [0.26, 0.65, 0.15]}
+        materials = [stem_material, crown_material_coniferous, crown_material_deciduous]
+        self.__root["appearance"] = {"materials": materials}
 
     # method to convert vertex values from local values (values in geom object starting from 0)
     # to global values to prevent dupliates
