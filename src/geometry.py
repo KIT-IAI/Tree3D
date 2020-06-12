@@ -117,7 +117,7 @@ class Point(Geometry):
 
         trans = Transformer.from_crs(source_epsg, target_epsg)
         result = trans.transform(self.__x, self.__y)
-        return Point(to_epsg, self._dimension, result[0], result[1], self.__z)
+        return Point(to_epsg, self._dimension, result[1], result[0], self.__z)
 
     def get_citygml_geometric_representation(self):
         """
@@ -138,6 +138,12 @@ class Point(Geometry):
             postext += " %s" % self.__z
         pos.text = postext
         return point
+
+    def get_geojson_geometric_representation(self):
+        pnt = [self.__x, self.__y]
+        if self.__z != 0.0:
+            pnt.append(self.__z)
+        return "Point", pnt
 
 
 class LineString(Geometry):
@@ -227,6 +233,11 @@ class LineString(Geometry):
         :return: Type, Vertice list, boundary list
         """
         return "MultiLineString", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
+
+    def get_geojson_geometric_representation(self):
+        _, start_point = self.__start.get_geojson_geometric_representation()
+        _, end_point = self.__end.get_geojson_geometric_representation()
+        return "LineString", [start_point, end_point]
 
 
 class Polygon(Geometry):
@@ -333,6 +344,17 @@ class Polygon(Geometry):
         """
         return "Surface", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
 
+    def get_geojson_geometric_representation(self):
+        polygon = []
+        exterior = []
+
+        for pnt in self.__exterior:
+            _, pnt_geom = pnt.get_geojson_geometric_representation()
+            exterior.append(pnt_geom)
+
+        polygon.append(exterior)
+        return "Polygon", polygon
+
 
 class CompositePolygon(Geometry):
     """
@@ -377,7 +399,8 @@ class CompositePolygon(Geometry):
         """
         polygons_new = []
         for polygon in self.__polygons:
-            polygon.transform(to_epsg)
+            poly_new = polygon.transform(to_epsg)
+            polygons_new.append(poly_new)
 
         return CompositePolygon(to_epsg, self._dimension, polygons_new)
 
@@ -439,6 +462,13 @@ class CompositePolygon(Geometry):
         cleanup_cityjson_geometry(boundaries, vertices)
 
         return "MultiSurface", vertices, boundaries
+
+    def get_geojson_geometric_representation(self):
+        multi_poly = []
+        for poly in self.__polygons:
+            _, polygon = poly.get_geojson_geometric_representation()
+            multi_poly.append(polygon)
+        return "MultiPolygon", multi_poly
 
 
 class Solid(Geometry):
@@ -508,6 +538,10 @@ class Solid(Geometry):
         boundaries = [ext_boundaries]
         return "Solid", vertices, boundaries
 
+    def get_geojson_geometric_representation(self):
+        typ, geom = self.__ExteriorCompositePolygon.get_geojson_geometric_representation()
+        return typ, geom
+
 
 class CompositeSolid(Geometry):
     """
@@ -552,7 +586,8 @@ class CompositeSolid(Geometry):
         """
         solids_new = []
         for solid in self.__Solids:
-            solid.transform(to_epsg)
+            solid_new = solid.transform(to_epsg)
+            solids_new.append(solid_new)
 
         return CompositeSolid(to_epsg, self._dimension, solids_new)
 
@@ -598,6 +633,13 @@ class CompositeSolid(Geometry):
         cleanup_cityjson_geometry(boundaris, vertices)
 
         return "CompositeSolid", vertices, boundaris
+
+    def get_geojson_geometric_representation(self):
+        multi_poly = []
+        for solid in self.__Solids:
+            _, multipoly = solid.get_geojson_geometric_representation()
+            multi_poly.extend(multipoly)
+        return "MultiPolygon", multi_poly
 
 
 def get_cityjson_vertex_number(vertex_list):
