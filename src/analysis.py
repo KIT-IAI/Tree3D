@@ -773,7 +773,6 @@ class BoundingBox:
         if z_val > self.__zMax:
             self.set_zmax(z_val)
 
-
     # returns bounding box coordinates
     def get_bbox(self):
         min_vals = [self.__xMin, self.__yMin, self.__zMin]
