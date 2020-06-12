@@ -114,7 +114,10 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method to be called when "export" button is pressed in export GUI
     def on_export(self, event):
-        if not self.validate_input():
+        valid, warningmessage = self.validate_input()
+        if not valid:
+            msg = wx.MessageDialog(self, warningmessage, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
+            msg.ShowModal()
             return
 
         self.buttonExport.Enable(False)
@@ -133,7 +136,7 @@ class ExportDialog(default_gui.CityGmlExport):
         elif classname == "ExportDialogCityJson":
             exporter = CityJSONExport(self.__pathname, self.__dbpath)
         else:
-            exporter = None
+            exporter = GeoJSONExport(self.__pathname, self.__dbpath)
 
         exporter.set_tree_table_name(self.__TreeTableName)
 
@@ -576,11 +579,7 @@ class ExportDialog(default_gui.CityGmlExport):
             valid = False
             warningmessage = "Please specify CityGML output file path"
 
-        if not valid:
-            msg = wx.MessageDialog(self, warningmessage, caption="Error", style=wx.OK | wx.CENTRE | wx.ICON_WARNING)
-            msg.ShowModal()
-
-        return valid
+        return valid, warningmessage
 
     # save selected column entries for further use
     def save_column_selection(self):
@@ -651,6 +650,66 @@ class ExportDialogCityJson(ExportDialog):
         return dlg
 
 
+class ExportDialogGeoJson(ExportDialog):
+    def __init__(self, parent):
+        ExportDialog.__init__(self, parent)
+
+        # renaming some GUI elements
+        self.SetTitle("Export as GeoJSON")
+        self.box_prettyprint.SetLabel("Create pretty-printed JSON output (may be slow for large datasets)")
+
+        self.implicit_geom.Hide()
+        self.explicit_geom.Hide()
+        self.m_staticText62.Hide()
+
+        self.lod4.Hide()
+        self.lod4_geomtype.Hide()
+        self.lod4_segments.Hide()
+        self.lod4_segments_text.Hide()
+
+        self.lod3.Hide()
+        self.lod3_geomtype.Hide()
+        self.lod3_segments.Hide()
+        self.lod3_segments_text.Hide()
+
+        self.lod2.Hide()
+        self.lod2_geomtype.Hide()
+        self.lod2_segments.Hide()
+        self.lod2_segments_text.Hide()
+
+        self.lod1.SetValue(True)
+        self.lod1_geomtype.Enable(True)
+
+        self.DoLayoutAdaptation()
+        self.Layout()
+
+    def load_browse_dialog(self):
+        dlg = wx.FileDialog(self, "Export as GeoJSON", wildcard="GeoJSON (*.json)|*.json", style=wx.FD_SAVE)
+        return dlg
+
+    def on_lod1_checkbox(self, event):
+        self.lod1.SetValue(True)
+        message = "Cannot suppress geometry output in GeoJSON"
+        msg = wx.MessageDialog(self, message, caption="Info", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
+        msg.ShowModal()
+
+    def validate_input(self):
+        valid = True
+        warningmessage = ""
+
+        super_valid, super_warningmessage = ExportDialog.validate_input(self)
+
+        if self.lod1_geomtype.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Please select LOD1 geometry"
+
+        if not super_valid:
+            valid = super_valid
+            warningmessage = super_warningmessage
+
+        return valid, warningmessage
+
+
 # Class to perform the export itself
 class Export:
     def __init__(self, savepath, dbfilepath):
@@ -659,6 +718,10 @@ class Export:
         self._TreeTableName = ""
 
         self._filepath = savepath  # output file path (where citygml will be saved)
+
+        self._prettyprint = None  # boolean variable to determine if xml output should be formatted
+
+        self._generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
 
         self._bbox = analysis.BoundingBox()  # Bounding box object
 
@@ -700,6 +763,14 @@ class Export:
         self._stem_ids = []  # stores ids of all trunk geometries
         self._crown_deciduous_ids = []  # stores ids of all deciduous crown geometries
         self._crown_coniferous_ids = []  # stores ids of all coniferous crown geometries
+
+    # method to set option if pretty print should be used
+    def set_prettyprint(self, value):
+        self._prettyprint = value
+
+    # method to set option if generic attributes should be used
+    def set_generate_generic_attributes(self, val):
+        self._generate_generic_attributes = val
 
     def set_tree_table_name(self, name):
         self._TreeTableName = name
@@ -1022,9 +1093,6 @@ class CityModelExport(Export):
     def __init__(self, savepath, dbfilepath):
         Export.__init__(self, savepath, dbfilepath)
 
-        self._generate_generic_attributes = None  # variable to generate generic attributes (Trud/False)
-        self._prettyprint = None  # boolean variable to determine if xml output should be formatted
-
         self._use_lod2 = False
         self._lod2_geomtype = None
         self._lod2_segments = None
@@ -1032,14 +1100,6 @@ class CityModelExport(Export):
         self._use_lod3 = False
         self._lod3_geomtype = None
         self._lod3_segments = None
-
-    # method to set option if pretty print should be used
-    def set_prettyprint(self, value):
-        self._prettyprint = value
-
-    # method to set option if generic attributes should be used
-    def set_generate_generic_attributes(self, val):
-        self._generate_generic_attributes = val
 
     # method to set option if appearance should be used
     def set_use_appearance(self, val):
@@ -1866,6 +1926,106 @@ class CityJSONExport(CityModelExport):
             geom_templates = {"templates": self.__implicit_templates,
                               "vertices-templates": self.__implicit_vertice_templates}
             self.__root["geometry-templates"] = geom_templates
+
+
+class GeoJSONExport(Export):
+    def __init__(self, savepath, dbfilepath):
+        Export.__init__(self, savepath, dbfilepath)
+
+        self.__features = []
+        self.__bbox = []
+        self.__root = {"type": "FeatureCollection",
+                       "bbox": self.__bbox,
+                       "features": self.__features}
+
+    # convert city model to strings and write it to file
+    def save_file(self):
+        if self._prettyprint:
+            export_string = json.dumps(self.__root, indent=4)
+        else:
+            export_string = json.dumps(self.__root)
+
+        with open(self._filepath, mode="w", encoding="utf-8") as outfile:
+            outfile.write(export_string)
+
+    def add_tree_to_model(self, tree_model):
+        geom_obj = tree_model.get_lod1model()
+
+        # dont add anything to geojson if geometry does not exist
+        if geom_obj is None:
+            return
+
+        properties = {"creationDate": str(date.today())}
+
+        # Add class to parametrized tree model
+        classe = tree_model.get_class()
+        if classe is not None:
+            properties["class"] = str(classe)
+
+        # Add species to parametrized tree model
+        species = tree_model.get_species()
+        if species is not None:
+            properties["species"] = str(species)
+
+        # Add hight attribute to parameterized tree model
+        height = tree_model.get_height()
+        if height is not None:
+            properties["height"] = height
+
+        # Add trunk (stem) diameter attribute to parameterized tree model
+        trunkdiam = tree_model.get_trunkdiam()
+        if trunkdiam is not None:
+            properties["trunkDiameter"] = trunkdiam
+
+        # Add crown diameter attribute to parameterized tree model
+        crowndiam = tree_model.get_crowndiam()
+        if crowndiam is not None:
+            properties["crownDiameter"] = crowndiam
+
+        if self._generate_generic_attributes:
+            for gen_att in tree_model.get_generics():
+                properties[gen_att[1]] = gen_att[2]
+
+        geom_type, geom_coords = geom_obj.transform(4326).get_geojson_geometric_representation()
+        geom = {"type": geom_type,
+                "coordinates": geom_coords}
+
+        bbox_obj = analysis.BoundingBox()
+        self.get_geometry_bbox(geom_coords, bbox_obj)
+        bbox = bbox_obj.get_bbox()
+        bbox_geojson = [bbox[0][0], bbox[0][1], bbox[0][2], bbox[1][0], bbox[1][1], bbox[1][2]]
+
+        feature = {"type": "Feature",
+                   "id": tree_model.get_id(),
+                   "bbox": bbox_geojson,
+                   "properties": properties,
+                   "geometry": geom}
+
+        self.__features.append(feature)
+
+    # method to find the bbox of a single GeoJSON geometry
+    def get_geometry_bbox(self, geom_list, bbox):
+        if type(geom_list[0]) == list:
+            for element in geom_list:
+                self.get_geometry_bbox(element, bbox)
+        else:
+            x = geom_list[0]
+            y = geom_list[1]
+            z = geom_list[2]
+            bbox.compare(x, y, z)
+
+    def bounded_by(self):
+        bbox = analysis.BoundingBox()
+        for feature in self.__features:
+            feature_bbox = feature["bbox"]
+            bbox.compare(feature_bbox[0], feature_bbox[1], feature_bbox[2])
+            bbox.compare(feature_bbox[3], feature_bbox[4], feature_bbox[5])
+
+        global_bbox = bbox.get_bbox()
+
+        for point in global_bbox:
+            for coord in point:
+                self.__bbox.append(coord)
 
 
 # Class to create internal tree models
