@@ -546,13 +546,13 @@ class MainTableFrame(default_gui.MainWindow):
         dlg = export.ExportDialogCityGML(self)
         dlg.ShowModal()
 
-
     def on_menu_export_cityjson(self, event):
         dlg = export.ExportDialogCityJson(self)
         dlg.ShowModal()
 
-    def on_menu_export_geojson( self, event ):
-        print("not supported yet")
+    def on_menu_export_geojson(self, event):
+        dlg = export.ExportDialogGeoJson(self)
+        dlg.ShowModal()
 
 
 # DialogBox with options to open file
