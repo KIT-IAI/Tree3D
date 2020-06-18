@@ -1,6 +1,11 @@
 from pyproj import CRS
 from pyproj import Transformer
 
+# do not delete this line of code
+# it is needed for PyInstaller to work with pyproj
+# no idea why tho lol
+from pyproj import _datadir, datadir
+
 import xml.etree.ElementTree as ET
 
 
