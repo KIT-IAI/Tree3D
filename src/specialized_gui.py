@@ -930,8 +930,13 @@ class License(default_gui.LicenseDialog):
                      "Erwirkung in- und ausländischer Schutzrechte.\n"
 
         elif mode == "about":
-            self.SetTitle("About")
-            t_text = "tree3d version: 1.0 (April 15, 2020)\n\n" \
+            self.SetTitle("About (tree3d v1.1)")
+            t_text = "tree3d version: 1.1 (June 18, 2020)\n" \
+                     "- Aded CityJSON export\n" \
+                     "- Added GeoJSON export\n" \
+                     "- improved usability\n" \
+                     "- bugs fixed\n\n" \
+                     "tree3d version: 1.0 (April 15, 2020)\n" \
                      "Bachelor thesis project by Jonas Hurst"
 
         self.license_text.write(t_text)
