@@ -87,6 +87,8 @@ class ExportDialog(default_gui.CityGmlExport):
         if crown_height is not None:
             self.ChoiceCrownHeightCol.SetStringSelection(crown_height)
 
+        self.check_geometries_to_generate(None)
+
     # method to be called when "Browse" button is pushed
     def on_browse(self, event):
         name_found = False
