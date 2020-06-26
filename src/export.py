@@ -1943,9 +1943,9 @@ class GeoJSONExport(Export):
     # convert city model to strings and write it to file
     def save_file(self):
         if self._prettyprint:
-            export_string = json.dumps(self.__root, indent=4)
+            export_string = json.dumps(self.__root, indent=4, ensure_ascii=False)
         else:
-            export_string = json.dumps(self.__root)
+            export_string = json.dumps(self.__root, ensure_ascii=False)
 
         with open(self._filepath, mode="w", encoding="utf-8") as outfile:
             outfile.write(export_string)
