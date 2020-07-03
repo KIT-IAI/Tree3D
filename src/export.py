@@ -139,6 +139,7 @@ class ExportDialog(default_gui.CityGmlExport):
             exporter = CityJSONExport(self.__pathname, self.__dbpath)
         else:
             exporter = GeoJSONExport(self.__pathname, self.__dbpath)
+            exporter.setup_transformer(int(self.epsg.GetValue()), 4326)
 
         exporter.set_tree_table_name(self.__TreeTableName)
 
@@ -1940,6 +1941,11 @@ class GeoJSONExport(Export):
                        "bbox": self.__bbox,
                        "features": self.__features}
 
+        self.__transformer = None
+
+    def setup_transformer(self, from_epsg, to_epsg):
+        self.__transformer = geometry.get_transformer(from_epsg, to_epsg)
+
     # convert city model to strings and write it to file
     def save_file(self):
         if self._prettyprint:
@@ -1988,7 +1994,7 @@ class GeoJSONExport(Export):
             for gen_att in tree_model.get_generics():
                 properties[gen_att[1]] = gen_att[2]
 
-        geom_type, geom_coords = geom_obj.transform(4326).get_geojson_geometric_representation()
+        geom_type, geom_coords = geom_obj.transform(self.__transformer, 4326).get_geojson_geometric_representation()
         geom = {"type": geom_type,
                 "coordinates": geom_coords}
 
