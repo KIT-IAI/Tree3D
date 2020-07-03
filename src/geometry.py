@@ -41,10 +41,11 @@ class Geometry:
         """
         return self._dimension
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to transform Geometry to other Coordinate system.
         Is overwritten in subclasses: Does Nothing
+        :param transformer: pyproj.Transformer() object
         :param to_epsg: EPSG Code of target reference system
         :return: None
         """
@@ -111,17 +112,14 @@ class Point(Geometry):
         """
         return self.__z
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to perform coordinate transformation
+        :param transformer: pyproj.Transformer() object
         :param to_epsg: EPSG Code of target coordinate system (int)
         :return: New point object (transformed)
         """
-        source_epsg = CRS.from_epsg(self._epsg)
-        target_epsg = CRS.from_epsg(to_epsg)
-
-        trans = Transformer.from_crs(source_epsg, target_epsg)
-        result = trans.transform(self.__x, self.__y)
+        result = transformer.transform(self.__x, self.__y)
         return Point(to_epsg, self._dimension, result[1], result[0], self.__z)
 
     def get_citygml_geometric_representation(self):
@@ -182,14 +180,14 @@ class LineString(Geometry):
         """
         return self.__end
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to perform coordinate transformation
         :param to_epsg: EPSG Code of target coordinate system
         :return: New LineString object (transfomred)
         """
-        start_new = self.__start.transform(to_epsg)
-        end_new = self.__end.transform(to_epsg)
+        start_new = self.__start.transform(transformer, to_epsg)
+        end_new = self.__end.transform(transformer, to_epsg)
 
         return LineString(to_epsg, self._dimension, start_new, end_new)
 
@@ -281,15 +279,16 @@ class Polygon(Geometry):
         """
         self.__exterior.append(pnt)
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to perform coordiante transformation
+        :param transformer: pyproj.Transformer() object
         :param to_epsg: EPSG code of target coordinate system
         :return: New Polygon object (transformed)
         """
         ext_pnts_new = []
         for point in self.__exterior:
-            pnt_new = point.transform(to_epsg)
+            pnt_new = point.transform(transformer, to_epsg)
             ext_pnts_new.append(pnt_new)
 
         return Polygon(to_epsg, self._dimension, ext_pnts_new)
@@ -396,15 +395,16 @@ class CompositePolygon(Geometry):
         """
         self.__polygons.append(polygon)
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to perform coordinate transformation
+        :param transformer: pyproj.Transformer() object
         :param to_epsg: EPSG code of target coordinate system
         :return: New CompositeSurface object (transfomred)
         """
         polygons_new = []
         for polygon in self.__polygons:
-            poly_new = polygon.transform(to_epsg)
+            poly_new = polygon.transform(transformer, to_epsg)
             polygons_new.append(poly_new)
 
         return CompositePolygon(to_epsg, self._dimension, polygons_new)
@@ -501,13 +501,14 @@ class Solid(Geometry):
         """
         self.__ExteriorCompositePolygon = ext_comp_polygon
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to perform coordinate transformation
+        :param transformer: pyproj.Transformer() object
         :param to_epsg: EPSG code of target coordinate system
         :return: New Solid object (transformed)
         """
-        exterior_comp_polygon_new = self.__ExteriorCompositePolygon.transform(to_epsg)
+        exterior_comp_polygon_new = self.__ExteriorCompositePolygon.transform(transformer, to_epsg)
         return Solid(to_epsg, self._dimension, exterior_comp_polygon_new)
 
     def get_citygml_geometric_representation_nometadata(self):
@@ -583,15 +584,16 @@ class CompositeSolid(Geometry):
         """
         self.__Solids.append(solid)
 
-    def transform(self, to_epsg):
+    def transform(self, transformer, to_epsg):
         """
         Method to perform coordinate transformation
+        :param transformer: pyproj.Transformer() object
         :param to_epsg: EPSG code of target coordinate system
         :return: New CompositeSolid object (transformed)
         """
         solids_new = []
         for solid in self.__Solids:
-            solid_new = solid.transform(to_epsg)
+            solid_new = solid.transform(transformer, to_epsg)
             solids_new.append(solid_new)
 
         return CompositeSolid(to_epsg, self._dimension, solids_new)
@@ -728,3 +730,11 @@ def add_cityjson_number(boundaries_list, number):
             add_cityjson_number(boundaries_list[i], number)
         else:
             boundaries_list[i] += number
+
+
+def get_transformer(from_epsg, to_epsg):
+    source_epsg = CRS.from_epsg(from_epsg)
+    target_epsg = CRS.from_epsg(to_epsg)
+
+    trans = Transformer.from_crs(source_epsg, target_epsg)
+    return trans
