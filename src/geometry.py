@@ -143,9 +143,7 @@ class Point(Geometry):
         return point
 
     def get_geojson_geometric_representation(self):
-        pnt = [self.__x, self.__y]
-        if self.__z != 0.0:
-            pnt.append(self.__z)
+        pnt = [self.__x, self.__y, self.__z]
         return "Point", pnt
 
 
