@@ -45,4 +45,6 @@ src/mod_spatialite.dll
 src/zlib1.dll
 
 # build
-build/
+build/build/
+build/dist/
+build/tree3d.spec
