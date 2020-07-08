@@ -9,6 +9,9 @@ import wx.aui
 import wx.lib.agw.aui as aui
 import wx.grid
 
+# import requests package to get OSM data
+import requests
+
 # import project classes
 import default_gui
 import data
@@ -156,6 +159,57 @@ class MainTableFrame(default_gui.MainWindow):
             text += self.db.get_spatialite_status()[1]
             msg = wx.MessageDialog(self, str(text), style=wx.ICON_WARNING | wx.CENTRE)
             msg.ShowModal()
+
+        self.show_data_in_grid(self.db.get_number_of_columns(),
+                               self.db.get_number_of_tablerecords(),
+                               self.db.get_data())
+
+        # Enable menu items
+        self.export_citygml.Enable(True)
+        self.export_cityjson.Enable(True)
+        self.export_geojson.Enable(True)
+        self.reset_col_position.Enable(True)
+        self.reset_col_visiblity.Enable(True)
+        self.dublicates.Enable(True)
+        self.duplicateGeom.Enable(True)
+        self.validateGeom.Enable(True)
+        self.add_geom_col.Enable(True)
+        self.vegetation_code.Enable(True)
+        self.add_height_dem.Enable(True)
+        self.add_height_default.Enable(True)
+        self.add_pointcloud_parameters.Enable(True)
+
+    # method to be called when "Get trees from osm" is called
+    def on_menu_get_osm_trees(self, event):
+        self.reset_program()
+
+        self.db = data.DatabaseFromOSM()
+
+        import_success = True
+        text = ""
+
+        try:
+            self.db.set_query_bbox(48.989968, 8.337857, 49.027079, 8.454792)
+            self.db.import_osm_trees()
+            text = "OSM Import successfull.\n" \
+                   "n trees in request"
+        except requests.ConnectionError:
+            import_success = False
+            text = "Importing trees from OpenStreetMap failed!\n" \
+                   "Could not establish connection to OSM server."
+        except requests.Timeout:
+            import_success = False
+            text = "Importing trees from OpenStreetMap failed!\n" \
+                   "Connection timed out."
+        except requests.TooManyRedirects:
+            import_success = False
+            text = "Importing trees from OpenStreetMap failed!\n" \
+                   "Too many Redirects."
+        finally:
+            msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
+            msg.ShowModal()
+            if not import_success:
+                return
 
         self.show_data_in_grid(self.db.get_number_of_columns(),
                                self.db.get_number_of_tablerecords(),
