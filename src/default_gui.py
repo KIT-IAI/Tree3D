@@ -27,6 +27,9 @@ class MainWindow ( wx.Frame ):
 		self.open = wx.MenuItem( self.file, wx.ID_ANY, u"Open", wx.EmptyString, wx.ITEM_NORMAL )
 		self.file.Append( self.open )
 		
+		self.osm_trees = wx.MenuItem( self.file, wx.ID_ANY, u"Get trees from OSM", wx.EmptyString, wx.ITEM_NORMAL )
+		self.file.Append( self.osm_trees )
+		
 		self.m_menu21 = wx.Menu()
 		self.export_citygml = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"CityGML", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu21.Append( self.export_citygml )
@@ -130,6 +133,7 @@ class MainWindow ( wx.Frame ):
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.OnClose )
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_get_osm_trees, id = self.osm_trees.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_cityjson, id = self.export_cityjson.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_geojson, id = self.export_geojson.GetId() )
@@ -157,6 +161,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_menu_open( self, event ):
+		event.Skip()
+	
+	def on_menu_get_osm_trees( self, event ):
 		event.Skip()
 	
 	def on_menu_export_citygml( self, event ):
