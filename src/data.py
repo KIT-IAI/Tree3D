@@ -77,7 +77,7 @@ class Database:
             if idx == 0:
                 self._DbCursor.execute("CREATE TABLE %s(%s %s);" % (self._DbTreeTableName, col[0], col[1]))
             else:
-                self._DbCursor.execute("ALTER TABLE %s ADD COLUMN %s %s" % (self._DbTreeTableName, col[0], col[1]))
+                self._DbCursor.execute('ALTER TABLE %s ADD COLUMN "%s" %s' % (self._DbTreeTableName, col[0], col[1]))
         self._DbConnection.commit()
 
     # combines db folder path with db file name
