@@ -3,7 +3,11 @@ import csv
 import sqlite3
 from ast import literal_eval
 import xml.etree.ElementTree as ET
+import xml.sax
 
+import requests
+
+import OSM_SAXHandler
 
 # custom exception: Too many items in a line:More than in table headers (used in CSV only)
 class TooManyItemsException(Exception):
@@ -669,3 +673,39 @@ class DatabaseFromXml(Database):
             return True
         else:
             return False
+
+
+class DatabaseFromOSM(Database):
+    def __init__(self):
+        Database.__init__(self)
+
+        self.__query_bbox = []
+
+    # method to set query bounding box coordinates
+    # coordinates must be WGS84 geographic coordinates (EPSG:4326)
+    def set_query_bbox(self, upper_bound, left_bound, lower_bound, right_bound):
+        self.__query_bbox.extend([left_bound, lower_bound, right_bound, upper_bound])
+
+    def import_osm_trees(self):
+        overpass_url = "http://overpass-api.de/api/interpreter"
+        overpass_ql_statement = "node(%s, %s, %s, %s)[natural=tree];out;" % (self.__query_bbox[0], self.__query_bbox[1],
+                                                                             self.__query_bbox[2], self.__query_bbox[3])
+        request_url = overpass_url + "?data=" + overpass_ql_statement
+
+        print("requesting data")
+        r = requests.get(request_url)
+
+        print("converting to text")
+        request_text = r.text
+
+        print("parsing result")
+        osmhandler = OSM_SAXHandler.OSMHandlerInspector()
+        xml.sax.parseString(request_text, osmhandler)
+
+        self._lTableColmnNames.append(["'OSM_ID'", "INT", True])
+        self._lTableColmnNames.append(["'X_VALUE'", "REAL", True])
+        self._lTableColmnNames.append(["'Y_VALUE'", "REAL", True])
+        self._lTableColmnNames.extend(osmhandler.get_columns())
+
+        self.create_db_table()
+        self._DbConnection.commit()
