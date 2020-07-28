@@ -183,16 +183,24 @@ class MainTableFrame(default_gui.MainWindow):
     def on_menu_get_osm_trees(self, event):
         self.reset_program()
 
+        dialog = OpenStreetMapImportDialog(self)
+        if dialog.ShowModal() != 1234:
+            return
+
         self.db = data.DatabaseFromOSM()
+
+        bbox_upper, bbox_left, bbox_lower, bbox_right = dialog.get_bbox()
+        epsg = dialog.get_epsg()
+        self.db.set_query_bbox(bbox_lower, bbox_left, bbox_upper, bbox_right, epsg)
 
         import_success = True
         text = ""
 
         try:
-            self.db.set_query_bbox(48.989968, 8.337857, 49.027079, 8.454792)
             self.db.import_osm_trees()
+            n = self.db.get_number_of_tablerecords()
             text = "OSM Import successfull.\n" \
-                   "n trees in request"
+                   "%s trees in request" % n
         except requests.ConnectionError:
             import_success = False
             text = "Importing trees from OpenStreetMap failed!\n" \
@@ -229,6 +237,9 @@ class MainTableFrame(default_gui.MainWindow):
         self.add_height_dem.Enable(True)
         self.add_height_default.Enable(True)
         self.add_pointcloud_parameters.Enable(True)
+
+        self.__column_settings.set_id("OSM_ID")
+        self.__column_settings.set_coordinates("X_VALUE", "Y_VALUE")
 
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
@@ -928,6 +939,86 @@ class OpenDialogXML(OpenDialog):
             valid = True
         return valid
 
+
+class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
+    def __init__(self, parent):
+        default_gui.OpenStreetMapDialog.__init__(self, parent)
+        self.__upper_bound = None
+        self.__left_bound = None
+        self.__lower_bound = None
+        self.__right_bound = None
+
+        self.__epsg = None
+
+        self.DoLayoutAdaptation()
+
+    def validate_input(self):
+        valid = True
+        msg = ""
+
+        try:
+            float(self.input_right_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Right bound input is not a decimal number"
+
+        try:
+            float(self.input_lower_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Lower bound input is not a decimal number"
+
+        try:
+            float(self.input_left_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Left bound input is not a decimal number"
+
+        try:
+            float(self.input_upper_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Upper bound input is not a decimal number"
+
+        return valid, msg
+
+    # method to be called when import button is pressed
+    def on_import(self, event):
+        valid, msg = self.validate_input()
+        if not valid:
+            dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
+            dlg.ShowModal()
+            return
+
+        self.__upper_bound = float(self.input_upper_bound.GetValue().replace(";", "."))
+        self.__left_bound = float(self.input_left_bound.GetValue().replace(";", "."))
+        self.__lower_bound = float(self.input_lower_bound.GetValue().replace(";", "."))
+        self.__right_bound = float(self.input_right_bound.GetValue().replace(";", "."))
+
+        # dictionary to match selected reference system (by its index in dropdown menu) to its epsg
+        epsg_lookup = {0: 5677,
+                       1: 5678,
+                       2: 5679}
+
+        self.__epsg = epsg_lookup[self.ref_system.GetSelection()]
+
+        self.EndModal(1234)
+
+    # method to be called when user makes a change in reference system dropdown window
+    # deletes all coordinate entries
+    def on_reference_system_change(self, event):
+        self.input_upper_bound.SetValue("")
+        self.input_left_bound.SetValue("")
+        self.input_lower_bound.SetValue("")
+        self.input_right_bound.SetValue("")
+
+    # returns bounding box entered by user
+    def get_bbox(self):
+        return self.__upper_bound, self.__left_bound, self.__lower_bound, self.__right_bound
+
+    # returns epsg code of used reference system
+    def get_epsg(self):
+        return self.__epsg
 
 class License(default_gui.LicenseDialog):
 
