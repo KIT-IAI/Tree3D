@@ -1373,6 +1373,9 @@ class CityGmlExport ( wx.Dialog ):
 		
 		# Connect Events
 		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
+		self.choiceXvalue.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceYvalue.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceRefheight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceHeight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceTrunk.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceCrown.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
@@ -1397,6 +1400,9 @@ class CityGmlExport ( wx.Dialog ):
 	
 	def check_geometries_to_generate( self, event ):
 		event.Skip()
+	
+	
+	
 	
 	
 	
