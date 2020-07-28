@@ -1,13 +1,10 @@
-# -*- coding: cp1252 -*-
-# Autor: J. Benner
-# Datum: 9.12.2015
-# Zweck: OSM SAX Handler
-
 from xml.sax import handler
 
 from ast import literal_eval
 
 
+# Handler for OSM data
+# Inspects data to find all data keys and data types
 class OSMHandlerInspector(handler.ContentHandler):
 
     def __init__(self):
@@ -15,10 +12,16 @@ class OSMHandlerInspector(handler.ContentHandler):
 
         self.__attribute_dict = {}
 
-        self.__actNode = None
-        self.__actContent = ""
+        self.__tree_list = []
+        self.__activeTree = None
         
     def startElement(self, name, atts):
+        if name == "node":
+            self.__activeTree = {"OSM_ID": int(atts["id"]),
+                                 "X_VALUE": float(atts["lon"]),
+                                 "Y_VALUE": float(atts["lat"])}
+            self.__tree_list.append(self.__activeTree)
+
         if name == "tag":
             key = atts["k"]
             value = atts["v"]
@@ -28,9 +31,15 @@ class OSMHandlerInspector(handler.ContentHandler):
 
             self.check_datatype(key, value)
 
+            self.__activeTree["%s" % key] = value
+
     def check_datatype(self, key, value):
         try:
             dat = literal_eval(value.replace(",", "."))
+
+            if not dat:
+                return
+
             if isinstance(dat, int):
                 self.__attribute_dict[key][0] = True
             elif isinstance(dat, float):
@@ -55,6 +64,9 @@ class OSMHandlerInspector(handler.ContentHandler):
             else:
                 data_type = "TEXT"
 
-            column_list.append([key, data_type, True])
+            column_list.append(["'%s'" % key, data_type, True])
 
         return column_list
+
+    def get_tree_list(self):
+        return self.__tree_list
