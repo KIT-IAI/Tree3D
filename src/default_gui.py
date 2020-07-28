@@ -2323,3 +2323,97 @@ class LicenseDialog ( wx.Dialog ):
 		pass
 	
 
+###########################################################################
+## Class OpenStreetMapDialog
+###########################################################################
+
+class OpenStreetMapDialog ( wx.Dialog ):
+	
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Import OSM trees", pos = wx.DefaultPosition, size = wx.Size( 451,255 ), style = wx.DEFAULT_DIALOG_STYLE )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+		
+		bSizer3 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_staticText73 = wx.StaticText( self, wx.ID_ANY, u"Please specify Bounding Box coordinates", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText73.Wrap( -1 )
+		
+		bSizer3.Add( self.m_staticText73, 0, wx.ALL, 5 )
+		
+		fgSizer35 = wx.FlexGridSizer( 5, 2, 0, 0 )
+		fgSizer35.SetFlexibleDirection( wx.BOTH )
+		fgSizer35.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText74 = wx.StaticText( self, wx.ID_ANY, u"Reference System", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText74.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText74, 0, wx.ALL, 5 )
+		
+		ref_systemChoices = [ u"EPSG:5677 - DHDN / 3-degree Gauss-Kruger zone 3 (E-N)", u"EPSG:5678 - DHDN / 3-degree Gauss-Kruger zone 4 (E-N)", u"EPSG:5679 - DHDN / 3-degree Gauss-Kruger zone 5 (E-N)" ]
+		self.ref_system = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ref_systemChoices, 0 )
+		self.ref_system.SetSelection( 0 )
+		fgSizer35.Add( self.ref_system, 0, wx.ALL, 5 )
+		
+		self.m_staticText75 = wx.StaticText( self, wx.ID_ANY, u"Upper Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText75.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText75, 0, wx.ALL, 5 )
+		
+		self.input_upper_bound = wx.TextCtrl( self, wx.ID_ANY, u"5432299.84", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.input_upper_bound.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
+		
+		fgSizer35.Add( self.input_upper_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		self.m_staticText76 = wx.StaticText( self, wx.ID_ANY, u"Left Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText76.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText76, 0, wx.ALL, 5 )
+		
+		self.input_left_bound = wx.TextCtrl( self, wx.ID_ANY, u"3452598.08", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer35.Add( self.input_left_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		self.m_staticText77 = wx.StaticText( self, wx.ID_ANY, u"Lower Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText77.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText77, 0, wx.ALL, 5 )
+		
+		self.input_lower_bound = wx.TextCtrl( self, wx.ID_ANY, u"5427830.30", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer35.Add( self.input_lower_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		self.m_staticText78 = wx.StaticText( self, wx.ID_ANY, u"Right Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText78.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText78, 0, wx.ALL, 5 )
+		
+		self.input_right_bound = wx.TextCtrl( self, wx.ID_ANY, u"3460412.96", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer35.Add( self.input_right_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		
+		bSizer3.Add( fgSizer35, 1, wx.EXPAND, 5 )
+		
+		self.ImportButtom = wx.Button( self, wx.ID_ANY, u"Import", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer3.Add( self.ImportButtom, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.SetSizer( bSizer3 )
+		self.Layout()
+		
+		self.Centre( wx.BOTH )
+		
+		# Connect Events
+		self.ref_system.Bind( wx.EVT_CHOICE, self.on_reference_system_change )
+		self.ImportButtom.Bind( wx.EVT_BUTTON, self.on_import )
+	
+	def __del__( self ):
+		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def on_reference_system_change( self, event ):
+		event.Skip()
+	
+	def on_import( self, event ):
+		event.Skip()
+	
+
