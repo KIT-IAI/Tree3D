@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 import xml.sax
 
 import requests
+from pyproj import CRS, Transformer
 
 import OSM_SAXHandler
 
@@ -75,9 +76,9 @@ class Database:
     def create_db_table(self):
         for idx, col in enumerate(self._lTableColmnNames):
             if idx == 0:
-                self._DbCursor.execute("CREATE TABLE %s(%s %s);" % (self._DbTreeTableName, col[0], col[1]))
+                self._DbCursor.execute('CREATE TABLE %s(%s %s);' % (self._DbTreeTableName, col[0], col[1]))
             else:
-                self._DbCursor.execute('ALTER TABLE %s ADD COLUMN "%s" %s' % (self._DbTreeTableName, col[0], col[1]))
+                self._DbCursor.execute('ALTER TABLE %s ADD COLUMN %s %s' % (self._DbTreeTableName, col[0], col[1]))
         self._DbConnection.commit()
 
     # combines db folder path with db file name
@@ -680,11 +681,20 @@ class DatabaseFromOSM(Database):
         Database.__init__(self)
 
         self.__query_bbox = []
+        self.__epsg = None
 
     # method to set query bounding box coordinates
     # coordinates must be WGS84 geographic coordinates (EPSG:4326)
-    def set_query_bbox(self, upper_bound, left_bound, lower_bound, right_bound):
-        self.__query_bbox.extend([left_bound, lower_bound, right_bound, upper_bound])
+    def set_query_bbox(self, lower_bound, left_bound, upper_bound, right_bound, epsg):
+        self.__epsg = epsg
+        crs_in = CRS.from_epsg(self.__epsg)
+        crs_out = CRS.from_epsg(4326)
+        transformer = Transformer.from_crs(crs_in, crs_out)
+        lower_bound_new, left_bound_new = transformer.transform(left_bound, lower_bound)
+        upper_bound_new, right_bound_new = transformer.transform(right_bound, upper_bound)
+        bbox = [lower_bound_new, left_bound_new, upper_bound_new, right_bound_new]
+
+        self.__query_bbox.extend(bbox)
 
     def import_osm_trees(self):
         overpass_url = "http://overpass-api.de/api/interpreter"
@@ -692,13 +702,10 @@ class DatabaseFromOSM(Database):
                                                                              self.__query_bbox[2], self.__query_bbox[3])
         request_url = overpass_url + "?data=" + overpass_ql_statement
 
-        print("requesting data")
-        r = requests.get(request_url)
+        r = requests.get(request_url, timeout=(9.05, 27))
 
-        print("converting to text")
         request_text = r.text
 
-        print("parsing result")
         osmhandler = OSM_SAXHandler.OSMHandlerInspector()
         xml.sax.parseString(request_text, osmhandler)
 
@@ -709,3 +716,35 @@ class DatabaseFromOSM(Database):
 
         self.create_db_table()
         self._DbConnection.commit()
+
+        tree_list = osmhandler.get_tree_list()
+
+        crs_in = CRS.from_epsg(4326)
+        crs_out = CRS.from_epsg(self.__epsg)
+        transformer = Transformer.from_crs(crs_in, crs_out)
+
+        # import trees in database:
+        for tree in tree_list:
+            columns = "("
+            values = "("
+            value_list = []
+
+            x_val = tree["X_VALUE"]
+            y_val = tree["Y_VALUE"]
+            x_val_new, y_val_new = transformer.transform(y_val, x_val)
+            tree["X_VALUE"] = x_val_new
+            tree["Y_VALUE"] = y_val_new
+
+            for key in tree:
+                columns += '"%s", ' % key
+                values += "?, "
+                value_list.append(tree[key])
+            columns = columns[:-2] + ") "
+            values = values[:-2] + ")"
+
+            statement = "INSERT INTO %s " + columns + "VALUES " + values + ";"
+            self._DbCursor.execute(statement % self._DbTreeTableName, value_list)
+
+        self._DbCursor.execute('''CREATE INDEX iaitreeidindex on trees("'OSM_ID'");''')
+        self._DbConnection.commit()
+        self.generate_sql_statement()
