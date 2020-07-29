@@ -262,6 +262,9 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         collist = self.GetParent().db.get_column_names()
 
         self.choiceID.SetItems(collist)
+        self.choiceX.SetItems(collist)
+        self.choiceY.SetItems(collist)
+        self.choiceRefheight.SetItems(collist)
         self.choiceHeight.SetItems(collist)
         self.choiceTrunk.SetItems(collist)
         self.choiceCrown.SetItems(collist)
@@ -275,6 +278,16 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         idcol = self.__col_settings.get_id()
         if idcol is not None:
             self.choiceID.SetStringSelection(idcol)
+
+        xcol, ycol = self.__col_settings.get_coordinates()
+        if xcol is not None:
+            self.choiceX.SetStringSelection(xcol)
+        if ycol is not None:
+            self.choiceY.SetStringSelection(ycol)
+
+        refheight = self.__col_settings.get_ref_height()
+        if refheight is not None:
+            self.choiceRefheight.SetStringSelection(refheight)
 
         height = self.__col_settings.get_tree_height()
         if height != (None, None):
@@ -297,18 +310,45 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         if crownheight is not None:
             self.crown_height_col.SetStringSelection(crownheight)
 
-    # checks columns for validity: ID and height
-    def validate_height(self, identify, height):
+    def validate_coordinates(self, identify, x, y, refheight):
         valid = True
         message = ""
 
-        if identify == height and identify != wx.NOT_FOUND:
+        if identify == x and identify != wx.NOT_FOUND:
             valid = False
-            message = "ID column must not be the same as height column"
+            message = "ID column must not be the same as Easting column"
 
-        if height == wx.NOT_FOUND:
+        if identify == y and identify != wx.NOT_FOUND:
             valid = False
-            message = "Height column must not be empty"
+            message = "ID column must not be the same as Northing column"
+
+        if identify == refheight and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as Reference Height column"
+
+        if x == y and x != wx.NOT_FOUND:
+            valid = False
+            message = "Easting column must not be the same as Northing column"
+
+        if x == refheight and x != wx.NOT_FOUND:
+            valid = False
+            message = "Easting column must not be the same as Reference Height column"
+
+        if y == refheight and y != wx.NOT_FOUND:
+            valid = False
+            message = "NOrthing column must not be the same as Reference Height column"
+
+        if refheight == wx.NOT_FOUND:
+            valid = False
+            message = "Reference Height Column must not be empty"
+
+        if y == wx.NOT_FOUND:
+            valid = False
+            message = "Northing Column must not be empty"
+
+        if x == wx.NOT_FOUND:
+            valid = False
+            message = "Easting Column must not be empty"
 
         if identify == wx.NOT_FOUND:
             valid = False
@@ -316,9 +356,35 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
         return valid, message
 
+    # checks columns for validity: ID and height
+    def validate_height(self, identify, x, y, refheight, height):
+        valid, message = self.validate_coordinates(identify, x, y, refheight)
+
+        if identify == height and identify != wx.NOT_FOUND:
+            valid = False
+            message = "ID column must not be the same as height column"
+
+        if x == height and x != wx.NOT_FOUND:
+            valid = False
+            message = "Easting column must not be the same as height column"
+
+        if y == height and y != wx.NOT_FOUND:
+            valid = False
+            message = "Northing column must not be the same as height column"
+
+        if refheight == height and refheight != wx.NOT_FOUND:
+            valid = False
+            message = "Reference Height column must not be the same as height column"
+
+        if height == wx.NOT_FOUND:
+            valid = False
+            message = "Height column must not be empty"
+
+        return valid, message
+
     # checks columns for validity: ID, height and crown
-    def validate_height_crown(self, identify, height, crown):
-        valid, message = self.validate_height(identify, height)
+    def validate_height_crown(self, identify, x, y, refheight, height, crown):
+        valid, message = self.validate_height(identify, x, y, refheight, height)
 
         if height == crown and height != wx.NOT_FOUND:
             valid = False
@@ -328,6 +394,18 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
             valid = False
             message = "ID column must not be the same as crown column"
 
+        if x == crown and x != wx.NOT_FOUND:
+            valid = False
+            message = "Easting column must not be the same as crown column"
+
+        if y == crown and y != wx.NOT_FOUND:
+            valid = False
+            message = "Northing column must not be the same as crown column"
+
+        if refheight == crown and refheight != wx.NOT_FOUND:
+            valid = False
+            message = "Reference Height column must not be the same as crown column"
+
         if crown == wx.NOT_FOUND:
             valid = False
             message = "Crown diameter column must not be empty."
@@ -335,8 +413,8 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         return valid, message
 
     # checks columns for validity: ID height, crown and trunk
-    def validate_height_crown_trunk(self, identify, height, crown, trunk):
-        valid, message = self.validate_height_crown(identify, height, crown)
+    def validate_height_crown_trunk(self, identify, x, y, refheight, height, crown, trunk):
+        valid, message = self.validate_height_crown(identify, x, y, refheight, height, crown)
 
         if trunk == crown and trunk != wx.NOT_FOUND:
             valid = False
@@ -345,6 +423,18 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         if height == trunk and height != wx.NOT_FOUND:
             valid = False
             message = "Height column must not be the same as trunk column"
+
+        if x == trunk and x != wx.NOT_FOUND:
+            valid = False
+            message = "Easting column must not be the same as trunk column"
+
+        if y == trunk and y != wx.NOT_FOUND:
+            valid = False
+            message = "Northing column must not be the same as trunk column"
+
+        if refheight == trunk and refheight != wx.NOT_FOUND:
+            valid = False
+            message = "Reference Height column must not be the same as trunk column"
 
         if identify == trunk and identify != wx.NOT_FOUND:
             valid = False
@@ -357,12 +447,24 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         return valid, message
 
     # checks columns for validity: ID, height, crown, trunk and crown height
-    def validate_height_crown_trunk_crownheight(self, identify, height, crown, trunk, crownheight):
-        valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
+    def validate_height_crown_trunk_crownheight(self, identify, x, y, refheight, height, crown, trunk, crownheight):
+        valid, message = self.validate_height_crown_trunk(identify, x, y, refheight, height, crown, trunk)
 
         if crownheight == identify and crownheight != wx.NOT_FOUND:
             valid = False
             message = "Crown height column must not be the same as ID column"
+
+        if crownheight == x and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as Easting column"
+
+        if crownheight == y and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as Northing column"
+
+        if crownheight == refheight and crownheight != wx.NOT_FOUND:
+            valid = False
+            message = "Crown height column must not be the same as Reference Height column"
 
         if crownheight == height and crownheight != wx.NOT_FOUND:
             valid = False
@@ -390,24 +492,29 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         geom_type = self.geom_type.GetStringSelection()
 
         identify = self.choiceID.GetSelection()
+        x = self.choiceX.GetSelection()
+        y = self.choiceY.GetSelection()
+        refheight = self.choiceRefheight.GetSelection()
         height = self.choiceHeight.GetSelection()
         trunk = self.choiceTrunk.GetSelection()
         crown = self.choiceCrown.GetSelection()
         crown_height = self.crown_height_col.GetSelection()
 
         # choose method for input validation, depening on input of geometry type
+        if geom_type == "Point":
+            valid, message = self.validate_coordinates(identify, x, y, refheight)
         if geom_type == "Line":
-            valid, message = self.validate_height(identify, height)
+            valid, message = self.validate_height(identify, x, y, refheight, height)
         if geom_type == "Cylinder":
-            valid, message = self.validate_height_crown(identify, height, crown)
+            valid, message = self.validate_height_crown(identify, x, y, refheight, height, crown)
         if geom_type == "Rectangles":
-            valid, message = self.validate_height_crown(identify, height, crown)
+            valid, message = self.validate_height_crown(identify, x, y, refheight, height, crown)
         if geom_type in ["Outline polygons", "Cuboid", "Detailled"]:
             if self.crown_height.GetSelection() != 2:
-                valid, message = self.validate_height_crown_trunk(identify, height, crown, trunk)
+                valid, message = self.validate_height_crown_trunk(identify, x, y, refheight, height, crown, trunk)
             else:
-                valid, message = self.validate_height_crown_trunk_crownheight(identify, height, crown, trunk,
-                                                                              crown_height)
+                valid, message = self.validate_height_crown_trunk_crownheight(identify, x, y, refheight,
+                                                                              height, crown, trunk, crown_height)
 
         # show error message if input is not valid
         if not valid:
@@ -419,7 +526,7 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
     # method is executed if value in tree_geom dropdown changes
     # Enables/disables certaín GUI elements
     def on_tree_geom(self, event):
-        if self.geom_type.GetSelection() in [0, 1, 2]:
+        if self.geom_type.GetSelection() in [0, 1, 2, 3]:
             self.crown_height_text.Enable(False)
             self.crown_height.Enable(False)
             self.crown_height_col_text.Enable(False)
@@ -456,7 +563,10 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         self.analysis_valid.Show(False)
         self.result_grid.Show(False)
 
-        collist = [self.choiceID.GetStringSelection(),
+        collist = [self.choiceX.GetStringSelection(),
+                   self.choiceY.GetStringSelection(),
+                   self.choiceRefheight.GetStringSelection(),
+                   self.choiceID.GetStringSelection(),
                    self.choiceHeight.GetStringSelection(),
                    self.choiceTrunk.GetStringSelection(),
                    self.choiceCrown.GetStringSelection()]
@@ -469,12 +579,15 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 
         # loop over all trees in data base table
         for cursor in self.GetParent().db.get_data_by_collist(collist):
-            identifier = cursor[0]
-            height = cursor[1]
-            trunk = cursor[2]
-            crown = cursor[3]
+            x = cursor[0]
+            y = cursor[1]
+            refheight = cursor[2]
+            identifier = cursor[3]
+            height = cursor[4]
+            trunk = cursor[5]
+            crown = cursor[6]
             try:
-                crown_height = cursor[4]
+                crown_height = cursor[7]
             except IndexError:
                 crown_height = None
 
@@ -507,11 +620,13 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
                 except:
                     pass
 
-            analyzer = AnalyzeTreeGeoms(height, trunk, crown, crown_height)
+            analyzer = AnalyzeTreeGeoms(x, y, refheight, height, trunk, crown, crown_height)
             valid = True
             message = ""
 
             # choose, what geometry check should be performed, depending on user input for geometry type
+            if geom_type == "Point":
+                valid, message = analyzer.analyze_coordinates()
             if geom_type == "Line":
                 valid, message = analyzer.analyze_height()
             if geom_type == "Cylinder":
@@ -560,6 +675,12 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
         if self.choiceID.GetSelection() != wx.NOT_FOUND:
             self.__col_settings.set_id(self.choiceID.GetStringSelection())
 
+        if self.choiceX.GetSelection() != wx.NOT_FOUND and self.choiceY.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_coordinates(self.choiceX.GetStringSelection(), self.choiceY.GetStringSelection())
+
+        if self.choiceRefheight.GetSelection() != wx.NOT_FOUND:
+            self.__col_settings.set_ref_height(self.choiceRefheight.GetStringSelection())
+
         if self.choiceHeight != wx.NOT_FOUND:
             height = self.choiceHeight.GetStringSelection()
             unit = self.choiceHeightUnit.GetStringSelection()
@@ -584,16 +705,37 @@ class AnalyzeGeometryDialog(default_gui.OnCheckGeometryDialog):
 class AnalyzeTreeGeoms:
     # all parameters must be the same unit
     # trunk and crown must BOTH be diam
-    def __init__(self, height, trunk_diam, crown_diam, crown_height=None):
+    def __init__(self, x, y, ref, height, trunk_diam, crown_diam, crown_height=None):
         self.__Height = height
         self.__TrunkDiam = trunk_diam
         self.__CrownDiam = crown_diam
         self.__CrownHeight = crown_height
 
-    # analyze values: height
-    def analyze_height(self):
+        self.__x = x
+        self.__y = y
+        self.__ref_height = ref
+
+    def analyze_coordinates(self):
         valid = True
         msg = ""
+
+        if self.__x is None:
+            valid = False
+            msg = "No easting value specified"
+
+        if self.__y is None:
+            valid = False
+            msg = "No northing value specified"
+
+        if self.__ref_height is None:
+            valid = False
+            msg = "No reference height value specified"
+
+        return valid, msg
+
+    # analyze values: height
+    def analyze_height(self):
+        valid, msg = self.analyze_coordinates()
 
         if self.__Height == 0:
             valid = False
