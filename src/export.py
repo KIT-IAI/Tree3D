@@ -219,7 +219,8 @@ class ExportDialog(default_gui.CityGmlExport):
                                 "rectangles": 2,
                                 "tree contour polygons": 3,
                                 "highly simplified tree": 4,
-                                "simplified tree": 5}
+                                "simplified tree": 5,
+                                "point": 6}
 
         # Setup of LOD1-Geometry
         if self.lod1.GetValue():
@@ -319,11 +320,18 @@ class ExportDialog(default_gui.CityGmlExport):
     # method to check what geometries can be generated
     # called whenever dropdowns to tree parameters (height, stem-diam, crown-diam) change
     def check_geometries_to_generate(self, event):
+        x = self.choiceXvalue.GetSelection()
+        y = self.choiceYvalue.GetSelection()
+        ref_height = self.choiceRefheight.GetSelection()
+
         height = self.choiceHeight.GetSelection()
         stem = self.choiceTrunk.GetSelection()
         crown = self.choiceCrown.GetSelection()
 
         geom_types = []
+
+        if wx.NOT_FOUND not in [x, y, ref_height]:
+            geom_types.append("point")
 
         if height != wx.NOT_FOUND:
             geom_types.append("line")
@@ -424,17 +432,17 @@ class ExportDialog(default_gui.CityGmlExport):
     # method is called when LOD1-geomtype choice changes: enables/disables further geomtype options
     def on_lod1_choice(self, event):
         val = self.lod1_geomtype.GetSelection()
-        if val == 1 or val == 2 or val == 3 or val == 5:
+        if val == 2 or val == 3 or val == 4 or val == 6:
             self.lod1_segments_text.Show(True)
             self.lod1_segments.Show(True)
         else:
             self.lod1_segments_text.Show(False)
             self.lod1_segments.Show(False)
 
-        if val == 2 or val == 3:
+        if val == 3 or val == 4:
             self.lod1_segments.SetItems(["4", "6", "8"])
             self.lod1_segments.SetSelection(0)
-        elif val == 1 or val == 5:
+        elif val == 2 or val == 6:
             self.lod1_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod1_segments.SetSelection(1)
         self.Layout()
@@ -442,17 +450,17 @@ class ExportDialog(default_gui.CityGmlExport):
     # method is called when LOD2-geomtype choice changes: enables/disables further geomtype options
     def on_lod2_choice(self, event):
         val = self.lod2_geomtype.GetSelection()
-        if val == 1 or val == 2 or val == 3 or val == 5:
+        if val == 2 or val == 3 or val == 4 or val == 6:
             self.lod2_segments_text.Show(True)
             self.lod2_segments.Show(True)
         else:
             self.lod2_segments_text.Show(False)
             self.lod2_segments.Show(False)
 
-        if val == 2 or val == 3:
+        if val == 3 or val == 4:
             self.lod2_segments.SetItems(["4", "6", "8"])
             self.lod2_segments.SetSelection(0)
-        elif val == 1 or val == 5:
+        elif val == 2 or val == 6:
             self.lod2_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod2_segments.SetSelection(1)
         self.Layout()
@@ -460,17 +468,17 @@ class ExportDialog(default_gui.CityGmlExport):
     # method is called when LOD3-geomtype choice changes: enables/disables further geomtype options
     def on_lod3_choice(self, event):
         val = self.lod3_geomtype.GetSelection()
-        if val == 1 or val == 2 or val == 3 or val == 5:
+        if val == 2 or val == 3 or val == 4 or val == 6:
             self.lod3_segments_text.Show(True)
             self.lod3_segments.Show(True)
         else:
             self.lod3_segments_text.Show(False)
             self.lod3_segments.Show(False)
 
-        if val == 2 or val == 3:
+        if val == 3 or val == 4:
             self.lod3_segments.SetItems(["4", "6", "8"])
             self.lod3_segments.SetSelection(0)
-        elif val == 1 or val == 5:
+        elif val == 2 or val == 6:
             self.lod3_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod3_segments.SetSelection(1)
         self.Layout()
@@ -478,17 +486,17 @@ class ExportDialog(default_gui.CityGmlExport):
     # method is called when LOD4-geomtype choice changes: enables/disables further geomtype options
     def on_lod4_choice(self, event):
         val = self.lod4_geomtype.GetSelection()
-        if val == 1 or val == 2 or val == 3 or val == 5:
+        if val == 2 or val == 3 or val == 4 or val == 6:
             self.lod4_segments_text.Show(True)
             self.lod4_segments.Show(True)
         else:
             self.lod4_segments_text.Show(False)
             self.lod4_segments.Show(False)
 
-        if val == 2 or val == 3:
+        if val == 3 or val == 4:
             self.lod4_segments.SetItems(["4", "6", "8"])
             self.lod4_segments.SetSelection(0)
-        elif val == 1 or val == 5:
+        elif val == 2 or val == 6:
             self.lod4_segments.SetItems(["5", "10", "15", "18", "20", "30"])
             self.lod4_segments.SetSelection(1)
         self.Layout()
@@ -970,7 +978,8 @@ class Export:
                 elif typ == "TEXT":
                     tree_model.add_generic("string", col_name, value)
 
-            validator = analysis.AnalyzeTreeGeoms(tree_height, trunk_diam, crown_diam, crown_height)
+            validator = analysis.AnalyzeTreeGeoms(x_value, y_value, ref_height,
+                                                  tree_height, trunk_diam, crown_diam, crown_height)
             lod1, lod2, lod3, lod4 = self.generate_geometries(tree_model, validator)
 
             if lod1 is False:
@@ -1031,6 +1040,8 @@ class Export:
                 valid, _ = validator.analyze_height_crown_trunk()
             elif self.__crown_height_code == 5:
                 valid, _ = validator.analyze_height_crown_trunk_nosphere()
+        elif geomtype == 6:
+            valid, _ = validator.analyze_coordinates()
 
         return valid
 
@@ -1079,6 +1090,8 @@ class Export:
                     geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
                 elif self._default_export_type == 1070:
                     geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+        elif geomtype == 6:
+            geom_obj = generate_point_geometry(treemodel, self._geom_type)
 
         self._stem_ids.extend(stem_ids)
         self._crown_coniferous_ids.extend(crown_ids_coni)
@@ -2135,6 +2148,17 @@ class TreeModel:
     def get_lod4model(self):
         return self.__lod4model
 
+
+# jölkj
+def generate_point_geometry(treemodel, geomtype):
+    epsg_code = treemodel.get_position().get_epsg()
+    if geomtype == "EXPLICIT":
+        coords = treemodel.get_position().get_coordinates()
+    else:
+        coords = (0,0,0)
+
+    point = geometry.Point(epsg_code, 3, coords[0], coords[1], coords[2])
+    return point
 
 # method to generate a vertiecal line geometry
 def generate_line_geometry(treemodel, geomtype):

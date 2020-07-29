@@ -711,7 +711,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.DefaultSize )
 		
-		fgSizer10 = wx.FlexGridSizer( 9, 1, 0, 0 )
+		fgSizer10 = wx.FlexGridSizer( 10, 1, 0, 0 )
 		fgSizer10.SetFlexibleDirection( wx.BOTH )
 		fgSizer10.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -741,7 +741,7 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		fgSizer13.Add( self.m_staticText70, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		geom_typeChoices = [ u"Line", u"Cylinder", u"Rectangles", u"Outline polygons", u"Cuboid", u"Detailled" ]
+		geom_typeChoices = [ u"Point", u"Line", u"Cylinder", u"Rectangles", u"Outline polygons", u"Cuboid", u"Detailled" ]
 		self.geom_type = wx.Choice( sbSizer7.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, geom_typeChoices, 0 )
 		self.geom_type.SetSelection( 0 )
 		fgSizer13.Add( self.geom_type, 0, wx.ALL, 5 )
@@ -791,6 +791,48 @@ class OnCheckGeometryDialog ( wx.Dialog ):
 		
 		
 		fgSizer10.Add( sbSizer7, 1, wx.EXPAND, 5 )
+		
+		sbSizer14 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Coordinates" ), wx.VERTICAL )
+		
+		fgSizer35 = wx.FlexGridSizer( 3, 2, 0, 0 )
+		fgSizer35.SetFlexibleDirection( wx.BOTH )
+		fgSizer35.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText73 = wx.StaticText( sbSizer14.GetStaticBox(), wx.ID_ANY, u"Easting", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText73.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText73, 0, wx.ALL, 5 )
+		
+		choiceXChoices = []
+		self.choiceX = wx.Choice( sbSizer14.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceXChoices, 0 )
+		self.choiceX.SetSelection( 0 )
+		fgSizer35.Add( self.choiceX, 0, wx.ALL, 5 )
+		
+		self.m_staticText74 = wx.StaticText( sbSizer14.GetStaticBox(), wx.ID_ANY, u"Northing", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText74.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText74, 0, wx.ALL, 5 )
+		
+		choiceYChoices = []
+		self.choiceY = wx.Choice( sbSizer14.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceYChoices, 0 )
+		self.choiceY.SetSelection( 0 )
+		fgSizer35.Add( self.choiceY, 0, wx.ALL, 5 )
+		
+		self.m_staticText75 = wx.StaticText( sbSizer14.GetStaticBox(), wx.ID_ANY, u"Reference Height", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText75.Wrap( -1 )
+		
+		fgSizer35.Add( self.m_staticText75, 0, wx.ALL, 5 )
+		
+		choiceRefheightChoices = []
+		self.choiceRefheight = wx.Choice( sbSizer14.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choiceRefheightChoices, 0 )
+		self.choiceRefheight.SetSelection( 0 )
+		fgSizer35.Add( self.choiceRefheight, 0, wx.ALL, 5 )
+		
+		
+		sbSizer14.Add( fgSizer35, 1, wx.EXPAND, 5 )
+		
+		
+		fgSizer10.Add( sbSizer14, 1, wx.EXPAND, 5 )
 		
 		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML attribute mapping" ), wx.VERTICAL )
 		
@@ -1380,6 +1422,9 @@ class CityGmlExport ( wx.Dialog ):
 		
 		# Connect Events
 		self.buttonBrowse.Bind( wx.EVT_BUTTON, self.on_browse )
+		self.choiceXvalue.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceYvalue.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
+		self.choiceRefheight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceHeight.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceTrunk.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
 		self.choiceCrown.Bind( wx.EVT_CHOICE, self.check_geometries_to_generate )
@@ -1404,6 +1449,9 @@ class CityGmlExport ( wx.Dialog ):
 	
 	def check_geometries_to_generate( self, event ):
 		event.Skip()
+	
+	
+	
 	
 	
 	
