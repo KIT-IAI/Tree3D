@@ -142,6 +142,15 @@ class Point(Geometry):
         pos.text = postext
         return point
 
+    def get_cityjson_geometric_representation(self):
+        """
+        Method to generate CityJSON geometry
+        :return: Type, Vertice list, boundary list
+        """
+        vertice_list = [self.get_coordinates()]
+        boundary_list = [0]
+        return "MultiPoint", vertice_list, boundary_list
+
     def get_geojson_geometric_representation(self):
         pnt = [self.__x, self.__y, self.__z]
         return "Point", pnt
