@@ -950,6 +950,7 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
 
         self.__epsg = None
 
+        self.on_reference_system_change(None)
         self.DoLayoutAdaptation()
 
     def validate_input(self):
@@ -996,9 +997,11 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
         self.__right_bound = float(self.input_right_bound.GetValue().replace(";", "."))
 
         # dictionary to match selected reference system (by its index in dropdown menu) to its epsg
-        epsg_lookup = {0: 5677,
-                       1: 5678,
-                       2: 5679}
+        epsg_lookup = {0: 4326,
+                       1: 5676,
+                       2: 5677,
+                       3: 5678,
+                       4: 5679}
 
         self.__epsg = epsg_lookup[self.ref_system.GetSelection()]
 
@@ -1007,10 +1010,25 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
     # method to be called when user makes a change in reference system dropdown window
     # deletes all coordinate entries
     def on_reference_system_change(self, event):
-        self.input_upper_bound.SetValue("")
-        self.input_left_bound.SetValue("")
-        self.input_lower_bound.SetValue("")
-        self.input_right_bound.SetValue("")
+        dropdown_position = self.ref_system.GetSelection()
+
+        bbox_coordinates = []
+
+        if dropdown_position == 0:
+            bbox_coordinates.extend(["49.018171", "8.357677", "48.993284", "8.447971"])
+        elif dropdown_position == 1:
+            bbox_coordinates.extend(["5630004.5", "2501259.3", "5622655.5", "2511948.0"])
+        elif dropdown_position == 2:
+            bbox_coordinates.extend(["5432299.84", "3452598.08", "5427830.30", "3460412.96"])
+        elif dropdown_position == 3:
+            bbox_coordinates.extend(["5487798.1", "4424941.2", "5473854.7", "4438884.6"])
+        elif dropdown_position == 4:
+            bbox_coordinates.extend(["5739458.8", "5450629.9", "5734239.7", "5458220.7"])
+
+        self.input_upper_bound.SetValue(bbox_coordinates[0])
+        self.input_left_bound.SetValue(bbox_coordinates[1])
+        self.input_lower_bound.SetValue(bbox_coordinates[2])
+        self.input_right_bound.SetValue(bbox_coordinates[3])
 
     # returns bounding box entered by user
     def get_bbox(self):
