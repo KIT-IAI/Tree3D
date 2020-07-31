@@ -5769,7 +5769,7 @@
                 </object>
             </object>
         </object>
-        <object class="Dialog" expanded="1">
+        <object class="Dialog" expanded="0">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -5844,7 +5844,7 @@
             <event name="OnShow"></event>
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
-            <object class="wxFlexGridSizer" expanded="1">
+            <object class="wxFlexGridSizer" expanded="0">
                 <property name="cols">1</property>
                 <property name="flexible_direction">wxBOTH</property>
                 <property name="growablecols"></property>
@@ -6764,11 +6764,11 @@
                         </object>
                     </object>
                 </object>
-                <object class="sizeritem" expanded="1">
+                <object class="sizeritem" expanded="0">
                     <property name="border">5</property>
                     <property name="flag">wxEXPAND</property>
                     <property name="proportion">1</property>
-                    <object class="wxStaticBoxSizer" expanded="1">
+                    <object class="wxStaticBoxSizer" expanded="0">
                         <property name="id">wxID_ANY</property>
                         <property name="label">Coordinates</property>
                         <property name="minimum_size"></property>
@@ -6777,11 +6777,11 @@
                         <property name="parent">1</property>
                         <property name="permission">none</property>
                         <event name="OnUpdateUI"></event>
-                        <object class="sizeritem" expanded="1">
+                        <object class="sizeritem" expanded="0">
                             <property name="border">5</property>
                             <property name="flag">wxEXPAND</property>
                             <property name="proportion">1</property>
-                            <object class="wxFlexGridSizer" expanded="1">
+                            <object class="wxFlexGridSizer" expanded="0">
                                 <property name="cols">2</property>
                                 <property name="flexible_direction">wxBOTH</property>
                                 <property name="growablecols"></property>
@@ -6793,11 +6793,11 @@
                                 <property name="permission">none</property>
                                 <property name="rows">3</property>
                                 <property name="vgap">0</property>
-                                <object class="sizeritem" expanded="1">
+                                <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
                                     <property name="flag">wxALL</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxStaticText" expanded="1">
+                                    <object class="wxStaticText" expanded="0">
                                         <property name="BottomDockable">1</property>
                                         <property name="LeftDockable">1</property>
                                         <property name="RightDockable">1</property>
@@ -6884,11 +6884,11 @@
                                         <event name="OnUpdateUI"></event>
                                     </object>
                                 </object>
-                                <object class="sizeritem" expanded="1">
+                                <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
                                     <property name="flag">wxALL</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxChoice" expanded="1">
+                                    <object class="wxChoice" expanded="0">
                                         <property name="BottomDockable">1</property>
                                         <property name="LeftDockable">1</property>
                                         <property name="RightDockable">1</property>
@@ -6979,11 +6979,11 @@
                                         <event name="OnUpdateUI"></event>
                                     </object>
                                 </object>
-                                <object class="sizeritem" expanded="1">
+                                <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
                                     <property name="flag">wxALL</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxStaticText" expanded="1">
+                                    <object class="wxStaticText" expanded="0">
                                         <property name="BottomDockable">1</property>
                                         <property name="LeftDockable">1</property>
                                         <property name="RightDockable">1</property>
@@ -7070,11 +7070,11 @@
                                         <event name="OnUpdateUI"></event>
                                     </object>
                                 </object>
-                                <object class="sizeritem" expanded="1">
+                                <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
                                     <property name="flag">wxALL</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxChoice" expanded="1">
+                                    <object class="wxChoice" expanded="0">
                                         <property name="BottomDockable">1</property>
                                         <property name="LeftDockable">1</property>
                                         <property name="RightDockable">1</property>
@@ -7165,11 +7165,11 @@
                                         <event name="OnUpdateUI"></event>
                                     </object>
                                 </object>
-                                <object class="sizeritem" expanded="1">
+                                <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
                                     <property name="flag">wxALL</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxStaticText" expanded="1">
+                                    <object class="wxStaticText" expanded="0">
                                         <property name="BottomDockable">1</property>
                                         <property name="LeftDockable">1</property>
                                         <property name="RightDockable">1</property>
@@ -7256,11 +7256,11 @@
                                         <event name="OnUpdateUI"></event>
                                     </object>
                                 </object>
-                                <object class="sizeritem" expanded="1">
+                                <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
                                     <property name="flag">wxALL</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxChoice" expanded="1">
+                                    <object class="wxChoice" expanded="0">
                                         <property name="BottomDockable">1</property>
                                         <property name="LeftDockable">1</property>
                                         <property name="RightDockable">1</property>
@@ -7355,7 +7355,7 @@
                         </object>
                     </object>
                 </object>
-                <object class="sizeritem" expanded="1">
+                <object class="sizeritem" expanded="0">
                     <property name="border">5</property>
                     <property name="flag">wxEXPAND</property>
                     <property name="proportion">1</property>
@@ -22676,7 +22676,7 @@
                 </object>
             </object>
         </object>
-        <object class="Dialog" expanded="1">
+        <object class="Dialog" expanded="0">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -22751,16 +22751,16 @@
             <event name="OnShow"></event>
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
-            <object class="wxBoxSizer" expanded="1">
+            <object class="wxBoxSizer" expanded="0">
                 <property name="minimum_size"></property>
                 <property name="name">bSizer2</property>
                 <property name="orient">wxVERTICAL</property>
                 <property name="permission">none</property>
-                <object class="sizeritem" expanded="1">
+                <object class="sizeritem" expanded="0">
                     <property name="border">10</property>
                     <property name="flag">wxALL|wxEXPAND</property>
                     <property name="proportion">1</property>
-                    <object class="wxTextCtrl" expanded="1">
+                    <object class="wxTextCtrl" expanded="0">
                         <property name="BottomDockable">1</property>
                         <property name="LeftDockable">1</property>
                         <property name="RightDockable">1</property>
@@ -23152,7 +23152,7 @@
                                 <property name="caption"></property>
                                 <property name="caption_visible">1</property>
                                 <property name="center_pane">0</property>
-                                <property name="choices">&quot;EPSG:5677 - DHDN / 3-degree Gauss-Kruger zone 3 (E-N)&quot; &quot;EPSG:5678 - DHDN / 3-degree Gauss-Kruger zone 4 (E-N)&quot; &quot;EPSG:5679 - DHDN / 3-degree Gauss-Kruger zone 5 (E-N)&quot;</property>
+                                <property name="choices">&quot;EPSG:4326 - WGS84&quot; &quot;EPSG:5676 - DHDN / 3-degree Gauss-Kruger zone 2 (E-N)&quot; &quot;EPSG:5677 - DHDN / 3-degree Gauss-Kruger zone 3 (E-N)&quot; &quot;EPSG:5678 - DHDN / 3-degree Gauss-Kruger zone 4 (E-N)&quot; &quot;EPSG:5679 - DHDN / 3-degree Gauss-Kruger zone 5 (E-N)&quot;</property>
                                 <property name="close_button">1</property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
@@ -23182,7 +23182,7 @@
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="selection">0</property>
+                                <property name="selection">2</property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="style"></property>
@@ -23378,7 +23378,7 @@
                                 <property name="validator_style">wxFILTER_NONE</property>
                                 <property name="validator_type">wxDefaultValidator</property>
                                 <property name="validator_variable"></property>
-                                <property name="value">5432299.84</property>
+                                <property name="value"></property>
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>
@@ -23567,7 +23567,7 @@
                                 <property name="validator_style">wxFILTER_NONE</property>
                                 <property name="validator_type">wxDefaultValidator</property>
                                 <property name="validator_variable"></property>
-                                <property name="value">3452598.08</property>
+                                <property name="value"></property>
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>
@@ -23756,7 +23756,7 @@
                                 <property name="validator_style">wxFILTER_NONE</property>
                                 <property name="validator_type">wxDefaultValidator</property>
                                 <property name="validator_variable"></property>
-                                <property name="value">5427830.30</property>
+                                <property name="value"></property>
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>
@@ -23945,7 +23945,7 @@
                                 <property name="validator_style">wxFILTER_NONE</property>
                                 <property name="validator_type">wxDefaultValidator</property>
                                 <property name="validator_variable"></property>
-                                <property name="value">3460412.96</property>
+                                <property name="value"></property>
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>

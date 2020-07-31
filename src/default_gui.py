@@ -2398,9 +2398,9 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		fgSizer35.Add( self.m_staticText74, 0, wx.ALL, 5 )
 		
-		ref_systemChoices = [ u"EPSG:5677 - DHDN / 3-degree Gauss-Kruger zone 3 (E-N)", u"EPSG:5678 - DHDN / 3-degree Gauss-Kruger zone 4 (E-N)", u"EPSG:5679 - DHDN / 3-degree Gauss-Kruger zone 5 (E-N)" ]
+		ref_systemChoices = [ u"EPSG:4326 - WGS84", u"EPSG:5676 - DHDN / 3-degree Gauss-Kruger zone 2 (E-N)", u"EPSG:5677 - DHDN / 3-degree Gauss-Kruger zone 3 (E-N)", u"EPSG:5678 - DHDN / 3-degree Gauss-Kruger zone 4 (E-N)", u"EPSG:5679 - DHDN / 3-degree Gauss-Kruger zone 5 (E-N)" ]
 		self.ref_system = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, ref_systemChoices, 0 )
-		self.ref_system.SetSelection( 0 )
+		self.ref_system.SetSelection( 2 )
 		fgSizer35.Add( self.ref_system, 0, wx.ALL, 5 )
 		
 		self.m_staticText75 = wx.StaticText( self, wx.ID_ANY, u"Upper Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -2408,7 +2408,7 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		fgSizer35.Add( self.m_staticText75, 0, wx.ALL, 5 )
 		
-		self.input_upper_bound = wx.TextCtrl( self, wx.ID_ANY, u"5432299.84", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.input_upper_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.input_upper_bound.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 		
 		fgSizer35.Add( self.input_upper_bound, 0, wx.ALL|wx.EXPAND, 5 )
@@ -2418,7 +2418,7 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		fgSizer35.Add( self.m_staticText76, 0, wx.ALL, 5 )
 		
-		self.input_left_bound = wx.TextCtrl( self, wx.ID_ANY, u"3452598.08", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.input_left_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer35.Add( self.input_left_bound, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_staticText77 = wx.StaticText( self, wx.ID_ANY, u"Lower Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -2426,7 +2426,7 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		fgSizer35.Add( self.m_staticText77, 0, wx.ALL, 5 )
 		
-		self.input_lower_bound = wx.TextCtrl( self, wx.ID_ANY, u"5427830.30", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.input_lower_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer35.Add( self.input_lower_bound, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_staticText78 = wx.StaticText( self, wx.ID_ANY, u"Right Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -2434,7 +2434,7 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		fgSizer35.Add( self.m_staticText78, 0, wx.ALL, 5 )
 		
-		self.input_right_bound = wx.TextCtrl( self, wx.ID_ANY, u"3460412.96", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.input_right_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer35.Add( self.input_right_bound, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		
