@@ -934,6 +934,7 @@ class License(default_gui.LicenseDialog):
             t_text = "tree3d version: 1.1 (June 18, 2020)\n" \
                      "- Aded CityJSON export\n" \
                      "- Added GeoJSON export\n" \
+                     "- Added \"Point\" as geometric export option\n" \
                      "- improved usability\n" \
                      "- bugs fixed\n\n" \
                      "tree3d version: 1.0 (April 15, 2020)\n" \
