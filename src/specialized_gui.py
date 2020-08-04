@@ -1091,6 +1091,15 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
     def get_epsg(self):
         return self.__epsg
 
+    def on_insert_coordinate(self, event):
+        input_string = event.GetString().strip()
+        bbox_coordinates = input_string.split()
+        if len(bbox_coordinates) == 4:
+            self.input_upper_bound.SetValue(bbox_coordinates[0])
+            self.input_left_bound.SetValue(bbox_coordinates[1])
+            self.input_lower_bound.SetValue(bbox_coordinates[2])
+            self.input_right_bound.SetValue(bbox_coordinates[3])
+
 class License(default_gui.LicenseDialog):
 
     def __init__(self, parent):
