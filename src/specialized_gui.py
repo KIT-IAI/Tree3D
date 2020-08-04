@@ -981,6 +981,15 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
             valid = False
             msg = "Upper bound input is not a decimal number"
 
+        if valid:
+            if float(self.input_left_bound.GetValue().replace(";", ".")) >= float(self.input_right_bound.GetValue().replace(";", ".")):
+                valid = False
+                msg = "Right bound must be greater than Left bound"
+
+            if float(self.input_lower_bound.GetValue().replace(";", ".")) >= float(self.input_upper_bound.GetValue().replace(";", ".")):
+                valid = False
+                msg = "Upper bound must be greater than lower bound "
+
         return valid, msg
 
     # validate coordinates, if epsg is 4326
