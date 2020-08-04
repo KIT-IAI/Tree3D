@@ -2451,6 +2451,10 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		# Connect Events
 		self.ref_system.Bind( wx.EVT_CHOICE, self.on_reference_system_change )
+		self.input_upper_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
+		self.input_left_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
+		self.input_lower_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
+		self.input_right_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
 		self.ImportButtom.Bind( wx.EVT_BUTTON, self.on_import )
 	
 	def __del__( self ):
@@ -2460,6 +2464,12 @@ class OpenStreetMapDialog ( wx.Dialog ):
 	# Virtual event handlers, overide them in your derived class
 	def on_reference_system_change( self, event ):
 		event.Skip()
+	
+	def on_insert_coordinate( self, event ):
+		event.Skip()
+	
+	
+	
 	
 	def on_import( self, event ):
 		event.Skip()
