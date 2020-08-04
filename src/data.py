@@ -687,12 +687,17 @@ class DatabaseFromOSM(Database):
     # coordinates must be WGS84 geographic coordinates (EPSG:4326)
     def set_query_bbox(self, lower_bound, left_bound, upper_bound, right_bound, epsg):
         self.__epsg = epsg
-        crs_in = CRS.from_epsg(self.__epsg)
-        crs_out = CRS.from_epsg(4326)
-        transformer = Transformer.from_crs(crs_in, crs_out)
-        lower_bound_new, left_bound_new = transformer.transform(left_bound, lower_bound)
-        upper_bound_new, right_bound_new = transformer.transform(right_bound, upper_bound)
-        bbox = [lower_bound_new, left_bound_new, upper_bound_new, right_bound_new]
+
+        # convert bounding box coordinates to WGS84, if they are not yet
+        if self.__epsg != 4326:
+            crs_in = CRS.from_epsg(self.__epsg)
+            crs_out = CRS.from_epsg(4326)
+            transformer = Transformer.from_crs(crs_in, crs_out)
+            lower_bound_new, left_bound_new = transformer.transform(left_bound, lower_bound)
+            upper_bound_new, right_bound_new = transformer.transform(right_bound, upper_bound)
+            bbox = [lower_bound_new, left_bound_new, upper_bound_new, right_bound_new]
+        else:
+            bbox = [lower_bound, left_bound, upper_bound, right_bound]
 
         self.__query_bbox.extend(bbox)
 
@@ -709,19 +714,26 @@ class DatabaseFromOSM(Database):
         osmhandler = OSM_SAXHandler.OSMHandlerInspector()
         xml.sax.parseString(request_text, osmhandler)
 
+        crs_in = CRS.from_epsg(4326)
+
+        # specify output coordinate system
+        if self.__epsg != 4326:
+            output_epsg = self.__epsg
+            crs_out = CRS.from_epsg(output_epsg)
+        else:
+            output_epsg = get_utm_epsg(self.__query_bbox[1])  # figure out utm epsg code
+            crs_out = CRS.from_epsg(output_epsg)
+        transformer = Transformer.from_crs(crs_in, crs_out)
+
         self._lTableColmnNames.append(["'OSM_ID'", "INT", True])
-        self._lTableColmnNames.append(["'X_VALUE'", "REAL", True])
-        self._lTableColmnNames.append(["'Y_VALUE'", "REAL", True])
+        self._lTableColmnNames.append(["'X_VALUE_%s'" % output_epsg, "REAL", True])
+        self._lTableColmnNames.append(["'Y_VALUE_%s'" % output_epsg, "REAL", True])
         self._lTableColmnNames.extend(osmhandler.get_columns())
 
         self.create_db_table()
         self._DbConnection.commit()
 
         tree_list = osmhandler.get_tree_list()
-
-        crs_in = CRS.from_epsg(4326)
-        crs_out = CRS.from_epsg(self.__epsg)
-        transformer = Transformer.from_crs(crs_in, crs_out)
 
         # import trees in database:
         for tree in tree_list:
@@ -732,10 +744,17 @@ class DatabaseFromOSM(Database):
             x_val = tree["X_VALUE"]
             y_val = tree["Y_VALUE"]
             x_val_new, y_val_new = transformer.transform(y_val, x_val)
-            tree["X_VALUE"] = x_val_new
-            tree["Y_VALUE"] = y_val_new
+            tree["X_VALUE_%s" % output_epsg] = x_val_new
+            tree["Y_VALUE_%s" % output_epsg] = y_val_new
 
+            # loop over dict and create entry for tree in database
             for key in tree:
+
+                # skip dict entries X_VALUE and Y_VALUE since they are not transformed
+                # X_VALUE_epsg is used instead
+                if key == "X_VALUE" or key == "Y_VALUE":
+                    continue
+
                 columns += '"%s", ' % key
                 values += "?, "
                 value_list.append(tree[key])
@@ -747,4 +766,32 @@ class DatabaseFromOSM(Database):
 
         self._DbCursor.execute('''CREATE INDEX iaitreeidindex on trees("'OSM_ID'");''')
         self._DbConnection.commit()
+
         self.generate_sql_statement()
+
+
+# Look up UTM zone for longitude
+# Implemented european zones only so far
+# returns epsg code of corresponding utm zone code
+def get_utm_epsg(long):
+    epsg = 25800
+    add = 0
+    if -18 <= long < -12:
+        add = 28
+    if -12 <= long < -6:
+        add = 29
+    if -6 <= long < 0:
+        add = 30
+    if 0 <= long < 6:
+        add = 31
+    if 6 <= long < 12:
+        add = 32
+    if 12 <= long < 18:
+        add = 33
+    if 18 <= long < 24:
+        add = 34
+    if 24 <= long < 30:
+        add = 35
+    if 30 <= long <= 36:
+        add = 36
+    return epsg+add

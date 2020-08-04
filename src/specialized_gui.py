@@ -983,6 +983,38 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
 
         return valid, msg
 
+    # validate coordinates, if epsg is 4326
+    def validate_4326_coordiantes(self):
+        left_bound = float(self.input_left_bound.GetValue().replace(";", "."))
+        right_bound = float(self.input_right_bound.GetValue().replace(";", "."))
+        upper_bound = float(self.input_upper_bound.GetValue().replace(";", "."))
+        lower_bound = float(self.input_lower_bound.GetValue().replace(";", "."))
+
+        valid = True
+        msg = ""
+
+        if not 35 < upper_bound < 70:
+            valid = False
+            msg = "Upper bound out of coordinate bounds.\n" \
+                  "Must be between 35 and 70."
+
+        if not 35 < lower_bound < 70:
+            valid = False
+            msg = "Lower bound out of coordinate bounds.\n" \
+                  "Must be between 35 and 70."
+
+        if not -18 < left_bound < 36:
+            valid = False
+            msg = "Left bound out of coordinate bounds.\n" \
+                  "Must be between -18 and 36."
+
+        if not -18 < right_bound < 36:
+            valid = False
+            msg = "Right bound out of coordinate bounds.\n" \
+                  "Must be between -18 and 36."
+
+        return valid, msg
+
     # method to be called when import button is pressed
     def on_import(self, event):
         valid, msg = self.validate_input()
@@ -1003,7 +1035,18 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
                        3: 5678,
                        4: 5679}
 
-        self.__epsg = epsg_lookup[self.ref_system.GetSelection()]
+        epsg = epsg_lookup[self.ref_system.GetSelection()]
+
+        if epsg != 4326:
+            self.__epsg = epsg
+        else:
+            # further validation for WGS84 coordinates
+            valid, msg = self.validate_4326_coordiantes()
+            if not valid:
+                dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
+                dlg.ShowModal()
+                return
+            self.__epsg = epsg
 
         self.EndModal(1234)
 
@@ -1094,7 +1137,9 @@ class License(default_gui.LicenseDialog):
 
         elif mode == "about":
             self.SetTitle("About (tree3d v1.1)")
-            t_text = "tree3d version: 1.1 (June 18, 2020)\n" \
+            t_text = "tree3d version: 1.2 (August 04, 2020)\n" \
+                     "- Added tree import from OpenStreetMap\n\n" \
+                     "tree3d version: 1.1 (June 18, 2020)\n" \
                      "- Aded CityJSON export\n" \
                      "- Added GeoJSON export\n" \
                      "- improved usability\n" \
