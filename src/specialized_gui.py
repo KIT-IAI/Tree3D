@@ -1057,6 +1057,7 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
 
         bbox_coordinates = []
 
+        # fill GUI with example coordinates
         if dropdown_position == 0:
             bbox_coordinates.extend(["49.018171", "8.357677", "48.993284", "8.447971"])
         elif dropdown_position == 1:
