@@ -1091,14 +1091,38 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
     def get_epsg(self):
         return self.__epsg
 
-    def on_insert_coordinate(self, event):
-        input_string = event.GetString().strip()
+    def on_copy_from_clipboard( self, event ):
+        clp = wx.Clipboard()
+
+        if clp.Open():
+            text_data = wx.TextDataObject()
+            success = wx.TheClipboard.GetData(text_data)
+            wx.TheClipboard.Close()
+            if success:
+                input_string = text_data.GetText()
+            else:
+                input_string = "error_while_copying error_while_copying error_while_copying error_while_copying"
+        else:
+            input_string = "error_while_copying error_while_copying error_while_copying error_while_copying"
+
+        input_string = input_string.replace("\r\n", " ")
+        input_string = input_string.replace("\r", " ")
+        input_string = input_string.replace("\n", " ")
+        input_string = input_string.strip()
+        print(input_string)
         bbox_coordinates = input_string.split()
         if len(bbox_coordinates) == 4:
             self.input_upper_bound.SetValue(bbox_coordinates[0])
             self.input_left_bound.SetValue(bbox_coordinates[1])
             self.input_lower_bound.SetValue(bbox_coordinates[2])
             self.input_right_bound.SetValue(bbox_coordinates[3])
+        else:
+            msg = "Cannot paste data from clipboard.\n" \
+                  "There must be exactly four coordinates.\n" \
+                  "Coordinates must be seperated by whitespace or line break."
+            dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
+            dlg.ShowModal()
+
 
 class License(default_gui.LicenseDialog):
 
