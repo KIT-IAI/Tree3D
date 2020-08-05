@@ -2378,7 +2378,7 @@ class LicenseDialog ( wx.Dialog ):
 class OpenStreetMapDialog ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Import OSM trees", pos = wx.DefaultPosition, size = wx.Size( 451,255 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Import OSM trees", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -2406,39 +2406,42 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		self.m_staticText75 = wx.StaticText( self, wx.ID_ANY, u"Upper Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText75.Wrap( -1 )
 		
-		fgSizer35.Add( self.m_staticText75, 0, wx.ALL, 5 )
+		fgSizer35.Add( self.m_staticText75, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.input_upper_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.input_upper_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_RIGHT )
 		self.input_upper_bound.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
 		
-		fgSizer35.Add( self.input_upper_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer35.Add( self.input_upper_bound, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText76 = wx.StaticText( self, wx.ID_ANY, u"Left Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText76.Wrap( -1 )
 		
-		fgSizer35.Add( self.m_staticText76, 0, wx.ALL, 5 )
+		fgSizer35.Add( self.m_staticText76, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.input_left_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer35.Add( self.input_left_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		self.input_left_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_RIGHT )
+		fgSizer35.Add( self.input_left_bound, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText77 = wx.StaticText( self, wx.ID_ANY, u"Lower Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText77.Wrap( -1 )
 		
-		fgSizer35.Add( self.m_staticText77, 0, wx.ALL, 5 )
+		fgSizer35.Add( self.m_staticText77, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.input_lower_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer35.Add( self.input_lower_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		self.input_lower_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_RIGHT )
+		fgSizer35.Add( self.input_lower_bound, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText78 = wx.StaticText( self, wx.ID_ANY, u"Right Bound", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText78.Wrap( -1 )
 		
-		fgSizer35.Add( self.m_staticText78, 0, wx.ALL, 5 )
+		fgSizer35.Add( self.m_staticText78, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.input_right_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer35.Add( self.input_right_bound, 0, wx.ALL|wx.EXPAND, 5 )
+		self.input_right_bound = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_RIGHT )
+		fgSizer35.Add( self.input_right_bound, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
 		bSizer3.Add( fgSizer35, 1, wx.EXPAND, 5 )
+		
+		self.m_button16 = wx.Button( self, wx.ID_ANY, u"Get from Clipboard", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer3.Add( self.m_button16, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 		
 		self.ImportButtom = wx.Button( self, wx.ID_ANY, u"Import", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer3.Add( self.ImportButtom, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
@@ -2446,15 +2449,13 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		self.SetSizer( bSizer3 )
 		self.Layout()
+		bSizer3.Fit( self )
 		
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
 		self.ref_system.Bind( wx.EVT_CHOICE, self.on_reference_system_change )
-		self.input_upper_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
-		self.input_left_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
-		self.input_lower_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
-		self.input_right_bound.Bind( wx.EVT_TEXT, self.on_insert_coordinate )
+		self.m_button16.Bind( wx.EVT_BUTTON, self.on_copy_from_clipboard )
 		self.ImportButtom.Bind( wx.EVT_BUTTON, self.on_import )
 	
 	def __del__( self ):
@@ -2465,11 +2466,8 @@ class OpenStreetMapDialog ( wx.Dialog ):
 	def on_reference_system_change( self, event ):
 		event.Skip()
 	
-	def on_insert_coordinate( self, event ):
+	def on_copy_from_clipboard( self, event ):
 		event.Skip()
-	
-	
-	
 	
 	def on_import( self, event ):
 		event.Skip()
