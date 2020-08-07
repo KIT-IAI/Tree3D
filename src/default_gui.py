@@ -2440,8 +2440,11 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		
 		bSizer3.Add( fgSizer35, 1, wx.EXPAND, 5 )
 		
-		self.m_button16 = wx.Button( self, wx.ID_ANY, u"Get from Clipboard", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_button16 = wx.Button( self, wx.ID_ANY, u"Get coordinates from Clipboard", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer3.Add( self.m_button16, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		self.m_button17 = wx.Button( self, wx.ID_ANY, u"Pick coordiantes from map", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer3.Add( self.m_button17, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 		
 		self.ImportButtom = wx.Button( self, wx.ID_ANY, u"Import", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer3.Add( self.ImportButtom, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
@@ -2456,6 +2459,7 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		# Connect Events
 		self.ref_system.Bind( wx.EVT_CHOICE, self.on_reference_system_change )
 		self.m_button16.Bind( wx.EVT_BUTTON, self.on_copy_from_clipboard )
+		self.m_button17.Bind( wx.EVT_BUTTON, self.on_pick_coordinates_from_map )
 		self.ImportButtom.Bind( wx.EVT_BUTTON, self.on_import )
 	
 	def __del__( self ):
@@ -2467,6 +2471,9 @@ class OpenStreetMapDialog ( wx.Dialog ):
 		event.Skip()
 	
 	def on_copy_from_clipboard( self, event ):
+		event.Skip()
+	
+	def on_pick_coordinates_from_map( self, event ):
 		event.Skip()
 	
 	def on_import( self, event ):
