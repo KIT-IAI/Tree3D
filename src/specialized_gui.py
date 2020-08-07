@@ -20,6 +20,8 @@ import export
 import enrichment
 import config
 
+from OsmMapWindow.OSM_win import MapFrame
+
 
 class MainTableFrame(default_gui.MainWindow):
 
@@ -1109,7 +1111,6 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
         input_string = input_string.replace("\r", " ")
         input_string = input_string.replace("\n", " ")
         input_string = input_string.strip()
-        print(input_string)
         bbox_coordinates = input_string.split()
         if len(bbox_coordinates) == 4:
             self.input_upper_bound.SetValue(bbox_coordinates[0])
@@ -1122,6 +1123,21 @@ class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
                   "Coordinates must be seperated by whitespace or line break."
             dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
             dlg.ShowModal()
+
+    def on_pick_coordinates_from_map(self, event):
+        pt = (50.751947, 10.468694)
+        frame = MapFrame(self, pt, 6, (2, 2), "OpenStreetMapTest",
+                         size=(1280, 768 + 25))  # 5x3 Tiles + 25 für Statusbar
+        #frame.MakeModal()
+        frame.Show()
+
+    def coordinates_from_map(self, bbox_coordinates):
+        self.ref_system.SetSelection(0)
+
+        self.input_upper_bound.SetValue(str(bbox_coordinates[0]))
+        self.input_left_bound.SetValue(str(bbox_coordinates[1]))
+        self.input_lower_bound.SetValue(str(bbox_coordinates[2]))
+        self.input_right_bound.SetValue(str(bbox_coordinates[3]))
 
 
 class License(default_gui.LicenseDialog):
