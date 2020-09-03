@@ -38,6 +38,12 @@ class MainWindow ( wx.Frame ):
 		
 		self.m_menu21.AppendSeparator()
 		
+		self.export_ifc = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"IFC", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu21.Append( self.export_ifc )
+		self.export_ifc.Enable( False )
+		
+		self.m_menu21.AppendSeparator()
+		
 		self.export_geojson = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"GeoJSON", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu21.Append( self.export_geojson )
 		self.export_geojson.Enable( False )
@@ -132,6 +138,7 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_cityjson, id = self.export_cityjson.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_export_ifc, id = self.export_ifc.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_geojson, id = self.export_geojson.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_exit, id = self.exit.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
@@ -163,6 +170,9 @@ class MainWindow ( wx.Frame ):
 		event.Skip()
 	
 	def on_menu_export_cityjson( self, event ):
+		event.Skip()
+	
+	def on_menu_export_ifc( self, event ):
 		event.Skip()
 	
 	def on_menu_export_geojson( self, event ):

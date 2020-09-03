@@ -209,6 +209,25 @@
                             <event name="OnUpdateUI"></event>
                         </object>
                         <object class="separator" expanded="0">
+                            <property name="name">m_separator6</property>
+                            <property name="permission">none</property>
+                        </object>
+                        <object class="wxMenuItem" expanded="0">
+                            <property name="bitmap"></property>
+                            <property name="checked">0</property>
+                            <property name="enabled">0</property>
+                            <property name="help"></property>
+                            <property name="id">wxID_ANY</property>
+                            <property name="kind">wxITEM_NORMAL</property>
+                            <property name="label">IFC</property>
+                            <property name="name">export_ifc</property>
+                            <property name="permission">none</property>
+                            <property name="shortcut"></property>
+                            <property name="unchecked_bitmap"></property>
+                            <event name="OnMenuSelection">on_menu_export_ifc</event>
+                            <event name="OnUpdateUI"></event>
+                        </object>
+                        <object class="separator" expanded="0">
                             <property name="name">m_separator5</property>
                             <property name="permission">none</property>
                         </object>
