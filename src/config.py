@@ -1,4 +1,4 @@
-# this module stores global program settings
+# this module stores global program settings and general information
 
 
 class ColumnNames:
@@ -103,3 +103,10 @@ class ColumnNames:
 
     def get_geom(self):
         return self.__geom
+
+
+def get_program_name():
+    return "tree3d"
+
+def get_program_version():
+    return "1.2"
