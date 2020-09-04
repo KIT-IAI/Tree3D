@@ -165,6 +165,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.export_citygml.Enable(True)
         self.export_cityjson.Enable(True)
         self.export_geojson.Enable(True)
+        self.export_ifc.Enable(True)
         self.reset_col_position.Enable(True)
         self.reset_col_visiblity.Enable(True)
         self.dublicates.Enable(True)
@@ -183,6 +184,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.export_citygml.Enable(False)
         self.export_cityjson.Enable(False)
         self.export_geojson.Enable(False)
+        self.export_ifc.Enable(False)
         self.reset_col_position.Enable(False)
         self.reset_col_visiblity.Enable(False)
         self.dublicates.Enable(False)
@@ -552,6 +554,10 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_menu_export_geojson(self, event):
         dlg = export.ExportDialogGeoJson(self)
+        dlg.ShowModal()
+
+    def on_menu_export_ifc(self, event):
+        dlg = export.ExportDialogIfc(self)
         dlg.ShowModal()
 
 
