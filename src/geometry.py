@@ -656,6 +656,50 @@ class CompositeSolid(Geometry):
         return "MultiPolygon", multi_poly
 
 
+# class to model a vector representing a direction
+class Direction:
+
+    def __init__(self, l_direction):
+        self.__fx = l_direction[0]
+        self.__fy = l_direction[1]
+        self.__fz = l_direction[2]
+
+    def get_dir_x(self):
+        return self.__fx
+
+    def get_dir_y(self):
+        return self.__fy
+
+    def get_dir_z(self):
+        return self.__fz
+
+    def get_normalized_direction(self):
+        f_length = self.get_length()
+        l_norm_dir = [self.__fx / f_length,
+                      self.__fy / f_length,
+                      self.__fz / f_length]
+        return Direction(l_norm_dir)
+
+    def get_length(self):
+        return sqrt(self.__fx * self.__fx + self.__fy * self.__fy + self.__fz * self.__fz)
+
+    def get_cross_product_with(self, o_dir_b):
+        l_cross_dir = [self.__fy * o_dir_b.__fz - self.__fz * o_dir_b.__fy,
+                       self.__fz * o_dir_b.__fx - self.__fx * o_dir_b.__fz,
+                       self.__fx * o_dir_b.__fy - self.__fy * o_dir_b.__fx]
+        return Direction(l_cross_dir)
+
+    # Gibt die normierte x-Richtung passend zur z-Richtung zurück
+    def get_norm_x_direction(self):
+        o_norm_dir_z = self.get_normalized_direction()
+
+        o_dir_x_old_z = Direction([0, 0, 1])  # Annahme: x zeigt in globale z-Richtung
+        o_dir_y = o_norm_dir_z.get_cross_product_with(o_dir_x_old_z)  # Kreuzprodukt für y-Richtung
+        o_dir_x = self.get_cross_product_with(o_dir_y)  # Kreuzprodukt für um y-Achse gedrehte x-Richtung
+        o_norm_dir_x = o_dir_x.get_normalized_direction()
+        return o_norm_dir_x
+
+
 def get_cityjson_vertex_number(vertex_list):
     """
     Recursive function to count number of vertices in a CityJSON geometry
