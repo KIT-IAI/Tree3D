@@ -2381,7 +2381,6 @@ class IfcExport(Export):
                             "$",
                             ");"]
         self.add_line_to_file_content("".join(l_map_conversion))
-        oid_map_conversion = "NOT DEFINED IN CREATE_IFC_MAP_CONVERSION()"
 
         return oid_map_conversion
 
