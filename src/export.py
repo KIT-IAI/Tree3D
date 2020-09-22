@@ -2602,7 +2602,6 @@ class IfcExport(Export):
         #                     ");"])
         # self.add_line_to_file_content("".join(l_ifc_proxy))
 
-
         # Code to create IfcPlant
         l_ifc_plant = ["#", str(oid), "=IFCPLANT("]
         l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
@@ -2613,6 +2612,47 @@ class IfcExport(Export):
         l_ifc_plant.extend([",.NOTDEFINED."])  # PredefinedType
         l_ifc_plant.extend([");"])
         self.add_line_to_file_content("".join(l_ifc_plant))
+
+        l_property_oids = []
+
+        # Add class to parametrized tree model
+        classe = tree_model.get_class()
+        if classe is not None:
+            classe_oid = self.create_ifc_property_single_value("classe", classe)
+            l_property_oids.append(classe_oid)
+
+        # Add species to parametrized tree model
+        species = tree_model.get_species()
+        if species is not None:
+            species_oid = self.create_ifc_property_single_value("species", species)
+            l_property_oids.append(species_oid)
+
+        # Add hight attribute to parameterized tree model
+        height = tree_model.get_height()
+        if height is not None:
+            height_oid = self.create_ifc_property_single_value("height (m)", height)
+            l_property_oids.append(height_oid)
+
+        # Add trunk (stem) diameter attribute to parameterized tree model
+        trunkdiam = tree_model.get_trunkdiam()
+        if trunkdiam is not None:
+            trunk_oid = self.create_ifc_property_single_value("trunkDiameter (m)", trunkdiam)
+            l_property_oids.append(trunk_oid)
+
+        # Add crown diameter attribute to parameterized tree model
+        crowndiam = tree_model.get_crowndiam()
+        if crowndiam is not None:
+            crown_oid = self.create_ifc_property_single_value("crownDiameter (m)", crowndiam)
+            l_property_oids.append(crown_oid)
+
+        if self._generate_generic_attributes:
+            for _, key, value in tree_model.get_generics():
+                oid_propertyset = self.create_ifc_property_single_value(key, str(value))
+                l_property_oids.append(oid_propertyset)
+
+        if len(l_property_oids) > 0:
+            oid_propertyset = self.create_ifc_property_set(l_property_oids)
+            self.create_ifc_rel_defined_by_properties([oid], oid_propertyset)
 
         self.__l_tree_oids.append(oid)
 
@@ -2644,6 +2684,70 @@ class IfcExport(Export):
                                       ]
 
         self.add_line_to_file_content("".join(l_product_definition_shape))
+        return oid
+
+    def create_ifc_property_single_value(self, t_key, t_value):
+        self.__oid += 1
+        oid = self.__oid
+
+        t_name = self.encode_step_string(str(t_key))
+        t_value = self.encode_step_string(str(t_value))
+
+        l_property_single_value = ["#", str(oid), "=IFCPROPERTYSINGLEVALUE(",
+                                   "'", t_name, "'",  # Name
+                                   ",$",  # Description
+                                   ", IFCLABEL('", t_value,  # NominalValue
+                                   "'),", "$",  # TODO: Unit in SIUNIT hinzufügen?
+                                   ");"]
+        self.add_line_to_file_content("".join(l_property_single_value))
+        return oid
+
+    def create_ifc_rel_defined_by_properties(self, l_oid_related_entity, oid_propertyset):
+        self.__oid += 1
+        oid = self.__oid
+
+        l_rel_defined_by_properties = ["#", str(oid), "=IFCRELDEFINESBYPROPERTIES("]
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="$", t_description="$")
+        l_rel_defined_by_properties.extend(l_root_attributes)
+
+        l_rel_defined_by_properties.append(",(")
+
+        i_entity_count = 0
+        for element in l_oid_related_entity:
+            i_entity_count += 1
+            l_rel_defined_by_properties.extend(["#", str(element)])
+
+            if i_entity_count < len(l_oid_related_entity):
+                l_rel_defined_by_properties.append(",")
+
+        l_rel_defined_by_properties.extend(["),#", str(oid_propertyset)])
+
+        l_rel_defined_by_properties.append(");")
+        self.add_line_to_file_content("".join(l_rel_defined_by_properties))
+        return oid
+
+    def create_ifc_property_set(self, l_property_single_value_oids):
+        self.__oid += 1
+        oid = self.__oid
+
+        l_property_set = ["#", str(oid), "=IFCPROPERTYSET("]
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="tree_properties", t_description="$")
+        l_property_set.extend(l_root_attributes)
+
+        l_property_set.append(",(")
+
+        i_property_count = 0
+        for property_id in l_property_single_value_oids:
+            i_property_count += 1
+
+            if i_property_count > 1:
+                l_property_set.append(",")
+
+            l_property_set.extend(["#", str(property_id)])
+        l_property_set.append("));")
+        self.add_line_to_file_content("".join(l_property_set))
         return oid
 
 
