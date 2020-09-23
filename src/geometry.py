@@ -1,5 +1,6 @@
 from pyproj import CRS
 from pyproj import Transformer
+import math
 
 # do not delete this line of code
 # it is needed for PyInstaller to work with pyproj
@@ -155,6 +156,26 @@ class Point(Geometry):
         pnt = [self.__x, self.__y, self.__z]
         return "Point", pnt
 
+    def get_ifc_geometric_representation(self, start_oid, line_numbers=0):
+        line_numbers += 1
+        oid = start_oid +1
+
+        l_coords = self.get_coordinates()
+
+        if self.get_dimension() == 3:
+            t_endstring = ",{0}));".format(str(double_ifc_syntax(l_coords[2])))
+        else:
+            t_endstring = "));"
+
+        l_cartesion_point = ["#", str(oid), "=IFCCARTESIANPOINT((",
+                             str(double_ifc_syntax(l_coords[0])),
+                             ",", str(double_ifc_syntax(l_coords[1])),
+                             t_endstring]
+
+        l_ifc_geometry = ["".join(l_cartesion_point)]
+
+        return oid, line_numbers, l_ifc_geometry, "CoG", "Point"
+
 
 class LineString(Geometry):
     """
@@ -248,6 +269,25 @@ class LineString(Geometry):
         _, start_point = self.__start.get_geojson_geometric_representation()
         _, end_point = self.__end.get_geojson_geometric_representation()
         return "LineString", [start_point, end_point]
+
+    def get_ifc_geometric_representation(self, start_oid, line_numbers=0):
+        line_numbers += 1
+        oid = start_oid +1
+
+        l_ifc_geometry = []
+        pnt1_oid, line_numbers, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid, line_numbers)
+        pnt2_oid, line_numbers, l_p2, _, _ = self.__end.get_ifc_geometric_representation(oid+1, line_numbers)
+
+        l_ifc_geometry.extend(l_p1)
+        l_ifc_geometry.extend(l_p2)
+
+        l_polyline = ["#", str(oid), "=IFCPOLYLINE((",
+                      "#", str(pnt1_oid),
+                      ",", "#", str(pnt2_oid),
+                      "));"]
+        l_ifc_geometry.append("".join(l_polyline))
+
+        return oid, line_numbers, l_ifc_geometry, "Axis", "Curve3D"
 
 
 class Polygon(Geometry):
@@ -789,3 +829,14 @@ def get_transformer(from_epsg, to_epsg):
 
     trans = Transformer.from_crs(source_epsg, target_epsg)
     return trans
+
+
+def double_ifc_syntax(d_value):
+    int_part = math.ceil(d_value)
+
+    if math.fabs(d_value - int_part) < 0.000001:
+        d_formatted_value = "%d." % int_part
+        return d_formatted_value
+
+    d_formatted_value = "%f" % d_value
+    return d_formatted_value
