@@ -2103,6 +2103,10 @@ class IfcExport(Export):
     def add_line_to_file_content(self, line):
         self.__file_content += line + "\n"
 
+    def add_lines_to_file_content(self, l_lines):
+        for line in l_lines:
+            self.add_line_to_file_content(line)
+
     def generate_header(self):
         self.add_line_to_file_content("ISO-10303-21;")
         self.add_line_to_file_content("HEADER;")
