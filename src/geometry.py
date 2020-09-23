@@ -721,7 +721,7 @@ class Direction:
         return Direction(l_norm_dir)
 
     def get_length(self):
-        return sqrt(self.__fx * self.__fx + self.__fy * self.__fy + self.__fz * self.__fz)
+        return math.sqrt(self.__fx * self.__fx + self.__fy * self.__fy + self.__fz * self.__fz)
 
     def get_cross_product_with(self, o_dir_b):
         l_cross_dir = [self.__fy * o_dir_b.__fz - self.__fz * o_dir_b.__fy,
