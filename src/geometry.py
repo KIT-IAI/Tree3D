@@ -272,7 +272,7 @@ class LineString(Geometry):
 
     def get_ifc_geometric_representation(self, start_oid, line_numbers=0):
         line_numbers += 1
-        oid = start_oid +1
+        oid = start_oid + 1
 
         l_ifc_geometry = []
         pnt1_oid, line_numbers, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid, line_numbers)
