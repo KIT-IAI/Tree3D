@@ -667,6 +667,17 @@ class Solid(Geometry):
         typ, geom = self.__ExteriorCompositePolygon.get_geojson_geometric_representation()
         return typ, geom
 
+    def get_ifc_geometric_representation(self, oid_obj):
+        closed_shell_oid, l_ifc_geometry = self.__ExteriorCompositePolygon.get_ifc_closed_shell(oid_obj)
+
+        ifc_facted_brep_oid = oid_obj.get_new_oid()
+        l_ifc_faceted_brep = ["#", str(ifc_facted_brep_oid), "=IFCFACETEDBREP(",
+                              "#", str(closed_shell_oid),
+                              ");"]
+        l_ifc_geometry.append("".join(l_ifc_faceted_brep))
+
+        return ifc_facted_brep_oid, l_ifc_geometry, "Body", "Brep"
+
 
 class CompositeSolid(Geometry):
     """
