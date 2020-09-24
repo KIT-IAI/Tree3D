@@ -2907,6 +2907,16 @@ class TreeModel:
         return self.__lod4model
 
 
+class IfcOid:
+    def __init__(self):
+        self.__oid = 0
+
+    def get_new_oid(self):
+        oid = self.__oid
+        self.__oid += 1
+        return oid
+
+
 # jölkj
 def generate_point_geometry(treemodel, geomtype):
     epsg_code = treemodel.get_position().get_epsg()
