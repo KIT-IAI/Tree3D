@@ -744,6 +744,54 @@ class ExportDialogIfc(ExportDialog):
         self.SetTitle("Export as IFC")
         self.box_prettyprint.Hide()
 
+        self.implicit_geom.SetValue(True)
+        self.implicit_geom.Hide()
+        self.explicit_geom.Hide()
+        self.m_staticText62.Hide()
+
+        self.lod4.Hide()
+        self.lod4_geomtype.Hide()
+        self.lod4_segments.Hide()
+        self.lod4_segments_text.Hide()
+
+        self.lod3.Hide()
+        self.lod3_geomtype.Hide()
+        self.lod3_segments.Hide()
+        self.lod3_segments_text.Hide()
+
+        self.lod2.Hide()
+        self.lod2_geomtype.Hide()
+        self.lod2_segments.Hide()
+        self.lod2_segments_text.Hide()
+
+        self.lod1.SetValue(True)
+        self.lod1_geomtype.Enable(True)
+
+        self.DoLayoutAdaptation()
+        self.Layout()
+
+    def on_lod1_checkbox(self, event):
+        self.lod1.SetValue(True)
+        message = "Cannot suppress geometry output in IFC"
+        msg = wx.MessageDialog(self, message, caption="Info", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
+        msg.ShowModal()
+
+    def validate_input(self):
+        valid = True
+        warningmessage = ""
+
+        super_valid, super_warningmessage = ExportDialog.validate_input(self)
+
+        if self.lod1_geomtype.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Please select LOD1 geometry"
+
+        if not super_valid:
+            valid = super_valid
+            warningmessage = super_warningmessage
+
+        return valid, warningmessage
+
     # method to generate browse dialog in export gui
     def load_browse_dialog(self):
         dlg = wx.FileDialog(self, "Export as IFC", wildcard="IFC (*.ifc)|*.ifc", style=wx.FD_SAVE)
