@@ -2642,11 +2642,11 @@ class IfcExport(Export):
         # Code to create IfcPlant
         l_ifc_plant = ["#", str(oid), "=IFCPLANT("]
         l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
-        l_ifc_plant.extend([",$"])
+        l_ifc_plant.extend([",'tree'"])  # ObjectType
         l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
                             ",#", str(oid_ifc_product_definition_shape)])  # Representation
         l_ifc_plant.extend([",'tree'"])  # Tag
-        l_ifc_plant.extend([",.NOTDEFINED."])  # PredefinedType
+        l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
         l_ifc_plant.extend([");"])
         self.add_line_to_file_content("".join(l_ifc_plant))
 
