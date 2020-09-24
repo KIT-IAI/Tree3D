@@ -2132,7 +2132,7 @@ class IfcExport(Export):
         Export.__init__(self, savepath, dbfilepath)
         self.__file_content = ""
 
-        self.__oid = 0
+        self.__oid = IfcOid()
         self.__oid_organization = 0
         self.__oid_owner_history = 0
         self.__oid_site_placement = 0
@@ -2184,8 +2184,7 @@ class IfcExport(Export):
         self.create_ifc_rel_aggregates(self.__oid_project, [self.__oid_site])
 
     def create_ifc_organization(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_organization = ["#", str(oid), "=IFCORGANIZATION("
                                          "$, "  # Identification
@@ -2198,8 +2197,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_owner_history(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         t_change_action_state = "NOCHANGE"
         t_state = "READWRITE"
@@ -2218,8 +2216,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_person_and_organization(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_person_and_organization = ["#", str(oid), "=IFCPERSONANDORGANIZATION(#",
                                      str(self.create_ifc_person()),  # ThePerson
@@ -2231,8 +2228,7 @@ class IfcExport(Export):
 
     # Entität: IfcPerson, einzelner Mensch
     def create_ifc_person(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_persion = ["#", str(oid), "=IFCPERSON ("
                                     "$, "  # Identification
@@ -2248,8 +2244,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_application(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         t_version = self.encode_step_string(config.get_program_version())
         t_application = self.encode_step_string(config.get_program_name())
@@ -2300,8 +2295,7 @@ class IfcExport(Export):
             return t_string
 
     def create_ifc_project(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         self.__oid_geometric_representation_context = self.create_ifc_geometric_representation_context()
 
@@ -2345,8 +2339,7 @@ class IfcExport(Export):
         return l_root_attr
 
     def create_ifc_geometric_representation_context(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         self.__oid_global_placement = self.create_ifc_axis_2_placement_3d()
 
@@ -2364,8 +2357,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_axis_2_placement_3d(self, o_point=None, o_direction_z=None, o_direction_x=None):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         if not o_point:
             o_point = geometry.Point(self._EPSG, 3, 0, 0, 0)
@@ -2384,8 +2376,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_direction(self, o_direction):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_direction = ["#", str(oid), "=IFCDIRECTION((",
                        self.double_ifc_syntax(o_direction.get_dir_x()), ",",
@@ -2396,8 +2387,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_map_conversion(self, geom_context):
-        self.__oid += 1
-        oid_ref_system = self.__oid
+        oid_ref_system = self.__oid.get_new_oid()
 
         t_from_epsg = "EPSG:" + str(self._EPSG)
 
@@ -2419,8 +2409,7 @@ class IfcExport(Export):
         self._DataCursor.execute(statement)
         self.__min_easting, self.__min_northing, self.__min_height = self._DataCursor.fetchone()
 
-        self.__oid += 1
-        oid_map_conversion = self.__oid
+        oid_map_conversion = self.__oid.get_new_oid()
 
         l_map_conversion = ["#", str(oid_map_conversion), "=IFCMAPCONVERSION(",
                             "#{0},".format(geom_context),
@@ -2437,8 +2426,7 @@ class IfcExport(Export):
         return oid_map_conversion
 
     def create_ifc_cartesian_point(self, o_point):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_coords = o_point.get_coordinates()
 
@@ -2466,8 +2454,7 @@ class IfcExport(Export):
         return d_formatted_value
 
     def create_ifc_siunit(self, t_unit_type="", t_prefix="", t_name=""):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         if len(t_unit_type) > 0:
             t_type = ".{0}.,".format(t_unit_type)
@@ -2494,8 +2481,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_unit_assignment(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         example_unit = self.create_ifc_siunit(t_unit_type="LENGTHUNIT", t_name="Metre")
 
@@ -2508,8 +2494,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_site(self):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         # Calculate average point and set it as Reference Point for IfcSIte
         # TODO: Calculate average point and translate it into degree, minute, seconds
@@ -2544,8 +2529,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_local_placement(self, localPlacement, axisPlacement):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         if localPlacement == 0:
             t_local_placement = "$"
@@ -2565,8 +2549,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_rel_aggregates(self, relating_obj, l_reladed_obj):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_rel_aggregates = ["#", str(oid), "=IFCRELAGGREGATES("]
 
@@ -2625,8 +2608,7 @@ class IfcExport(Export):
             outfile.write(self.__file_content)
 
     def add_tree_to_model(self, tree_model):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         tree_global_position = tree_model.get_position()
         tree_gloabl_x, tree_global_y, tree_global_z = tree_global_position.get_coordinates()
@@ -2639,8 +2621,7 @@ class IfcExport(Export):
         self.__oid_element_placement = self.create_ifc_local_placement(self.__oid_site_placement, axis_placement)
 
         lod1model = tree_model.get_lod1model()
-        geom_oid, geom_line_numbers, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
-        self.__oid += geom_line_numbers
+        geom_oid, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
         self.add_lines_to_file_content(l_geometry)
 
         oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, geom_oid)
@@ -2713,8 +2694,7 @@ class IfcExport(Export):
         self.__l_tree_oids.append(oid)
 
     def create_ifc_shape_representation(self, representation_identifier, representation_type, oid_representation_item):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         t_geometric_representation_context = "#{0}".format(self.__oid_geometric_representation_context)
 
@@ -2729,8 +2709,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_product_definition_shape(self, l_representation_oids):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_product_definition_shape = ["#", str(oid), "=IFCPRODUCTDEFINITIONSHAPE(",
                                       "$,",  # Name
@@ -2743,8 +2722,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_property_single_value(self, t_key, t_value):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         t_name = self.encode_step_string(str(t_key))
         t_value = self.encode_step_string(str(t_value))
@@ -2759,8 +2737,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_rel_defined_by_properties(self, l_oid_related_entity, oid_propertyset):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_rel_defined_by_properties = ["#", str(oid), "=IFCRELDEFINESBYPROPERTIES("]
 
@@ -2784,8 +2761,7 @@ class IfcExport(Export):
         return oid
 
     def create_ifc_property_set(self, l_property_single_value_oids):
-        self.__oid += 1
-        oid = self.__oid
+        oid = self.__oid.get_new_oid()
 
         l_property_set = ["#", str(oid), "=IFCPROPERTYSET("]
 
@@ -2909,7 +2885,7 @@ class TreeModel:
 
 class IfcOid:
     def __init__(self):
-        self.__oid = 0
+        self.__oid = 1
 
     def get_new_oid(self):
         oid = self.__oid
