@@ -550,8 +550,7 @@ class CompositePolygon(Geometry):
             multi_poly.append(polygon)
         return "MultiPolygon", multi_poly
 
-    def get_ifc_geometric_representation(self, oid_obj):
-
+    def get_ifc_faces(self, oid_obj):
         l_ifc_geometry = []
 
         l_face_oids = []
@@ -560,11 +559,32 @@ class CompositePolygon(Geometry):
             l_ifc_geometry.extend(l_poly_geom)
             l_face_oids.append(face_oid)
 
+        return l_face_oids, l_ifc_geometry
+
+    def get_ifc_connected_face_set(self, oid_obj):
+        l_face_oids, l_ifc_geometry = self.get_ifc_faces(oid_obj)
+
         connected_face_set_oid = oid_obj.get_new_oid()
         l_ifc_connected_face_set = ["#", str(connected_face_set_oid), "=IFCCONNECTEDFACESET((",
                                     ",".join(["#" + str(face_oid) for face_oid in l_face_oids]),
                                     "));"]
         l_ifc_geometry.append("".join(l_ifc_connected_face_set))
+
+        return connected_face_set_oid, l_ifc_geometry
+
+    def get_ifc_closed_shell(self, oid_obj):
+        l_face_oids, l_ifc_geometry = self.get_ifc_faces(oid_obj)
+
+        closed_shell_oid = oid_obj.get_new_oid()
+        l_ifc_closed_shell = ["#", str(closed_shell_oid), "=IFCCLOSEDSHELL((",
+                              ",".join(["#" + str(face_oid) for face_oid in l_face_oids]),
+                              "));"]
+        l_ifc_geometry.append("".join(l_ifc_closed_shell))
+
+        return closed_shell_oid, l_ifc_geometry
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        connected_face_set_oid, l_ifc_geometry = self.get_ifc_connected_face_set(oid_obj)
 
         ifc_face_based_surface_model_oid = oid_obj.get_new_oid()
         l_ifc_face_based_surface_model = ["#", str(ifc_face_based_surface_model_oid), "=IFCFACEBASEDSURFACEMODEL((",
