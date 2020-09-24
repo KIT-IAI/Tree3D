@@ -156,9 +156,8 @@ class Point(Geometry):
         pnt = [self.__x, self.__y, self.__z]
         return "Point", pnt
 
-    def get_ifc_geometric_representation(self, start_oid, line_numbers=0):
-        line_numbers += 1
-        oid = start_oid +1
+    def get_ifc_geometric_representation(self, oid_obj):
+        oid = oid_obj.get_new_oid()
 
         l_coords = self.get_coordinates()
 
@@ -174,7 +173,7 @@ class Point(Geometry):
 
         l_ifc_geometry = ["".join(l_cartesion_point)]
 
-        return oid, line_numbers, l_ifc_geometry, "CoG", "Point"
+        return oid, l_ifc_geometry, "CoG", "Point"
 
 
 class LineString(Geometry):
@@ -270,13 +269,12 @@ class LineString(Geometry):
         _, end_point = self.__end.get_geojson_geometric_representation()
         return "LineString", [start_point, end_point]
 
-    def get_ifc_geometric_representation(self, start_oid, line_numbers=0):
-        line_numbers += 1
-        oid = start_oid + 1
+    def get_ifc_geometric_representation(self, oid_obj):
+        oid = oid_obj.get_new_oid()
 
         l_ifc_geometry = []
-        pnt1_oid, line_numbers, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid, line_numbers)
-        pnt2_oid, line_numbers, l_p2, _, _ = self.__end.get_ifc_geometric_representation(oid+1, line_numbers)
+        pnt1_oid, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid_obj)
+        pnt2_oid, l_p2, _, _ = self.__end.get_ifc_geometric_representation(oid_obj)
 
         l_ifc_geometry.extend(l_p1)
         l_ifc_geometry.extend(l_p2)
@@ -287,7 +285,7 @@ class LineString(Geometry):
                       "));"]
         l_ifc_geometry.append("".join(l_polyline))
 
-        return oid, line_numbers, l_ifc_geometry, "Axis", "Curve3D"
+        return oid, l_ifc_geometry, "Axis", "Curve3D"
 
 
 class Polygon(Geometry):
@@ -406,6 +404,36 @@ class Polygon(Geometry):
         polygon.append(exterior)
         return "Polygon", polygon
 
+    def get_ifc_geometric_representation(self, oid_obj):
+        l_ifc_geometry = []
+        l_pnt_oids = []
+
+        for i in range(0, len(self.__exterior)-1):
+            pnt_oid, l_pnt, _, _ = self.__exterior[i].get_ifc_geometric_representation(oid_obj)
+            l_ifc_geometry.extend(l_pnt)
+            l_pnt_oids.append(pnt_oid)
+
+        polyloop_oid = oid_obj.get_new_oid()
+        l_polyloop = ["#", str(polyloop_oid), "=IFCPOLYLOOP((",
+                      ",".join(["#" + str(pnt_oid) for pnt_oid in l_pnt_oids]),
+                      "));"]
+        l_ifc_geometry.append("".join(l_polyloop))
+
+        facebound_oid = oid_obj.get_new_oid()
+        l_ifc_face_bound = ["#", str(facebound_oid), "=IFCFACEBOUND(",
+                            "#", str(polyloop_oid),
+                            ",", ".TRUE.",
+                            ");"]
+        l_ifc_geometry.append("".join(l_ifc_face_bound))
+
+        face_oid = oid_obj.get_new_oid()
+        l_ifc_face = ["#", str(face_oid), "=IFCFACE((",
+                      "#", str(facebound_oid),
+                      "));"]
+        l_ifc_geometry.append("".join(l_ifc_face))
+
+        return face_oid, l_ifc_geometry, "Surface", "Surface"
+
 
 class CompositePolygon(Geometry):
     """
@@ -521,6 +549,30 @@ class CompositePolygon(Geometry):
             _, polygon = poly.get_geojson_geometric_representation()
             multi_poly.append(polygon)
         return "MultiPolygon", multi_poly
+
+    def get_ifc_geometric_representation(self, oid_obj):
+
+        l_ifc_geometry = []
+
+        l_face_oids = []
+        for polygon in self.__polygons:
+            face_oid, l_poly_geom, _, _ = polygon.get_ifc_geometric_representation(oid_obj)
+            l_ifc_geometry.extend(l_poly_geom)
+            l_face_oids.append(face_oid)
+
+        connected_face_set_oid = oid_obj.get_new_oid()
+        l_ifc_connected_face_set = ["#", str(connected_face_set_oid), "=IFCCONNECTEDFACESET((",
+                                    ",".join(["#" + str(face_oid) for face_oid in l_face_oids]),
+                                    "));"]
+        l_ifc_geometry.append("".join(l_ifc_connected_face_set))
+
+        ifc_face_based_surface_model_oid = oid_obj.get_new_oid()
+        l_ifc_face_based_surface_model = ["#", str(ifc_face_based_surface_model_oid), "=IFCFACEBASEDSURFACEMODEL((",
+                                          "#", str(connected_face_set_oid),
+                                          "));"]
+        l_ifc_geometry.append("".join(l_ifc_face_based_surface_model))
+
+        return ifc_face_based_surface_model_oid, l_ifc_geometry, "Body", "SurfaceModel"
 
 
 class Solid(Geometry):
