@@ -145,11 +145,6 @@ class ExportDialog(default_gui.CityGmlExport):
             exporter = CityJSONExport(self.__pathname, self.__dbpath)
         elif classname == "ExportDialogIfc":
             exporter = IfcExport(self.__pathname, self.__dbpath, self.__IfcVersion)
-            # set epsg code for output geometries (is needed earlier in ifc export)
-            # if self.epsg.GetValue() != "":
-            #     exporter.set_epsg(int(self.epsg.GetValue()))
-            # exporter.generate_header()
-            # exporter.start_data_section()
         else:
             exporter = GeoJSONExport(self.__pathname, self.__dbpath)
             exporter.setup_transformer(int(self.epsg.GetValue()), 4326)
