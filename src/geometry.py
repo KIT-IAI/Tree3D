@@ -173,7 +173,7 @@ class Point(Geometry):
 
         l_ifc_geometry = ["".join(l_cartesion_point)]
 
-        return oid, l_ifc_geometry, "CoG", "Point"
+        return [oid], l_ifc_geometry, "CoG", "Point"
 
 
 class LineString(Geometry):
@@ -273,19 +273,19 @@ class LineString(Geometry):
         oid = oid_obj.get_new_oid()
 
         l_ifc_geometry = []
-        pnt1_oid, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid_obj)
-        pnt2_oid, l_p2, _, _ = self.__end.get_ifc_geometric_representation(oid_obj)
+        l_pnt1_oid, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid_obj)
+        l_pnt2_oid, l_p2, _, _ = self.__end.get_ifc_geometric_representation(oid_obj)
 
         l_ifc_geometry.extend(l_p1)
         l_ifc_geometry.extend(l_p2)
 
         l_polyline = ["#", str(oid), "=IFCPOLYLINE((",
-                      "#", str(pnt1_oid),
-                      ",", "#", str(pnt2_oid),
+                      "#", str(l_pnt1_oid[0]),
+                      ",", "#", str(l_pnt2_oid[0]),
                       "));"]
         l_ifc_geometry.append("".join(l_polyline))
 
-        return oid, l_ifc_geometry, "Axis", "Curve3D"
+        return [oid], l_ifc_geometry, "Axis", "Curve3D"
 
 
 class Polygon(Geometry):
@@ -411,7 +411,7 @@ class Polygon(Geometry):
         for i in range(0, len(self.__exterior)-1):
             pnt_oid, l_pnt, _, _ = self.__exterior[i].get_ifc_geometric_representation(oid_obj)
             l_ifc_geometry.extend(l_pnt)
-            l_pnt_oids.append(pnt_oid)
+            l_pnt_oids.extend(pnt_oid)
 
         polyloop_oid = oid_obj.get_new_oid()
         l_polyloop = ["#", str(polyloop_oid), "=IFCPOLYLOOP((",
@@ -432,7 +432,7 @@ class Polygon(Geometry):
                       "));"]
         l_ifc_geometry.append("".join(l_ifc_face))
 
-        return face_oid, l_ifc_geometry, "Surface", "Surface"
+        return [face_oid], l_ifc_geometry, "Surface", "Surface"
 
 
 class CompositePolygon(Geometry):
@@ -555,9 +555,9 @@ class CompositePolygon(Geometry):
 
         l_face_oids = []
         for polygon in self.__polygons:
-            face_oid, l_poly_geom, _, _ = polygon.get_ifc_geometric_representation(oid_obj)
+            l_face_oid, l_poly_geom, _, _ = polygon.get_ifc_geometric_representation(oid_obj)
             l_ifc_geometry.extend(l_poly_geom)
-            l_face_oids.append(face_oid)
+            l_face_oids.extend(l_face_oid)
 
         return l_face_oids, l_ifc_geometry
 
@@ -592,7 +592,7 @@ class CompositePolygon(Geometry):
                                           "));"]
         l_ifc_geometry.append("".join(l_ifc_face_based_surface_model))
 
-        return ifc_face_based_surface_model_oid, l_ifc_geometry, "Body", "SurfaceModel"
+        return [ifc_face_based_surface_model_oid], l_ifc_geometry, "Body", "SurfaceModel"
 
 
 class Solid(Geometry):
@@ -676,7 +676,7 @@ class Solid(Geometry):
                               ");"]
         l_ifc_geometry.append("".join(l_ifc_faceted_brep))
 
-        return ifc_facted_brep_oid, l_ifc_geometry, "Body", "Brep"
+        return [ifc_facted_brep_oid], l_ifc_geometry, "Body", "Brep"
 
 
 class CompositeSolid(Geometry):

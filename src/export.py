@@ -2621,10 +2621,10 @@ class IfcExport(Export):
         self.__oid_element_placement = self.create_ifc_local_placement(self.__oid_site_placement, axis_placement)
 
         lod1model = tree_model.get_lod1model()
-        geom_oid, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
+        l_geom_oids, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
         self.add_lines_to_file_content(l_geometry)
 
-        oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, geom_oid)
+        oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, l_geom_oids)
         oid_ifc_product_definition_shape = self.create_ifc_product_definition_shape(["#"+str(oid_ifc_shape_representation)])
 
         # Code to create IfcProxy
@@ -2693,16 +2693,17 @@ class IfcExport(Export):
 
         self.__l_tree_oids.append(oid)
 
-    def create_ifc_shape_representation(self, representation_identifier, representation_type, oid_representation_item):
+    def create_ifc_shape_representation(self, representation_identifier, representation_type, l_oid_representation_items):
         oid = self.__oid.get_new_oid()
 
         t_geometric_representation_context = "#{0}".format(self.__oid_geometric_representation_context)
+        t_representation_items = ",".join(["#" + str(oid) for oid in l_oid_representation_items])
 
         l_shape_representation = ["#", str(oid), "=IFCSHAPEREPRESENTATION(",
                                   t_geometric_representation_context,  # RepresentationContext
                                   ",'", str(representation_identifier), "','",  # RepresentationIdentifer
                                   representation_type,  # RepresentationType
-                                  "',(#", str(oid_representation_item),  # RepresentationItems
+                                  "',(", t_representation_items,  # RepresentationItems
                                   "));"]
 
         self.add_line_to_file_content("".join(l_shape_representation))
