@@ -559,10 +559,13 @@ class MainTableFrame(default_gui.MainWindow):
         dlg.ShowModal()
 
     def on_menu_export_ifc_4x1(self, event):
-        print("not implemented yet")
+        dlg = export.ExportDialogIfc(self)
+        dlg.set_ifc_version("IFC4x1")
+        dlg.ShowModal()
 
     def on_menu_export_ifc_4x3(self, event):
         dlg = export.ExportDialogIfc(self)
+        dlg.set_ifc_version("IFC4x3_RC1")
         dlg.ShowModal()
 
 
