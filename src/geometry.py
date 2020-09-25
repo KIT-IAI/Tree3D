@@ -789,6 +789,7 @@ class CompositeSolid(Geometry):
 
         return l_ifc_faceted_brep_odis, l_ifc_geometry, "Body", "Brep"
 
+
 # class to model a vector representing a direction
 class Direction:
 
