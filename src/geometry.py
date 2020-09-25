@@ -778,6 +778,16 @@ class CompositeSolid(Geometry):
             multi_poly.extend(multipoly)
         return "MultiPolygon", multi_poly
 
+    def get_ifc_geometric_representation(self, oid_obj):
+        l_ifc_faceted_brep_odis = []
+        l_ifc_geometry = []
+
+        for solid in self.__Solids:
+            l_solid_oid, l_solid_geom, _, _ = solid.get_ifc_geometric_representation(oid_obj)
+            l_ifc_faceted_brep_odis.extend(l_solid_oid)
+            l_ifc_geometry.extend(l_solid_geom)
+
+        return l_ifc_faceted_brep_odis, l_ifc_geometry, "Body", "Brep"
 
 # class to model a vector representing a direction
 class Direction:
