@@ -60,6 +60,15 @@ class Geometry:
         """
         pass
 
+    def get_cityjson_geometric_representation(self):
+        pass
+
+    def get_geojson_geometric_representation(self):
+        pass
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        pass
+
 
 # class to represent a Point in 2D or 3D
 class Point(Geometry):
