@@ -23,6 +23,8 @@ import wx
 class ExportDialog(default_gui.CityGmlExport):
     def __init__(self, parent):
         default_gui.CityGmlExport.__init__(self, parent)
+        self.__IfcVersion = None  # will only be used in Ifc Export
+
         self.__pathname = ""
         self.__dbpath = self.GetParent().db.get_db_filepath()
         self.__TreeTableName = self.GetParent().db.get_tree_table_name()
@@ -142,7 +144,7 @@ class ExportDialog(default_gui.CityGmlExport):
         elif classname == "ExportDialogCityJson":
             exporter = CityJSONExport(self.__pathname, self.__dbpath)
         elif classname == "ExportDialogIfc":
-            exporter = IfcExport(self.__pathname, self.__dbpath)
+            exporter = IfcExport(self.__pathname, self.__dbpath, self.__IfcVersion)
             # set epsg code for output geometries (is needed earlier in ifc export)
             # if self.epsg.GetValue() != "":
             #     exporter.set_epsg(int(self.epsg.GetValue()))
@@ -321,6 +323,9 @@ class ExportDialog(default_gui.CityGmlExport):
         # reset gauge to 0
         self.progress.SetValue(0)
         self.buttonExport.Enable(True)
+
+    def set_ifc_version(self, ifc_version):
+        self.__IfcVersion = ifc_version
 
     # method is called when dropdown on how to calculated crown height is changed
     def on_crown_height_options(self, event):
@@ -2128,9 +2133,11 @@ class GeoJSONExport(Export):
 
 class IfcExport(Export):
 
-    def __init__(self, savepath, dbfilepath):
+    def __init__(self, savepath, dbfilepath, ifc_version):
         Export.__init__(self, savepath, dbfilepath)
         self.__file_content = ""
+
+        self.__IfcVersion = ifc_version
 
         self.__oid = IfcOid()
         self.__oid_organization = 0
@@ -2170,7 +2177,7 @@ class IfcExport(Export):
                                                                                             t_name_version)
         self.add_line_to_file_content(t_file_name_row)
 
-        self.add_line_to_file_content("FILE_SCHEMA(('IFC4x3_RC1'));")
+        self.add_line_to_file_content("FILE_SCHEMA(('%s'));" % self.__IfcVersion)
         self.end_section()
 
     def start_data_section(self):
@@ -2627,28 +2634,29 @@ class IfcExport(Export):
         oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, l_geom_oids)
         oid_ifc_product_definition_shape = self.create_ifc_product_definition_shape(["#"+str(oid_ifc_shape_representation)])
 
-        # Code to create IfcProxy
-        #
-        # l_ifc_proxy = ["#", str(oid), "=IFCPROXY("]
-        # l_ifc_proxy.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
-        # l_ifc_proxy.extend([",$"])  # IfcLabel
-        # l_ifc_proxy.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
-        #                     ",#", str(oid_ifc_product_definition_shape)])  # Representation
-        # l_ifc_proxy.extend([",.PRODUCT.",  # ProxyType
-        #                     ",$",  #
-        #                     ");"])
-        # self.add_line_to_file_content("".join(l_ifc_proxy))
+        # Code to create IfcProxy for each tree
+        if self.__IfcVersion == "IFC4x1":
+            l_ifc_proxy = ["#", str(oid), "=IFCPROXY("]
+            l_ifc_proxy.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
+            l_ifc_proxy.extend([",$"])  # IfcLabel
+            l_ifc_proxy.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
+                                ",#", str(oid_ifc_product_definition_shape)])  # Representation
+            l_ifc_proxy.extend([",.PRODUCT.",  # ProxyType
+                                ",$",  #
+                                ");"])
+            self.add_line_to_file_content("".join(l_ifc_proxy))
 
-        # Code to create IfcPlant
-        l_ifc_plant = ["#", str(oid), "=IFCPLANT("]
-        l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
-        l_ifc_plant.extend([",'tree'"])  # ObjectType
-        l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
-                            ",#", str(oid_ifc_product_definition_shape)])  # Representation
-        l_ifc_plant.extend([",'tree'"])  # Tag
-        l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
-        l_ifc_plant.extend([");"])
-        self.add_line_to_file_content("".join(l_ifc_plant))
+        # Code to create IfcPlant for each tree
+        elif self.__IfcVersion == "IFC4x3_RC1":
+            l_ifc_plant = ["#", str(oid), "=IFCPLANT("]
+            l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
+            l_ifc_plant.extend([",'tree'"])  # ObjectType
+            l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
+                                ",#", str(oid_ifc_product_definition_shape)])  # Representation
+            l_ifc_plant.extend([",'tree'"])  # Tag
+            l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
+            l_ifc_plant.extend([");"])
+            self.add_line_to_file_content("".join(l_ifc_plant))
 
         l_property_oids = []
 
