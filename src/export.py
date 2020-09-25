@@ -2150,13 +2150,19 @@ class IfcExport(Export):
 
         self.__l_tree_oids = []
 
+    # method to add a line to the file
+    # line must be a string
+    # \n is added in method
     def add_line_to_file_content(self, line):
         self.__file_content += line + "\n"
 
+    # method to add multiple lines to file
+    # l_lines must be a list of strings
     def add_lines_to_file_content(self, l_lines):
         for line in l_lines:
             self.add_line_to_file_content(line)
 
+    # method to generate file header
     def generate_header(self):
         self.add_line_to_file_content("ISO-10303-21;")
         self.add_line_to_file_content("HEADER;")
@@ -2175,6 +2181,8 @@ class IfcExport(Export):
         self.add_line_to_file_content("FILE_SCHEMA(('%s'));" % self.__IfcVersion)
         self.end_section()
 
+    # method to start data section
+    # generates organization, owner history, project and site
     def start_data_section(self):
         self.add_line_to_file_content("DATA;")
         self.__oid_organization = self.create_ifc_organization()
@@ -2599,9 +2607,11 @@ class IfcExport(Export):
     def end_section(self):
         self.add_line_to_file_content("ENDSEC;")
 
+    # method to formally end the file
     def end_file(self):
         self.add_line_to_file_content("END-ISO-10303-21;")
 
+    # method write all lines to file and save it
     def save_file(self):
         self.create_ifc_rel_aggregates(self.__oid_site, self.__l_tree_oids)  # create relation: tree_objs to site
         self.end_section()
@@ -2887,6 +2897,8 @@ class TreeModel:
         return self.__lod4model
 
 
+# class to store OID during export into IFC format
+# Object of this class is passed into geometry module so continuous OID generation is possible
 class IfcOid:
     def __init__(self):
         self.__oid = 1
@@ -2897,7 +2909,7 @@ class IfcOid:
         return oid
 
 
-# jölkj
+# method to generate a point geometry
 def generate_point_geometry(treemodel, geomtype):
     epsg_code = treemodel.get_position().get_epsg()
     if geomtype == "EXPLICIT":
