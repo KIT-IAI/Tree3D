@@ -162,10 +162,19 @@ class Point(Geometry):
         return "MultiPoint", vertice_list, boundary_list
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of point coordinates
+        """
         pnt = [self.__x, self.__y, self.__z]
         return "Point", pnt
 
     def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of point oid, geometry list (list of strings), identifyer, type
+        """
         oid = oid_obj.get_new_oid()
 
         l_coords = self.get_coordinates()
@@ -274,11 +283,20 @@ class LineString(Geometry):
         return "MultiLineString", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of point geometries
+        """
         _, start_point = self.__start.get_geojson_geometric_representation()
         _, end_point = self.__end.get_geojson_geometric_representation()
         return "LineString", [start_point, end_point]
 
     def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of polyline oid, geometry list (list of strings), identifyer, type
+        """
         oid = oid_obj.get_new_oid()
 
         l_ifc_geometry = []
@@ -403,6 +421,10 @@ class Polygon(Geometry):
         return "Surface", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of polygon exterior
+        """
         polygon = []
         exterior = []
 
@@ -414,6 +436,11 @@ class Polygon(Geometry):
         return "Polygon", polygon
 
     def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of face oid, geometry list (list of strings), identifyer, type
+        """
         l_ifc_geometry = []
         l_pnt_oids = []
 
@@ -553,6 +580,10 @@ class CompositePolygon(Geometry):
         return "MultiSurface", vertices, boundaries
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of polygon geometries
+        """
         multi_poly = []
         for poly in self.__polygons:
             _, polygon = poly.get_geojson_geometric_representation()
@@ -560,6 +591,12 @@ class CompositePolygon(Geometry):
         return "MultiPolygon", multi_poly
 
     def get_ifc_faces(self, oid_obj):
+        """
+        Method to gernerate IfcFace for each polygon from MultiPolygon.
+        To be valid, all faces must form a closed shell
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of face oids, geometry list (List of strings)
+        """
         l_ifc_geometry = []
 
         l_face_oids = []
@@ -571,6 +608,11 @@ class CompositePolygon(Geometry):
         return l_face_oids, l_ifc_geometry
 
     def get_ifc_connected_face_set(self, oid_obj):
+        """
+        Method to gernerate IfcConnecteFaceSet from MultiPolygon.
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: oid of closed shell object, geometry list (List of strings)
+        """
         l_face_oids, l_ifc_geometry = self.get_ifc_faces(oid_obj)
 
         connected_face_set_oid = oid_obj.get_new_oid()
@@ -582,6 +624,12 @@ class CompositePolygon(Geometry):
         return connected_face_set_oid, l_ifc_geometry
 
     def get_ifc_closed_shell(self, oid_obj):
+        """
+        Method to gernerate IfcClosedShell from MultiPolygon.
+        To be valid, all faces must form a closed shell
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: oid of closed shell object, geometry list (List of strings)
+        """
         l_face_oids, l_ifc_geometry = self.get_ifc_faces(oid_obj)
 
         closed_shell_oid = oid_obj.get_new_oid()
@@ -593,6 +641,11 @@ class CompositePolygon(Geometry):
         return closed_shell_oid, l_ifc_geometry
 
     def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of FaceBasedSurfaceModel oid, geometry list (list of strings), identifyer, type
+        """
         connected_face_set_oid, l_ifc_geometry = self.get_ifc_connected_face_set(oid_obj)
 
         ifc_face_based_surface_model_oid = oid_obj.get_new_oid()
@@ -673,10 +726,19 @@ class Solid(Geometry):
         return "Solid", vertices, boundaries
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of shell polygons
+        """
         typ, geom = self.__ExteriorCompositePolygon.get_geojson_geometric_representation()
         return typ, geom
 
     def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of FacetedBrep oid, geometry list (list of strings), identifyer, type
+        """
         closed_shell_oid, l_ifc_geometry = self.__ExteriorCompositePolygon.get_ifc_closed_shell(oid_obj)
 
         ifc_facted_brep_oid = oid_obj.get_new_oid()
@@ -781,6 +843,10 @@ class CompositeSolid(Geometry):
         return "CompositeSolid", vertices, boundaris
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of solid geometries
+        """
         multi_poly = []
         for solid in self.__Solids:
             _, multipoly = solid.get_geojson_geometric_representation()
@@ -788,6 +854,11 @@ class CompositeSolid(Geometry):
         return "MultiPolygon", multi_poly
 
     def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of FacetedBrep oids, geometry list (list of strings), identifyer, type
+        """
         l_ifc_faceted_brep_odis = []
         l_ifc_geometry = []
 
@@ -799,24 +870,46 @@ class CompositeSolid(Geometry):
         return l_ifc_faceted_brep_odis, l_ifc_geometry, "Body", "Brep"
 
 
-# class to model a vector representing a direction
 class Direction:
+    """
+    Class to represent a direction (vector)
+    """
 
     def __init__(self, l_direction):
+        """
+        Initialize
+        :param l_direction: List of vector parts (x, y, z direction)
+        """
         self.__fx = l_direction[0]
         self.__fy = l_direction[1]
         self.__fz = l_direction[2]
 
     def get_dir_x(self):
+        """
+        Method to get x direction
+        :return: x part of direction
+        """
         return self.__fx
 
     def get_dir_y(self):
+        """
+        Method to get y part of direction
+        :return: y part of direction
+        """
         return self.__fy
 
     def get_dir_z(self):
+        """
+        Method to get z part of direction
+        :return: z part of direction
+        """
         return self.__fz
 
     def get_normalized_direction(self):
+        """
+        Method to normalize the direction vector
+        :return: New Direction object with length 1
+        """
         f_length = self.get_length()
         l_norm_dir = [self.__fx / f_length,
                       self.__fy / f_length,
@@ -824,16 +917,28 @@ class Direction:
         return Direction(l_norm_dir)
 
     def get_length(self):
+        """
+        Method to calculate length of direction (of vector)
+        :return: length of vector
+        """
         return math.sqrt(self.__fx * self.__fx + self.__fy * self.__fy + self.__fz * self.__fz)
 
     def get_cross_product_with(self, o_dir_b):
+        """
+        Method to calculate crossproduct of vector
+        :param o_dir_b: second vector to build crossproduct with
+        :return: New Direction object
+        """
         l_cross_dir = [self.__fy * o_dir_b.__fz - self.__fz * o_dir_b.__fy,
                        self.__fz * o_dir_b.__fx - self.__fx * o_dir_b.__fz,
                        self.__fx * o_dir_b.__fy - self.__fy * o_dir_b.__fx]
         return Direction(l_cross_dir)
 
-    # Gibt die normierte x-Richtung passend zur z-Richtung zurück
     def get_norm_x_direction(self):
+        """
+        Method to calculate normalized x-direction to corresponding z-direction
+        :return:
+        """
         o_norm_dir_z = self.get_normalized_direction()
 
         o_dir_x_old_z = Direction([0, 0, 1])  # Annahme: x zeigt in globale z-Richtung
