@@ -422,7 +422,7 @@ class Polygon(Geometry):
         facebound_oid = oid_obj.get_new_oid()
         l_ifc_face_bound = ["#", str(facebound_oid), "=IFCFACEBOUND(",
                             "#", str(polyloop_oid),
-                            ",", ".TRUE.",
+                            ",", ".T.",
                             ");"]
         l_ifc_geometry.append("".join(l_ifc_face_bound))
 
