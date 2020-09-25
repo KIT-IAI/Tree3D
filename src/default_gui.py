@@ -1566,7 +1566,7 @@ class import_dem ( wx.Dialog ):
 		
 		fgSizer20.Add( self.m_staticText37, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.encoding = wx.TextCtrl( sbSizer7.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.encoding = wx.TextCtrl( sbSizer7.GetStaticBox(), wx.ID_ANY, u"utf-8", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.encoding.SetToolTip( u"enter encoding of file" )
 		
 		fgSizer20.Add( self.encoding, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
