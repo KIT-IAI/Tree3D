@@ -38,9 +38,13 @@ class MainWindow ( wx.Frame ):
 		
 		self.m_menu21.AppendSeparator()
 		
-		self.export_ifc = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"IFC", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu21.Append( self.export_ifc )
-		self.export_ifc.Enable( False )
+		self.export_ifc_4x1 = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"IFC 4.1", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu21.Append( self.export_ifc_4x1 )
+		self.export_ifc_4x1.Enable( False )
+		
+		self.export_ifc_4x3 = wx.MenuItem( self.m_menu21, wx.ID_ANY, u"IFC 4.3 (RC1)", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menu21.Append( self.export_ifc_4x3 )
+		self.export_ifc_4x3.Enable( False )
 		
 		self.m_menu21.AppendSeparator()
 		
@@ -138,7 +142,8 @@ class MainWindow ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.on_menu_open, id = self.open.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_citygml, id = self.export_citygml.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_cityjson, id = self.export_cityjson.GetId() )
-		self.Bind( wx.EVT_MENU, self.on_menu_export_ifc, id = self.export_ifc.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_export_ifc_4x1, id = self.export_ifc_4x1.GetId() )
+		self.Bind( wx.EVT_MENU, self.on_menu_export_ifc_4x3, id = self.export_ifc_4x3.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_export_geojson, id = self.export_geojson.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_menu_exit, id = self.exit.GetId() )
 		self.Bind( wx.EVT_MENU, self.on_reset_column_position, id = self.reset_col_position.GetId() )
@@ -172,7 +177,10 @@ class MainWindow ( wx.Frame ):
 	def on_menu_export_cityjson( self, event ):
 		event.Skip()
 	
-	def on_menu_export_ifc( self, event ):
+	def on_menu_export_ifc_4x1( self, event ):
+		event.Skip()
+	
+	def on_menu_export_ifc_4x3( self, event ):
 		event.Skip()
 	
 	def on_menu_export_geojson( self, event ):
