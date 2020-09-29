@@ -1,16 +1,38 @@
 import xml.etree.ElementTree as ET
 import math
 from datetime import date
+from time import gmtime, strftime, time
 import threading
 import sqlite3
 import os
 import json
+import uuid
+import string
 
 import default_gui
 import analysis
 import geometry
+import config
 
 import wx
+
+
+# class to store OID during export into IFC format
+# Object of this class is passed into geometry module so continuous OID generation is possible
+class IfcOid:
+    def __init__(self):
+        self.__oid = 1
+
+    def get_new_oid(self):
+        oid = self.__oid
+        self.__oid += 1
+        return oid
+
+    def reset(self):
+        self.__oid = 1
+
+
+IFC_OID = IfcOid()
 
 
 # parent GUI class for export dialog
@@ -19,11 +41,24 @@ import wx
 class ExportDialog(default_gui.CityGmlExport):
     def __init__(self, parent):
         default_gui.CityGmlExport.__init__(self, parent)
+        self.__IfcVersion = None  # will only be used in Ifc Export
+
         self.__pathname = ""
         self.__dbpath = self.GetParent().db.get_db_filepath()
         self.__TreeTableName = self.GetParent().db.get_tree_table_name()
 
         self.__col_settings = self.GetParent().get_column_config()
+
+        classname = type(self).__name__
+        if classname == "ExportDialogCityGML":
+            export_format = "citygml"
+        elif classname == "ExportDialogCityJson":
+            export_format = "cityjson"
+        elif classname == "ExportDialogIfc":
+            export_format = "ifc"
+        else:
+            export_format = "geojson"
+        self._format = export_format
 
         self.populate_dropdown()
 
@@ -132,11 +167,12 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method to start export (in a new thread)
     def start_export(self):
-        classname = type(self).__name__
-        if classname == "ExportDialogCityGML":
+        if self._format == "citygml":
             exporter = CityGmlExport(self.__pathname, self.__dbpath)
-        elif classname == "ExportDialogCityJson":
+        elif self._format == "cityjson":
             exporter = CityJSONExport(self.__pathname, self.__dbpath)
+        elif self._format == "ifc":
+            exporter = IfcExport(self.__pathname, self.__dbpath, self.__IfcVersion)
         else:
             exporter = GeoJSONExport(self.__pathname, self.__dbpath)
             exporter.setup_transformer(int(self.epsg.GetValue()), 4326)
@@ -145,6 +181,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # configure if pretty print should be used in output file
         exporter.set_prettyprint(self.box_prettyprint.GetValue())
+
+        exporter.set_format(self._format)
 
         # configure x column index
         if self.choiceXvalue.GetSelection() != wx.NOT_FOUND:
@@ -277,6 +315,10 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.use_appearance.GetValue():
             exporter.set_use_appearance(True)
 
+        if classname == "ExportDialogIfc":
+            exporter.generate_header()
+            exporter.start_data_section()
+
         # start the export
         export_status = exporter.export(self.progress)
         # save file
@@ -306,6 +348,9 @@ class ExportDialog(default_gui.CityGmlExport):
         # reset gauge to 0
         self.progress.SetValue(0)
         self.buttonExport.Enable(True)
+
+    def set_ifc_version(self, ifc_version):
+        self.__IfcVersion = ifc_version
 
     # method is called when dropdown on how to calculated crown height is changed
     def on_crown_height_options(self, event):
@@ -721,6 +766,72 @@ class ExportDialogGeoJson(ExportDialog):
         return valid, warningmessage
 
 
+class ExportDialogIfc(ExportDialog):
+    def __init__(self, parent):
+        ExportDialog.__init__(self, parent)
+
+        # rename some GUI elements
+        self.SetTitle("Export as IFC")
+        self.box_prettyprint.Hide()
+
+        self.implicit_geom.SetValue(True)
+        self.implicit_geom.Hide()
+        self.explicit_geom.Hide()
+        self.m_staticText62.Hide()
+
+        self.lod4.Hide()
+        self.lod4_geomtype.Hide()
+        self.lod4_segments.Hide()
+        self.lod4_segments_text.Hide()
+
+        self.lod3.Hide()
+        self.lod3_geomtype.Hide()
+        self.lod3_segments.Hide()
+        self.lod3_segments_text.Hide()
+
+        self.lod2.Hide()
+        self.lod2_geomtype.Hide()
+        self.lod2_segments.Hide()
+        self.lod2_segments_text.Hide()
+
+        self.lod1.SetValue(True)
+        self.lod1_geomtype.Enable(True)
+
+        self.DoLayoutAdaptation()
+        self.Layout()
+
+    def on_lod1_checkbox(self, event):
+        self.lod1.SetValue(True)
+        message = "Cannot suppress geometry output in IFC"
+        msg = wx.MessageDialog(self, message, caption="Info", style=wx.OK | wx.CENTRE | wx.ICON_INFORMATION)
+        msg.ShowModal()
+
+    def validate_input(self):
+        valid = True
+        warningmessage = ""
+
+        super_valid, super_warningmessage = ExportDialog.validate_input(self)
+
+        if self.lod1_geomtype.GetSelection() == wx.NOT_FOUND:
+            valid = False
+            warningmessage = "Please select LOD1 geometry"
+
+        if not super_valid:
+            valid = super_valid
+            warningmessage = super_warningmessage
+
+        return valid, warningmessage
+
+    # method to generate browse dialog in export gui
+    def load_browse_dialog(self):
+        dlg = wx.FileDialog(self, "Export as IFC", wildcard="IFC (*.ifc)|*.ifc", style=wx.FD_SAVE)
+        return dlg
+
+    def on_export(self, event):
+        ExportDialog.on_export(self, event)
+        IFC_OID.reset()
+
+
 # Class to perform the export itself
 class Export:
     def __init__(self, savepath, dbfilepath):
@@ -729,6 +840,8 @@ class Export:
         self._TreeTableName = ""
 
         self._filepath = savepath  # output file path (where citygml will be saved)
+
+        self._format = None
 
         self._prettyprint = None  # boolean variable to determine if xml output should be formatted
 
@@ -739,9 +852,9 @@ class Export:
         self._col_datatypes = None  # list of data types of columns
         self._col_names = None  # list of names all columns
 
-        self.__x_value_col_index = None  # index of column in which x value is stored
-        self.__y_value_col_index = None  # index of column in which y value is stored
-        self.__ref_height_col_index = None  # index of column in which reference height is stored
+        self._x_value_col_index = None  # index of column in which x value is stored
+        self._y_value_col_index = None  # index of column in which y value is stored
+        self._ref_height_col_index = None  # index of column in which reference height is stored
         self._EPSG = None  # EPSG-Code of coordinates
         self.__EPSG_output = None  # EPSG-Code of coordinates in output
 
@@ -775,6 +888,9 @@ class Export:
         self._crown_deciduous_ids = []  # stores ids of all deciduous crown geometries
         self._crown_coniferous_ids = []  # stores ids of all coniferous crown geometries
 
+    def set_format(self, exp_format):
+        self._format = exp_format
+
     # method to set option if pretty print should be used
     def set_prettyprint(self, value):
         self._prettyprint = value
@@ -793,13 +909,13 @@ class Export:
         self._col_datatypes = types
 
     def set_x_col_idx(self, idx):
-        self.__x_value_col_index = idx
+        self._x_value_col_index = idx
 
     def set_y_col_idx(self, idx):
-        self.__y_value_col_index = idx
+        self._y_value_col_index = idx
 
     def set_ref_height_col_idx(self, idx):
-        self.__ref_height_col_index = idx
+        self._ref_height_col_index = idx
 
     def set_epsg(self, epsg_code):
         self._EPSG = epsg_code
@@ -876,9 +992,9 @@ class Export:
         invalid_lod4 = 0
 
         # list to keep track of what columns are used. All other will be used for generic attributes
-        used_cols = [self.__x_value_col_index,
-                     self.__y_value_col_index,
-                     self.__ref_height_col_index,
+        used_cols = [self._x_value_col_index,
+                     self._y_value_col_index,
+                     self._ref_height_col_index,
                      self.__height_col_index,
                      self.__crown_diam_col_index,
                      self.__trunk_diam_col_index,
@@ -893,9 +1009,9 @@ class Export:
             tree_model.set_id("tree%s" % exported_trees)
 
             # assign geometric values to variables
-            x_value = row[self.__x_value_col_index]
-            y_value = row[self.__y_value_col_index]
-            ref_height = row[self.__ref_height_col_index]
+            x_value = row[self._x_value_col_index]
+            y_value = row[self._y_value_col_index]
+            ref_height = row[self._ref_height_col_index]
             tree_model.set_position(self._EPSG, x_value, y_value, ref_height)
 
             # compare thiw row's x and y vlaues with values in bounding box object
@@ -1062,34 +1178,34 @@ class Export:
             geom_obj = generate_billboard_rectangle_geometry(treemodel, segments, self._geom_type)
         elif geomtype == 3:
             if self.__class_col_index is not None and tree_class == 1060:
-                geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod, self._format)
             elif self.__class_col_index is not None and tree_class == 1070:
-                geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod, self._format)
             else:
                 if self._default_export_type == 1060:
-                    geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod, self._format)
                 elif self._default_export_type == 1070:
-                    geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod, self._format)
         elif geomtype == 4:
             if self.__class_col_index is not None and tree_class == 1060:
-                geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod, self._format)
             elif self.__class_col_index is not None and tree_class == 1070:
-                geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod, self._format)
             else:
                 if self._default_export_type == 1060:
-                    geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod, self._format)
                 elif self._default_export_type == 1070:
-                    geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod, self._format)
         elif geomtype == 5:
             if self.__class_col_index is not None and tree_class == 1060:
-                geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod, self._format)
             elif self.__class_col_index is not None and tree_class == 1070:
-                geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod, self._format)
             else:
                 if self._default_export_type == 1060:
-                    geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod, self._format)
                 elif self._default_export_type == 1070:
-                    geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod, self._format)
         elif geomtype == 6:
             geom_obj = generate_point_geometry(treemodel, self._geom_type)
 
@@ -2049,6 +2165,739 @@ class GeoJSONExport(Export):
                 self.__bbox.append(coord)
 
 
+class IfcExport(Export):
+
+    def __init__(self, savepath, dbfilepath, ifc_version):
+        Export.__init__(self, savepath, dbfilepath)
+        self.__file_content = ""
+
+        self.__IfcVersion = ifc_version
+
+        self.__oid = IFC_OID
+        self.__oid_organization = 0
+        self.__oid_owner_history = 0
+        self.__oid_site_placement = 0
+        self.__oid_global_placement = 0
+        self.__oid_element_placement = 0
+        self.__oid_geometric_representation_context = 0
+        self.__oid_project = 0
+        self.__oid_site = 0
+
+        self.__min_easting = 0
+        self.__min_northing = 0
+        self.__min_height = 0
+
+        self.__l_tree_oids = []
+
+    # method to add a line to the file
+    # line must be a string
+    # \n is added in method
+    def add_line_to_file_content(self, line):
+        self.__file_content += line + "\n"
+
+    # method to add multiple lines to file
+    # l_lines must be a list of strings
+    def add_lines_to_file_content(self, l_lines):
+        for line in l_lines:
+            self.add_line_to_file_content(line)
+
+    # method to generate file header
+    def generate_header(self):
+        self.add_line_to_file_content("ISO-10303-21;")
+        self.add_line_to_file_content("HEADER;")
+        self.add_line_to_file_content("FILE_DESCRIPTION((''),'2;1');")
+
+        t_filename = self._filepath.split("\\")[-1]
+        t_time = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
+        t_name = config.get_program_name()
+        t_version = config.get_program_version()
+        t_name_version = t_name + " Version " + t_version
+
+        t_file_name_row = "FILE_NAME('{0}','{1}',(''),('KIT/IAI'),'{2}',' ','KIT');".format(t_filename, t_time,
+                                                                                            t_name_version)
+        self.add_line_to_file_content(t_file_name_row)
+
+        self.add_line_to_file_content("FILE_SCHEMA(('%s'));" % self.__IfcVersion)
+        self.end_section()
+
+    # method to start data section
+    # generates organization, owner history, project and site
+    def start_data_section(self):
+        self.add_line_to_file_content("DATA;")
+        self.__oid_organization = self.create_ifc_organization()
+        self.__oid_owner_history = self.create_ifc_owner_history()
+        self.__oid_project = self.create_ifc_project()
+        self.__oid_site = self.create_ifc_site()
+
+        # Relation RelAggregates --> Projekt enthält eine Site
+        self.create_ifc_rel_aggregates(self.__oid_project, [self.__oid_site])
+
+    def create_ifc_organization(self):
+        oid = self.__oid.get_new_oid()
+
+        l_organization = ["#", str(oid), "=IFCORGANIZATION("
+                                         "$, "  # Identification
+                                         "'IAI/KIT', "  # Name
+                                         "'Research University Karlsruhe', "  # Description
+                                         "$, "  # Role
+                                         "$"  # Adresses
+                                         ");"]
+        self.add_line_to_file_content("".join(l_organization))
+        return oid
+
+    def create_ifc_owner_history(self):
+        oid = self.__oid.get_new_oid()
+
+        t_change_action_state = "NOCHANGE"
+        t_state = "READWRITE"
+
+        l_owner_history = ["#", str(oid), "=IFCOWNERHISTORY(#",
+                           str(self.create_ifc_person_and_organization()),  # OwningUser
+                           ",#", str(self.create_ifc_application()), ",.",  # OwningApplication
+                           t_state, ".,.",  # State
+                           t_change_action_state, ".,",  # ChangeAction
+                           "$,",  # LastModifiedDate
+                           "$,",  # LastModifyingUser
+                           "$,",  # LastModifiyingApplication
+                           str(int(time())),  # CreationDate
+                           ");"]
+        self.add_line_to_file_content("".join(l_owner_history))
+        return oid
+
+    def create_ifc_person_and_organization(self):
+        oid = self.__oid.get_new_oid()
+
+        l_person_and_organization = ["#", str(oid), "=IFCPERSONANDORGANIZATION(#",
+                                     str(self.create_ifc_person()),  # ThePerson
+                                     ",#", str(self.__oid_organization),  # TheOrganization
+                                     ", $",  # Roles
+                                     ");"]
+        self.add_line_to_file_content("".join(l_person_and_organization))
+        return oid
+
+    # Entität: IfcPerson, einzelner Mensch
+    def create_ifc_person(self):
+        oid = self.__oid.get_new_oid()
+
+        l_persion = ["#", str(oid), "=IFCPERSON ("
+                                    "$, "  # Identification
+                                    "'IAI/KIT', "  # FamilyName
+                                    "'IAI/KIT', "  # GivenName
+                                    "$, "  # MiddleNames
+                                    "$, "  # PrefixTitles
+                                    "$, "  # SuffixTitles
+                                    "$, "  # Roles
+                                    "$"  # Addresses
+                                    ");"]
+        self.add_line_to_file_content("".join(l_persion))
+        return oid
+
+    def create_ifc_application(self):
+        oid = self.__oid.get_new_oid()
+
+        t_version = self.encode_step_string(config.get_program_version())
+        t_application = self.encode_step_string(config.get_program_name())
+
+        l_application = ["#", str(oid), "=IFCAPPLICATION(#",
+                         str(self.__oid_organization),  # ApplicationDeveloper
+                         ", 'Version {0}'".format(t_version),  # Version
+                         ", '{0}'".format(t_application),  # ApplicationFullName
+                         ", '{0}'".format(t_application),  # ApplicationIdentifer
+                         ");"]
+        self.add_line_to_file_content("".join(l_application))
+        return oid
+
+    def encode_step_string(self, t_string):
+        l_express = []
+
+        b_changed = False
+
+        for char in t_string:
+            if char != 0 and (ord(char) < 32 or ord(char) > 126):
+                b_changed = True
+
+                l_express.append("\\X2\\00")
+                t_formated = "{:02x}".format(ord(char))
+                t_upper = t_formated.upper()
+                l_express.append(t_upper)
+                l_express.append("\\X0\\")
+                continue
+
+            elif char == '\'':
+                b_changed = True
+                l_express.append("''")
+                continue
+
+            elif char == '\\':
+                b_changed = True
+                l_express.append("\\")
+                continue
+
+            else:
+                l_express.append(char)
+                continue
+
+        if b_changed == True:
+            t_express_string = "".join(l_express)
+            return t_express_string
+        else:
+            return t_string
+
+    def create_ifc_project(self):
+        oid = self.__oid.get_new_oid()
+
+        self.__oid_geometric_representation_context = self.create_ifc_geometric_representation_context()
+
+        l_project = ["#", str(oid), "=IFCPROJECT("]
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="Tree cadastre")
+        l_project.extend(l_root_attributes)
+
+        l_project.extend([
+            ",$",  # ObjectType
+            ",$",  # LongName
+            ",$",  # Phase
+            ",(#{0})".format(self.__oid_geometric_representation_context),  # RepresentationContexts
+            ",#{0}".format(self.create_ifc_unit_assignment()),  # UnitsOnContext
+            ");"])
+
+        self.add_line_to_file_content("".join(l_project))
+        return oid
+
+    def create_ifc_root_attributes(self, t_name="", t_description=""):
+
+        if not t_name:
+            t_name = "$"
+
+        if not t_description:
+            t_description = "$"
+
+        if t_name != "$":
+            t_name = "'{0}'".format(self.encode_step_string(t_name))
+
+        if t_description != "$":
+            t_description = "'{0}'".format(self.encode_step_string(t_description))
+
+        t_hex_guid = self.get_guid(hex=True)
+        t_ifc_guid = self.compress_guid(t_hex_guid)
+
+        l_root_attr = ["'{0}'".format(t_ifc_guid),  # GlobalId
+                       ",#{0}".format(self.__oid_owner_history),  # OwnerHistory
+                       ",{0}".format(t_name),  # Name
+                       ",{0}".format(t_description)]  # Description
+        return l_root_attr
+
+    def create_ifc_geometric_representation_context(self):
+        oid = self.__oid.get_new_oid()
+
+        self.__oid_global_placement = self.create_ifc_axis_2_placement_3d()
+
+        l_geom_representation = ["#", str(oid), "=IFCGEOMETRICREPRESENTATIONCONTEXT(",
+                                 "$,",  # ContextIdentifer
+                                 "'Model',",  # ContextType
+                                 '3,',  # CoordinateSpaceDimension
+                                 '1.E-005,',  # Precision
+                                 "#", str(self.__oid_global_placement),  # WorldCoordinateSystem
+                                 ",$",  # TrueNorth
+                                 ");"]
+        self.add_line_to_file_content("".join(l_geom_representation))
+
+        self.create_ifc_map_conversion(oid)
+        return oid
+
+    def create_ifc_axis_2_placement_3d(self, o_point=None, o_direction_z=None, o_direction_x=None):
+        oid = self.__oid.get_new_oid()
+
+        if not o_point:
+            o_point = geometry.Point(self._EPSG, 3, 0, 0, 0)
+        if not o_direction_z:
+            o_direction_z = geometry.Direction([0, 0, 1])
+        if not o_direction_x:
+            o_direction_x = geometry.Direction([1, 0, 0])
+
+        l_axix_2_placement_3d = ["#", str(oid), "=IFCAXIS2PLACEMENT3D(",
+                                 "#", str(self.create_ifc_cartesian_point(o_point)),  # Location
+                                 ",#", str(self.create_ifc_direction(o_direction_z)),  # Axis (local z-Axis)
+                                 ",#", str(self.create_ifc_direction(o_direction_x)),
+                                 # RefDirection (local x-Axis)
+                                 ");"]
+        self.add_line_to_file_content("".join(l_axix_2_placement_3d))
+        return oid
+
+    def create_ifc_direction(self, o_direction):
+        oid = self.__oid.get_new_oid()
+
+        l_direction = ["#", str(oid), "=IFCDIRECTION((",
+                       self.double_ifc_syntax(o_direction.get_dir_x()), ",",
+                       self.double_ifc_syntax(o_direction.get_dir_y()), ",",
+                       self.double_ifc_syntax(o_direction.get_dir_z()), "));"]
+
+        self.add_line_to_file_content("".join(l_direction))
+        return oid
+
+    def create_ifc_map_conversion(self, geom_context):
+        oid_ref_system = self.__oid.get_new_oid()
+
+        t_from_epsg = "EPSG:" + str(self._EPSG)
+
+        l_projected_crs = ["#", str(oid_ref_system), "=IFCPROJECTEDCRS(",
+                           "'{0}',".format(t_from_epsg),  # Name
+                           "$,",  # Description
+                           "$,",  # GeodeticDatum
+                           "$,",  # VerticalDatum
+                           "$,",  # MapProjection
+                           "$,",  # MapZone
+                           "$",  # MapUnit
+                           ");"]
+        self.add_line_to_file_content("".join(l_projected_crs))
+
+        statement = 'SELECT min("%s"), min("%s"), min("%s") from %s' % (self._col_names[self._x_value_col_index],
+                                                                        self._col_names[self._y_value_col_index],
+                                                                        self._col_names[self._ref_height_col_index],
+                                                                        self._TreeTableName)
+        self._DataCursor.execute(statement)
+        self.__min_easting, self.__min_northing, self.__min_height = self._DataCursor.fetchone()
+
+        oid_map_conversion = self.__oid.get_new_oid()
+
+        l_map_conversion = ["#", str(oid_map_conversion), "=IFCMAPCONVERSION(",
+                            "#{0},".format(geom_context),
+                            "#{0},".format(oid_ref_system),
+                            self.double_ifc_syntax(self.__min_easting), ",",
+                            self.double_ifc_syntax(self.__min_northing), ",",
+                            self.double_ifc_syntax(self.__min_height), ",",
+                            self.double_ifc_syntax(1.0), ",",
+                            self.double_ifc_syntax(0.0), ",",
+                            "$",
+                            ");"]
+        self.add_line_to_file_content("".join(l_map_conversion))
+
+        return oid_map_conversion
+
+    def create_ifc_cartesian_point(self, o_point):
+        oid = self.__oid.get_new_oid()
+
+        l_coords = o_point.get_coordinates()
+
+        if o_point.get_dimension() == 3:
+            t_endstring = ",{0}));".format(str(self.double_ifc_syntax(l_coords[2])))
+        else:
+            t_endstring = "));"
+
+        l_cartesion_point = ["#", str(oid), "=IFCCARTESIANPOINT((",
+                             str(self.double_ifc_syntax(l_coords[0])),
+                             ",", str(self.double_ifc_syntax(l_coords[1])),
+                             t_endstring]
+
+        self.add_line_to_file_content("".join(l_cartesion_point))
+        return oid
+
+    def double_ifc_syntax(self, d_value):
+        int_part = math.ceil(d_value)
+
+        if math.fabs(d_value - int_part) < 0.000001:
+            d_formatted_value = "%d." % int_part
+            return d_formatted_value
+
+        d_formatted_value = "%f" % d_value
+        return d_formatted_value
+
+    def create_ifc_siunit(self, t_unit_type="", t_prefix="", t_name=""):
+        oid = self.__oid.get_new_oid()
+
+        if len(t_unit_type) > 0:
+            t_type = ".{0}.,".format(t_unit_type)
+        else:
+            t_type = "$,"
+
+        if len(t_prefix) > 0:
+            t_pre = ".{0}.,".format(
+                t_prefix.upper())
+        else:
+            t_pre = "$,"
+
+        if len(t_name) > 0:
+            t_nam = ".{0}.".format(t_name.upper())
+        else:
+            t_nam = "$"
+
+        l_siunit = ["#", str(oid), "=IFCSIUNIT(*,",
+                    t_type,
+                    t_pre,
+                    t_nam,
+                    ");"]
+        self.add_line_to_file_content("".join(l_siunit))
+        return oid
+
+    def create_ifc_unit_assignment(self):
+        oid = self.__oid.get_new_oid()
+
+        example_unit = self.create_ifc_siunit(t_unit_type="LENGTHUNIT", t_name="Metre")
+
+        l_unit_assignment = ["#",
+                             str(oid),
+                             "=IFCUNITASSIGNMENT((",
+                             "#", str(example_unit),
+                             "));"]
+        self.add_line_to_file_content("".join(l_unit_assignment))
+        return oid
+
+    def create_ifc_site(self):
+        oid = self.__oid.get_new_oid()
+
+        # Calculate average point and set it as Reference Point for IfcSIte
+        # TODO: Calculate average point and translate it into degree, minute, seconds
+        t_y_lat = "$"
+        t_x_lon = "$"
+
+        self.__oid_site_placement = self.create_ifc_local_placement(0, self.__oid_global_placement)
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="Site")
+
+        l_ifc_site = ["#", str(oid), "=IFCSITE("]  # GlobalId
+        l_ifc_site.extend(l_root_attributes)  # OwnerHistory, Name, Description
+
+        # TODO: createIfcObject_Attributes
+        l_ifc_site.extend(",$")  # ObjectType
+
+        l_ifc_site.extend([",#", str(self.__oid_site_placement)])  # ObjectPlacement
+
+        l_ifc_site.extend([",$",  # Representation
+                           ",$",  # LongName
+                           ",.ELEMENT."])  # CompositionType
+
+        # Koordinaten y (Grad, Minuten, Sekunden, Teilsekunden), x (Grad, Minuten, Sekunden, Teilsekunden)
+        l_ifc_site.extend([",", t_y_lat,  # RefLatitude
+                           ",", t_x_lon])  # RefLongditude
+
+        l_ifc_site.extend([",$",  # RefElevation
+                           ",$",  # LandTitleNumber
+                           ",$",  # SiteAddress
+                           ");"])
+        self.add_line_to_file_content("".join(l_ifc_site))
+        return oid
+
+    def create_ifc_local_placement(self, localPlacement, axisPlacement):
+        oid = self.__oid.get_new_oid()
+
+        if localPlacement == 0:
+            t_local_placement = "$"
+        else:
+            t_local_placement = "#{0}".format(localPlacement)
+
+        if axisPlacement == 0:
+            t_axis_placement = "$"
+        else:
+            t_axis_placement = ",#{0}".format(axisPlacement)
+
+        l_ifc_local_placement = ["#", str(oid), "=IFCLOCALPLACEMENT(",
+                                 t_local_placement,  # IfcObjectPlacement
+                                 t_axis_placement,  # IfcAxis2Placement
+                                 ");"]
+        self.add_line_to_file_content("".join(l_ifc_local_placement))
+        return oid
+
+    def create_ifc_rel_aggregates(self, relating_obj, l_reladed_obj):
+        oid = self.__oid.get_new_oid()
+
+        l_rel_aggregates = ["#", str(oid), "=IFCRELAGGREGATES("]
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="$", t_description="$")
+        l_rel_aggregates.extend(l_root_attributes)
+
+        l_rel_aggregates.extend([
+            ",#", str(relating_obj),
+            ", ("])
+
+        object_count = 0
+        for object in l_reladed_obj:
+            object_count += 1
+
+            if object_count > 1:
+                l_rel_aggregates.append(",")
+
+            l_rel_aggregates.extend(["#", str(object)])
+
+        l_rel_aggregates.append("));")
+
+        self.add_line_to_file_content("".join(l_rel_aggregates))
+        return oid
+
+    def get_guid(self, hex=False):
+        if not hex:
+            guid = uuid.uuid4()
+        else:
+            guid = uuid.uuid4().hex
+        return guid
+
+    # Gibt eine verkürzte IFC konvorme (22 Zeichen lange) GUID zurück
+    def compress_guid(self, t_hex_guid):
+        chars = string.digits + string.ascii_uppercase + string.ascii_lowercase + '_$'
+
+        bs = [int(t_hex_guid[i:i + 2], 16) for i in range(0, len(t_hex_guid), 2)]
+
+        def b64(v, l=4):
+            return ''.join([chars[(v // (64 ** i)) % 64] for i in range(l)][::-1])
+
+        return ''.join(
+            [b64(bs[0], 2)] + [b64((bs[i] << 16) + (bs[i + 1] << 8) + bs[i + 2]) for i in range(1, 16, 3)])
+
+    # method to end a section. Called to end header or data section
+    def end_section(self):
+        self.add_line_to_file_content("ENDSEC;")
+
+    # method to formally end the file
+    def end_file(self):
+        self.add_line_to_file_content("END-ISO-10303-21;")
+
+    # method write all lines to file and save it
+    def save_file(self):
+        self.create_ifc_rel_aggregates(self.__oid_site, self.__l_tree_oids)  # create relation: tree_objs to site
+        self.end_section()
+        self.end_file()
+        with open(self._filepath, "w") as outfile:
+            outfile.write(self.__file_content)
+
+    def add_tree_to_model(self, tree_model):
+        oid = self.__oid.get_new_oid()
+
+        tree_global_position = tree_model.get_position()
+        tree_gloabl_x, tree_global_y, tree_global_z = tree_global_position.get_coordinates()
+        tree_local_position = geometry.Point(0, 3,
+                                             tree_gloabl_x - self.__min_easting,
+                                             tree_global_y - self.__min_northing,
+                                             tree_global_z - self.__min_height)
+
+        axis_placement = self.create_ifc_axis_2_placement_3d(o_point=tree_local_position)
+        self.__oid_element_placement = self.create_ifc_local_placement(self.__oid_site_placement, axis_placement)
+
+        lod1model = tree_model.get_lod1model()
+        l_geom_oids, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
+        self.add_lines_to_file_content(l_geometry)
+
+        oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, l_geom_oids)
+        oid_ifc_product_definition_shape = self.create_ifc_product_definition_shape(["#"+str(oid_ifc_shape_representation)])
+
+        # Code to create IfcProxy for each tree
+        if self.__IfcVersion == "IFC4x1":
+            l_ifc_proxy = ["#", str(oid), "=IFCPROXY("]
+            l_ifc_proxy.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
+            l_ifc_proxy.extend([",$"])  # IfcLabel
+            l_ifc_proxy.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
+                                ",#", str(oid_ifc_product_definition_shape)])  # Representation
+            l_ifc_proxy.extend([",.PRODUCT.",  # ProxyType
+                                ",$",  #
+                                ");"])
+            self.add_line_to_file_content("".join(l_ifc_proxy))
+
+        # Code to create IfcPlant for each tree
+        elif self.__IfcVersion == "IFC4x3_RC1":
+            l_ifc_plant = ["#", str(oid), "=IFCPLANT("]
+            l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
+            l_ifc_plant.extend([",'tree'"])  # ObjectType
+            l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
+                                ",#", str(oid_ifc_product_definition_shape)])  # Representation
+            l_ifc_plant.extend([",'tree'"])  # Tag
+            l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
+            l_ifc_plant.extend([");"])
+            self.add_line_to_file_content("".join(l_ifc_plant))
+
+        l_property_oids = []
+
+        # Add class to parametrized tree model
+        classe = tree_model.get_class()
+        if classe is not None:
+            classe_oid = self.create_ifc_property_single_value("classe", classe)
+            l_property_oids.append(classe_oid)
+
+        # Add species to parametrized tree model
+        species = tree_model.get_species()
+        if species is not None:
+            species_oid = self.create_ifc_property_single_value("species", species)
+            l_property_oids.append(species_oid)
+
+        # Add hight attribute to parameterized tree model
+        height = tree_model.get_height()
+        if height is not None:
+            height_oid = self.create_ifc_property_single_value("height (m)", height)
+            l_property_oids.append(height_oid)
+
+        # Add trunk (stem) diameter attribute to parameterized tree model
+        trunkdiam = tree_model.get_trunkdiam()
+        if trunkdiam is not None:
+            trunk_oid = self.create_ifc_property_single_value("trunkDiameter (m)", trunkdiam)
+            l_property_oids.append(trunk_oid)
+
+        # Add crown diameter attribute to parameterized tree model
+        crowndiam = tree_model.get_crowndiam()
+        if crowndiam is not None:
+            crown_oid = self.create_ifc_property_single_value("crownDiameter (m)", crowndiam)
+            l_property_oids.append(crown_oid)
+
+        if self._generate_generic_attributes:
+            for _, key, value in tree_model.get_generics():
+                oid_propertyset = self.create_ifc_property_single_value(key, str(value))
+                l_property_oids.append(oid_propertyset)
+
+        if len(l_property_oids) > 0:
+            oid_propertyset = self.create_ifc_property_set(l_property_oids)
+            self.create_ifc_rel_defined_by_properties([oid], oid_propertyset)
+
+        self.__l_tree_oids.append(oid)
+
+    def create_ifc_shape_representation(self, representation_identifier, representation_type, l_oid_representation_items):
+        oid = self.__oid.get_new_oid()
+
+        t_geometric_representation_context = "#{0}".format(self.__oid_geometric_representation_context)
+        t_representation_items = ",".join(["#" + str(oid) for oid in l_oid_representation_items])
+
+        l_shape_representation = ["#", str(oid), "=IFCSHAPEREPRESENTATION(",
+                                  t_geometric_representation_context,  # RepresentationContext
+                                  ",'", str(representation_identifier), "','",  # RepresentationIdentifer
+                                  representation_type,  # RepresentationType
+                                  "',(", t_representation_items,  # RepresentationItems
+                                  "));"]
+
+        self.add_line_to_file_content("".join(l_shape_representation))
+        return oid
+
+    def create_ifc_product_definition_shape(self, l_representation_oids):
+        oid = self.__oid.get_new_oid()
+
+        l_product_definition_shape = ["#", str(oid), "=IFCPRODUCTDEFINITIONSHAPE(",
+                                      "$,",  # Name
+                                      "$,",  # Description
+                                      "(" + ",".join(l_representation_oids) + ")",  # representation
+                                      ");"
+                                      ]
+
+        self.add_line_to_file_content("".join(l_product_definition_shape))
+        return oid
+
+    def create_ifc_property_single_value(self, t_key, t_value):
+        oid = self.__oid.get_new_oid()
+
+        t_name = self.encode_step_string(str(t_key))
+        t_value = self.encode_step_string(str(t_value))
+
+        l_property_single_value = ["#", str(oid), "=IFCPROPERTYSINGLEVALUE(",
+                                   "'", t_name, "'",  # Name
+                                   ",$",  # Description
+                                   ", IFCLABEL('", t_value,  # NominalValue
+                                   "'),", "$",  # TODO: Unit in SIUNIT hinzufügen?
+                                   ");"]
+        self.add_line_to_file_content("".join(l_property_single_value))
+        return oid
+
+    def create_ifc_rel_defined_by_properties(self, l_oid_related_entity, oid_propertyset):
+        oid = self.__oid.get_new_oid()
+
+        l_rel_defined_by_properties = ["#", str(oid), "=IFCRELDEFINESBYPROPERTIES("]
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="$", t_description="$")
+        l_rel_defined_by_properties.extend(l_root_attributes)
+
+        l_rel_defined_by_properties.append(",(")
+
+        i_entity_count = 0
+        for element in l_oid_related_entity:
+            i_entity_count += 1
+            l_rel_defined_by_properties.extend(["#", str(element)])
+
+            if i_entity_count < len(l_oid_related_entity):
+                l_rel_defined_by_properties.append(",")
+
+        l_rel_defined_by_properties.extend(["),#", str(oid_propertyset)])
+
+        l_rel_defined_by_properties.append(");")
+        self.add_line_to_file_content("".join(l_rel_defined_by_properties))
+        return oid
+
+    def create_ifc_property_set(self, l_property_single_value_oids):
+        oid = self.__oid.get_new_oid()
+
+        l_property_set = ["#", str(oid), "=IFCPROPERTYSET("]
+
+        l_root_attributes = self.create_ifc_root_attributes(t_name="tree_properties", t_description="$")
+        l_property_set.extend(l_root_attributes)
+
+        l_property_set.append(",(")
+
+        i_property_count = 0
+        for property_id in l_property_single_value_oids:
+            i_property_count += 1
+
+            if i_property_count > 1:
+                l_property_set.append(",")
+
+            l_property_set.extend(["#", str(property_id)])
+        l_property_set.append("));")
+        self.add_line_to_file_content("".join(l_property_set))
+        return oid
+
+    def add_appearance(self, progressbar):
+        stem_surface_style_oid = self.get_ifc_surface_style("Stem", 0.47, 0.24, 0.0)
+        crown_deciduous_surface_style_oid = self.get_ifc_surface_style("deciduous crown", 0.26, 0.65, 0.15)
+        crown_coniferous_surface_style_oid = self.get_ifc_surface_style("coniferous crown", 0.08, 0.37, 0.0)
+
+        for stem_id in self._stem_ids:
+            self.get_ifc_styled_item("Stem", stem_id, stem_surface_style_oid)
+
+        for crown_id_deci in self._crown_deciduous_ids:
+            self.get_ifc_styled_item("crown_deciduous", crown_id_deci, crown_deciduous_surface_style_oid)
+
+        for crown_id_coni in self._crown_coniferous_ids:
+            self.get_ifc_styled_item("crown coniferous", crown_id_coni, crown_coniferous_surface_style_oid)
+
+    def get_ifc_styled_item(self, t_name, obj_oid, style_oid):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_styled_item = ["#", str(oid), "=IFCSTYLEDITEM(",
+                             "#", str(obj_oid),  # Item
+                             ",(", "#", str(style_oid), ")",  # Styles
+                             ",", "'", t_name, "'",  # Name
+                             ");"]
+        self.add_line_to_file_content("".join(l_ifc_styled_item))
+
+        return oid
+
+    def get_ifc_surface_style(self, t_name, red, green, blue):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_surface_style = ["#", str(oid), "=IFCSURFACESTYLE(",
+                               "'", t_name, "'",  # Name
+                               ",", ".BOTH.",  # Side
+                               ",(#", str(self.get_ifc_surface_style_shading(red, green, blue)), ")"  # Styles
+                               ");"]
+        self.add_line_to_file_content("".join(l_ifc_surface_style))
+
+        return oid
+
+    def get_ifc_surface_style_shading(self, red, green, blue):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_surface_style_shading = ["#", str(oid), "=IFCSURFACESTYLESHADING(",
+                                       "#", str(self.get_ifc_colour_rgb(red, green, blue)),  # SurfaceColor
+                                       ",", str(1.0),  # Transparency
+                                       ");"]
+        self.add_line_to_file_content("".join(l_ifc_surface_style_shading))
+
+        return oid
+
+    def get_ifc_colour_rgb(self, red, green, blue):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_colour_rgb = ["#", str(oid), "=IFCCOLOURRGB(",
+                            "$",  # Name
+                            ",", str(red),  # Red
+                            ",", str(green),  # Green
+                            ",", str(blue),  # Blue
+                            ");"]
+        self.add_line_to_file_content("".join(l_ifc_colour_rgb))
+
+        return oid
+
+
 # Class to create internal tree models
 # Tree models will later be converted into whatever export format is needed
 class TreeModel:
@@ -2149,7 +2998,7 @@ class TreeModel:
         return self.__lod4model
 
 
-# jölkj
+# method to generate a point geometry
 def generate_point_geometry(treemodel, geomtype):
     epsg_code = treemodel.get_position().get_epsg()
     if geomtype == "EXPLICIT":
@@ -2159,6 +3008,7 @@ def generate_point_geometry(treemodel, geomtype):
 
     point = geometry.Point(epsg_code, 3, coords[0], coords[1], coords[2])
     return point
+
 
 # method to generate a vertiecal line geometry
 def generate_line_geometry(treemodel, geomtype):
@@ -2264,7 +3114,7 @@ def generate_billboard_rectangle_geometry(treemodel, segments, geomtype):
 
 
 # generate billboard from polygon outlines for deciduous trees
-def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
+def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -2300,9 +3150,14 @@ def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
         cosx = math.cos(angle)
 
         # creating stem polygon
-        poly_id = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
-        stem_ids.append(poly_id)
-        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        if exp_format == "ifc":
+            poly_id_stem = IFC_OID.get_new_oid()
+            poly_id_crown = IFC_OID.get_new_oid()
+        else:
+            poly_id_stem = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
+            poly_id_crown = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
+        stem_ids.append(poly_id_stem)
+        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id_stem)
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz+delta))
@@ -2310,10 +3165,8 @@ def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         comp_poly.add_polygon(poly1)
 
-        # create crown polygon
-        poly_id = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
-        crown_ids.append(poly_id)
-        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        crown_ids.append(poly_id_crown)
+        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id_crown)
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz+delta))
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz + delta))
 
@@ -2338,7 +3191,7 @@ def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
 
 
 # generate billboard from polygon outlines for coniferous trees
-def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
+def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -2370,9 +3223,14 @@ def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
         cosx = math.cos(angle)
 
         # creating stem polygon
-        poly_id = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
-        stem_ids.append(poly_id)
-        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        if exp_format == "ifc":
+            poly_id_stem = IFC_OID.get_new_oid()
+            poly_id_crown = IFC_OID.get_new_oid()
+        else:
+            poly_id_stem = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
+            poly_id_crown = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
+        stem_ids.append(poly_id_stem)
+        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id_stem)
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz))
@@ -2380,10 +3238,8 @@ def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         comp_poly.add_polygon(poly1)
 
-        # creatin crown polygon
-        poly_id = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
-        crown_ids.append(poly_id)
-        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        crown_ids.append(poly_id_crown)
+        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id_crown)
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz))
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz))
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (crown_dm / 2.0), tree_y + sinx * (crown_dm / 2.0), laubansatz))
@@ -2396,7 +3252,7 @@ def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
 
 
 # method to generate the stem for cuboid geometries
-def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
+def generate_cuboid_geometry_stem(treemodel, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -2417,7 +3273,10 @@ def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
 
     solid = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_stem" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_stem" % (tree_id, lod)
     stem_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -2480,7 +3339,7 @@ def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
 
 
 # method to generate a cuboid geometry for deciduous trees
-def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
+def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod, exp_format):
 
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
@@ -2503,13 +3362,16 @@ def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
     comp_solid = geometry.CompositeSolid(epsg, 3)
 
     # --- generate stem geometry ---
-    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod)
+    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # --- generate crown geometry ---
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -2574,7 +3436,7 @@ def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
 
 
 # method to generate a cuboid geometry for deciduous trees
-def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
+def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -2596,13 +3458,16 @@ def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
     comp_solid = geometry.CompositeSolid(epsg, 3)
 
     # --- generate stem geometry ---
-    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod)
+    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # --- generate crown geometry ---
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -2653,12 +3518,15 @@ def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
 
 
 # generate stem for geometries: cylinder
-def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod):
+def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod, exp_format):
     stem_ids = []
 
     solid = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_stem" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_stem" % (tree_id, lod)
     stem_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -2702,7 +3570,7 @@ def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, lauban
 
 # generate most detailed geometry for coniferous trees
 # cylinder for stem, cone for crown
-def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
+def generate_geometry_coniferous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -2727,13 +3595,16 @@ def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
     comp_solid = geometry.CompositeSolid(epsg, 3)
 
     # generate stem geometry
-    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod)
+    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # generate crown geometry (cone)
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -2770,7 +3641,7 @@ def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
 
 # generate most detailed geometry for deciduous trees:
 # cylinder for stem, ellipsoid for crown
-def generate_geometry_deciduous(treemodel, segments, geomtype, lod):
+def generate_geometry_deciduous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -2797,13 +3668,16 @@ def generate_geometry_deciduous(treemodel, segments, geomtype, lod):
     delta = (tree_h - laubansatz) / 2.0 - (crown_height / 2.0) * math.cos(alpha)
 
     # generate stem geometry
-    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments, lod)
+    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # generate crown geometry (ellipsoid)
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 

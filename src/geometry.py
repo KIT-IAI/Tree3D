@@ -1,5 +1,6 @@
 from pyproj import CRS
 from pyproj import Transformer
+import math
 
 # do not delete this line of code
 # it is needed for PyInstaller to work with pyproj
@@ -41,6 +42,9 @@ class Geometry:
         """
         return self._dimension
 
+    def get_id(self):
+        return self._id
+
     def transform(self, transformer, to_epsg):
         """
         Method to transform Geometry to other Coordinate system.
@@ -57,6 +61,15 @@ class Geometry:
         Is overwritten in subclasses: Does Nothing
         :return: None
         """
+        pass
+
+    def get_cityjson_geometric_representation(self):
+        pass
+
+    def get_geojson_geometric_representation(self):
+        pass
+
+    def get_ifc_geometric_representation(self, oid_obj):
         pass
 
 
@@ -152,8 +165,39 @@ class Point(Geometry):
         return "MultiPoint", vertice_list, boundary_list
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of point coordinates
+        """
         pnt = [self.__x, self.__y, self.__z]
         return "Point", pnt
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of point oid, geometry list (list of strings), identifyer, type
+        """
+        if self._id is None:
+            oid = oid_obj.get_new_oid()
+        else:
+            oid = self._id
+
+        l_coords = self.get_coordinates()
+
+        if self.get_dimension() == 3:
+            t_endstring = ",{0}));".format(str(double_ifc_syntax(l_coords[2])))
+        else:
+            t_endstring = "));"
+
+        l_cartesion_point = ["#", str(oid), "=IFCCARTESIANPOINT((",
+                             str(double_ifc_syntax(l_coords[0])),
+                             ",", str(double_ifc_syntax(l_coords[1])),
+                             t_endstring]
+
+        l_ifc_geometry = ["".join(l_cartesion_point)]
+
+        return [oid], l_ifc_geometry, "CoG", "Point"
 
 
 class LineString(Geometry):
@@ -245,9 +289,39 @@ class LineString(Geometry):
         return "MultiLineString", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of point geometries
+        """
         _, start_point = self.__start.get_geojson_geometric_representation()
         _, end_point = self.__end.get_geojson_geometric_representation()
         return "LineString", [start_point, end_point]
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of polyline oid, geometry list (list of strings), identifyer, type
+        """
+        if self._id is None:
+            oid = oid_obj.get_new_oid()
+        else:
+            oid = self._id
+
+        l_ifc_geometry = []
+        l_pnt1_oid, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid_obj)
+        l_pnt2_oid, l_p2, _, _ = self.__end.get_ifc_geometric_representation(oid_obj)
+
+        l_ifc_geometry.extend(l_p1)
+        l_ifc_geometry.extend(l_p2)
+
+        l_polyline = ["#", str(oid), "=IFCPOLYLINE((",
+                      "#", str(l_pnt1_oid[0]),
+                      ",", "#", str(l_pnt2_oid[0]),
+                      "));"]
+        l_ifc_geometry.append("".join(l_polyline))
+
+        return [oid], l_ifc_geometry, "Axis", "Curve3D"
 
 
 class Polygon(Geometry):
@@ -356,6 +430,10 @@ class Polygon(Geometry):
         return "Surface", self.get_cityjson_vertices(), self.get_cityjson_boundaries()
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of polygon exterior
+        """
         polygon = []
         exterior = []
 
@@ -365,6 +443,44 @@ class Polygon(Geometry):
 
         polygon.append(exterior)
         return "Polygon", polygon
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of face oid, geometry list (list of strings), identifyer, type
+        """
+        l_ifc_geometry = []
+        l_pnt_oids = []
+
+        for i in range(0, len(self.__exterior)-1):
+            pnt_oid, l_pnt, _, _ = self.__exterior[i].get_ifc_geometric_representation(oid_obj)
+            l_ifc_geometry.extend(l_pnt)
+            l_pnt_oids.extend(pnt_oid)
+
+        polyloop_oid = oid_obj.get_new_oid()
+        l_polyloop = ["#", str(polyloop_oid), "=IFCPOLYLOOP((",
+                      ",".join(["#" + str(pnt_oid) for pnt_oid in l_pnt_oids]),
+                      "));"]
+        l_ifc_geometry.append("".join(l_polyloop))
+
+        facebound_oid = oid_obj.get_new_oid()
+        l_ifc_face_bound = ["#", str(facebound_oid), "=IFCFACEBOUND(",
+                            "#", str(polyloop_oid),
+                            ",", ".T.",
+                            ");"]
+        l_ifc_geometry.append("".join(l_ifc_face_bound))
+
+        if self._id is None:
+            face_oid = oid_obj.get_new_oid()
+        else:
+            face_oid = self._id
+        l_ifc_face = ["#", str(face_oid), "=IFCFACE((",
+                      "#", str(facebound_oid),
+                      "));"]
+        l_ifc_geometry.append("".join(l_ifc_face))
+
+        return [face_oid], l_ifc_geometry, "Surface", "Surface"
 
 
 class CompositePolygon(Geometry):
@@ -476,11 +592,85 @@ class CompositePolygon(Geometry):
         return "MultiSurface", vertices, boundaries
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of polygon geometries
+        """
         multi_poly = []
         for poly in self.__polygons:
             _, polygon = poly.get_geojson_geometric_representation()
             multi_poly.append(polygon)
         return "MultiPolygon", multi_poly
+
+    def get_ifc_faces(self, oid_obj):
+        """
+        Method to gernerate IfcFace for each polygon from MultiPolygon.
+        To be valid, all faces must form a closed shell
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of face oids, geometry list (List of strings)
+        """
+        l_ifc_geometry = []
+
+        l_face_oids = []
+        for polygon in self.__polygons:
+            l_face_oid, l_poly_geom, _, _ = polygon.get_ifc_geometric_representation(oid_obj)
+            l_ifc_geometry.extend(l_poly_geom)
+            l_face_oids.extend(l_face_oid)
+
+        return l_face_oids, l_ifc_geometry
+
+    def get_ifc_connected_face_set(self, oid_obj):
+        """
+        Method to gernerate IfcConnecteFaceSet from MultiPolygon.
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: oid of closed shell object, geometry list (List of strings)
+        """
+        l_face_oids, l_ifc_geometry = self.get_ifc_faces(oid_obj)
+
+        connected_face_set_oid = oid_obj.get_new_oid()
+        l_ifc_connected_face_set = ["#", str(connected_face_set_oid), "=IFCCONNECTEDFACESET((",
+                                    ",".join(["#" + str(face_oid) for face_oid in l_face_oids]),
+                                    "));"]
+        l_ifc_geometry.append("".join(l_ifc_connected_face_set))
+
+        return connected_face_set_oid, l_ifc_geometry
+
+    def get_ifc_closed_shell(self, oid_obj):
+        """
+        Method to gernerate IfcClosedShell from MultiPolygon.
+        To be valid, all faces must form a closed shell
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: oid of closed shell object, geometry list (List of strings)
+        """
+        l_face_oids, l_ifc_geometry = self.get_ifc_faces(oid_obj)
+
+        closed_shell_oid = oid_obj.get_new_oid()
+        l_ifc_closed_shell = ["#", str(closed_shell_oid), "=IFCCLOSEDSHELL((",
+                              ",".join(["#" + str(face_oid) for face_oid in l_face_oids]),
+                              "));"]
+        l_ifc_geometry.append("".join(l_ifc_closed_shell))
+
+        return closed_shell_oid, l_ifc_geometry
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of FaceBasedSurfaceModel oid, geometry list (list of strings), identifyer, type
+        """
+        connected_face_set_oid, l_ifc_geometry = self.get_ifc_connected_face_set(oid_obj)
+
+        if self._id is None:
+            ifc_face_based_surface_model_oid = oid_obj.get_new_oid()
+        else:
+            ifc_face_based_surface_model_oid = self._id
+
+        l_ifc_face_based_surface_model = ["#", str(ifc_face_based_surface_model_oid), "=IFCFACEBASEDSURFACEMODEL((",
+                                          "#", str(connected_face_set_oid),
+                                          "));"]
+        l_ifc_geometry.append("".join(l_ifc_face_based_surface_model))
+
+        return [ifc_face_based_surface_model_oid], l_ifc_geometry, "Body", "SurfaceModel"
 
 
 class Solid(Geometry):
@@ -552,8 +742,30 @@ class Solid(Geometry):
         return "Solid", vertices, boundaries
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of shell polygons
+        """
         typ, geom = self.__ExteriorCompositePolygon.get_geojson_geometric_representation()
         return typ, geom
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of FacetedBrep oid, geometry list (list of strings), identifyer, type
+        """
+        closed_shell_oid, l_ifc_geometry = self.__ExteriorCompositePolygon.get_ifc_closed_shell(oid_obj)
+
+        ifc_facted_brep_oid = self.__ExteriorCompositePolygon.get_id()
+        if ifc_facted_brep_oid is None:
+            ifc_facted_brep_oid = oid_obj.get_new_oid()
+        l_ifc_faceted_brep = ["#", str(ifc_facted_brep_oid), "=IFCFACETEDBREP(",
+                              "#", str(closed_shell_oid),
+                              ");"]
+        l_ifc_geometry.append("".join(l_ifc_faceted_brep))
+
+        return [ifc_facted_brep_oid], l_ifc_geometry, "Body", "Brep"
 
 
 class CompositeSolid(Geometry):
@@ -649,11 +861,109 @@ class CompositeSolid(Geometry):
         return "CompositeSolid", vertices, boundaris
 
     def get_geojson_geometric_representation(self):
+        """
+        Method to generate GeoJSON geometry
+        :return: Type, list of solid geometries
+        """
         multi_poly = []
         for solid in self.__Solids:
             _, multipoly = solid.get_geojson_geometric_representation()
             multi_poly.extend(multipoly)
         return "MultiPolygon", multi_poly
+
+    def get_ifc_geometric_representation(self, oid_obj):
+        """
+        Method to generate IFC geometry
+        :param oid_obj: export.IfcOid object to count OIDs
+        :return: list of FacetedBrep oids, geometry list (list of strings), identifyer, type
+        """
+        l_ifc_faceted_brep_odis = []
+        l_ifc_geometry = []
+
+        for solid in self.__Solids:
+            l_solid_oid, l_solid_geom, _, _ = solid.get_ifc_geometric_representation(oid_obj)
+            l_ifc_faceted_brep_odis.extend(l_solid_oid)
+            l_ifc_geometry.extend(l_solid_geom)
+
+        return l_ifc_faceted_brep_odis, l_ifc_geometry, "Body", "Brep"
+
+
+class Direction:
+    """
+    Class to represent a direction (vector)
+    """
+
+    def __init__(self, l_direction):
+        """
+        Initialize
+        :param l_direction: List of vector parts (x, y, z direction)
+        """
+        self.__fx = l_direction[0]
+        self.__fy = l_direction[1]
+        self.__fz = l_direction[2]
+
+    def get_dir_x(self):
+        """
+        Method to get x direction
+        :return: x part of direction
+        """
+        return self.__fx
+
+    def get_dir_y(self):
+        """
+        Method to get y part of direction
+        :return: y part of direction
+        """
+        return self.__fy
+
+    def get_dir_z(self):
+        """
+        Method to get z part of direction
+        :return: z part of direction
+        """
+        return self.__fz
+
+    def get_normalized_direction(self):
+        """
+        Method to normalize the direction vector
+        :return: New Direction object with length 1
+        """
+        f_length = self.get_length()
+        l_norm_dir = [self.__fx / f_length,
+                      self.__fy / f_length,
+                      self.__fz / f_length]
+        return Direction(l_norm_dir)
+
+    def get_length(self):
+        """
+        Method to calculate length of direction (of vector)
+        :return: length of vector
+        """
+        return math.sqrt(self.__fx * self.__fx + self.__fy * self.__fy + self.__fz * self.__fz)
+
+    def get_cross_product_with(self, o_dir_b):
+        """
+        Method to calculate crossproduct of vector
+        :param o_dir_b: second vector to build crossproduct with
+        :return: New Direction object
+        """
+        l_cross_dir = [self.__fy * o_dir_b.__fz - self.__fz * o_dir_b.__fy,
+                       self.__fz * o_dir_b.__fx - self.__fx * o_dir_b.__fz,
+                       self.__fx * o_dir_b.__fy - self.__fy * o_dir_b.__fx]
+        return Direction(l_cross_dir)
+
+    def get_norm_x_direction(self):
+        """
+        Method to calculate normalized x-direction to corresponding z-direction
+        :return:
+        """
+        o_norm_dir_z = self.get_normalized_direction()
+
+        o_dir_x_old_z = Direction([0, 0, 1])  # Annahme: x zeigt in globale z-Richtung
+        o_dir_y = o_norm_dir_z.get_cross_product_with(o_dir_x_old_z)  # Kreuzprodukt für y-Richtung
+        o_dir_x = self.get_cross_product_with(o_dir_y)  # Kreuzprodukt für um y-Achse gedrehte x-Richtung
+        o_norm_dir_x = o_dir_x.get_normalized_direction()
+        return o_norm_dir_x
 
 
 def get_cityjson_vertex_number(vertex_list):
@@ -745,3 +1055,14 @@ def get_transformer(from_epsg, to_epsg):
 
     trans = Transformer.from_crs(source_epsg, target_epsg)
     return trans
+
+
+def double_ifc_syntax(d_value):
+    int_part = math.ceil(d_value)
+
+    if math.fabs(d_value - int_part) < 0.000001:
+        d_formatted_value = "%d." % int_part
+        return d_formatted_value
+
+    d_formatted_value = "%f" % d_value
+    return d_formatted_value
