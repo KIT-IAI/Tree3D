@@ -315,7 +315,7 @@ class ExportDialog(default_gui.CityGmlExport):
         if self.use_appearance.GetValue():
             exporter.set_use_appearance(True)
 
-        if classname == "ExportDialogIfc":
+        if self._format == "ifc":
             exporter.generate_header()
             exporter.start_data_section()
 
