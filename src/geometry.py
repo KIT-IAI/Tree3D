@@ -42,6 +42,9 @@ class Geometry:
         """
         return self._dimension
 
+    def get_id(self):
+        return self._id
+
     def transform(self, transformer, to_epsg):
         """
         Method to transform Geometry to other Coordinate system.
@@ -175,7 +178,10 @@ class Point(Geometry):
         :param oid_obj: export.IfcOid object to count OIDs
         :return: list of point oid, geometry list (list of strings), identifyer, type
         """
-        oid = oid_obj.get_new_oid()
+        if self._id is None:
+            oid = oid_obj.get_new_oid()
+        else:
+            oid = self._id
 
         l_coords = self.get_coordinates()
 
@@ -297,7 +303,10 @@ class LineString(Geometry):
         :param oid_obj: export.IfcOid object to count OIDs
         :return: list of polyline oid, geometry list (list of strings), identifyer, type
         """
-        oid = oid_obj.get_new_oid()
+        if self._id is None:
+            oid = oid_obj.get_new_oid()
+        else:
+            oid = self._id
 
         l_ifc_geometry = []
         l_pnt1_oid, l_p1, _, _ = self.__start.get_ifc_geometric_representation(oid_obj)
@@ -462,7 +471,10 @@ class Polygon(Geometry):
                             ");"]
         l_ifc_geometry.append("".join(l_ifc_face_bound))
 
-        face_oid = oid_obj.get_new_oid()
+        if self._id is None:
+            face_oid = oid_obj.get_new_oid()
+        else:
+            face_oid = self._id
         l_ifc_face = ["#", str(face_oid), "=IFCFACE((",
                       "#", str(facebound_oid),
                       "));"]
@@ -648,7 +660,11 @@ class CompositePolygon(Geometry):
         """
         connected_face_set_oid, l_ifc_geometry = self.get_ifc_connected_face_set(oid_obj)
 
-        ifc_face_based_surface_model_oid = oid_obj.get_new_oid()
+        if self._id is None:
+            ifc_face_based_surface_model_oid = oid_obj.get_new_oid()
+        else:
+            ifc_face_based_surface_model_oid = self._id
+
         l_ifc_face_based_surface_model = ["#", str(ifc_face_based_surface_model_oid), "=IFCFACEBASEDSURFACEMODEL((",
                                           "#", str(connected_face_set_oid),
                                           "));"]
@@ -741,7 +757,9 @@ class Solid(Geometry):
         """
         closed_shell_oid, l_ifc_geometry = self.__ExteriorCompositePolygon.get_ifc_closed_shell(oid_obj)
 
-        ifc_facted_brep_oid = oid_obj.get_new_oid()
+        ifc_facted_brep_oid = self.__ExteriorCompositePolygon.get_id()
+        if ifc_facted_brep_oid is None:
+            ifc_facted_brep_oid = oid_obj.get_new_oid()
         l_ifc_faceted_brep = ["#", str(ifc_facted_brep_oid), "=IFCFACETEDBREP(",
                               "#", str(closed_shell_oid),
                               ");"]
