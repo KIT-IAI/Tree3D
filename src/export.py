@@ -17,6 +17,24 @@ import config
 import wx
 
 
+# class to store OID during export into IFC format
+# Object of this class is passed into geometry module so continuous OID generation is possible
+class IfcOid:
+    def __init__(self):
+        self.__oid = 1
+
+    def get_new_oid(self):
+        oid = self.__oid
+        self.__oid += 1
+        return oid
+
+    def reset(self):
+        self.__oid = 1
+
+
+IFC_OID = IfcOid()
+
+
 # parent GUI class for export dialog
 # provides export functionality, needed by all export formats
 # derived classes then make format-specific alterations to class
@@ -30,6 +48,17 @@ class ExportDialog(default_gui.CityGmlExport):
         self.__TreeTableName = self.GetParent().db.get_tree_table_name()
 
         self.__col_settings = self.GetParent().get_column_config()
+
+        classname = type(self).__name__
+        if classname == "ExportDialogCityGML":
+            export_format = "citygml"
+        elif classname == "ExportDialogCityJson":
+            export_format = "cityjson"
+        elif classname == "ExportDialogIfc":
+            export_format = "ifc"
+        else:
+            export_format = "geojson"
+        self._format = export_format
 
         self.populate_dropdown()
 
@@ -138,12 +167,11 @@ class ExportDialog(default_gui.CityGmlExport):
 
     # method to start export (in a new thread)
     def start_export(self):
-        classname = type(self).__name__
-        if classname == "ExportDialogCityGML":
+        if self._format == "citygml":
             exporter = CityGmlExport(self.__pathname, self.__dbpath)
-        elif classname == "ExportDialogCityJson":
+        elif self._format == "cityjson":
             exporter = CityJSONExport(self.__pathname, self.__dbpath)
-        elif classname == "ExportDialogIfc":
+        elif self._format == "ifc":
             exporter = IfcExport(self.__pathname, self.__dbpath, self.__IfcVersion)
         else:
             exporter = GeoJSONExport(self.__pathname, self.__dbpath)
@@ -153,6 +181,8 @@ class ExportDialog(default_gui.CityGmlExport):
 
         # configure if pretty print should be used in output file
         exporter.set_prettyprint(self.box_prettyprint.GetValue())
+
+        exporter.set_format(self._format)
 
         # configure x column index
         if self.choiceXvalue.GetSelection() != wx.NOT_FOUND:
@@ -797,6 +827,10 @@ class ExportDialogIfc(ExportDialog):
         dlg = wx.FileDialog(self, "Export as IFC", wildcard="IFC (*.ifc)|*.ifc", style=wx.FD_SAVE)
         return dlg
 
+    def on_export(self, event):
+        ExportDialog.on_export(self, event)
+        IFC_OID.reset()
+
 
 # Class to perform the export itself
 class Export:
@@ -806,6 +840,8 @@ class Export:
         self._TreeTableName = ""
 
         self._filepath = savepath  # output file path (where citygml will be saved)
+
+        self._format = None
 
         self._prettyprint = None  # boolean variable to determine if xml output should be formatted
 
@@ -851,6 +887,9 @@ class Export:
         self._stem_ids = []  # stores ids of all trunk geometries
         self._crown_deciduous_ids = []  # stores ids of all deciduous crown geometries
         self._crown_coniferous_ids = []  # stores ids of all coniferous crown geometries
+
+    def set_format(self, exp_format):
+        self._format = exp_format
 
     # method to set option if pretty print should be used
     def set_prettyprint(self, value):
@@ -1139,34 +1178,34 @@ class Export:
             geom_obj = generate_billboard_rectangle_geometry(treemodel, segments, self._geom_type)
         elif geomtype == 3:
             if self.__class_col_index is not None and tree_class == 1060:
-                geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod, self._format)
             elif self.__class_col_index is not None and tree_class == 1070:
-                geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod, self._format)
             else:
                 if self._default_export_type == 1060:
-                    geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_coni = generate_billboard_polygon_coniferous(treemodel, segments, self._geom_type, lod, self._format)
                 elif self._default_export_type == 1070:
-                    geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_deci = generate_billboard_polygon_deciduous(treemodel, segments, self._geom_type, lod, self._format)
         elif geomtype == 4:
             if self.__class_col_index is not None and tree_class == 1060:
-                geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod, self._format)
             elif self.__class_col_index is not None and tree_class == 1070:
-                geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod, self._format)
             else:
                 if self._default_export_type == 1060:
-                    geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_coni = generate_cuboid_geometry_coniferous(treemodel, self._geom_type, lod, self._format)
                 elif self._default_export_type == 1070:
-                    geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_deci = generate_cuboid_geometry_deciduous(treemodel, self._geom_type, lod, self._format)
         elif geomtype == 5:
             if self.__class_col_index is not None and tree_class == 1060:
-                geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod, self._format)
             elif self.__class_col_index is not None and tree_class == 1070:
-                geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+                geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod, self._format)
             else:
                 if self._default_export_type == 1060:
-                    geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_coni = generate_geometry_coniferous(treemodel, segments, self._geom_type, lod, self._format)
                 elif self._default_export_type == 1070:
-                    geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod)
+                    geom_obj, stem_ids, crown_ids_deci = generate_geometry_deciduous(treemodel, segments, self._geom_type, lod, self._format)
         elif geomtype == 6:
             geom_obj = generate_point_geometry(treemodel, self._geom_type)
 
@@ -2134,7 +2173,7 @@ class IfcExport(Export):
 
         self.__IfcVersion = ifc_version
 
-        self.__oid = IfcOid()
+        self.__oid = IFC_OID
         self.__oid_organization = 0
         self.__oid_owner_history = 0
         self.__oid_site_placement = 0
@@ -2796,6 +2835,68 @@ class IfcExport(Export):
         self.add_line_to_file_content("".join(l_property_set))
         return oid
 
+    def add_appearance(self, progressbar):
+        stem_surface_style_oid = self.get_ifc_surface_style("Stem", 0.47, 0.24, 0.0)
+        crown_deciduous_surface_style_oid = self.get_ifc_surface_style("deciduous crown", 0.26, 0.65, 0.15)
+        crown_coniferous_surface_style_oid = self.get_ifc_surface_style("coniferous crown", 0.08, 0.37, 0.0)
+
+        for stem_id in self._stem_ids:
+            self.get_ifc_styled_item("Stem", stem_id, stem_surface_style_oid)
+
+        for crown_id_deci in self._crown_deciduous_ids:
+            self.get_ifc_styled_item("crown_deciduous", crown_id_deci, crown_deciduous_surface_style_oid)
+
+        for crown_id_coni in self._crown_coniferous_ids:
+            self.get_ifc_styled_item("crown coniferous", crown_id_coni, crown_coniferous_surface_style_oid)
+
+    def get_ifc_styled_item(self, t_name, obj_oid, style_oid):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_styled_item = ["#", str(oid), "=IFCSTYLEDITEM(",
+                             "#", str(obj_oid),  # Item
+                             ",(", "#", str(style_oid), ")",  # Styles
+                             ",", "'", t_name, "'",  # Name
+                             ");"]
+        self.add_line_to_file_content("".join(l_ifc_styled_item))
+
+        return oid
+
+    def get_ifc_surface_style(self, t_name, red, green, blue):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_surface_style = ["#", str(oid), "=IFCSURFACESTYLE(",
+                               "'", t_name, "'",  # Name
+                               ",", ".BOTH.",  # Side
+                               ",(#", str(self.get_ifc_surface_style_shading(red, green, blue)), ")"  # Styles
+                               ");"]
+        self.add_line_to_file_content("".join(l_ifc_surface_style))
+
+        return oid
+
+    def get_ifc_surface_style_shading(self, red, green, blue):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_surface_style_shading = ["#", str(oid), "=IFCSURFACESTYLESHADING(",
+                                       "#", str(self.get_ifc_colour_rgb(red, green, blue)),  # SurfaceColor
+                                       ",", str(1.0),  # Transparency
+                                       ");"]
+        self.add_line_to_file_content("".join(l_ifc_surface_style_shading))
+
+        return oid
+
+    def get_ifc_colour_rgb(self, red, green, blue):
+        oid = self.__oid.get_new_oid()
+
+        l_ifc_colour_rgb = ["#", str(oid), "=IFCCOLOURRGB(",
+                            "$",  # Name
+                            ",", str(red),  # Red
+                            ",", str(green),  # Green
+                            ",", str(blue),  # Blue
+                            ");"]
+        self.add_line_to_file_content("".join(l_ifc_colour_rgb))
+
+        return oid
+
 
 # Class to create internal tree models
 # Tree models will later be converted into whatever export format is needed
@@ -2895,18 +2996,6 @@ class TreeModel:
 
     def get_lod4model(self):
         return self.__lod4model
-
-
-# class to store OID during export into IFC format
-# Object of this class is passed into geometry module so continuous OID generation is possible
-class IfcOid:
-    def __init__(self):
-        self.__oid = 1
-
-    def get_new_oid(self):
-        oid = self.__oid
-        self.__oid += 1
-        return oid
 
 
 # method to generate a point geometry
@@ -3025,7 +3114,7 @@ def generate_billboard_rectangle_geometry(treemodel, segments, geomtype):
 
 
 # generate billboard from polygon outlines for deciduous trees
-def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
+def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -3061,9 +3150,14 @@ def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
         cosx = math.cos(angle)
 
         # creating stem polygon
-        poly_id = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
-        stem_ids.append(poly_id)
-        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        if exp_format == "ifc":
+            poly_id_stem = IFC_OID.get_new_oid()
+            poly_id_crown = IFC_OID.get_new_oid()
+        else:
+            poly_id_stem = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
+            poly_id_crown = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
+        stem_ids.append(poly_id_stem)
+        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id_stem)
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz+delta))
@@ -3071,10 +3165,8 @@ def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         comp_poly.add_polygon(poly1)
 
-        # create crown polygon
-        poly_id = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
-        crown_ids.append(poly_id)
-        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        crown_ids.append(poly_id_crown)
+        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id_crown)
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz+delta))
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz + delta))
 
@@ -3099,7 +3191,7 @@ def generate_billboard_polygon_deciduous(treemodel, segments, geomtype, lod):
 
 
 # generate billboard from polygon outlines for coniferous trees
-def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
+def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -3131,9 +3223,14 @@ def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
         cosx = math.cos(angle)
 
         # creating stem polygon
-        poly_id = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
-        stem_ids.append(poly_id)
-        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        if exp_format == "ifc":
+            poly_id_stem = IFC_OID.get_new_oid()
+            poly_id_crown = IFC_OID.get_new_oid()
+        else:
+            poly_id_stem = "%s_%s_stempolygon%s" % (tree_id, lod, str(segment))
+            poly_id_crown = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
+        stem_ids.append(poly_id_stem)
+        poly1 = geometry.Polygon(epsg, 3, geom_id=poly_id_stem)
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), ref_h))
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz))
@@ -3141,10 +3238,8 @@ def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
         poly1.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, ref_h))
         comp_poly.add_polygon(poly1)
 
-        # creatin crown polygon
-        poly_id = "%s_%s_crownpolygon%s" % (tree_id, lod, str(segment))
-        crown_ids.append(poly_id)
-        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id)
+        crown_ids.append(poly_id_crown)
+        poly2 = geometry.Polygon(epsg, 3, geom_id=poly_id_crown)
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x, tree_y, laubansatz))
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (stem_dm / 2.0), tree_y + sinx * (stem_dm / 2.0), laubansatz))
         poly2.exterior_add_point(geometry.Point(epsg, 3, tree_x + cosx * (crown_dm / 2.0), tree_y + sinx * (crown_dm / 2.0), laubansatz))
@@ -3157,7 +3252,7 @@ def generate_billboard_polygon_coniferous(treemodel, segments, geomtype, lod):
 
 
 # method to generate the stem for cuboid geometries
-def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
+def generate_cuboid_geometry_stem(treemodel, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -3178,7 +3273,10 @@ def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
 
     solid = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_stem" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_stem" % (tree_id, lod)
     stem_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -3241,7 +3339,7 @@ def generate_cuboid_geometry_stem(treemodel, geomtype, lod):
 
 
 # method to generate a cuboid geometry for deciduous trees
-def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
+def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod, exp_format):
 
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
@@ -3264,13 +3362,16 @@ def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
     comp_solid = geometry.CompositeSolid(epsg, 3)
 
     # --- generate stem geometry ---
-    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod)
+    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # --- generate crown geometry ---
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -3335,7 +3436,7 @@ def generate_cuboid_geometry_deciduous(treemodel, geomtype, lod):
 
 
 # method to generate a cuboid geometry for deciduous trees
-def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
+def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -3357,13 +3458,16 @@ def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
     comp_solid = geometry.CompositeSolid(epsg, 3)
 
     # --- generate stem geometry ---
-    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod)
+    solid1, stem_ids = generate_cuboid_geometry_stem(treemodel, geomtype, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # --- generate crown geometry ---
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -3414,12 +3518,15 @@ def generate_cuboid_geometry_coniferous(treemodel, geomtype, lod):
 
 
 # generate stem for geometries: cylinder
-def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod):
+def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod, exp_format):
     stem_ids = []
 
     solid = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_stem" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_stem" % (tree_id, lod)
     stem_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -3463,7 +3570,7 @@ def generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, lauban
 
 # generate most detailed geometry for coniferous trees
 # cylinder for stem, cone for crown
-def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
+def generate_geometry_coniferous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -3488,13 +3595,16 @@ def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
     comp_solid = geometry.CompositeSolid(epsg, 3)
 
     # generate stem geometry
-    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod)
+    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz, segments, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # generate crown geometry (cone)
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
@@ -3531,7 +3641,7 @@ def generate_geometry_coniferous(treemodel, segments, geomtype, lod):
 
 # generate most detailed geometry for deciduous trees:
 # cylinder for stem, ellipsoid for crown
-def generate_geometry_deciduous(treemodel, segments, geomtype, lod):
+def generate_geometry_deciduous(treemodel, segments, geomtype, lod, exp_format):
     pos = treemodel.get_position()
     epsg = pos.get_epsg()
     tree_id = treemodel.get_id()
@@ -3558,13 +3668,16 @@ def generate_geometry_deciduous(treemodel, segments, geomtype, lod):
     delta = (tree_h - laubansatz) / 2.0 - (crown_height / 2.0) * math.cos(alpha)
 
     # generate stem geometry
-    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments, lod)
+    solid1, stem_ids = generate_geometry_stem(epsg, tree_id, tree_x, tree_y, ref_h, stem_dm, laubansatz+delta, segments, lod, exp_format)
     comp_solid.add_solid(solid1)
 
     # generate crown geometry (ellipsoid)
     solid2 = geometry.Solid(epsg, 3)
 
-    geom_id = "%s_%s_crown" % (tree_id, lod)
+    if exp_format == "ifc":
+        geom_id = IFC_OID.get_new_oid()
+    else:
+        geom_id = "%s_%s_crown" % (tree_id, lod)
     crown_ids.append(geom_id)
     comp_poly = geometry.CompositePolygon(epsg, 3, geom_id=geom_id)
 
