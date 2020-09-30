@@ -165,21 +165,7 @@ class MainTableFrame(default_gui.MainWindow):
                                self.db.get_data())
 
         # Enable menu items
-        self.export_citygml.Enable(True)
-        self.export_cityjson.Enable(True)
-        self.export_geojson.Enable(True)
-        self.export_ifc_4x1.Enable(True)
-        self.export_ifc_4x3.Enable(True)
-        self.reset_col_position.Enable(True)
-        self.reset_col_visiblity.Enable(True)
-        self.dublicates.Enable(True)
-        self.duplicateGeom.Enable(True)
-        self.validateGeom.Enable(True)
-        self.add_geom_col.Enable(True)
-        self.vegetation_code.Enable(True)
-        self.add_height_dem.Enable(True)
-        self.add_height_default.Enable(True)
-        self.add_pointcloud_parameters.Enable(True)
+        self.enable_menu_items(True)
 
     # method to be called when "Get trees from osm" is called
     def on_menu_get_osm_trees(self, event):
@@ -225,45 +211,33 @@ class MainTableFrame(default_gui.MainWindow):
                                self.db.get_number_of_tablerecords(),
                                self.db.get_data())
 
-        # Enable menu items
-        self.export_citygml.Enable(True)
-        self.export_cityjson.Enable(True)
-        self.export_geojson.Enable(True)
-        self.export_ifc_4x1.Enable(True)
-        self.export_ifc_4x3.Enable(True)
-        self.reset_col_position.Enable(True)
-        self.reset_col_visiblity.Enable(True)
-        self.dublicates.Enable(True)
-        self.duplicateGeom.Enable(True)
-        self.validateGeom.Enable(True)
-        self.add_geom_col.Enable(True)
-        self.vegetation_code.Enable(True)
-        self.add_height_dem.Enable(True)
-        self.add_height_default.Enable(True)
-        self.add_pointcloud_parameters.Enable(True)
+        self.enable_menu_items(True)
 
         self.__column_settings.set_id("OSM_ID")
         self.__column_settings.set_coordinates("X_VALUE", "Y_VALUE")
+
+    def enable_menu_items(self, b_value):
+        self.export_citygml.Enable(b_value)
+        self.export_cityjson.Enable(b_value)
+        self.export_geojson.Enable(b_value)
+        self.export_ifc_4x1.Enable(b_value)
+        self.export_ifc_4x3.Enable(b_value)
+        self.reset_col_position.Enable(b_value)
+        self.reset_col_visiblity.Enable(b_value)
+        self.dublicates.Enable(b_value)
+        self.duplicateGeom.Enable(b_value)
+        self.validateGeom.Enable(b_value)
+        self.add_geom_col.Enable(b_value)
+        self.vegetation_code.Enable(b_value)
+        self.add_height_dem.Enable(b_value)
+        self.add_height_default.Enable(b_value)
+        self.add_pointcloud_parameters.Enable(b_value)
 
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
     def reset_program(self):
         # Disable menu items
-        self.export_citygml.Enable(False)
-        self.export_cityjson.Enable(False)
-        self.export_geojson.Enable(False)
-        self.export_ifc_4x1.Enable(False)
-        self.export_ifc_4x3.Enable(False)
-        self.reset_col_position.Enable(False)
-        self.reset_col_visiblity.Enable(False)
-        self.dublicates.Enable(False)
-        self.duplicateGeom.Enable(False)
-        self.validateGeom.Enable(False)
-        self.add_geom_col.Enable(False)
-        self.vegetation_code.Enable(False)
-        self.add_height_dem.Enable(False)
-        self.add_height_default.Enable(False)
-        self.add_pointcloud_parameters.Enable(False)
+        self.enable_menu_items(False)
 
         # Disable Grid visibility
         self.table_view_panel.grid.Show(False)
