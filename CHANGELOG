@@ -1,0 +1,11 @@
+* tree3d version 1.2 (September 30, 2020)
+    * Added IFC export (v4.1 and 4.3)
+    * Added OSM import
+* tree3d version 1.1 (June 18, 2020)
+    * Added CityJSON export
+    * Added GeoJSON export
+    * Added "Point" as geometric export option
+    * Improved usability
+    * Bugs fixed
+* tree3d version 1.0 (April 15, 2020)
+    * Bachelor thesis project by Jonas Hurst
