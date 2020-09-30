@@ -1170,7 +1170,7 @@ class License(default_gui.LicenseDialog):
         elif mode == "about":
             self.SetTitle("About (tree3d v1.2)")
             t_text = "tree3d version 1.2 (September 30, 2020\n" \
-                     "- Added IFC export (v4.0 and v4.3)\n" \
+                     "- Added IFC export (v4.1 and v4.3)\n" \
                      "- Added OSM import\n\n" \
                      "tree3d version: 1.1 (June 18, 2020)\n" \
                      "- Aded CityJSON export\n" \
