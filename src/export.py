@@ -679,7 +679,7 @@ class ExportDialogCityGML(ExportDialog):
 
     # method to generate browse dialog in export gui
     def load_browse_dialog(self):
-        dlg = wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.citygml)|*.citygml", style=wx.FD_SAVE)
+        dlg = wx.FileDialog(self, "Export as CityGML", wildcard="CityGML (*.gml)|*.gml", style=wx.FD_SAVE)
         return dlg
 
 
