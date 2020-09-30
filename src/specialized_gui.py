@@ -20,8 +20,6 @@ import export
 import enrichment
 import config
 
-from OsmMapWindow.OSM_win import MapFrame
-
 
 class MainTableFrame(default_gui.MainWindow):
 
@@ -231,6 +229,8 @@ class MainTableFrame(default_gui.MainWindow):
         self.export_citygml.Enable(True)
         self.export_cityjson.Enable(True)
         self.export_geojson.Enable(True)
+        self.export_ifc_4x1.Enable(True)
+        self.export_ifc_4x3.Enable(True)
         self.reset_col_position.Enable(True)
         self.reset_col_visiblity.Enable(True)
         self.dublicates.Enable(True)
