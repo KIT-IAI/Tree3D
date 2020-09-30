@@ -9,6 +9,9 @@ import wx.aui
 import wx.lib.agw.aui as aui
 import wx.grid
 
+# import requests package to get OSM data
+import requests
+
 # import project classes
 import default_gui
 import data
@@ -16,6 +19,8 @@ import analysis
 import export
 import enrichment
 import config
+
+from OsmMapWindow.OSM_win import MapFrame
 
 
 class MainTableFrame(default_gui.MainWindow):
@@ -177,6 +182,68 @@ class MainTableFrame(default_gui.MainWindow):
         self.add_height_dem.Enable(True)
         self.add_height_default.Enable(True)
         self.add_pointcloud_parameters.Enable(True)
+
+    # method to be called when "Get trees from osm" is called
+    def on_menu_get_osm_trees(self, event):
+        self.reset_program()
+
+        dialog = OpenStreetMapImportDialog(self)
+        if dialog.ShowModal() != 1234:
+            return
+
+        self.db = data.DatabaseFromOSM()
+
+        bbox_upper, bbox_left, bbox_lower, bbox_right = dialog.get_bbox()
+        epsg = dialog.get_epsg()
+        self.db.set_query_bbox(bbox_lower, bbox_left, bbox_upper, bbox_right, epsg)
+
+        import_success = True
+        text = ""
+
+        try:
+            self.db.import_osm_trees()
+            n = self.db.get_number_of_tablerecords()
+            text = "OSM Import successfull.\n" \
+                   "%s trees in request" % n
+        except requests.ConnectionError:
+            import_success = False
+            text = "Importing trees from OpenStreetMap failed!\n" \
+                   "Could not establish connection to OSM server."
+        except requests.Timeout:
+            import_success = False
+            text = "Importing trees from OpenStreetMap failed!\n" \
+                   "Connection timed out."
+        except requests.TooManyRedirects:
+            import_success = False
+            text = "Importing trees from OpenStreetMap failed!\n" \
+                   "Too many Redirects."
+        finally:
+            msg = wx.MessageDialog(self, text, style=wx.OK | wx.CENTRE)
+            msg.ShowModal()
+            if not import_success:
+                return
+
+        self.show_data_in_grid(self.db.get_number_of_columns(),
+                               self.db.get_number_of_tablerecords(),
+                               self.db.get_data())
+
+        # Enable menu items
+        self.export_citygml.Enable(True)
+        self.export_cityjson.Enable(True)
+        self.export_geojson.Enable(True)
+        self.reset_col_position.Enable(True)
+        self.reset_col_visiblity.Enable(True)
+        self.dublicates.Enable(True)
+        self.duplicateGeom.Enable(True)
+        self.validateGeom.Enable(True)
+        self.add_geom_col.Enable(True)
+        self.vegetation_code.Enable(True)
+        self.add_height_dem.Enable(True)
+        self.add_height_default.Enable(True)
+        self.add_pointcloud_parameters.Enable(True)
+
+        self.__column_settings.set_id("OSM_ID")
+        self.__column_settings.set_coordinates("X_VALUE", "Y_VALUE")
 
     # method to reset program to a state similar to after startup
     # needed for example when a file was opened already and a new file will now be opened
@@ -887,6 +954,189 @@ class OpenDialogXML(OpenDialog):
         if self.__Root.findall(self.treepath.GetValue() + self.geompath.GetValue()[1:], self.__ns):
             valid = True
         return valid
+
+
+class OpenStreetMapImportDialog(default_gui.OpenStreetMapDialog):
+    def __init__(self, parent):
+        default_gui.OpenStreetMapDialog.__init__(self, parent)
+        self.__upper_bound = None
+        self.__left_bound = None
+        self.__lower_bound = None
+        self.__right_bound = None
+
+        self.__epsg = None
+
+        self.on_reference_system_change(None)
+        self.DoLayoutAdaptation()
+
+    def validate_input(self):
+        valid = True
+        msg = ""
+
+        try:
+            float(self.input_right_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Right bound input is not a decimal number"
+
+        try:
+            float(self.input_lower_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Lower bound input is not a decimal number"
+
+        try:
+            float(self.input_left_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Left bound input is not a decimal number"
+
+        try:
+            float(self.input_upper_bound.GetValue().replace(";", "."))
+        except ValueError:
+            valid = False
+            msg = "Upper bound input is not a decimal number"
+
+        if valid:
+            if float(self.input_left_bound.GetValue().replace(";", ".")) >= float(self.input_right_bound.GetValue().replace(";", ".")):
+                valid = False
+                msg = "Right bound must be greater than Left bound"
+
+            if float(self.input_lower_bound.GetValue().replace(";", ".")) >= float(self.input_upper_bound.GetValue().replace(";", ".")):
+                valid = False
+                msg = "Upper bound must be greater than lower bound "
+
+        return valid, msg
+
+    # validate coordinates, if epsg is 4326
+    def validate_4326_coordiantes(self):
+        left_bound = float(self.input_left_bound.GetValue().replace(";", "."))
+        right_bound = float(self.input_right_bound.GetValue().replace(";", "."))
+        upper_bound = float(self.input_upper_bound.GetValue().replace(";", "."))
+        lower_bound = float(self.input_lower_bound.GetValue().replace(";", "."))
+
+        valid = True
+        msg = ""
+
+        if not 35 < upper_bound < 70:
+            valid = False
+            msg = "Upper bound out of coordinate bounds.\n" \
+                  "Must be between 35 and 70."
+
+        if not 35 < lower_bound < 70:
+            valid = False
+            msg = "Lower bound out of coordinate bounds.\n" \
+                  "Must be between 35 and 70."
+
+        if not -18 < left_bound < 36:
+            valid = False
+            msg = "Left bound out of coordinate bounds.\n" \
+                  "Must be between -18 and 36."
+
+        if not -18 < right_bound < 36:
+            valid = False
+            msg = "Right bound out of coordinate bounds.\n" \
+                  "Must be between -18 and 36."
+
+        return valid, msg
+
+    # method to be called when import button is pressed
+    def on_import(self, event):
+        valid, msg = self.validate_input()
+        if not valid:
+            dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
+            dlg.ShowModal()
+            return
+
+        self.__upper_bound = float(self.input_upper_bound.GetValue().replace(";", "."))
+        self.__left_bound = float(self.input_left_bound.GetValue().replace(";", "."))
+        self.__lower_bound = float(self.input_lower_bound.GetValue().replace(";", "."))
+        self.__right_bound = float(self.input_right_bound.GetValue().replace(";", "."))
+
+        # dictionary to match selected reference system (by its index in dropdown menu) to its epsg
+        epsg_lookup = {0: 4326,
+                       1: 5676,
+                       2: 5677,
+                       3: 5678,
+                       4: 5679}
+
+        epsg = epsg_lookup[self.ref_system.GetSelection()]
+
+        if epsg != 4326:
+            self.__epsg = epsg
+        else:
+            # further validation for WGS84 coordinates
+            valid, msg = self.validate_4326_coordiantes()
+            if not valid:
+                dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
+                dlg.ShowModal()
+                return
+            self.__epsg = epsg
+
+        self.EndModal(1234)
+
+    # method to be called when user makes a change in reference system dropdown window
+    # deletes all coordinate entries
+    def on_reference_system_change(self, event):
+        dropdown_position = self.ref_system.GetSelection()
+
+        bbox_coordinates = []
+
+        # fill GUI with example coordinates
+        if dropdown_position == 0:
+            bbox_coordinates.extend(["49.018171", "8.357677", "48.993284", "8.447971"])
+        elif dropdown_position == 1:
+            bbox_coordinates.extend(["5630004.5", "2501259.3", "5622655.5", "2511948.0"])
+        elif dropdown_position == 2:
+            bbox_coordinates.extend(["5432299.84", "3452598.08", "5427830.30", "3460412.96"])
+        elif dropdown_position == 3:
+            bbox_coordinates.extend(["5487798.1", "4424941.2", "5473854.7", "4438884.6"])
+        elif dropdown_position == 4:
+            bbox_coordinates.extend(["5739458.8", "5450629.9", "5734239.7", "5458220.7"])
+
+        self.input_upper_bound.SetValue(bbox_coordinates[0])
+        self.input_left_bound.SetValue(bbox_coordinates[1])
+        self.input_lower_bound.SetValue(bbox_coordinates[2])
+        self.input_right_bound.SetValue(bbox_coordinates[3])
+
+    # returns bounding box entered by user
+    def get_bbox(self):
+        return self.__upper_bound, self.__left_bound, self.__lower_bound, self.__right_bound
+
+    # returns epsg code of used reference system
+    def get_epsg(self):
+        return self.__epsg
+
+    def on_copy_from_clipboard( self, event ):
+        clp = wx.Clipboard()
+
+        if clp.Open():
+            text_data = wx.TextDataObject()
+            success = wx.TheClipboard.GetData(text_data)
+            wx.TheClipboard.Close()
+            if success:
+                input_string = text_data.GetText()
+            else:
+                input_string = "error_while_copying error_while_copying error_while_copying error_while_copying"
+        else:
+            input_string = "error_while_copying error_while_copying error_while_copying error_while_copying"
+
+        input_string = input_string.replace("\r\n", " ")
+        input_string = input_string.replace("\r", " ")
+        input_string = input_string.replace("\n", " ")
+        input_string = input_string.strip()
+        bbox_coordinates = input_string.split()
+        if len(bbox_coordinates) == 4:
+            self.input_upper_bound.SetValue(bbox_coordinates[0])
+            self.input_left_bound.SetValue(bbox_coordinates[1])
+            self.input_lower_bound.SetValue(bbox_coordinates[2])
+            self.input_right_bound.SetValue(bbox_coordinates[3])
+        else:
+            msg = "Cannot paste data from clipboard.\n" \
+                  "There must be exactly four coordinates.\n" \
+                  "Coordinates must be seperated by whitespace or line break."
+            dlg = wx.MessageDialog(self, msg, style=wx.OK | wx.CENTRE)
+            dlg.ShowModal()
 
 
 class License(default_gui.LicenseDialog):
