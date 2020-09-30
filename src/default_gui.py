@@ -1089,7 +1089,7 @@ class CityGmlExport ( wx.Dialog ):
 		self.epsg.SetMaxLength( 6 )
 		self.epsg.SetToolTip( u"enter epsg code of coordinate reference system" )
 
-		fgSizer7.Add( self.epsg, 0, wx.ALL, 5 )
+		fgSizer7.Add( self.epsg, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		sbSizer4.Add( fgSizer7, 1, wx.EXPAND, 5 )
@@ -1097,7 +1097,7 @@ class CityGmlExport ( wx.Dialog ):
 
 		fgSizer4.Add( sbSizer4, 1, wx.EXPAND, 5 )
 
-		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML SolitaryVegetationObject attributes" ), wx.VERTICAL )
+		sbSizer3 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Tree attributes" ), wx.VERTICAL )
 
 		fgSizer6 = wx.FlexGridSizer( 5, 4, 0, 0 )
 		fgSizer6.SetFlexibleDirection( wx.BOTH )
@@ -1214,7 +1214,7 @@ class CityGmlExport ( wx.Dialog ):
 
 		fgSizer4.Add( sbSizer3, 1, wx.EXPAND, 5 )
 
-		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML geometric modelling options" ), wx.VERTICAL )
+		sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Geometric modelling options" ), wx.VERTICAL )
 
 		fgSizer29 = wx.FlexGridSizer( 3, 4, 0, 0 )
 		fgSizer29.SetFlexibleDirection( wx.BOTH )
@@ -1297,7 +1297,7 @@ class CityGmlExport ( wx.Dialog ):
 
 		fgSizer4.Add( sbSizer2, 1, wx.EXPAND, 5 )
 
-		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Level-Of-Detail options" ), wx.VERTICAL )
+		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Level-Of-Detail options" ), wx.VERTICAL )
 
 		fgSizer28 = wx.FlexGridSizer( 4, 4, 0, 0 )
 		fgSizer28.SetFlexibleDirection( wx.BOTH )
@@ -1405,9 +1405,9 @@ class CityGmlExport ( wx.Dialog ):
 
 		fgSizer4.Add( sbSizer11, 1, wx.EXPAND, 5 )
 
-		sbSizer13 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"CityGML Appearance model" ), wx.VERTICAL )
+		sbSizer13 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Appearance" ), wx.VERTICAL )
 
-		self.use_appearance = wx.CheckBox( sbSizer13.GetStaticBox(), wx.ID_ANY, u"Assign X3D-Materials for visualization (Use CityGML Appearance model)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.use_appearance = wx.CheckBox( sbSizer13.GetStaticBox(), wx.ID_ANY, u"Assign materials for visualization", wx.DefaultPosition, wx.DefaultSize, 0 )
 		sbSizer13.Add( self.use_appearance, 0, wx.ALL, 5 )
 
 

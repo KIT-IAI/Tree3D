@@ -6120,7 +6120,7 @@
                 </object>
             </object>
         </object>
-        <object class="Dialog" expanded="0">
+        <object class="Dialog" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -6146,7 +6146,7 @@
             <property name="window_extra_style"></property>
             <property name="window_name"></property>
             <property name="window_style"></property>
-            <object class="wxFlexGridSizer" expanded="0">
+            <object class="wxFlexGridSizer" expanded="1">
                 <property name="cols">1</property>
                 <property name="flexible_direction">wxBOTH</property>
                 <property name="growablecols"></property>
@@ -6846,7 +6846,7 @@
                                 </object>
                                 <object class="sizeritem" expanded="0">
                                     <property name="border">5</property>
-                                    <property name="flag">wxALL</property>
+                                    <property name="flag">wxALL|wxEXPAND</property>
                                     <property name="proportion">0</property>
                                     <object class="wxTextCtrl" expanded="0">
                                         <property name="BottomDockable">1</property>
@@ -6918,7 +6918,7 @@
                     <property name="proportion">1</property>
                     <object class="wxStaticBoxSizer" expanded="0">
                         <property name="id">wxID_ANY</property>
-                        <property name="label">CityGML SolitaryVegetationObject attributes</property>
+                        <property name="label">Tree attributes</property>
                         <property name="minimum_size"></property>
                         <property name="name">sbSizer3</property>
                         <property name="orient">wxVERTICAL</property>
@@ -7992,7 +7992,7 @@
                     <property name="proportion">1</property>
                     <object class="wxStaticBoxSizer" expanded="0">
                         <property name="id">wxID_ANY</property>
-                        <property name="label">CityGML geometric modelling options</property>
+                        <property name="label">Geometric modelling options</property>
                         <property name="minimum_size"></property>
                         <property name="name">sbSizer2</property>
                         <property name="orient">wxVERTICAL</property>
@@ -8643,7 +8643,7 @@
                     <property name="proportion">1</property>
                     <object class="wxStaticBoxSizer" expanded="0">
                         <property name="id">wxID_ANY</property>
-                        <property name="label">CityGML Level-Of-Detail options</property>
+                        <property name="label">Level-Of-Detail options</property>
                         <property name="minimum_size"></property>
                         <property name="name">sbSizer11</property>
                         <property name="orient">wxVERTICAL</property>
@@ -9695,7 +9695,7 @@
                     <property name="proportion">1</property>
                     <object class="wxStaticBoxSizer" expanded="0">
                         <property name="id">wxID_ANY</property>
-                        <property name="label">CityGML Appearance model</property>
+                        <property name="label">Appearance</property>
                         <property name="minimum_size"></property>
                         <property name="name">sbSizer13</property>
                         <property name="orient">wxVERTICAL</property>
@@ -9734,7 +9734,7 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Assign X3D-Materials for visualization (Use CityGML Appearance model)</property>
+                                <property name="label">Assign materials for visualization</property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
