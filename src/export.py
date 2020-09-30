@@ -2169,7 +2169,7 @@ class IfcExport(Export):
 
     def __init__(self, savepath, dbfilepath, ifc_version):
         Export.__init__(self, savepath, dbfilepath)
-        self.__file_content = ""
+        self.__file = open(self._filepath, "w")
 
         self.__IfcVersion = ifc_version
 
@@ -2193,7 +2193,7 @@ class IfcExport(Export):
     # line must be a string
     # \n is added in method
     def add_line_to_file_content(self, line):
-        self.__file_content += line + "\n"
+        self.__file.write(line+"\n")
 
     # method to add multiple lines to file
     # l_lines must be a list of strings
@@ -2655,8 +2655,7 @@ class IfcExport(Export):
         self.create_ifc_rel_aggregates(self.__oid_site, self.__l_tree_oids)  # create relation: tree_objs to site
         self.end_section()
         self.end_file()
-        with open(self._filepath, "w") as outfile:
-            outfile.write(self.__file_content)
+        self.__file.close()
 
     def add_tree_to_model(self, tree_model):
         oid = self.__oid.get_new_oid()
@@ -2672,11 +2671,16 @@ class IfcExport(Export):
         self.__oid_element_placement = self.create_ifc_local_placement(self.__oid_site_placement, axis_placement)
 
         lod1model = tree_model.get_lod1model()
-        l_geom_oids, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
-        self.add_lines_to_file_content(l_geometry)
+        if lod1model is not None:
+            l_geom_oids, l_geometry, representation_identifier, representation_type = lod1model.get_ifc_geometric_representation(self.__oid)
+            self.add_lines_to_file_content(l_geometry)
 
-        oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, l_geom_oids)
-        oid_ifc_product_definition_shape = self.create_ifc_product_definition_shape(["#"+str(oid_ifc_shape_representation)])
+            oid_ifc_shape_representation = self.create_ifc_shape_representation(representation_identifier, representation_type, l_geom_oids)
+            oid_ifc_product_definition_shape = self.create_ifc_product_definition_shape(["#"+str(oid_ifc_shape_representation)])
+
+            t_representation = "#" + str(oid_ifc_product_definition_shape)
+        else:
+            t_representation = "$"
 
         # Code to create IfcProxy for each tree
         if self.__IfcVersion == "IFC4x1":
@@ -2684,7 +2688,7 @@ class IfcExport(Export):
             l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
             l_ifc_plant.extend([",'tree'"])  # ObjectType
             l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
-                                ",#", str(oid_ifc_product_definition_shape)])  # Representation
+                                ",", t_representation])  # Representation
             l_ifc_plant.extend([",'tree'"])  # Tag
             l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
             l_ifc_plant.extend([");"])
@@ -2695,7 +2699,7 @@ class IfcExport(Export):
             l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
             l_ifc_plant.extend([",'tree'"])  # ObjectType
             l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
-                                ",#", str(oid_ifc_product_definition_shape)])  # Representation
+                                ",", t_representation])  # Representation
             l_ifc_plant.extend([",'tree'"])  # Tag
             l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
             l_ifc_plant.extend([");"])
