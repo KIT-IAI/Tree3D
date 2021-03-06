@@ -2682,8 +2682,19 @@ class IfcExport(Export):
         else:
             t_representation = "$"
 
-        # Code to create IfcProxy for each tree
-        if self.__IfcVersion == "IFC4x1":
+        # Code to create IfcGeographicElement for each tree
+        if self.__IfcVersion == "IFC4":
+            l_ifc_plant = ["#", str(oid), "=IFCGEOGRAPHICELEMENT("]
+            l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
+            l_ifc_plant.extend([",'tree'"])  # ObjectType
+            l_ifc_plant.extend([",#", str(self.__oid_element_placement),  # ObjectPlacement
+                                ",", t_representation])  # Representation
+            l_ifc_plant.extend([",'tree'"])  # Tag
+            l_ifc_plant.extend([",.USERDEFINED."])  # PredefinedType
+            l_ifc_plant.extend([");"])
+
+        # Code to create IfcGeographicElement for each tree
+        else if self.__IfcVersion == "IFC4x1":
             l_ifc_plant = ["#", str(oid), "=IFCGEOGRAPHICELEMENT("]
             l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
             l_ifc_plant.extend([",'tree'"])  # ObjectType
@@ -2694,7 +2705,7 @@ class IfcExport(Export):
             l_ifc_plant.extend([");"])
 
         # Code to create IfcPlant for each tree
-        elif self.__IfcVersion == "IFC4x3_RC1":
+        elif self.__IfcVersion == "IFC4x3_RC3":
             l_ifc_plant = ["#", str(oid), "=IFCPLANT("]
             l_ifc_plant.extend(self.create_ifc_root_attributes(t_name=tree_model.get_id()))
             l_ifc_plant.extend([",'tree'"])  # ObjectType
