@@ -220,6 +220,7 @@ class MainTableFrame(default_gui.MainWindow):
         self.export_citygml.Enable(b_value)
         self.export_cityjson.Enable(b_value)
         self.export_geojson.Enable(b_value)
+        self.export_ifc_4.Enable(b_value)
         self.export_ifc_4x1.Enable(b_value)
         self.export_ifc_4x3.Enable(b_value)
         self.reset_col_position.Enable(b_value)
@@ -597,6 +598,11 @@ class MainTableFrame(default_gui.MainWindow):
 
     def on_menu_export_geojson(self, event):
         dlg = export.ExportDialogGeoJson(self)
+        dlg.ShowModal()
+
+    def on_menu_export_ifc_4(self, event):
+        dlg = export.ExportDialogIfc(self)
+        dlg.set_ifc_version("IFC4")
         dlg.ShowModal()
 
     def on_menu_export_ifc_4x1(self, event):
