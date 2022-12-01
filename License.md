@@ -19,6 +19,7 @@ Basic licenses of imported modules:
   specialized_gui.py  
     import request    -->  Apache 2.0 License: https://spdx.org/licenses/AGPL-3.0-or-later.html  
 
+---
 
                   GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
