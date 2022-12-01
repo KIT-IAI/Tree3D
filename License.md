@@ -14,10 +14,10 @@ Basic licenses of imported modules:
   * import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html  
 
   geometry.py  
-  *import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html  
+  * import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html  
 
   specialized_gui.py  
-  *import request    -->  Apache 2.0 License: https://spdx.org/licenses/AGPL-3.0-or-later.html  
+  * import request    -->  Apache 2.0 License: https://spdx.org/licenses/AGPL-3.0-or-later.html  
 
 ---
 
