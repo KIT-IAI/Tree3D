@@ -2,9 +2,9 @@ The software is licensed under GNU Lesser General Public License v2.1 or later
 SPDX: https://spdx.org/licenses/LGPL-2.1-or-later.html#licenseText
 
 
-Copyright 2020-2022, Copyright Owner: Karlsruhe Institute of Technology (KIT) 
-Author: Jonas Hurst, Andreas Geiger 
-Contact: andreas.geiger@kit.edu, Institute for Automation and Applied Informatics 
+Copyright 2020-2022, Copyright Owner: Karlsruhe Institute of Technology (KIT)  
+Author: Jonas Hurst, Andreas Geiger  
+Contact: andreas.geiger@kit.edu, Institute for Automation and Applied Informatics  
 
 
 Basic licenses of imported modules:
