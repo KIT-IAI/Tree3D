@@ -9,15 +9,15 @@ Contact: andreas.geiger@kit.edu, Institute for Automation and Applied Informatic
 
 Basic licenses of imported modules:
 
-  data.py: 
-    import request    -->  Apache 2.0  License: https://spdx.org/licenses/AGPL-3.0-or-later.html 
-    import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html 
+  data.py:  
+    import request    -->  Apache 2.0  License: https://spdx.org/licenses/AGPL-3.0-or-later.html  
+    import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html  
 
-  geometry.py 
-    import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html 
+  geometry.py  
+    import pyproj     -->  MIT License: https://spdx.org/licenses/MIT.html  
 
-  specialized_gui.py 
-    import request    -->  Apache 2.0 License: https://spdx.org/licenses/AGPL-3.0-or-later.html 
+  specialized_gui.py  
+    import request    -->  Apache 2.0 License: https://spdx.org/licenses/AGPL-3.0-or-later.html  
 
 
                   GNU LESSER GENERAL PUBLIC LICENSE
